@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes } from "react";
 
-export type VarianteBotao = "primario" | "escuro" | "sucesso" | "contorno" | "perigo" | "fantasma";
+export type VarianteBotao =
+  "primario" | "escuro" | "sucesso" | "contorno" | "perigo" | "perigoCheio" | "fantasma";
 
 /** Estilos dos botões do mockup (docs/ui-ux.md). Exportado para links com cara de botão. */
 export const ESTILOS_BOTAO: Record<VarianteBotao, string> = {
@@ -9,6 +10,7 @@ export const ESTILOS_BOTAO: Record<VarianteBotao, string> = {
   sucesso: "bg-sucesso text-white hover:opacity-90",
   contorno: "border border-borda bg-superficie text-texto hover:bg-fundo",
   perigo: "bg-transparent text-perigo hover:bg-perigo-suave",
+  perigoCheio: "bg-perigo text-white hover:opacity-90",
   fantasma: "bg-transparent text-primaria hover:bg-primaria-suave",
 };
 

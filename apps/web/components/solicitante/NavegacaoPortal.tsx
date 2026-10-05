@@ -23,14 +23,20 @@ const ITENS: ItemNav[] = [
   },
 ];
 
-const consultarAguardando = async (fonte: FonteDeDados) =>
-  (await fonte.listarChamados({ escopo: "meus", encerrados: false })).filter(
-    (c) => c.status === "aguardando_usuario",
-  ).length;
+/** Chamados que pedem atenção: esperando resposta do solicitante ou com mensagem nova da TI. */
+const consultarPendencias = async (fonte: FonteDeDados) => {
+  const [abertos, naoLidos] = await Promise.all([
+    fonte.listarChamados({ escopo: "meus", encerrados: false }),
+    fonte.listarNaoLidos(),
+  ]);
+  const ids = new Set(naoLidos);
+  for (const c of abertos) if (c.status === "aguardando_usuario") ids.add(c.id);
+  return ids.size;
+};
 
-/** Contador laranja do mockup: chamados esperando resposta do solicitante. */
+/** Contador laranja do mockup no item "Meus chamados". */
 function useContadorPendencias(): number {
-  return useConsulta(consultarAguardando).dados ?? 0;
+  return useConsulta(consultarPendencias).dados ?? 0;
 }
 
 function Contador({ valor }: { valor: number }) {

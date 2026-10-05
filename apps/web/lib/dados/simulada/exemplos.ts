@@ -4,10 +4,13 @@
 // o banco calcula em horas úteis.
 
 import type {
+  Anexo,
   CampoForm,
   Categoria,
   Chamado,
   EventoHistorico,
+  Leitura,
+  Mensagem,
   StatusChamado,
   TipoCampo,
 } from "@/lib/dominio/tipos";
@@ -552,12 +555,14 @@ export function gerarHistoricoExemplo(chamados: readonly Chamado[]): EventoHisto
       criadoEm: c.criadoEm,
     });
     if (c.responsavelId) {
+      // Transferido: quem assumiu foi o técnico de origem (no exemplo, o Thiago).
+      const quemAssumiu = c.status === "transferido" ? THIAGO : c.responsavelId;
       const assumidoEm = new Date(
         (new Date(c.criadoEm).getTime() + new Date(c.atualizadoEm).getTime()) / 2,
       ).toISOString();
       eventos.push({
         chamadoId: c.id,
-        autorId: c.responsavelId,
+        autorId: quemAssumiu,
         acao: "assumido",
         de: "pendente",
         para: "em_andamento",
@@ -570,4 +575,164 @@ export function gerarHistoricoExemplo(chamados: readonly Chamado[]): EventoHisto
   return eventos
     .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm))
     .map((e, i) => ({ ...e, id: i + 1 }));
+}
+
+type EventoExtra = Omit<EventoHistorico, "id" | "criadoEm"> & { ha: number };
+type MensagemExemplo = Omit<Mensagem, "id" | "criadoEm"> & { ha: number };
+
+/**
+ * Conversas de exemplo (minutos atrás). O #41 reproduz o chat do mockup (telas 5 e 7),
+ * incluindo a nota interna que a Ana não pode ver e a resposta do Rafael ainda não lida por ela.
+ */
+export function gerarConversasExemplo(agora: Date): {
+  mensagens: Mensagem[];
+  eventos: Omit<EventoHistorico, "id">[];
+  leituras: Leitura[];
+  anexos: Anexo[];
+} {
+  const em = (ha: number) => new Date(agora.getTime() - ha * 60_000).toISOString();
+
+  const mensagens: MensagemExemplo[] = [
+    {
+      chamadoId: 41,
+      autorId: RAFAEL,
+      interna: true,
+      ha: 20,
+      conteudo:
+        "Caixa da Ana com 49,8 GB de 50 GB. Se no navegador também não aparecer, arquivar itens anteriores a 2024.",
+    },
+    {
+      chamadoId: 41,
+      autorId: RAFAEL,
+      interna: false,
+      ha: 12,
+      conteudo:
+        "Bom dia, Ana! Consegue abrir o Outlook pelo navegador, em outlook.office.com, e me dizer se os e-mails novos aparecem lá?",
+    },
+    {
+      chamadoId: 38,
+      autorId: RAFAEL,
+      interna: false,
+      ha: 20 * H,
+      conteudo: "Oi, Ana! Já pedi a licença do AutoCAD. Assim que liberar eu instalo remotamente.",
+    },
+    { chamadoId: 38, autorId: ANA, interna: false, ha: 19 * H, conteudo: "Combinado, obrigada!" },
+    {
+      chamadoId: 31,
+      autorId: THIAGO,
+      interna: false,
+      ha: 2 * H,
+      conteudo: "Paula, qual é o caminho exato da pasta? Pode mandar um print?",
+    },
+    {
+      chamadoId: 33,
+      autorId: THIAGO,
+      interna: true,
+      ha: 3 * H,
+      conteudo: "Certificado da VPN dele venceu. Gerar outro e mandar por e-mail.",
+    },
+    {
+      chamadoId: 35,
+      autorId: RAFAEL,
+      interna: false,
+      ha: 3 * DIA + 30,
+      conteudo: "Troquei o HD por um SSD. Deve ficar bem mais rápido agora.",
+    },
+  ];
+
+  const eventos: EventoExtra[] = [
+    {
+      chamadoId: 41,
+      autorId: RAFAEL,
+      acao: "status_alterado",
+      de: "em_andamento",
+      para: "aguardando_usuario",
+      detalhe: {},
+      publico: true,
+      ha: 12,
+    },
+    {
+      chamadoId: 31,
+      autorId: THIAGO,
+      acao: "status_alterado",
+      de: "em_andamento",
+      para: "aguardando_usuario",
+      detalhe: {},
+      publico: true,
+      ha: 2 * H,
+    },
+    {
+      chamadoId: 39,
+      autorId: THIAGO,
+      acao: "transferido",
+      de: "em_andamento",
+      para: "transferido",
+      detalhe: {
+        para_responsavel_id: RAFAEL,
+        motivo: "Rafael cuida das contas de novos colaboradores.",
+      },
+      publico: false,
+      ha: 1 * H,
+    },
+    {
+      chamadoId: 35,
+      autorId: RAFAEL,
+      acao: "concluido",
+      de: "em_andamento",
+      para: "concluido",
+      detalhe: {},
+      publico: true,
+      ha: 3 * DIA,
+    },
+    {
+      chamadoId: 30,
+      autorId: THIAGO,
+      acao: "concluido",
+      de: "em_andamento",
+      para: "concluido",
+      detalhe: {},
+      publico: true,
+      ha: 2 * DIA,
+    },
+    {
+      chamadoId: 32,
+      autorId: BRUNO,
+      acao: "cancelado",
+      de: "pendente",
+      para: "cancelado",
+      detalhe: { motivo: "Achei um headset sobrando no setor." },
+      publico: true,
+      ha: 4 * DIA - 30,
+    },
+  ];
+
+  // Ana leu tudo do #38 e do #35; a resposta do #41 ainda não ("• Nova mensagem").
+  const leituras: Leitura[] = [
+    { chamadoId: 38, profileId: ANA, lidoAte: em(19 * H) },
+    { chamadoId: 35, profileId: ANA, lidoAte: em(3 * DIA) },
+  ];
+
+  // Print colado pela Ana na abertura do #41 (mockup). Sem arquivo real: a tela mostra só o nome.
+  const anexos: Anexo[] = [
+    {
+      id: "exemplo-41-print",
+      chamadoId: 41,
+      mensagemId: null,
+      nome: "print-20261005-084510.png",
+      mime: "image/png",
+      tamanho: 245_000,
+      origem: "colado",
+      enviadoPor: ANA,
+      criadoEm: em(2 * H),
+    },
+  ];
+
+  return {
+    anexos,
+    mensagens: mensagens
+      .sort((a, b) => b.ha - a.ha)
+      .map(({ ha, ...m }, i) => ({ ...m, id: i + 1, criadoEm: em(ha) })),
+    eventos: eventos.map(({ ha, ...e }) => ({ ...e, criadoEm: em(ha) })),
+    leituras,
+  };
 }

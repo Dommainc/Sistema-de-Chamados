@@ -115,6 +115,13 @@ export interface Mensagem {
   criadoEm: string;
 }
 
+/** Registro de public.chamado_leituras: até quando a conversa foi lida. */
+export interface Leitura {
+  chamadoId: number;
+  profileId: string;
+  lidoAte: string;
+}
+
 export function estaEncerrado(status: StatusChamado): boolean {
   return STATUS_ENCERRADOS.includes(status);
 }

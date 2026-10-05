@@ -22,16 +22,21 @@ export function imagensColadas(dados: DataTransfer | null): File[] {
 
 /**
  * Arquivos escolhidos/colados antes de enviar: valida (mesmas mensagens da API), dá nome aos prints
- * e cria miniaturas. Persiste no rascunho para sobreviver ao "Voltar".
+ * e cria miniaturas. Com `persistir`, guarda no rascunho do "Abrir chamado" para sobreviver ao "Voltar".
  */
-export function useArquivosSelecionados() {
+export function useArquivosSelecionados({ persistir = true }: { persistir?: boolean } = {}) {
   const { mostrarErro } = useToast();
-  const [arquivos, setArquivos] = useState<ArquivoSelecionado[]>(lerArquivosRascunho);
+  const [arquivos, setArquivos] = useState<ArquivoSelecionado[]>(() =>
+    persistir ? lerArquivosRascunho() : [],
+  );
 
-  const atualizar = useCallback((proximos: ArquivoSelecionado[]) => {
-    salvarArquivosRascunho(proximos);
-    setArquivos(proximos);
-  }, []);
+  const atualizar = useCallback(
+    (proximos: ArquivoSelecionado[]) => {
+      if (persistir) salvarArquivosRascunho(proximos);
+      setArquivos(proximos);
+    },
+    [persistir],
+  );
 
   const adicionar = useCallback(
     (novos: File[], origem: OrigemAnexo) => {
@@ -72,5 +77,8 @@ export function useArquivosSelecionados() {
     [arquivos, atualizar],
   );
 
-  return { arquivos, adicionar, remover };
+  /** Depois de enviar: esvazia sem revogar as miniaturas (a mensagem otimista ainda as usa). */
+  const esvaziar = useCallback(() => atualizar([]), [atualizar]);
+
+  return { arquivos, adicionar, remover, esvaziar };
 }

@@ -23,20 +23,27 @@ function infoDoCanto(c: Chamado, responsavel: PerfilPublico | undefined): string
 export function ListaMeusChamados() {
   const [aba, setAba] = useState<Aba>("andamento");
   const consultar = useCallback(async (fonte: FonteDeDados) => {
-    const [chamados, perfis] = await Promise.all([
+    const [chamados, perfis, naoLidos] = await Promise.all([
       fonte.listarChamados({ escopo: "meus" }),
       fonte.listarPerfisPublicos(),
+      fonte.listarNaoLidos(),
     ]);
-    return { chamados, perfis: new Map(perfis.map((p) => [p.id, p])) };
+    return {
+      chamados,
+      perfis: new Map(perfis.map((p) => [p.id, p])),
+      naoLidos: new Set(naoLidos),
+    };
   }, []);
   const { dados, erro, carregando } = useConsulta(consultar);
 
   const encerrado = (c: Chamado) => c.status === "concluido" || c.status === "cancelado";
   const emAndamento = dados?.chamados.filter((c) => !encerrado(c)) ?? [];
   const encerrados = dados?.chamados.filter(encerrado) ?? [];
-  // Quem espera resposta vem primeiro.
+  // Quem pede atenção (espera resposta ou tem mensagem nova) vem primeiro.
+  const atencao = (c: Chamado) =>
+    Number(c.status === "aguardando_usuario" || Boolean(dados?.naoLidos.has(c.id)));
   const lista = [...(aba === "andamento" ? emAndamento : encerrados)].sort(
-    (a, b) => Number(b.status === "aguardando_usuario") - Number(a.status === "aguardando_usuario"),
+    (a, b) => atencao(b) - atencao(a),
   );
 
   return (
@@ -65,6 +72,7 @@ export function ListaMeusChamados() {
       <ul className="flex flex-col gap-3">
         {lista.map((c) => {
           const aguardando = c.status === "aguardando_usuario";
+          const novaMensagem = dados?.naoLidos.has(c.id) ?? false;
           const canto = infoDoCanto(
             c,
             c.responsavelId ? dados?.perfis.get(c.responsavelId) : undefined,
@@ -79,7 +87,14 @@ export function ListaMeusChamados() {
                   <span className="font-mono font-semibold text-texto-suave">
                     {formatarNumeroChamado(c.id)}
                   </span>
-                  {canto ? <span className="text-texto-suave">{canto}</span> : null}
+                  {novaMensagem ? (
+                    <span className="flex items-center gap-1.5 font-semibold text-primaria">
+                      <span aria-hidden="true" className="size-2 rounded-full bg-primaria" />
+                      Nova mensagem
+                    </span>
+                  ) : canto ? (
+                    <span className="text-texto-suave">{canto}</span>
+                  ) : null}
                 </div>
                 <span className="text-lg font-semibold">{c.titulo}</span>
                 <div className="flex items-center justify-between gap-2">

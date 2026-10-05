@@ -2,13 +2,20 @@
 // (BroadcastChannel) para simular o tempo real. Sem navegador (servidor/testes), fica só em memória.
 // Os arquivos anexados ficam à parte, no IndexedDB (./arquivos.ts).
 
-import type { Anexo, Chamado, EventoHistorico, Mensagem, Perfil } from "@/lib/dominio/tipos";
+import type {
+  Anexo,
+  Chamado,
+  EventoHistorico,
+  Leitura,
+  Mensagem,
+  Perfil,
+} from "@/lib/dominio/tipos";
 import { apagarTodosOsArquivos } from "./arquivos";
-import { gerarChamadosExemplo, gerarHistoricoExemplo } from "./exemplos";
+import { gerarChamadosExemplo, gerarConversasExemplo, gerarHistoricoExemplo } from "./exemplos";
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 3;
+const VERSAO = 4;
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 
@@ -19,17 +26,23 @@ export interface EstadoSimulado {
   historico: EventoHistorico[];
   mensagens: Mensagem[];
   anexos: Anexo[];
+  leituras: Leitura[];
 }
 
 export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
   const chamados = gerarChamadosExemplo(agora);
+  const conversas = gerarConversasExemplo(agora);
+  const historico = [...gerarHistoricoExemplo(chamados), ...conversas.eventos]
+    .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm))
+    .map((e, i) => ({ ...e, id: i + 1 }));
   return {
     versao: VERSAO,
     perfis: [...USUARIOS_SIMULADOS, ...OUTROS_PERFIS_EXEMPLO].map((u) => ({ ...u })),
     chamados,
-    historico: gerarHistoricoExemplo(chamados),
-    mensagens: [],
-    anexos: [],
+    historico,
+    mensagens: conversas.mensagens,
+    anexos: conversas.anexos,
+    leituras: conversas.leituras,
   };
 }
 

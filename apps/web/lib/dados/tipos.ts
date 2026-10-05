@@ -4,9 +4,12 @@
 
 import type { ModoFonteDados } from "@/lib/dados/config";
 import type {
+  Anexo,
   CampoForm,
   Categoria,
   Chamado,
+  EventoHistorico,
+  Mensagem,
   OrigemAnexo,
   Papel,
   Perfil,
@@ -76,6 +79,14 @@ export interface ChamadoCriado {
   prazoSla: string;
 }
 
+export interface NovaMensagem {
+  chamadoId: number;
+  conteudo: string;
+  /** Nota interna (só a TI vê). Solicitante → SEM_PERMISSAO. */
+  interna?: boolean;
+  anexos: ArquivoNovo[];
+}
+
 export interface FonteDeDados {
   readonly modo: ModoFonteDados;
 
@@ -99,6 +110,27 @@ export interface FonteDeDados {
   /** SEM_PERMISSAO se não puder ver; CHAMADO_NAO_ENCONTRADO só para a TI. */
   obterChamado(id: number): Promise<Chamado>;
   obterContadores(): Promise<Contadores>;
+
+  /** Conversa do chamado. Solicitante nunca recebe notas internas (RLS). */
+  listarMensagens(chamadoId: number): Promise<Mensagem[]>;
+  /** Linha do tempo. Solicitante só recebe eventos públicos (RLS). */
+  listarHistorico(chamadoId: number): Promise<EventoHistorico[]>;
+  /** Anexos visíveis (os de nota interna não chegam ao solicitante). */
+  listarAnexos(chamadoId: number): Promise<Anexo[]>;
+  /** URL temporária para ver/baixar o arquivo; nulo se o arquivo não estiver disponível. */
+  abrirAnexo(anexoId: string): Promise<string | null>;
+  /**
+   * POST /chamados/{id}/mensagens. Erros: CAMPO_OBRIGATORIO (sem texto nem anexo),
+   * TRANSICAO_INVALIDA (encerrado), SEM_PERMISSAO, MENSAGEM_NAO_ENVIADA (falha de envio).
+   * Resposta do solicitante em aguardando_usuario volta o chamado para em_andamento.
+   */
+  enviarMensagem(dados: NovaMensagem): Promise<Mensagem>;
+  /** POST /chamados/{id}/cancelar. Erros: MOTIVO_OBRIGATORIO, CANCELAMENTO_NAO_PERMITIDO... */
+  cancelarChamado(chamadoId: number, motivo: string): Promise<void>;
+  /** Marca a conversa como lida por mim (tabela chamado_leituras). */
+  marcarComoLido(chamadoId: number): Promise<void>;
+  /** Números dos meus chamados com mensagem da TI ainda não lida ("• Nova mensagem"). */
+  listarNaoLidos(): Promise<number[]>;
 
   /** Avisa quando os dados mudarem (simula o Realtime). Devolve a função para cancelar. */
   aoMudar(callback: () => void): () => void;
