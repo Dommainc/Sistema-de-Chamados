@@ -11,7 +11,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Gravidade | Tipo | Descrição | Onde resolver |
 |---|---|---|---|---|
-| P-001 | 🔴 | ambiente | A pasta do projeto não é um repositório git. A regra "nunca editar migration já commitada" e o CI dependem disso. | Antes da 1A-2 (`git init` + primeiro commit) |
 | P-002 | 🔴 | ambiente | Faltam na máquina: Docker, Supabase CLI, `uv`, `pnpm`. Sem eles não dá para rodar `supabase test db` (os 35 testes da 1A-1 ainda não foram conferidos nesta máquina). Python local é 3.14; o `uv` instala o 3.12. | Antes da 1A-2 |
 | P-005 | 🟡 | regra | Quem marca `profiles.ativo = false` quando alguém sai da empresa? Sem Graph, nada sincroniza; hoje só o login no Entra barra. | Antes do go-live |
 | P-008 | 🟡 | regra | Tela de Configurações adiada: categorias, campos, SLA e feriados só mudam por migration/SQL. Feriados cadastrados só até 2027. | Antes de dez/2027 ou na Fase 2 |
@@ -31,6 +30,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 |---|---|---|
 | P-006 | 2026-10-05 | Técnico **pode** abrir chamado: a TI também vê o formulário de abertura (ajustar a nova 1A-3). |
 | P-007 | 2026-10-05 | Resolver **não** grava mensagem automática no chat; o encerramento segue só pela mudança de status. |
+| P-001 | 2026-10-05 | `git init` (branch `main`) + commit inicial; `.gitattributes` fixa quebra de linha LF. |
 | P-020 | 2026-10-05 | Nova 1A-3 salva já com os 6 status; 1B/1C/1D receberam aviso de desatualizados. `escopo.md` continua como documento de origem (CLAUDE.md e ADRs prevalecem). |
 | P-018 | 2026-10-05 | Status simplificados para 6 (`docs/adr/0005`). Concluído é final; técnico conclui mesmo sem resposta do solicitante; sem fechamento automático. |
 | P-003 | 2026-10-05 | Qualquer técnico pode devolver um `transferido` à fila (ADR 0005). Alerta de parado virou P-021. |

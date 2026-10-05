@@ -1,0 +1,4 @@
+# Quebra de linha LF no repositório e na pasta de trabalho (CI roda em Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
