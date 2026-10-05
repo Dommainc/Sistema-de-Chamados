@@ -27,7 +27,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
-| 2026-10-05 | Repositório git criado (P-001) e `.gitattributes` com LF. |
+| 2026-10-05 | Repositório git criado (P-001), `.gitattributes` com LF, commits com e-mail da DOMMA e publicado em `github.com/Dommainc/Sistema-de-Chamados` (privado). |
 | 2026-10-05 | Nova `1A-3-experiencia-por-perfil.md` (3 entregas, ajustada ao ADR 0005) substitui `1A-3-web-base.md`; 1B/1C/1D viram referência; nova ordem no README das fases; migration dos status incluída na 1A-2; `CLAUDE.md` com URLs e papéis novos. |
 | 2026-10-05 | ADR 0005: 6 status (pendente, em_andamento, aguardando_usuario, transferido, concluido, cancelado); tabela do `CLAUDE.md` atualizada. Abertos P-019 (migration), P-020, P-021. |
 | 2026-10-05 | Decisões: técnico abre chamado (P-006), resolver sem mensagem automática (P-007), CI antes da Entrega 2 (P-017). Aberto P-018 (modelo de status). |
