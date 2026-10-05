@@ -30,6 +30,8 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
 - **Integrações permitidas:** só login Entra ID e bot do Teams. Nada de Graph para outros fins, Lists, SharePoint ou Power Automate.
 - **Interface 100% em português do Brasil**, linguagem simples (público não técnico).
 - **Segurança no banco:** RLS em todas as tabelas. Nunca confiar só no front.
+- **Front só acessa dados por `apps/web/lib/dados/`** (`docs/adr/0006`): versão `simulada` (atual, sem banco) ou `real`.
+  A versão simulada nunca vai para produção.
 - **Modelo de leitura/escrita** (`docs/adr/0002`):
   - front lê direto do Supabase com a `anon key` (RLS filtra);
   - toda ação de negócio passa pela FastAPI;

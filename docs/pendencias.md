@@ -23,7 +23,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🔴 | ambiente | **Supabase em avaliação pela diretoria** (pagamento e novo projeto). Se não for aprovado, revisar ADRs 0001–0004 (Auth, RLS, Realtime e Storage dependem dele). | Diretoria |
 | P-023 | 🟡 | banco | Migration 0015 e os testes `001` (33) e `002` (18) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
-| P-024 | 🔴 | regra | Front antes do banco e da API: de onde a interface tira os dados enquanto o Supabase não existe? A 1A-3 pressupõe a 1A-2 pronta. | Antes da 1A-3 Entrega 1 |
 
 ## Resolvidas
 
@@ -31,6 +30,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 |---|---|---|
 | P-006 | 2026-10-05 | Técnico **pode** abrir chamado: a TI também vê o formulário de abertura (ajustar a nova 1A-3). |
 | P-007 | 2026-10-05 | Resolver **não** grava mensagem automática no chat; o encerramento segue só pela mudança de status. |
+| P-024 | 2026-10-05 | ADR 0006: front usa `lib/dados/` com versão simulada (navegador) até existir banco; versão real depois da 1A-2. |
 | P-019 | 2026-10-05 | Migration `20261005120000_status_simplificados.sql` + testes `002_status.test.sql`. Escrita, não executada (P-023). |
 | P-011 | 2026-10-05 | `alter default privileges revoke execute on functions from public` na mesma migration (global: o Postgres não permite revogar por schema). Teste na `002`. |
 | P-001 | 2026-10-05 | `git init` (branch `main`) + commit inicial; `.gitattributes` fixa quebra de linha LF. |

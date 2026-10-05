@@ -4,11 +4,13 @@ Substitui o antigo `1A-3-web-base.md` e reúne as partes de interface de `1B`, `
 As regras de API, banco e erros desses arquivos continuam valendo como referência, **exceto os status**:
 valem os 6 status do `docs/adr/0005` e a tabela do `CLAUDE.md` (sem confirmar, reabrir ou fechamento automático).
 
-**Pré-requisito:** etapa `1A-2-api-base.md` concluída, **incluindo a migration dos 6 status** (`docs/pendencias.md`, P-019).
-Se não estiver, pare e avise.
+**Dados:** as três entregas rodam com a **camada de dados simulada** (`docs/adr/0006`), sem Supabase e sem API.
+Nenhuma tela acessa Supabase ou API diretamente: tudo por `lib/dados/`. A implementação `real` vem depois da 1A-2.
+Onde este documento cita rotas de API (`POST /chamados`, `GET /me`...), na versão simulada elas são métodos da camada de dados
+com o mesmo comportamento e os mesmos erros.
 
 **Execução:** três entregas, uma por sessão, cada uma com plano aprovado antes de codar.
-Ordem: Entrega 1 → `1A-4` (CI e docs) → Entrega 2 → Entrega 3.
+Ordem: Entrega 1 → CI do front (parte da `1A-4`) → Entrega 2 → Entrega 3.
 
 ---
 
@@ -35,13 +37,17 @@ A separação na interface é **experiência**, não segurança. A segurança co
    - `@supabase/ssr` só com a anon key;
    - `lib/api.ts` com tratamento de erros pelo catálogo.
 
-2. **Login:**
-   - Botão "Entrar com a conta Microsoft".
-   - Login dev por e-mail e senha só com `NEXT_PUBLIC_LOGIN_DEV=true`.
-   - Depois do login: `POST /auth/sincronizar`, depois `GET /me`.
+2. **Camada de dados** `lib/dados/` (ADR 0006): interface `FonteDeDados` + implementação `simulada`
+   (dados de exemplo baseados no `supabase/seed.sql`, `localStorage`, `BroadcastChannel` entre abas).
+   Seleção por `NEXT_PUBLIC_FONTE_DADOS`; build de produção falha com `simulada`.
 
-3. **Roteamento por papel.** O papel vem sempre de `GET /me` ou do banco (`profiles.papel` sob RLS),
-   **nunca** de dado editável no cliente. O plano da entrega define qual dos dois o middleware usa.
+3. **Login:**
+   - Versão simulada: tela "Entrar como" com Ana, Bruno e Técnico.
+   - Versão real (depois): botão "Entrar com a conta Microsoft"; login dev por e-mail e senha só com `NEXT_PUBLIC_LOGIN_DEV=true`;
+     depois do login `POST /auth/sincronizar` e `GET /me`.
+
+4. **Roteamento por papel.** O papel vem sempre de `GET /me` ou do banco (`profiles.papel` sob RLS),
+   **nunca** de dado editável no cliente. Na versão simulada, vem de uma lista fixa de usuários no servidor (ADR 0006).
    ```
    app/
      (solicitante)/            layout leve
@@ -63,18 +69,18 @@ A separação na interface é **experiência**, não segurança. A segurança co
      - TI no portal do solicitante → `/atendimento`.
    - Solicitante abrindo `/meus-chamados/{n}` de outra pessoa ou inexistente → mesma tela de `SEM_PERMISSAO`, para não revelar quais números existem.
 
-4. **Primeiro acesso.** Pede departamento e telefone uma única vez, só para solicitantes. A TI pula essa etapa.
+5. **Primeiro acesso.** Pede departamento e telefone uma única vez, só para solicitantes. A TI pula essa etapa.
 
-5. **Layouts:**
+6. **Layouts:**
    - Solicitante: cabeçalho com logo DOMMA, "Abrir chamado", "Meus chamados", nome e sair.
    - TI: barra com Fila · Meus atendimentos · Todos · **Abrir chamado**, contadores, nome e sair.
 
-6. **Base visual:**
+7. **Base visual:**
    - tokens de cor em variáveis CSS, fáceis de trocar pelo padrão do Cadastro de Insumos depois;
    - componentes `Botao`, `Campo`, `Toast`, `Modal`, `BadgeStatus` e `Card`;
    - contraste AA e alvos de toque de pelo menos 44px.
 
-7. **Rótulos de status por perfil**, em `lib/status.ts`:
+8. **Rótulos de status por perfil**, em `lib/status.ts`:
 
    | Status | Solicitante vê | TI vê |
    |---|---|---|
@@ -89,7 +95,8 @@ A separação na interface é **experiência**, não segurança. A segurança co
 - Ana (solicitante) cai em `/`; Técnico cai em `/atendimento`.
 - Cada um é barrado na área do outro.
 - `/chamados/42` leva cada um para a tela certa.
-- Testes do middleware e de `lib/status.ts`.
+- Testes do middleware, de `lib/status.ts` e da camada simulada.
+- Roda com `pnpm dev` sem Supabase, Docker ou API.
 
 ---
 

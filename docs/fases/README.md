@@ -8,14 +8,17 @@ Uma etapa (ou entrega) por sessão (`/clear` entre elas). Ordem:
 
 | # | Arquivo | Entrega |
 |---|---|---|
-| 1 | `1A-1-banco.md` | ✅ Migrations, seed e testes do banco |
-| 2 | `1A-2-api-base.md` | Esqueleto da FastAPI, conexão, auth, catálogo de erros, migration dos 6 status |
-| 3 | `1A-3-experiencia-por-perfil.md` — Entrega 1 | Base do front, login, separação solicitante × TI |
-| 4 | `1A-4-ci-docs.md` | GitHub Actions, README, segredos, runbooks |
-| 5 | `1A-3-experiencia-por-perfil.md` — Entrega 2 | Portal do solicitante (abrir, acompanhar, chat, anexos) |
-| 6 | `1A-3-experiencia-por-perfil.md` — Entrega 3 | Área técnica (fila, ações, chat com notas internas) |
-| 7 | `1E-teams.md` | Notificações e resposta automática do bot |
-| 8 | `1F-fechamento.md` | Revisão de erros, docs finais, critérios de pronto |
+| 1 | `1A-1-banco.md` | ✅ Migrations, seed e testes do banco (+ migration 0015 dos 6 status, não executada) |
+| 2 | `1A-3-experiencia-por-perfil.md` — Entrega 1 | Base do front, camada de dados simulada, separação solicitante × TI |
+| 3 | `1A-4-ci-docs.md` — só o CI do front | Lint, typecheck, testes e build do `apps/web` |
+| 4 | `1A-3-experiencia-por-perfil.md` — Entrega 2 | Portal do solicitante (abrir, acompanhar, chat, anexos) |
+| 5 | `1A-3-experiencia-por-perfil.md` — Entrega 3 | Área técnica (fila, ações, chat com notas internas) |
+| 6 | `1A-2-api-base.md` + implementação `real` | API, banco ligado e troca da camada de dados (depende da aprovação do Supabase) |
+| 7 | `1A-4-ci-docs.md` — restante | CI de banco e API, docs, runbooks |
+| 8 | `1E-teams.md` | Notificações e resposta automática do bot |
+| 9 | `1F-fechamento.md` | Revisão de erros, docs finais, critérios de pronto |
+
+O front é construído primeiro com **dados simulados** (`docs/adr/0006`), porque o Supabase está em avaliação pela diretoria.
 
 `1B-chamados.md`, `1C-chat-anexos.md` e `1D-fila-ti.md` **não são mais etapas**: foram absorvidos pela 1A-3 e servem
 só como referência das regras de API, banco e erros. Os status citados neles estão desatualizados (vale o `docs/adr/0005`).
