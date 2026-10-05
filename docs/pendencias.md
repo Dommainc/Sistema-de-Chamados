@@ -23,6 +23,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🔴 | ambiente | **Supabase em avaliação pela diretoria** (pagamento e novo projeto). Se não for aprovado, revisar ADRs 0001–0004 (Auth, RLS, Realtime e Storage dependem dele). | Diretoria |
 | P-023 | 🟡 | banco | Migration 0015 e os testes `001` (33) e `002` (18) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
+| P-025 | 🟡 | web | UI/UX definitiva ainda não feita: o visual atual (cores, cabeçalhos, cards, tela "Entrar como") é provisório. O dono vai trazer ideias; referência visual (Cadastro de Insumos ou outra) e quem desenha ainda a definir. | Antes da 1A-3 Entrega 2 |
 
 ## Resolvidas
 

@@ -4,7 +4,7 @@
 |---|---|---|
 | 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migration 0015 dos 6 status escrita depois, **ainda não executada** (P-023) |
 | 1A-3 Entrega 1 — Base do front e perfis | ✅ Concluída | Dados simulados (ADR 0006); Next 16, 42 testes; lint, typecheck e build verdes |
-| 1A-4 (parte) CI do front | ⏳ Pendente | Antes da Entrega 2 (P-017) |
+| 1A-4 (parte) CI do front | ✅ Concluída | `.github/workflows/ci.yml` (formatação, lint, tipos, testes, build), PR template, `.editorconfig` |
 | 1A-3 Entrega 2 — Portal do solicitante | ⏳ Pendente | Dados simulados |
 | 1A-3 Entrega 3 — Área técnica | ⏳ Pendente | Dados simulados |
 | 1A-2 API base + dados reais | ⏳ Pendente | Depende da aprovação do Supabase (P-022); login e papéis adiados pelo dono |
@@ -29,6 +29,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-05 | CI do front no GitHub Actions, template de PR e `.editorconfig` (parte da 1A-4). Próximo: UI/UX (ideias do dono) e Entrega 2. |
 | 2026-10-05 | 1A-3 Entrega 1: `apps/web` (Next 16.3, React 19, Tailwind 4, Vitest). Login simulado, `proxy.ts` por papel, link universal `/chamados/42`, primeiro acesso, layouts das duas áreas, componentes base, catálogo de erros, camada de dados simulada. |
 | 2026-10-05 | ADR 0006: front com camada de dados simulada; nova ordem (front antes da API); 1A-3 ajustada (P-024). |
 | 2026-10-05 | Migration 0015 (6 status, sem fechamento automático, P-011), testes 001 ajustado (33) e 002 novo (18), seed sem `dias_fechamento_automatico`. Nada executado: Supabase aguardando aprovação da diretoria. |
