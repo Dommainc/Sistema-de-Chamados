@@ -1,47 +1,91 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
-import { LinkNav } from "@/components/comum/LinkNav";
-import { useConsulta } from "@/lib/dados/provedor";
+import { Search } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { MenuUsuario } from "@/components/comum/MenuUsuario";
+import { Logo } from "@/components/ui/Logo";
+import { Segmentado } from "@/components/ui/Segmentado";
+import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
+import { destinoBusca, lerModo } from "./parametros";
 
 const consultarContadores = (fonte: FonteDeDados) => fonte.obterContadores();
 
-function Contador({ valor, perigo = false }: { valor: number | undefined; perigo?: boolean }) {
-  if (valor === undefined) return null;
+function CampoBusca({ className = "" }: { className?: string }) {
+  const router = useRouter();
+  const [texto, setTexto] = useState("");
   return (
-    <span
-      className={`rounded-full px-2 text-sm font-semibold ${perigo ? "bg-perigo text-white" : "bg-white text-primaria"}`}
+    <form
+      role="search"
+      className={`relative ${className}`}
+      onSubmit={(e) => {
+        e.preventDefault();
+        const destino = destinoBusca(texto);
+        if (destino) router.push(destino);
+      }}
     >
-      {valor}
-    </span>
+      <Search
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-sobre-barra-suave"
+      />
+      <input
+        type="search"
+        value={texto}
+        onChange={(e) => setTexto(e.target.value)}
+        aria-label="Buscar chamado por número ou título"
+        placeholder="Buscar #número ou título"
+        className="min-h-11 w-full rounded-xl bg-barra-2 pr-3 pl-9 text-sobre-barra placeholder:text-sobre-barra-suave"
+      />
+    </form>
   );
 }
 
-/** Navegação da área técnica: Fila · Meus atendimentos · Todos · Abrir chamado, com contadores. */
+/** Barra escura da área técnica (docs/ui-ux.md, telas 6–9). */
 export function BarraTecnico() {
+  const usuario = useUsuario();
   const caminho = usePathname();
-  const aba = useSearchParams().get("aba") ?? "fila";
+  const parametros = useSearchParams();
+  const modo = lerModo(parametros.get("modo"));
   const { dados: contadores } = useConsulta(consultarContadores);
-  const naLista = caminho === "/atendimento";
+  const resumo =
+    contadores === undefined ? undefined : `${contadores.meusAtendimentos} em atendimento`;
 
   return (
-    <nav aria-label="Área técnica" className="flex flex-wrap items-center gap-1">
-      <LinkNav href="/atendimento" ativo={naLista && aba === "fila"}>
-        Fila <Contador valor={contadores?.fila} />
-      </LinkNav>
-      <LinkNav href="/atendimento?aba=meus" ativo={naLista && aba === "meus"}>
-        Meus atendimentos <Contador valor={contadores?.meusAtendimentos} />
-      </LinkNav>
-      <LinkNav href="/atendimento?aba=todos" ativo={naLista && aba === "todos"}>
-        Todos
-      </LinkNav>
-      <LinkNav href="/atendimento/novo">Abrir chamado</LinkNav>
-      {contadores && contadores.vencidos > 0 ? (
-        <span className="ml-1 inline-flex min-h-11 items-center gap-2 px-2 text-sm">
-          Vencidos <Contador valor={contadores.vencidos} perigo />
-        </span>
-      ) : null}
-    </nav>
+    <header className="bg-barra text-sobre-barra">
+      <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between gap-4 px-4 py-2.5">
+        <div className="flex items-center gap-5">
+          <Link href="/atendimento" className="flex min-h-11 items-center">
+            <Logo subtitulo="Atendimento TI" tema="escuro" emLinha />
+          </Link>
+          {caminho === "/atendimento" ? (
+            <div className="hidden md:block">
+              <Segmentado
+                tema="escuro"
+                rotuloAcessivel="Modo de visualização"
+                valor={modo}
+                opcoes={[
+                  { valor: "quadro", rotulo: "Quadro", href: "/atendimento?modo=quadro" },
+                  { valor: "lista", rotulo: "Lista", href: "/atendimento?modo=lista" },
+                ]}
+              />
+            </div>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-4">
+          <CampoBusca className="hidden w-72 md:block" />
+          <MenuUsuario
+            nome={usuario.nome}
+            resumo={resumo}
+            tema="escuro"
+            atalhos={[{ href: "/atendimento/novo", rotulo: "Abrir chamado" }]}
+          />
+        </div>
+      </div>
+      <div className="px-4 pb-3 md:hidden">
+        <CampoBusca />
+      </div>
+    </header>
   );
 }

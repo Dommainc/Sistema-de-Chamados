@@ -29,6 +29,7 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
 
 - **Integrações permitidas:** só login Entra ID e bot do Teams. Nada de Graph para outros fins, Lists, SharePoint ou Power Automate.
 - **Interface 100% em português do Brasil**, linguagem simples (público não técnico).
+- **Visual:** seguir `docs/ui-ux.md` (mockup oficial). Cores só pelos tokens de `apps/web/app/globals.css`.
 - **Segurança no banco:** RLS em todas as tabelas. Nunca confiar só no front.
 - **Front só acessa dados por `apps/web/lib/dados/`** (`docs/adr/0006`): versão `simulada` (atual, sem banco) ou `real`.
   A versão simulada nunca vai para produção.
@@ -113,6 +114,7 @@ cd apps/web && pnpm lint && pnpm typecheck && pnpm test
 
 ## Desenvolvimento local sem Entra ID
 
-Enquanto o App Registration não existe, o ambiente **local** tem login por e-mail/senha com 3 usuários de teste
-(ver `supabase/seed.dev.sql`): `ana@teste.local` e `bruno@teste.local` (solicitantes) e `tec@teste.local` (TI),
-senha `teste123`. O botão só aparece com `NEXT_PUBLIC_LOGIN_DEV=true` e **nunca** pode existir em produção.
+Enquanto o App Registration não existe, o ambiente **local** tem login por e-mail/senha com 4 usuários de teste
+(ver `supabase/seed.dev.sql`, a criar na 1A-2): Ana Souza `ana@teste.local` e Bruno Teixeira `bruno@teste.local`
+(solicitantes), Rafael Lima `tec@teste.local` e Thiago Martins `thiago@teste.local` (TI), senha `teste123`.
+Os mesmos nomes existem no modo simulado do front (ADR 0006). O botão só aparece com `NEXT_PUBLIC_LOGIN_DEV=true` e **nunca** pode existir em produção.

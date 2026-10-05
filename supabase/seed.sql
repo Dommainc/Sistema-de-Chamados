@@ -28,24 +28,24 @@ insert into public.areas (nome) values ('TI') on conflict (nome) do nothing;
 -- -----------------------------------------------------------------------------
 -- Categorias (SLA em horas úteis; expediente 08–18, seg–sex)
 -- -----------------------------------------------------------------------------
-insert into public.categorias (area_id, nome, descricao, sla_horas, ordem)
-select a.id, c.nome, c.descricao, c.sla, c.ordem
+insert into public.categorias (area_id, nome, nome_curto, icone, descricao, sla_horas, ordem)
+select a.id, c.nome, c.nome_curto, c.icone, c.descricao, c.sla, c.ordem
 from public.areas a
 cross join (values
-  ('Acesso, senha e bloqueio de conta', 'Não consigo entrar, esqueci a senha, conta bloqueada', 2, 10),
-  ('Internet, rede ou VPN',             'Sem internet, Wi-Fi ou VPN fora do ar',                2, 20),
-  ('E-mail / Outlook',                  'Problemas para enviar, receber ou configurar e-mail',  4, 30),
-  ('Teams',                             'Chamadas, reuniões, chats e equipes',                  4, 40),
-  ('Computador ou notebook',            'Lento, travando, não liga ou com defeito',             8, 50),
-  ('Impressora / scanner',              'Não imprime, papel preso, scanner',                    8, 60),
-  ('Celular corporativo',               'Configuração, defeito ou troca',                       8, 70),
-  ('Sistemas da empresa',               'Erro ou dúvida em sistemas internos',                  8, 80),
-  ('Instalação de software',            'Instalar ou atualizar um programa',                   16, 90),
-  ('Novo colaborador',                  'Preparar acessos e equipamento para quem vai entrar', 24, 100),
-  ('Desligamento',                      'Bloquear acessos e recolher equipamento',              4, 110),
-  ('Compra ou solicitação de equipamento', 'Pedir mouse, monitor, headset, notebook...',       40, 120),
-  ('Outros',                            'Qualquer outro pedido para a TI',                     16, 900)
-) as c(nome, descricao, sla, ordem)
+  ('Acesso, senha e bloqueio de conta', 'Acesso, senha e bloqueio', 'key-round',    'Não consigo entrar, esqueci a senha, conta bloqueada', 2, 10),
+  ('Internet, rede ou VPN',             'Internet, rede ou VPN',    'wifi',         'Sem internet, Wi-Fi ou VPN fora do ar',                2, 20),
+  ('E-mail / Outlook',                  'E-mail / Outlook',         'mail',         'Problemas para enviar, receber ou configurar e-mail',  4, 30),
+  ('Teams',                             'Teams',                    'message-square', 'Chamadas, reuniões, chats e equipes',                4, 40),
+  ('Computador ou notebook',            'Computador ou notebook',   'laptop',       'Lento, travando, não liga ou com defeito',             8, 50),
+  ('Impressora / scanner',              'Impressora / scanner',     'printer',      'Não imprime, papel preso, scanner',                    8, 60),
+  ('Celular corporativo',               'Celular corporativo',      'smartphone',   'Configuração, defeito ou troca',                       8, 70),
+  ('Sistemas da empresa',               'Sistemas da empresa',      'layout-grid',  'Erro ou dúvida em sistemas internos',                  8, 80),
+  ('Instalação de software',            'Instalar programa',        'download',     'Instalar ou atualizar um programa',                   16, 90),
+  ('Novo colaborador',                  'Novo colaborador',         'user-plus',    'Preparar acessos e equipamento para quem vai entrar', 24, 100),
+  ('Desligamento',                      'Desligamento',             'user-minus',   'Bloquear acessos e recolher equipamento',              4, 110),
+  ('Compra ou solicitação de equipamento', 'Pedir equipamento',     'package',      'Pedir mouse, monitor, headset, notebook...',          40, 120),
+  ('Outros',                            'Outros pedidos para a TI', 'ellipsis',     'Qualquer outro pedido para a TI',                     16, 900)
+) as c(nome, nome_curto, icone, descricao, sla, ordem)
 where a.nome = 'TI'
 on conflict (area_id, nome) do nothing;
 

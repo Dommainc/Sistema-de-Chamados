@@ -9,6 +9,9 @@ Nenhuma tela acessa Supabase ou API diretamente: tudo por `lib/dados/`. A implem
 Onde este documento cita rotas de API (`POST /chamados`, `GET /me`...), na versão simulada elas são métodos da camada de dados
 com o mesmo comportamento e os mesmos erros.
 
+**Visual:** o mockup oficial está descrito em `docs/ui-ux.md` (com as adaptações ao ADR 0005). Em conflito de aparência, vale ele;
+em conflito de regra de negócio, valem o `CLAUDE.md` e os ADRs.
+
 **Execução:** três entregas, uma por sessão, cada uma com plano aprovado antes de codar.
 Ordem: Entrega 1 → CI do front (parte da `1A-4`) → Entrega 2 → Entrega 3.
 
@@ -202,3 +205,25 @@ assumir, transferir, devolver à fila, aguardar usuário, concluir e cancelar.
 - Tudo aparece no histórico e gera notificação pendente.
 - Busca por `42` funciona.
 - Testes de API de cada ação, incluindo tentativa com token de solicitante (`SEM_PERMISSAO`).
+
+---
+
+## Atualização pelo mockup (2026-10-05)
+
+A base visual (cores, fontes IBM Plex, ícones, cascas das duas áreas, componentes e rótulos) foi feita numa etapa
+própria de UI/UX antes da Entrega 2. Mudanças em relação ao texto acima:
+
+- **Rótulos:** solicitante vê Recebido · Em atendimento · Aguardando sua resposta · Concluído · Cancelado;
+  TI vê Novo · Em atendimento · Aguardando usuário · Transferido · Concluído · Cancelado. Barra de progresso:
+  Recebido → Em atendimento → Concluído.
+- **Entrega 2 (portal):** busca de assunto no passo 1; categorias com ícone e nome curto (migration 0016);
+  `selecao` como cartões de rádio; previsão de atendimento exibida **antes** de enviar (rodapé do passo 2);
+  menu inferior no celular com contador; cartões de "Meus chamados" com a informação do canto
+  ("• Nova mensagem", "Previsão: hoje, 11:30", "Com Rafael Lima"); eventos do sistema dentro do chat
+  ("Rafael Lima assumiu o chamado · 09:40").
+- **Entrega 3 (técnico):** modo **Quadro** (colunas Novos · Em atendimento · Aguardando usuário, "Ver encerrados")
+  e modo **Lista**; faixa "Próximo da fila" com **Pegar o próximo**; **arrastar para assumir**; filtros
+  Todos · Só os meus · Sem responsável · categoria · prazo; destaque **vence em menos de 1 h** (substitui 20% do SLA);
+  selo "Transferido para você · por Thiago"; ação **Retomar atendimento** (aguardando_usuario → em_andamento);
+  botão "Marcar como concluído"; no celular, abas Conversa · Detalhes · Histórico.
+- **Modo Lista é o padrão** até o Quadro existir; na Entrega 3 o Quadro passa a ser o padrão.

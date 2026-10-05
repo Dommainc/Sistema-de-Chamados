@@ -32,6 +32,10 @@ export interface Perfil {
 export interface Categoria {
   id: number;
   nome: string;
+  /** Nome exibido no portal do solicitante (docs/ui-ux.md). */
+  nomeCurto: string;
+  /** Ícone lucide em kebab-case (ex.: "key-round"). */
+  icone: string;
   descricao: string;
   slaHoras: number;
   ordem: number;

@@ -20,7 +20,7 @@ export function TelaMensagem({
       {acao ? (
         <Link
           href={acao.href}
-          className="inline-flex min-h-11 items-center rounded-lg bg-primaria px-5 font-medium text-sobre-primaria hover:bg-primaria-forte"
+          className="inline-flex min-h-11 items-center rounded-xl bg-primaria px-5 font-semibold text-sobre-primaria hover:bg-primaria-forte"
         >
           {acao.rotulo}
         </Link>

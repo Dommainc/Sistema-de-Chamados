@@ -8,10 +8,10 @@ describe("BadgeStatus", () => {
     expect(screen.getByText("Aguardando sua resposta")).toBeInTheDocument();
   });
 
-  it("técnico vê 'Transferido'; solicitante vê 'Em andamento'", () => {
+  it("técnico vê 'Transferido'; solicitante vê 'Em atendimento'", () => {
     const { rerender } = render(<BadgeStatus status="transferido" papel="ti" />);
     expect(screen.getByText("Transferido")).toBeInTheDocument();
     rerender(<BadgeStatus status="transferido" papel="solicitante" />);
-    expect(screen.getByText("Em andamento")).toBeInTheDocument();
+    expect(screen.getByText("Em atendimento")).toBeInTheDocument();
   });
 });

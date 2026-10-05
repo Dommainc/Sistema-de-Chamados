@@ -25,7 +25,7 @@ export default function ErroInesperado({
         texto={mensagemErro("ERRO_INESPERADO", { ref })}
         acao={{ rotulo: "Voltar para o início", href: "/" }}
       >
-        <Botao variante="secundario" onClick={() => retry()}>
+        <Botao variante="contorno" onClick={() => retry()}>
           Tentar de novo
         </Botao>
       </TelaMensagem>

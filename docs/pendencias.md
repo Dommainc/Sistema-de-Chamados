@@ -22,8 +22,9 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🔴 | ambiente | **Supabase em avaliação pela diretoria** (pagamento e novo projeto). Se não for aprovado, revisar ADRs 0001–0004 (Auth, RLS, Realtime e Storage dependem dele). | Diretoria |
-| P-023 | 🟡 | banco | Migration 0015 e os testes `001` (33) e `002` (18) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
-| P-025 | 🟡 | web | UI/UX definitiva ainda não feita: o visual atual (cores, cabeçalhos, cards, tela "Entrar como") é provisório. O dono vai trazer ideias; referência visual (Cadastro de Insumos ou outra) e quem desenha ainda a definir. | Antes da 1A-3 Entrega 2 |
+| P-023 | 🟡 | banco | Migrations 0015 e 0016 e os testes `001` (33), `002` (18) e `003` (5) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
+| P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada, calcular no front. | 1A-2 / implementação real |
+| P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
 
 ## Resolvidas
 
@@ -31,6 +32,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 |---|---|---|
 | P-006 | 2026-10-05 | Técnico **pode** abrir chamado: a TI também vê o formulário de abertura (ajustar a nova 1A-3). |
 | P-007 | 2026-10-05 | Resolver **não** grava mensagem automática no chat; o encerramento segue só pela mudança de status. |
+| P-025 | 2026-10-05 | Mockup do dono (9 telas) virou `docs/ui-ux.md` + base visual no front. Adaptado ao ADR 0005; contato = telefone/celular. |
 | P-024 | 2026-10-05 | ADR 0006: front usa `lib/dados/` com versão simulada (navegador) até existir banco; versão real depois da 1A-2. |
 | P-019 | 2026-10-05 | Migration `20261005120000_status_simplificados.sql` + testes `002_status.test.sql`. Escrita, não executada (P-023). |
 | P-011 | 2026-10-05 | `alter default privileges revoke execute on functions from public` na mesma migration (global: o Postgres não permite revogar por schema). Teste na `002`. |

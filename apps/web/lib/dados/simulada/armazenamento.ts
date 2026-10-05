@@ -3,21 +3,22 @@
 
 import type { Chamado, Perfil } from "@/lib/dominio/tipos";
 import { gerarChamadosExemplo } from "./exemplos";
-import { USUARIOS_SIMULADOS } from "./usuarios";
+import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
-const CHAVE = "central-chamados:simulado:v1";
+// Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
+const CHAVE = "central-chamados:simulado:v2";
 const CANAL = "central-chamados:simulado";
 
 export interface EstadoSimulado {
-  versao: 1;
+  versao: 2;
   perfis: Perfil[];
   chamados: Chamado[];
 }
 
 export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
   return {
-    versao: 1,
-    perfis: USUARIOS_SIMULADOS.map((u) => ({ ...u })),
+    versao: 2,
+    perfis: [...USUARIOS_SIMULADOS, ...OUTROS_PERFIS_EXEMPLO].map((u) => ({ ...u })),
     chamados: gerarChamadosExemplo(agora),
   };
 }
@@ -41,7 +42,7 @@ function lerDoNavegador(): EstadoSimulado | null {
     const bruto = globalThis.localStorage?.getItem(CHAVE);
     if (!bruto) return null;
     const estado = JSON.parse(bruto) as EstadoSimulado;
-    return estado.versao === 1 ? estado : null;
+    return estado.versao === 2 ? estado : null;
   } catch {
     return null;
   }

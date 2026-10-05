@@ -1,36 +1,43 @@
 @import "tailwindcss";
 
 /*
- * Tokens de cor PROVISÓRIOS (neutros). Trocar aqui quando chegar o padrão visual do
- * Cadastro de Insumos — os componentes usam só estes nomes (bg-primaria, text-texto-suave...).
- * Contraste dos pares texto/fundo pensado para AA.
+ * Tokens de cor do mockup (docs/ui-ux.md, "Cores"). Os componentes usam só estes nomes
+ * (bg-primaria, text-texto-suave, bg-barra...). Pares texto/fundo pensados para contraste AA.
  */
 :root {
-  --cor-primaria: #1e4e8c;
-  --cor-primaria-forte: #163b6b;
-  --cor-primaria-suave: #e8eff8;
+  --cor-primaria: #1f4e8c;
+  --cor-primaria-forte: #173d6e;
+  --cor-primaria-suave: #e7edf5;
   --cor-sobre-primaria: #ffffff;
 
-  --cor-fundo: #f4f6f9;
+  --cor-fundo: #f2f0eb;
   --cor-superficie: #ffffff;
-  --cor-borda: #d5dbe3;
-  --cor-texto: #1a2230;
-  --cor-texto-suave: #4f5b6b;
+  --cor-superficie-2: #e8e5de;
+  --cor-borda: #dcd8cf;
+  --cor-texto: #1a1c20;
+  --cor-texto-suave: #5e626a;
 
-  --cor-info: #1d5fb8;
-  --cor-info-suave: #e6f0fb;
-  --cor-sucesso: #1d7a46;
-  --cor-sucesso-suave: #e5f5ec;
-  --cor-alerta: #8a5300;
-  --cor-alerta-suave: #fff3d6;
+  /* Área técnica: barra superior e botão "Assumir" */
+  --cor-barra: #16181c;
+  --cor-barra-2: #2a2d33;
+  --cor-sobre-barra: #f5f5f4;
+  --cor-sobre-barra-suave: #a3a6ad;
+
+  --cor-info: #1f4e8c;
+  --cor-info-suave: #e7edf5;
+  --cor-sucesso: #1e6b3c;
+  --cor-sucesso-suave: #e3f0e7;
+  --cor-alerta: #7a4a00;
+  --cor-alerta-suave: #fcf0da;
+  --cor-alerta-borda: #e5b866;
+  --cor-laranja: #c2570c;
+  --cor-laranja-suave: #fde6c8;
   --cor-perigo: #b42318;
-  --cor-perigo-suave: #fdecea;
+  --cor-perigo-suave: #fbe8e6;
+  --cor-roxo: #5b3fa0;
+  --cor-roxo-suave: #eee8fa;
   --cor-apagado: #5c6573;
-  --cor-apagado-suave: #eef0f3;
-
-  /* Notas internas da TI (fundo âmbar) */
-  --cor-interna: #fff4d6;
-  --cor-interna-borda: #e8b84a;
+  --cor-apagado-suave: #ebe8e2;
 }
 
 @theme inline {
@@ -40,22 +47,31 @@
   --color-sobre-primaria: var(--cor-sobre-primaria);
   --color-fundo: var(--cor-fundo);
   --color-superficie: var(--cor-superficie);
+  --color-superficie-2: var(--cor-superficie-2);
   --color-borda: var(--cor-borda);
   --color-texto: var(--cor-texto);
   --color-texto-suave: var(--cor-texto-suave);
+  --color-barra: var(--cor-barra);
+  --color-barra-2: var(--cor-barra-2);
+  --color-sobre-barra: var(--cor-sobre-barra);
+  --color-sobre-barra-suave: var(--cor-sobre-barra-suave);
   --color-info: var(--cor-info);
   --color-info-suave: var(--cor-info-suave);
   --color-sucesso: var(--cor-sucesso);
   --color-sucesso-suave: var(--cor-sucesso-suave);
   --color-alerta: var(--cor-alerta);
   --color-alerta-suave: var(--cor-alerta-suave);
+  --color-alerta-borda: var(--cor-alerta-borda);
+  --color-laranja: var(--cor-laranja);
+  --color-laranja-suave: var(--cor-laranja-suave);
   --color-perigo: var(--cor-perigo);
   --color-perigo-suave: var(--cor-perigo-suave);
+  --color-roxo: var(--cor-roxo);
+  --color-roxo-suave: var(--cor-roxo-suave);
   --color-apagado: var(--cor-apagado);
   --color-apagado-suave: var(--cor-apagado-suave);
-  --color-interna: var(--cor-interna);
-  --color-interna-borda: var(--cor-interna-borda);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
 }
 
 body {

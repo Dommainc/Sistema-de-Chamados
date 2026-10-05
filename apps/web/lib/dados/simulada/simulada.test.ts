@@ -14,6 +14,13 @@ beforeEach(() => {
 });
 
 describe("dados de exemplo", () => {
+  it("toda categoria tem nome curto e ícone (docs/ui-ux.md)", () => {
+    for (const c of CATEGORIAS) {
+      expect(c.nomeCurto.length).toBeGreaterThan(1);
+      expect(c.icone).toMatch(/^[a-z][a-z0-9-]+$/);
+    }
+  });
+
   it("têm as 13 categorias do seed com campo descrição (menos Novo colaborador e Desligamento)", () => {
     expect(CATEGORIAS).toHaveLength(13);
     const comDescricao = new Set(
@@ -45,9 +52,10 @@ describe("visibilidade (equivalente ao RLS)", () => {
 
   it("TI vê todos os chamados", async () => {
     const todos = await criarFonteSimulada(TECNICO.id).listarChamados({ escopo: "todos" });
-    expect(new Set(todos.map((c) => c.solicitanteId))).toEqual(
-      new Set([ANA.id, BRUNO.id, TECNICO.id]),
-    );
+    const solicitantes = new Set(todos.map((c) => c.solicitanteId));
+    expect(solicitantes.has(ANA.id)).toBe(true);
+    expect(solicitantes.has(BRUNO.id)).toBe(true);
+    expect(solicitantes.size).toBeGreaterThan(2);
   });
 
   it("fila da TI = só pendentes", async () => {
@@ -109,8 +117,8 @@ describe("perfil e primeiro acesso", () => {
 describe("contadores e avisos de mudança", () => {
   it("conta fila e meus atendimentos do técnico", async () => {
     const contadores = await criarFonteSimulada(TECNICO.id).obterContadores();
-    expect(contadores.fila).toBe(4);
-    expect(contadores.meusAtendimentos).toBe(4);
+    expect(contadores.fila).toBe(7);
+    expect(contadores.meusAtendimentos).toBe(3); // como no mockup: "3 em atendimento"
   });
 
   it("avisa quem está ouvindo quando os dados mudam", async () => {

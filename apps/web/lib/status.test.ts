@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { STATUS } from "./dominio/tipos";
-import { rotuloStatus } from "./status";
+import { passoProgresso, rotuloStatus } from "./status";
 
 describe("rotuloStatus", () => {
   it("tem rótulo para todos os 6 status nos dois perfis", () => {
@@ -10,12 +10,12 @@ describe("rotuloStatus", () => {
     }
   });
 
-  it("segue a tabela da 1A-3", () => {
+  it("segue a tabela do docs/ui-ux.md", () => {
     const esperado = {
-      pendente: ["Pendente", "Pendente"],
-      em_andamento: ["Em andamento", "Em andamento"],
+      pendente: ["Recebido", "Novo"],
+      em_andamento: ["Em atendimento", "Em atendimento"],
       aguardando_usuario: ["Aguardando sua resposta", "Aguardando usuário"],
-      transferido: ["Em andamento", "Transferido"],
+      transferido: ["Em atendimento", "Transferido"],
       concluido: ["Concluído", "Concluído"],
       cancelado: ["Cancelado", "Cancelado"],
     } as const;
@@ -36,5 +36,16 @@ describe("rotuloStatus", () => {
       expect(rotuloStatus(status, "solicitante").destaque).toBe(status === "aguardando_usuario");
       expect(rotuloStatus(status, "ti").destaque).toBe(false);
     }
+  });
+});
+
+describe("passoProgresso (3 passos, ADR 0005)", () => {
+  it("mapeia cada status para o passo certo", () => {
+    expect(passoProgresso("pendente")).toEqual({ atual: 0, cancelado: false });
+    expect(passoProgresso("em_andamento")).toEqual({ atual: 1, cancelado: false });
+    expect(passoProgresso("aguardando_usuario")).toEqual({ atual: 1, cancelado: false });
+    expect(passoProgresso("transferido")).toEqual({ atual: 1, cancelado: false });
+    expect(passoProgresso("concluido")).toEqual({ atual: 2, cancelado: false });
+    expect(passoProgresso("cancelado").cancelado).toBe(true);
   });
 });

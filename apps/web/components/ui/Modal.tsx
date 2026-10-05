@@ -25,7 +25,7 @@ export function Modal({ aberto, titulo, aoFechar, children }: ModalProps) {
       ref={ref}
       onClose={aoFechar}
       aria-label={titulo}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-xl border border-borda bg-superficie p-0 text-texto backdrop:bg-black/40"
+      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-borda bg-superficie p-0 text-texto backdrop:bg-black/40"
     >
       <div className="flex items-center justify-between border-b border-borda px-4 py-3">
         <h2 className="text-lg font-semibold">{titulo}</h2>

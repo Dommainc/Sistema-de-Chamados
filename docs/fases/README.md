@@ -11,6 +11,7 @@ Uma etapa (ou entrega) por sessão (`/clear` entre elas). Ordem:
 | 1 | `1A-1-banco.md` | ✅ Migrations, seed e testes do banco (+ migration 0015 dos 6 status, não executada) |
 | 2 | `1A-3-experiencia-por-perfil.md` — Entrega 1 | Base do front, camada de dados simulada, separação solicitante × TI |
 | 3 | `1A-4-ci-docs.md` — só o CI do front | Lint, typecheck, testes e build do `apps/web` |
+| 3b | `docs/ui-ux.md` | ✅ Base visual do mockup (cores, fontes, componentes, cascas) |
 | 4 | `1A-3-experiencia-por-perfil.md` — Entrega 2 | Portal do solicitante (abrir, acompanhar, chat, anexos) |
 | 5 | `1A-3-experiencia-por-perfil.md` — Entrega 3 | Área técnica (fila, ações, chat com notas internas) |
 | 6 | `1A-2-api-base.md` + implementação `real` | API, banco ligado e troca da camada de dados (depende da aprovação do Supabase) |
