@@ -3,7 +3,14 @@
 // Prazos aqui são definidos à mão por chamado (para mostrar vencido / vence em breve / no prazo);
 // o banco calcula em horas úteis.
 
-import type { CampoForm, Categoria, Chamado, StatusChamado, TipoCampo } from "@/lib/dominio/tipos";
+import type {
+  CampoForm,
+  Categoria,
+  Chamado,
+  EventoHistorico,
+  StatusChamado,
+  TipoCampo,
+} from "@/lib/dominio/tipos";
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 const [ANA, BRUNO, RAFAEL, THIAGO] = USUARIOS_SIMULADOS.map((u) => u.id);
@@ -528,4 +535,39 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       motivoCancelamento: e.motivoCancelamento ?? null,
     };
   });
+}
+
+/** Linha do tempo básica dos exemplos: abertura e, se houver responsável, quem assumiu. */
+export function gerarHistoricoExemplo(chamados: readonly Chamado[]): EventoHistorico[] {
+  const eventos: Omit<EventoHistorico, "id">[] = [];
+  for (const c of chamados) {
+    eventos.push({
+      chamadoId: c.id,
+      autorId: c.solicitanteId,
+      acao: "criado",
+      de: null,
+      para: "pendente",
+      detalhe: {},
+      publico: true,
+      criadoEm: c.criadoEm,
+    });
+    if (c.responsavelId) {
+      const assumidoEm = new Date(
+        (new Date(c.criadoEm).getTime() + new Date(c.atualizadoEm).getTime()) / 2,
+      ).toISOString();
+      eventos.push({
+        chamadoId: c.id,
+        autorId: c.responsavelId,
+        acao: "assumido",
+        de: "pendente",
+        para: "em_andamento",
+        detalhe: {},
+        publico: true,
+        criadoEm: assumidoEm,
+      });
+    }
+  }
+  return eventos
+    .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm))
+    .map((e, i) => ({ ...e, id: i + 1 }));
 }

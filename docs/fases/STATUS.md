@@ -6,7 +6,8 @@
 | 1A-3 Entrega 1 — Base do front e perfis | ✅ Concluída | Dados simulados (ADR 0006); Next 16, 42 testes; lint, typecheck e build verdes |
 | 1A-4 (parte) CI do front | ✅ Concluída | `.github/workflows/ci.yml` (formatação, lint, tipos, testes, build), PR template, `.editorconfig` |
 | UI/UX — base visual do mockup | ✅ Concluída | `docs/ui-ux.md`; tokens, IBM Plex, lucide, cascas, componentes, rótulos; 59 testes |
-| 1A-3 Entrega 2 — Portal do solicitante | ⏳ Pendente | Dados simulados; telas 1–5 do mockup |
+| 1A-3 Entrega 2 — Parte A: abrir chamado | ✅ Concluída | Telas 1–3 do mockup; máquina de estados, formulário, horas úteis e anexos (Ctrl+V); 118 testes |
+| 1A-3 Entrega 2 — Parte B: acompanhar | ⏳ Pendente | Telas 4–5: chat, nova mensagem, cancelar, `chamado_leituras` |
 | 1A-3 Entrega 3 — Área técnica | ⏳ Pendente | Dados simulados; telas 6–9 do mockup |
 | 1A-2 API base + dados reais | ⏳ Pendente | Depende da aprovação do Supabase (P-022); login e papéis adiados pelo dono |
 | 1A-4 (restante) CI de banco/API e docs | ⏳ Pendente | |
@@ -30,6 +31,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-05 | Entrega 2 Parte A: abrir chamado em 3 passos (`/`, `/abrir/[categoria]`, `/abrir/pronto/[id]`; TI em `/atendimento/novo/...`). `lib/dominio/estados.ts` (tabela do CLAUDE.md), `formulario.ts`, `horario-util.ts` (horas úteis, espelho do banco), `lib/anexos.ts`. Campos dinâmicos (cartões de rádio/seleção), anexos com botão, arrastar e Ctrl+V (`print-AAAAMMDD-HHMMSS.png`), rascunho mantido no Voltar, previsão antes de enviar, "Referente ao chamado #N". Simulada v3: histórico, anexos no IndexedDB. |
 | 2026-10-05 | UI/UX: mockup do dono descrito em `docs/ui-ux.md` (adaptado ao ADR 0005: sem Resolvido/confirmação; contato = telefone). Cores e fontes IBM Plex, ícones lucide, cascas do portal (menu inferior) e da área técnica (barra escura, Quadro/Lista, busca), componentes novos, rótulos Recebido/Em atendimento/Novo, `lib/prazo.ts`. Migration 0016 (ícone e nome curto das categorias, não executada). Dados simulados com os chamados #30–#45 do mockup. |
 | 2026-10-05 | CI do front no GitHub Actions, template de PR e `.editorconfig` (parte da 1A-4). Próximo: UI/UX (ideias do dono) e Entrega 2. |
 | 2026-10-05 | 1A-3 Entrega 1: `apps/web` (Next 16.3, React 19, Tailwind 4, Vitest). Login simulado, `proxy.ts` por papel, link universal `/chamados/42`, primeiro acesso, layouts das duas áreas, componentes base, catálogo de erros, camada de dados simulada. |

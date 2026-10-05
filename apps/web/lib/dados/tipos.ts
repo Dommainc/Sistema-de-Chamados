@@ -3,7 +3,14 @@
 // Erros: toda falha é um ErroApp do catálogo (lib/erros/catalogo.ts).
 
 import type { ModoFonteDados } from "@/lib/dados/config";
-import type { CampoForm, Categoria, Chamado, Papel, Perfil } from "@/lib/dominio/tipos";
+import type {
+  CampoForm,
+  Categoria,
+  Chamado,
+  OrigemAnexo,
+  Papel,
+  Perfil,
+} from "@/lib/dominio/tipos";
 
 /** O mínimo que a sessão sabe do usuário (o restante vem de obterMeuPerfil). */
 export interface UsuarioSessao {
@@ -46,6 +53,29 @@ export interface DadosPrimeiroAcesso {
   telefone: string | null;
 }
 
+/** Arquivo escolhido ou colado, ainda não enviado. */
+export interface ArquivoNovo {
+  arquivo: Blob;
+  nome: string;
+  mime: string;
+  tamanho: number;
+  origem: OrigemAnexo;
+}
+
+export interface DadosNovoChamado {
+  categoriaId: number;
+  /** "Resumo do problema". */
+  titulo: string;
+  /** Respostas brutas do formulário, por campos_form.chave (validadas na criação). */
+  respostas: Record<string, unknown>;
+  anexos: ArquivoNovo[];
+}
+
+export interface ChamadoCriado {
+  id: number;
+  prazoSla: string;
+}
+
 export interface FonteDeDados {
   readonly modo: ModoFonteDados;
 
@@ -56,6 +86,14 @@ export interface FonteDeDados {
 
   listarCategorias(): Promise<Categoria[]>;
   listarCamposForm(categoriaId: number): Promise<CampoForm[]>;
+
+  /** Prazo previsto se o chamado fosse aberto agora (horas úteis da categoria). */
+  calcularPrevisao(categoriaId: number): Promise<string>;
+  /**
+   * Abre o chamado (POST /chamados). Erros: CAMPO_OBRIGATORIO (com `campos`),
+   * ANEXO_MUITO_GRANDE, ANEXO_TIPO_INVALIDO, UPLOAD_FALHOU.
+   */
+  criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado>;
 
   listarChamados(filtro: FiltroChamados): Promise<Chamado[]>;
   /** SEM_PERMISSAO se não puder ver; CHAMADO_NAO_ENCONTRADO só para a TI. */

@@ -1,11 +1,13 @@
 "use client";
 
 import { Search } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { IconeCategoria } from "@/components/ui/IconeCategoria";
-import { useConsulta } from "@/lib/dados/provedor";
+import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import type { Categoria } from "@/lib/dominio/tipos";
+import { caminhosAbertura, comReferente } from "@/lib/rotas";
 
 const consultarCategorias = (fonte: FonteDeDados) => fonte.listarCategorias();
 
@@ -17,7 +19,7 @@ function normalizar(texto: string): string {
     .toLocaleLowerCase("pt-BR");
 }
 
-function filtrar(categorias: Categoria[], termo: string): Categoria[] {
+export function filtrarCategorias(categorias: Categoria[], termo: string): Categoria[] {
   const t = normalizar(termo.trim());
   if (!t) return categorias;
   return categorias.filter((c) =>
@@ -25,14 +27,12 @@ function filtrar(categorias: Categoria[], termo: string): Categoria[] {
   );
 }
 
-/**
- * Passo 1 do "Abrir chamado" (mockup, tela 1): busca + grade de assuntos.
- * Nesta etapa os cartões só são exibidos; o formulário (passos 2 e 3) chega na Entrega 2.
- */
-export function EscolhaCategoria() {
+/** Passo 1 do "Abrir chamado" (mockup, tela 1): busca + grade de assuntos. */
+export function GradeCategorias({ referente }: { referente: number | null }) {
+  const caminhos = caminhosAbertura(useUsuario().papel);
   const { dados: categorias, erro, carregando } = useConsulta(consultarCategorias);
   const [termo, setTermo] = useState("");
-  const visiveis = useMemo(() => filtrar(categorias ?? [], termo), [categorias, termo]);
+  const visiveis = useMemo(() => filtrarCategorias(categorias ?? [], termo), [categorias, termo]);
 
   if (carregando) return <p className="text-texto-suave">Carregando...</p>;
   if (erro) return <p className="text-perigo">{erro.message}</p>;
@@ -63,16 +63,16 @@ export function EscolhaCategoria() {
       <ul className="grid grid-cols-2 gap-3">
         {visiveis.map((c) => (
           <li key={c.id} className={c.icone === "ellipsis" ? "col-span-2" : ""}>
-            <div className="flex h-full min-h-20 items-center gap-3 rounded-2xl border border-borda bg-superficie p-3 font-semibold shadow-sm">
+            <Link
+              href={comReferente(caminhos.formulario(c.id), referente)}
+              className="flex h-full min-h-20 items-center gap-3 rounded-2xl border border-borda bg-superficie p-3 font-semibold shadow-sm transition-colors hover:border-primaria hover:bg-primaria-suave"
+            >
               <IconeCategoria icone={c.icone} />
               <span className="leading-snug">{c.nomeCurto}</span>
-            </div>
+            </Link>
           </li>
         ))}
       </ul>
-      <p className="text-center text-sm text-texto-suave">
-        O formulário de abertura chega na próxima entrega.
-      </p>
     </div>
   );
 }

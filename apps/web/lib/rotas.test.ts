@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { decidirRota, destinoLinkUniversal, inicioDoPapel } from "./rotas";
+import {
+  caminhosAbertura,
+  comReferente,
+  decidirRota,
+  destinoLinkUniversal,
+  inicioDoPapel,
+} from "./rotas";
 
 describe("decidirRota", () => {
   it("sem sessão vai para /login, exceto na própria tela de login", () => {
@@ -65,5 +71,27 @@ describe("destinoLinkUniversal", () => {
   it("início de cada papel", () => {
     expect(inicioDoPapel("solicitante")).toBe("/");
     expect(inicioDoPapel("ti")).toBe("/atendimento");
+  });
+});
+
+describe("abrir chamado", () => {
+  it("/abrir é do portal: TI é levada para a própria área", () => {
+    expect(decidirRota("/abrir/3", "solicitante")).toEqual({ tipo: "seguir" });
+    expect(decidirRota("/abrir/pronto/46", "ti")).toEqual({
+      tipo: "redirecionar",
+      para: "/atendimento",
+    });
+  });
+
+  it("cada papel abre chamado na sua área", () => {
+    expect(caminhosAbertura("solicitante").formulario(3)).toBe("/abrir/3");
+    expect(caminhosAbertura("solicitante").acompanhar(46)).toBe("/meus-chamados/46");
+    expect(caminhosAbertura("ti").formulario(3)).toBe("/atendimento/novo/3");
+    expect(caminhosAbertura("ti").pronto(46)).toBe("/atendimento/novo/pronto/46");
+  });
+
+  it("mantém o chamado de referência", () => {
+    expect(comReferente("/abrir/3", 42)).toBe("/abrir/3?referente=42");
+    expect(comReferente("/abrir/3", null)).toBe("/abrir/3");
   });
 });

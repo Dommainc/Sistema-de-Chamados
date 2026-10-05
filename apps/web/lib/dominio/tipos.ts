@@ -53,6 +53,9 @@ export interface CampoForm {
   ordem: number;
 }
 
+/** Valor de uma resposta do formulário dinâmico (indexada por campos_form.chave). */
+export type ValorResposta = string | string[] | boolean | number;
+
 export interface Chamado {
   id: number;
   titulo: string;
@@ -61,13 +64,55 @@ export interface Chamado {
   responsavelId: string | null;
   status: StatusChamado;
   prioridade: Prioridade;
-  respostasForm: Record<string, string | string[] | boolean | number>;
+  respostasForm: Record<string, ValorResposta>;
   prazoSla: string;
   criadoEm: string;
   atualizadoEm: string;
   concluidoEm: string | null;
   canceladoEm: string | null;
   motivoCancelamento: string | null;
+}
+
+export type OrigemAnexo = "upload" | "colado";
+
+/** Registro de public.anexos. O arquivo fica no Storage (simulada: IndexedDB). */
+export interface Anexo {
+  id: string;
+  chamadoId: number;
+  /** Nulo = anexado na abertura do chamado. */
+  mensagemId: number | null;
+  nome: string;
+  mime: string;
+  tamanho: number;
+  origem: OrigemAnexo;
+  enviadoPor: string;
+  criadoEm: string;
+}
+
+/** Registro de public.historico (somente inserção). */
+export interface EventoHistorico {
+  id: number;
+  chamadoId: number;
+  /** Nulo = ação automática do sistema. */
+  autorId: string | null;
+  acao: string;
+  de: string | null;
+  para: string | null;
+  detalhe: Record<string, string>;
+  /** false = só a TI vê. */
+  publico: boolean;
+  criadoEm: string;
+}
+
+/** Registro de public.mensagens (chat). */
+export interface Mensagem {
+  id: number;
+  chamadoId: number;
+  autorId: string;
+  conteudo: string;
+  /** true = nota interna, só a TI vê. */
+  interna: boolean;
+  criadoEm: string;
 }
 
 export function estaEncerrado(status: StatusChamado): boolean {

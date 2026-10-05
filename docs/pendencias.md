@@ -23,7 +23,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🔴 | ambiente | **Supabase em avaliação pela diretoria** (pagamento e novo projeto). Se não for aprovado, revisar ADRs 0001–0004 (Auth, RLS, Realtime e Storage dependem dele). | Diretoria |
 | P-023 | 🟡 | banco | Migrations 0015 e 0016 e os testes `001` (33), `002` (18) e `003` (5) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
-| P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada, calcular no front. | 1A-2 / implementação real |
+| P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada já é calculada no front (`lib/dominio/horario-util.ts`, espelho de `app.adicionar_horas_uteis`). | 1A-2 / implementação real |
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
 
 ## Resolvidas

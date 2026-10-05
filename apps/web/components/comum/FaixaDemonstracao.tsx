@@ -10,9 +10,9 @@ export function FaixaDemonstracao() {
       <button
         type="button"
         className="min-h-8 underline underline-offset-2"
-        onClick={() => {
+        onClick={async () => {
           if (window.confirm("Apagar as alterações e voltar aos dados de exemplo?")) {
-            restaurarExemplos();
+            await restaurarExemplos();
             window.location.reload();
           }
         }}

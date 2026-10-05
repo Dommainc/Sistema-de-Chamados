@@ -2,17 +2,47 @@
 // Reproduz as regras do banco que importam para as telas: o que cada papel enxerga (RLS)
 // e as validações de perfil. Toda falha sai como ErroApp do catálogo.
 
+import { validarArquivo } from "@/lib/anexos";
 import type {
+  ChamadoCriado,
   Contadores,
+  DadosNovoChamado,
   DadosPrimeiroAcesso,
   FiltroChamados,
   FonteDeDados,
   PerfilPublico,
 } from "@/lib/dados/tipos";
-import { estaEncerrado, type Chamado, type Perfil } from "@/lib/dominio/tipos";
+import { validarFormulario } from "@/lib/dominio/formulario";
+import { adicionarHorasUteis } from "@/lib/dominio/horario-util";
+import {
+  estaEncerrado,
+  type Anexo,
+  type Categoria,
+  type Chamado,
+  type Perfil,
+} from "@/lib/dominio/tipos";
 import { ErroApp } from "@/lib/erros/catalogo";
-import { assinar, gravarEstado, lerEstado } from "./armazenamento";
+import { assinar, gravarEstado, lerEstado, proximoId } from "./armazenamento";
+import { guardarArquivo } from "./arquivos";
 import { CAMPOS_FORM, CATEGORIAS } from "./exemplos";
+import { EXPEDIENTE_SIMULADO } from "./feriados";
+
+function categoriaAtiva(categoriaId: number): Categoria {
+  const categoria = CATEGORIAS.find((c) => c.id === categoriaId);
+  // No banco: CC004 (categoria inativa ou inexistente) → erro inesperado para o usuário.
+  if (!categoria) throw new ErroApp("ERRO_INESPERADO");
+  return categoria;
+}
+
+function prazoPara(categoria: Categoria, agora: Date): string {
+  return adicionarHorasUteis(agora, categoria.slaHoras, EXPEDIENTE_SIMULADO).toISOString();
+}
+
+function novoId(): string {
+  return (
+    globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`
+  );
+}
 
 function ordenarRecentes(chamados: Chamado[]): Chamado[] {
   return [...chamados].sort((a, b) => b.atualizadoEm.localeCompare(a.atualizadoEm));
@@ -86,6 +116,85 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return CAMPOS_FORM.filter((c) => c.categoriaId === categoriaId).sort(
         (a, b) => a.ordem - b.ordem,
       );
+    },
+
+    async calcularPrevisao(categoriaId: number) {
+      eu();
+      return prazoPara(categoriaAtiva(categoriaId), new Date());
+    },
+
+    async criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado> {
+      const perfil = eu();
+      const categoria = categoriaAtiva(dados.categoriaId);
+      const campos = CAMPOS_FORM.filter((c) => c.categoriaId === categoria.id);
+      const { titulo, respostas } = validarFormulario(campos, dados.titulo, dados.respostas);
+      dados.anexos.forEach(validarArquivo);
+
+      const agora = new Date();
+      const criadoEm = agora.toISOString();
+      const estado = lerEstado();
+      const id = proximoId(estado.chamados);
+
+      const anexos: Anexo[] = [];
+      try {
+        for (const a of dados.anexos) {
+          const anexoId = novoId();
+          await guardarArquivo(anexoId, a.arquivo);
+          anexos.push({
+            id: anexoId,
+            chamadoId: id,
+            mensagemId: null,
+            nome: a.nome,
+            mime: a.mime,
+            tamanho: a.tamanho,
+            origem: a.origem,
+            enviadoPor: perfil.id,
+            criadoEm,
+          });
+        }
+      } catch {
+        throw new ErroApp("UPLOAD_FALHOU");
+      }
+
+      const chamado: Chamado = {
+        id,
+        titulo,
+        categoriaId: categoria.id,
+        solicitanteId: perfil.id,
+        responsavelId: null,
+        status: "pendente",
+        prioridade: "media",
+        respostasForm: respostas,
+        prazoSla: prazoPara(categoria, agora),
+        criadoEm,
+        atualizadoEm: criadoEm,
+        concluidoEm: null,
+        canceladoEm: null,
+        motivoCancelamento: null,
+      };
+
+      // Na API real: chamado + anexos + historico + notificacoes numa única transação.
+      const atual = lerEstado();
+      gravarEstado({
+        ...atual,
+        chamados: [...atual.chamados, chamado],
+        anexos: [...atual.anexos, ...anexos],
+        historico: [
+          ...atual.historico,
+          {
+            id: proximoId(atual.historico),
+            chamadoId: id,
+            autorId: perfil.id,
+            acao: "criado",
+            de: null,
+            para: "pendente",
+            detalhe: {},
+            publico: true,
+            criadoEm,
+          },
+        ],
+      });
+      return { id, prazoSla: chamado.prazoSla };
     },
 
     async listarChamados(filtro: FiltroChamados) {

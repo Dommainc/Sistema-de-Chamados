@@ -1,16 +1,23 @@
-/** Opção de rádio em cartão (mockup, tela 2: "Quem está sem conexão?"). */
+/**
+ * Opção em cartão (mockup, tela 2: "Quem está sem conexão?").
+ * `multipla` = caixa de seleção (várias respostas); senão, rádio.
+ */
 export function OpcaoCartao({
   nome,
   valor,
   rotulo,
   selecionado,
   aoSelecionar,
+  multipla = false,
+  id,
 }: {
   nome: string;
   valor: string;
   rotulo: string;
   selecionado: boolean;
   aoSelecionar: (valor: string) => void;
+  multipla?: boolean;
+  id?: string;
 }) {
   return (
     <label
@@ -21,12 +28,13 @@ export function OpcaoCartao({
       }`}
     >
       <input
-        type="radio"
+        id={id}
+        type={multipla ? "checkbox" : "radio"}
         name={nome}
         value={valor}
         checked={selecionado}
         onChange={() => aoSelecionar(valor)}
-        className="size-6 accent-primaria"
+        className="size-6 shrink-0 accent-primaria"
       />
       <span>{rotulo}</span>
     </label>

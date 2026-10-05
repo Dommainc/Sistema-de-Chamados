@@ -16,7 +16,7 @@ function comecaCom(caminho: string, prefixo: string): boolean {
   return caminho === prefixo || caminho.startsWith(`${prefixo}/`);
 }
 
-const AREA_SOLICITANTE = ["/meus-chamados", "/primeiro-acesso"];
+const AREA_SOLICITANTE = ["/meus-chamados", "/primeiro-acesso", "/abrir"];
 const AREA_TI = ["/atendimento"];
 
 export function decidirRota(caminho: string, papel: Papel | null): DecisaoRota {
@@ -45,4 +45,44 @@ export function decidirRota(caminho: string, papel: Papel | null): DecisaoRota {
 export function destinoLinkUniversal(id: string, papel: Papel): string {
   if (!/^\d+$/.test(id)) return inicioDoPapel(papel);
   return papel === "ti" ? `/atendimento/${id}` : `/meus-chamados/${id}`;
+}
+
+/** Caminhos do fluxo "Abrir chamado" em cada área (a TI também abre chamado, ADR 0005). */
+export interface CaminhosAbertura {
+  /** Passo 1: escolher o assunto. */
+  inicio: string;
+  /** Passo 2: formulário da categoria. */
+  formulario: (categoriaId: number) => string;
+  /** Passo 3: confirmação. */
+  pronto: (chamadoId: number) => string;
+  /** Tela de acompanhamento do chamado aberto. */
+  acompanhar: (chamadoId: number) => string;
+}
+
+export function caminhosAbertura(papel: Papel): CaminhosAbertura {
+  if (papel === "ti") {
+    return {
+      inicio: "/atendimento/novo",
+      formulario: (id) => `/atendimento/novo/${id}`,
+      pronto: (id) => `/atendimento/novo/pronto/${id}`,
+      acompanhar: (id) => `/atendimento/${id}`,
+    };
+  }
+  return {
+    inicio: "/",
+    formulario: (id) => `/abrir/${id}`,
+    pronto: (id) => `/abrir/pronto/${id}`,
+    acompanhar: (id) => `/meus-chamados/${id}`,
+  };
+}
+
+/** Mantém o "?referente=42" (novo pedido a partir de um chamado encerrado) entre os passos. */
+export function comReferente(caminho: string, referente: number | null): string {
+  return referente ? `${caminho}?referente=${referente}` : caminho;
+}
+
+/** Lê o "?referente=42" da URL; qualquer outra coisa vira nulo. */
+export function lerReferente(valor: string | string[] | undefined): number | null {
+  const texto = Array.isArray(valor) ? valor[0] : valor;
+  return texto && /^\d+$/.test(texto) ? Number(texto) : null;
 }
