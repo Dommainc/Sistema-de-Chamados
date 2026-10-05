@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/*
+ * Tokens de cor PROVISÓRIOS (neutros). Trocar aqui quando chegar o padrão visual do
+ * Cadastro de Insumos — os componentes usam só estes nomes (bg-primaria, text-texto-suave...).
+ * Contraste dos pares texto/fundo pensado para AA.
+ */
+:root {
+  --cor-primaria: #1e4e8c;
+  --cor-primaria-forte: #163b6b;
+  --cor-primaria-suave: #e8eff8;
+  --cor-sobre-primaria: #ffffff;
+
+  --cor-fundo: #f4f6f9;
+  --cor-superficie: #ffffff;
+  --cor-borda: #d5dbe3;
+  --cor-texto: #1a2230;
+  --cor-texto-suave: #4f5b6b;
+
+  --cor-info: #1d5fb8;
+  --cor-info-suave: #e6f0fb;
+  --cor-sucesso: #1d7a46;
+  --cor-sucesso-suave: #e5f5ec;
+  --cor-alerta: #8a5300;
+  --cor-alerta-suave: #fff3d6;
+  --cor-perigo: #b42318;
+  --cor-perigo-suave: #fdecea;
+  --cor-apagado: #5c6573;
+  --cor-apagado-suave: #eef0f3;
+
+  /* Notas internas da TI (fundo âmbar) */
+  --cor-interna: #fff4d6;
+  --cor-interna-borda: #e8b84a;
+}
+
+@theme inline {
+  --color-primaria: var(--cor-primaria);
+  --color-primaria-forte: var(--cor-primaria-forte);
+  --color-primaria-suave: var(--cor-primaria-suave);
+  --color-sobre-primaria: var(--cor-sobre-primaria);
+  --color-fundo: var(--cor-fundo);
+  --color-superficie: var(--cor-superficie);
+  --color-borda: var(--cor-borda);
+  --color-texto: var(--cor-texto);
+  --color-texto-suave: var(--cor-texto-suave);
+  --color-info: var(--cor-info);
+  --color-info-suave: var(--cor-info-suave);
+  --color-sucesso: var(--cor-sucesso);
+  --color-sucesso-suave: var(--cor-sucesso-suave);
+  --color-alerta: var(--cor-alerta);
+  --color-alerta-suave: var(--cor-alerta-suave);
+  --color-perigo: var(--cor-perigo);
+  --color-perigo-suave: var(--cor-perigo-suave);
+  --color-apagado: var(--cor-apagado);
+  --color-apagado-suave: var(--cor-apagado-suave);
+  --color-interna: var(--cor-interna);
+  --color-interna-borda: var(--cor-interna-borda);
+  --font-sans: var(--font-geist-sans);
+}
+
+body {
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+}
+
+:focus-visible {
+  outline: 3px solid var(--cor-primaria);
+  outline-offset: 2px;
+}

@@ -107,7 +107,7 @@ supabase migration new nome_da_mudanca
 
 cd apps/api && uv run fastapi dev app/main.py   # http://localhost:8000/docs
 cd apps/api && uv run pytest
-cd apps/web && pnpm dev                          # http://localhost:3000
+cd apps/web && pnpm dev                          # http://localhost:3000 (dados simulados, ADR 0006)
 cd apps/web && pnpm lint && pnpm typecheck && pnpm test
 ```
 

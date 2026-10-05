@@ -63,7 +63,7 @@ A separação na interface é **experiência**, não segurança. A segurança co
      not-found.tsx · error.tsx
    ```
    - **Link universal `/chamados/42`**: é o link usado nos avisos do Teams. Redireciona o solicitante para `/meus-chamados/42` e a TI para `/atendimento/42`.
-   - **`middleware.ts`**:
+   - **`proxy.ts`** (no Next.js 16 o `middleware.ts` passou a se chamar `proxy.ts`):
      - sem sessão → `/login`;
      - solicitante em `/atendimento/*` → `/sem-acesso`;
      - TI no portal do solicitante → `/atendimento`.
@@ -95,7 +95,7 @@ A separação na interface é **experiência**, não segurança. A segurança co
 - Ana (solicitante) cai em `/`; Técnico cai em `/atendimento`.
 - Cada um é barrado na área do outro.
 - `/chamados/42` leva cada um para a tela certa.
-- Testes do middleware, de `lib/status.ts` e da camada simulada.
+- Testes do proxy (regra em `lib/rotas.ts`), de `lib/status.ts` e da camada simulada.
 - Roda com `pnpm dev` sem Supabase, Docker ou API.
 
 ---
