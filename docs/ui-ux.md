@@ -62,7 +62,10 @@ O mockup foi desenhado com o fluxo antigo (Resolvido + confirmação + fechament
 
 **Casca:** cabeçalho branco com "DOMMA" (espaçado, negrito) / "Central de Chamados" e avatar com iniciais (menu: nome, Sair).
 **Menu inferior** fixo no celular: Abrir chamado · Meus chamados (contador laranja = chamados aguardando resposta).
-No computador o menu vai para o cabeçalho e o conteúdo fica centralizado (largura de celular grande).
+No computador (pedido do dono, 2026-10-05) o portal usa a largura da tela (até ~1150 px): o menu vai para o cabeçalho;
+categorias em 3–4 colunas; "Meus chamados" em 2 colunas; passo 2 com o formulário à esquerda e um painel fixo à direita
+(assunto, previsão, "Enviar pedido"); chamado com o chat à esquerda e um painel à direita (andamento, técnico, previsão,
+detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirmação seguem centralizados.
 
 1. **Abrir chamado — Passo 1 de 3** (`/`)
    - Aviso âmbar no topo se houver chamado aguardando resposta: ícone de balão, "O técnico está esperando sua resposta",

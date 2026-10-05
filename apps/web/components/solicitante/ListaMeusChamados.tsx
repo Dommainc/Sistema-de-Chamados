@@ -48,16 +48,18 @@ export function ListaMeusChamados() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Segmentado
-        rotuloAcessivel="Filtrar chamados"
-        larguraTotal
-        valor={aba}
-        aoMudar={setAba}
-        opcoes={[
-          { valor: "andamento", rotulo: `Em andamento (${emAndamento.length})` },
-          { valor: "encerrados", rotulo: "Encerrados" },
-        ]}
-      />
+      <div className="md:max-w-md">
+        <Segmentado
+          rotuloAcessivel="Filtrar chamados"
+          larguraTotal
+          valor={aba}
+          aoMudar={setAba}
+          opcoes={[
+            { valor: "andamento", rotulo: `Em andamento (${emAndamento.length})` },
+            { valor: "encerrados", rotulo: "Encerrados" },
+          ]}
+        />
+      </div>
 
       {carregando ? <p className="text-texto-suave">Carregando...</p> : null}
       {erro ? <p className="text-perigo">{erro.message}</p> : null}
@@ -69,7 +71,7 @@ export function ListaMeusChamados() {
         </p>
       ) : null}
 
-      <ul className="flex flex-col gap-3">
+      <ul className="grid gap-3 lg:grid-cols-2">
         {lista.map((c) => {
           const aguardando = c.status === "aguardando_usuario";
           const novaMensagem = dados?.naoLidos.has(c.id) ?? false;
@@ -81,7 +83,7 @@ export function ListaMeusChamados() {
             <li key={c.id}>
               <Link
                 href={`/meus-chamados/${c.id}`}
-                className={`flex flex-col gap-2 rounded-2xl border bg-superficie p-4 shadow-sm transition-colors hover:border-primaria ${aguardando ? "border-2 border-alerta-borda" : "border-borda"}`}
+                className={`flex h-full flex-col gap-2 rounded-2xl border bg-superficie p-4 shadow-sm transition-colors hover:border-primaria ${aguardando ? "border-2 border-alerta-borda" : "border-borda"}`}
               >
                 <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="font-mono font-semibold text-texto-suave">

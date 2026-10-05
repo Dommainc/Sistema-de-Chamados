@@ -158,7 +158,7 @@ function FormularioCarregado({
       }}
       className="flex flex-1 flex-col"
     >
-      <div className="flex items-center justify-between border-b border-borda bg-superficie px-4 py-2">
+      <div className="flex items-center justify-between border-b border-borda bg-superficie px-4 py-2 md:px-8">
         <Link
           href={voltar}
           className="inline-flex min-h-11 items-center gap-1 font-semibold text-primaria"
@@ -168,51 +168,83 @@ function FormularioCarregado({
         <span className="text-sm font-semibold text-texto-suave">Passo 2 de 3</span>
       </div>
 
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-6">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="rounded-lg bg-primaria-suave px-3 py-1 text-sm font-semibold text-primaria">
-            {categoria.nomeCurto}
-          </span>
-          <Link
-            href={voltar}
-            className="text-sm font-semibold text-primaria underline underline-offset-2"
-          >
-            Trocar assunto
-          </Link>
-        </div>
-        <h1 className="text-2xl font-bold">Conte o que está acontecendo</h1>
+      <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 lg:grid lg:grid-cols-[minmax(0,44rem)_20rem] lg:justify-between lg:gap-10">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="rounded-lg bg-primaria-suave px-3 py-1 text-sm font-semibold text-primaria">
+              {categoria.nomeCurto}
+            </span>
+            <Link
+              href={voltar}
+              className="text-sm font-semibold text-primaria underline underline-offset-2"
+            >
+              Trocar assunto
+            </Link>
+          </div>
+          <h1 className="text-2xl font-bold">Conte o que está acontecendo</h1>
 
-        <Campo
-          id="campo-titulo"
-          rotulo={ROTULO_TITULO}
-          required
-          maxLength={TITULO_MAX}
-          ajuda={'Uma frase curta. Ex.: "Impressora do 3º andar não imprime".'}
-          value={rascunho.titulo}
-          erro={erros[CHAVE_TITULO]}
-          onChange={(e) => mudar({ ...rascunho, titulo: e.target.value }, CHAVE_TITULO)}
-        />
-
-        {campos.map((campo) => (
-          <CampoDinamico
-            key={campo.id}
-            campo={campo}
-            valor={rascunho.respostas[campo.chave]}
-            erro={erros[campo.chave]}
-            aoMudar={(valor) =>
-              mudar(
-                { ...rascunho, respostas: { ...rascunho.respostas, [campo.chave]: valor } },
-                campo.chave,
-              )
-            }
+          <Campo
+            id="campo-titulo"
+            rotulo={ROTULO_TITULO}
+            required
+            maxLength={TITULO_MAX}
+            ajuda={'Uma frase curta. Ex.: "Impressora do 3º andar não imprime".'}
+            value={rascunho.titulo}
+            erro={erros[CHAVE_TITULO]}
+            onChange={(e) => mudar({ ...rascunho, titulo: e.target.value }, CHAVE_TITULO)}
           />
-        ))}
 
-        <SeletorAnexos arquivos={arquivos} aoAdicionar={adicionar} aoRemover={remover} />
+          {campos.map((campo) => (
+            <CampoDinamico
+              key={campo.id}
+              campo={campo}
+              valor={rascunho.respostas[campo.chave]}
+              erro={erros[campo.chave]}
+              aoMudar={(valor) =>
+                mudar(
+                  { ...rascunho, respostas: { ...rascunho.respostas, [campo.chave]: valor } },
+                  campo.chave,
+                )
+              }
+            />
+          ))}
+
+          <SeletorAnexos arquivos={arquivos} aoAdicionar={adicionar} aoRemover={remover} />
+        </div>
+
+        {/* Computador: resumo e envio sempre à vista, ao lado do formulário. */}
+        <aside className="hidden lg:block">
+          <div className="sticky top-6 flex flex-col gap-4 rounded-2xl border border-borda bg-superficie p-5 shadow-sm">
+            <div>
+              <p className="text-sm text-texto-suave">Assunto</p>
+              <p className="font-semibold">{categoria.nomeCurto}</p>
+            </div>
+            {previsao ? (
+              <div className="flex gap-2">
+                <Clock aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primaria" />
+                <div>
+                  <p className="text-sm text-texto-suave">Previsão de atendimento</p>
+                  <p className="font-semibold">{formatarPrevisao(previsao)}</p>
+                </div>
+              </div>
+            ) : null}
+            {arquivos.length > 0 ? (
+              <p className="text-sm text-texto-suave">
+                {arquivos.length === 1
+                  ? "1 arquivo anexado"
+                  : `${arquivos.length} arquivos anexados`}
+              </p>
+            ) : null}
+            <Botao type="submit" carregando={enviando} larguraTotal className="min-h-13 text-lg">
+              Enviar pedido
+            </Botao>
+          </div>
+        </aside>
       </div>
 
-      <div className="sticky bottom-0 border-t border-borda bg-superficie">
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-3 px-4 py-3">
+      {/* Celular: rodapé fixo com previsão e envio (mockup, tela 2). */}
+      <div className="sticky bottom-0 border-t border-borda bg-superficie lg:hidden">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:px-8">
           {previsao ? (
             <p className="flex items-center gap-2 text-texto-suave">
               <Clock aria-hidden="true" className="size-5" />

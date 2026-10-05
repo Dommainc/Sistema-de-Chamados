@@ -39,7 +39,7 @@ export function GradeCategorias({ referente }: { referente: number | null }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="relative">
+      <div className="relative md:max-w-xl">
         <Search
           aria-hidden="true"
           className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-texto-suave"
@@ -60,9 +60,12 @@ export function GradeCategorias({ referente }: { referente: number | null }) {
         </p>
       ) : null}
 
-      <ul className="grid grid-cols-2 gap-3">
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {visiveis.map((c) => (
-          <li key={c.id} className={c.icone === "ellipsis" ? "col-span-2" : ""}>
+          <li
+            key={c.id}
+            className={c.icone === "ellipsis" ? "col-span-2 sm:col-span-3 lg:col-span-4" : ""}
+          >
             <Link
               href={comReferente(caminhos.formulario(c.id), referente)}
               className="flex h-full min-h-20 items-center gap-3 rounded-2xl border border-borda bg-superficie p-3 font-semibold shadow-sm transition-colors hover:border-primaria hover:bg-primaria-suave"

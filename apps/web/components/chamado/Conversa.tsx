@@ -35,7 +35,7 @@ export function Balao({
       : "border border-borda bg-superficie text-texto";
   return (
     <div
-      className={`max-w-[85%] rounded-2xl px-4 py-3 whitespace-pre-line ${estilo} ${minha ? "self-end rounded-br-md" : "self-start rounded-bl-md"} ${esmaecido ? "opacity-70" : ""}`}
+      className={`max-w-[min(85%,42rem)] rounded-2xl px-4 py-3 whitespace-pre-line ${estilo} ${minha ? "self-end rounded-br-md" : "self-start rounded-bl-md"} ${esmaecido ? "opacity-70" : ""}`}
     >
       {conteudo}
     </div>

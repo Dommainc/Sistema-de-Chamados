@@ -1,4 +1,5 @@
 // Fluxo do passo 2 (mockup, tela 2): erros inline, rascunho mantido, Ctrl+V e envio.
+// Os testes rodam sem CSS: o rodapé do celular e o painel do computador aparecem juntos (por isso *AllBy*).
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -54,12 +55,12 @@ describe("FormularioChamado", () => {
     expect(
       screen.getByRole("radio", { name: "O escritório ou a obra inteira" }),
     ).toBeInTheDocument();
-    expect(await screen.findByText(/Previsão de atendimento/)).toBeInTheDocument();
+    expect((await screen.findAllByText(/Previsão de atendimento/)).length).toBeGreaterThan(0);
   });
 
   it("enviar vazio mostra o erro embaixo de cada campo obrigatório", async () => {
     renderizar();
-    fireEvent.click(await screen.findByRole("button", { name: "Enviar pedido" }));
+    fireEvent.click((await screen.findAllByRole("button", { name: "Enviar pedido" }))[0]);
     expect(
       await screen.findByText("Preencha o campo Resumo do problema para continuar."),
     ).toBeInTheDocument();
@@ -81,7 +82,7 @@ describe("FormularioChamado", () => {
     fireEvent.change(screen.getByLabelText(/Descreva o que está acontecendo/), {
       target: { value: "Roteador com luz vermelha" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Enviar pedido" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "Enviar pedido" })[0]);
 
     await waitFor(() => expect(navegacao.replace).toHaveBeenCalled());
     const criado = lerEstado().chamados.at(-1)!;
