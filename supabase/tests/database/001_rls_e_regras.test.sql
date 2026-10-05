@@ -1,11 +1,12 @@
 -- =============================================================================
--- Testes do banco: RLS, permissões, travas de integridade, prazo e jobs.
+-- Testes do banco: RLS, permissões, travas de integridade e prazo.
+-- Regras dos status (ADR 0005): 002_status.test.sql
 -- Rodar com:  supabase test db
 -- Tudo roda em transação e é desfeito no final.
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(35);
+select plan(33);
 
 -- -----------------------------------------------------------------------------
 -- Auxiliares: executar SQL como um usuário/papel e devolver SQLSTATE ou 'ok'
@@ -201,7 +202,7 @@ select is(
 
 select is(
   pg_temp.executar_como('authenticated', 'aaaaaaaa-0000-0000-0000-000000000001',
-    format('update public.chamados set status = ''resolvido'' where id = %s',
+    format('update public.chamados set status = ''concluido'' where id = %s',
            (select id from fx where nome = 'chamado_a'))),
   '42501', 'Solicitante NÃO altera chamado direto no banco');
 
@@ -257,8 +258,8 @@ select throws_ok(
   'CC003', null, 'Chamados nunca são excluídos');
 
 select throws_ok(
-  format('update public.chamados set status = ''em_atendimento'' where id = %s', (select id from fx where nome = 'chamado_a')),
-  '23514', null, 'Em atendimento exige responsável');
+  format('update public.chamados set status = ''em_andamento'' where id = %s', (select id from fx where nome = 'chamado_a')),
+  '23514', null, 'Em andamento exige responsável');
 
 select throws_ok(
   format('update public.chamados set status = ''cancelado'' where id = %s', (select id from fx where nome = 'chamado_b')),
@@ -299,23 +300,6 @@ select is(
   pg_temp.contar_como('bbbbbbbb-0000-0000-0000-000000000002',
     $$ select 1 from storage.objects where bucket_id = 'anexos' $$),
   0::bigint, 'Outro solicitante NÃO acessa os arquivos');
-
--- =============================================================================
--- Fechamento automático
--- =============================================================================
-update public.chamados
-   set status = 'em_atendimento', responsavel_id = 'cccccccc-0000-0000-0000-000000000003'
- where id = (select id from fx where nome = 'chamado_a');
-
-update public.chamados
-   set status = 'resolvido', resolvido_em = now() - interval '15 days'
- where id = (select id from fx where nome = 'chamado_a');
-
-select ok(app.fechar_resolvidos_expirados() >= 1, 'Job fecha resolvidos vencidos');
-
-select is(
-  (select status::text from public.chamados where id = (select id from fx where nome = 'chamado_a')),
-  'fechado', 'Chamado resolvido há mais de 3 dias úteis é fechado');
 
 select * from finish();
 rollback;

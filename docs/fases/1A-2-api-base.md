@@ -47,12 +47,7 @@ erros e sincronização de papel no login.
    `PATCH /me` não altera papel, formato de erro, ref `ERR-XXXX` em exceção forçada, e
    **solicitante A não lê dados de B pela API**.
 
-9. **Migration dos 6 status** (`docs/adr/0005`, `docs/pendencias.md` P-019), feita **antes** de qualquer rota de chamado:
-   novo enum `status_chamado` (`pendente`, `em_andamento`, `aguardando_usuario`, `transferido`, `concluido`, `cancelado`);
-   checks (`em_andamento` e `transferido` exigem responsável, `pendente` sem responsável, cancelado exige motivo);
-   `concluido_em` no lugar de `resolvido_em`/`fechado_em`; trigger de carimbos; índices parciais; remover o job de
-   fechamento automático da 0014 (`cron.unschedule` + drop da função) e a config `dias_fechamento_automatico`;
-   ajustar os testes pgTAP. Migration nova — nunca editar 0001–0014.
+9. ~~Migration dos 6 status~~ — já feita: `supabase/migrations/20261005120000_status_simplificados.sql` (P-019).
 
 ## Fora do escopo
 Rotas de chamados, anexos e telas (1A-3), Teams (1E).

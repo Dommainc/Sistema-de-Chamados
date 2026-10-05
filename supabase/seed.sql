@@ -10,7 +10,6 @@ insert into public.configuracoes (chave, valor, descricao, publico) values
   ('fuso_horario',               '"America/Sao_Paulo"', 'Fuso usado nos prazos', true),
   ('expediente_inicio',          '"08:00"',             'Início do expediente (prazos em horas úteis)', true),
   ('expediente_fim',             '"18:00"',             'Fim do expediente', true),
-  ('dias_fechamento_automatico', '3',                   'Dias úteis em "resolvido" sem resposta até fechar', true),
   ('sla_alerta_percentual',      '80',                  'Percentual do prazo que dispara alerta (Fase 2)', false),
   ('anexo_tamanho_max_mb',       '10',                  'Tamanho máximo por arquivo (manter igual ao bucket)', true),
   ('anexo_tipos_permitidos',

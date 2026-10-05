@@ -57,7 +57,7 @@ Busca por `42` na fila abre direto.
 ### Máquina de estados (fonte única: `apps/api/app/dominio/estados.py`; decisão em `docs/adr/0005`)
 
 6 status: `pendente`, `em_andamento`, `aguardando_usuario`, `transferido`, `concluido`, `cancelado`.
-⚠️ O banco (migrations 0001–0014) ainda tem os 8 status antigos; a migration de troca está em `docs/pendencias.md` (P-019).
+Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
 
 | De | Para | Quem | Exige |
 |---|---|---|---|
