@@ -1,0 +1,24 @@
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Node / Next
+node_modules/
+.next/
+out/
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/
+
+# Sistema / editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

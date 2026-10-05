@@ -1,0 +1,45 @@
+# Supabase CLI — ambiente local. Os projetos remotos (dev e prod) ficam em
+# South America (São Paulo) / sa-east-1 — ver docs/adr/0001.
+project_id = "central-chamados"
+
+[api]
+enabled = true
+port = 54321
+# O schema "app" NÃO entra aqui: funções internas não são expostas pela API REST.
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+# Deve ser igual à versão do projeto remoto (confira com `supabase link`).
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[realtime]
+enabled = true
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+jwt_expiry = 3600
+enable_signup = true   # necessário para o 1º login via Microsoft criar o usuário
+
+[auth.email]
+enable_signup = false  # login só com conta Microsoft
+
+[auth.external.azure]
+enabled = true
+client_id = "env(AZURE_CLIENT_ID)"
+secret = "env(AZURE_CLIENT_SECRET)"
+# Tenant da DOMMA (restringe o login a contas da empresa):
+# https://login.microsoftonline.com/<tenant-id>
+url = "env(AZURE_TENANT_URL)"
