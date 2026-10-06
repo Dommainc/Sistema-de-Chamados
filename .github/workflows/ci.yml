@@ -108,8 +108,7 @@ jobs:
         run: |
           set -o pipefail
           supabase test db 2>&1 | tee pgtap.log || {
-            echo "::error title=pgTAP::$(grep -E 'not ok|^#|ERROR|Failed|psql' pgtap.log | head -40 | sed ':a;N;$!ba;s/
-/%0A/g')"
+            echo "::error title=pgTAP::$(grep -E 'not ok|^#|ERROR|Failed|psql' pgtap.log | head -40 | awk '{printf "%s%%0A", $0}')"
             exit 1
           }
 
@@ -140,8 +139,7 @@ jobs:
           set -o pipefail
           uv sync --frozen
           uv run pytest -m banco -v -rs --tb=short 2>&1 | tee pytest.log || {
-            echo "::error title=Integração da API::$(grep -E 'FAILED|ERROR|Error|assert|codigo|detalhe' pytest.log | head -40 | sed ':a;N;$!ba;s/
-/%0A/g')"
+            echo "::error title=Integração da API::$(grep -E 'FAILED|ERROR|Error|assert|codigo|detalhe' pytest.log | head -40 | awk '{printf "%s%%0A", $0}')"
             exit 1
           }
 
