@@ -1,5 +1,5 @@
 # CI — roda em todo push na main e em todo pull request.
-# Front (apps/web) e API (apps/api). O banco entra quando o Supabase for liberado (P-022).
+# Front (apps/web), API (apps/api) e banco (Supabase local e descartável, só dentro do CI).
 name: CI
 
 on:
@@ -77,6 +77,58 @@ jobs:
       - name: Formatação
         run: uv run ruff format --check .
 
-      # Testes que precisam de banco (marca "banco") são pulados até existir o Supabase no CI.
+      # Testes que precisam de banco (marca "banco") são pulados aqui e rodam no job "banco".
       - name: Testes
         run: uv run pytest
+
+  # Supabase LOCAL dentro do runner do GitHub (Docker), apagado no fim. Não é o projeto pago (P-022):
+  # valida migrations do zero, testes pgTAP e a API contra um banco de verdade (P-023, P-034).
+  banco:
+    name: Banco (supabase + integração da API)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # O provider Azure está ligado no config.toml; no CI não há Entra, só valores falsos.
+      AZURE_CLIENT_ID: ci
+      AZURE_CLIENT_SECRET: ci
+      AZURE_TENANT_URL: https://login.microsoftonline.com/ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Subir Supabase (migrations + seed + seed.dev)
+        run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy
+
+      - name: Testes do banco (pgTAP)
+        run: supabase test db
+
+      - name: Variáveis do banco local para a API
+        run: |
+          eval "$(supabase status -o env)"
+          {
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_JWT_SECRET=$JWT_SECRET"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+            echo "DATABASE_URL=postgresql://central_api:central_api_local@127.0.0.1:54322/postgres"
+            echo "AMBIENTE=dev"
+          } >> "$GITHUB_ENV"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Testes de integração da API
+        working-directory: apps/api
+        run: |
+          uv sync --frozen
+          uv run pytest -m banco -v -rs
+
+      - name: Logs do Supabase (se falhar)
+        if: failure()
+        run: docker ps -a && supabase status || true
