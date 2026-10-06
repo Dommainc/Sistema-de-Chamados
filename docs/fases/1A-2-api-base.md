@@ -1,5 +1,8 @@
 # Etapa 1A-2 — Base da FastAPI
 
+> **Andamento (2026-10-06):** base pronta sem banco (itens 1, 3, 4, 7 e as partes puras de 2, 5, 6 e 8).
+> Falta rodar contra o Supabase (P-022/P-023). Decisões do login e do grupo: `docs/adr/0007`.
+
 ## Objetivo
 Esqueleto da API pronto para receber as regras de negócio: conexão com o banco no modelo
 "lê como usuário / grava como central_api", autenticação pelo JWT do Supabase, catálogo de

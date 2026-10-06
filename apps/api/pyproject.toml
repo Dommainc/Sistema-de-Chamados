@@ -1,0 +1,38 @@
+[project]
+name = "central-chamados-api"
+version = "0.1.0"
+description = "API da Central de Chamados — DOMMA Incorporações"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi[standard]>=0.115",
+  "asyncpg>=0.30",
+  "pydantic-settings>=2.6",
+  "pyjwt[crypto]>=2.10",
+  "httpx>=0.28",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "ruff>=0.8",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "ASYNC", "RUF", "N", "C4"]
+ignore = [
+  "RUF001", "RUF002", "RUF003",  # aspas e travessões do português são intencionais
+  "N818",  # nomes do domínio em português (ErroApp), não "...Error"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = ["banco: precisa de um Postgres/Supabase (DATABASE_URL); pulado se não houver"]
+# Aviso interno do Starlette sobre a biblioteca do cliente de testes; não afeta a API.
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient`"]

@@ -106,8 +106,8 @@ supabase db reset         # recria do zero
 supabase test db          # testes pgTAP do banco
 supabase migration new nome_da_mudanca
 
-cd apps/api && uv run fastapi dev app/main.py   # http://localhost:8000/docs
-cd apps/api && uv run pytest
+cd apps/api && uv run fastapi dev app/main.py   # http://localhost:8000/docs  (sem uv no PATH: python -m uv ...)
+cd apps/api && uv run ruff check . && uv run pytest   # testes "banco" pulados sem DATABASE_URL
 cd apps/web && pnpm dev                          # http://localhost:3000 (dados simulados, ADR 0006)
 cd apps/web && pnpm lint && pnpm typecheck && pnpm test
 cd apps/web && pnpm e2e        # Playwright (sobe o pnpm dev sozinho)

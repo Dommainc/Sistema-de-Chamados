@@ -1,5 +1,5 @@
 # CI — roda em todo push na main e em todo pull request.
-# Por enquanto só o front (apps/web): banco e API entram quando existirem (docs/adr/0006).
+# Front (apps/web) e API (apps/api). O banco entra quando o Supabase for liberado (P-022).
 name: CI
 
 on:
@@ -52,3 +52,31 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  api:
+    name: API (apps/api)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: apps/api/uv.lock
+
+      - name: Instalar dependências
+        run: uv sync --frozen
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Formatação
+        run: uv run ruff format --check .
+
+      # Testes que precisam de banco (marca "banco") são pulados até existir o Supabase no CI.
+      - name: Testes
+        run: uv run pytest

@@ -17,7 +17,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-010 | ⚪ | banco | Trocar a categoria de um chamado não recalcula `area_id` nem `prazo_sla` (só calculados na abertura). | 1B / regra de recategorização |
 | P-014 | 🟡 | banco | Não há procedimento para levar o `seed.sql` à produção: `supabase db push` não roda seed. | 1A-4 / `docs/go-live.md` |
 | P-015 | ⚪ | ambiente | `[auth.external.azure] enabled = true` no `config.toml` lê variáveis que ainda não existem; conferir se o `supabase start` local funciona sem elas. | Início da 1A-2 |
-| P-016 | ⚪ | docs | O `CLAUDE.md` cita `supabase/seed.dev.sql`, que ainda não existe (previsto na 1A-2). | 1A-2 |
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🟡 | ambiente | **Supabase praticamente aprovado pela diretoria — falta só a assinatura** (atualizado em 2026-10-06). Depois: criar projetos `dev` e `prod` em `sa-east-1` (ADR 0001) e rodar as migrations (P-023). | Assinatura da diretoria |
@@ -28,11 +27,14 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
 | P-030 | ⚪ | web | No modo simulado, a sessão fica num cookie: **um navegador = um usuário por vez**. Para ver Ana e Rafael ao mesmo tempo, abra a aba da Ana, depois entre como Rafael em outra aba — a da Ana continua como Ana até recarregar (é o que o E2E faz). Some com o login real. | Implementação real (1A-2) |
 | P-031 | ⚪ | ci | `pnpm e2e` não roda no CI (baixar o navegador deixa o CI lento). Incluir quando a implementação real existir, junto com o banco local no CI. | 1A-4 restante |
+| P-032 | 🟡 | api | Confirmar o ponto de entrada da API na Vercel (FastAPI em `app/main.py`) no primeiro deploy; ajustar `vercel.json` se a Vercel não detectar sozinha. | Primeiro deploy |
+| P-033 | ⚪ | ambiente | O `uv` foi instalado com `pip install --user` e ficou fora do PATH: usar `python -m uv` ou adicionar `%APPDATA%\Python\Python314\Scripts` ao PATH. | Quando quiser |
 
 ## Resolvidas
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-016 | 2026-10-06 | `supabase/seed.dev.sql` criado (4 usuários de teste, senha local do `central_api`) e incluído no `config.toml`. Não executado ainda (P-023). |
 | P-013 | 2026-10-06 | Documentado em `docs/banco.md`: usuário com chamados não é apagado; desligamento = `ativo = false` (quem marca continua em P-005). |
 | P-006 | 2026-10-05 | Técnico **pode** abrir chamado: a TI também vê o formulário de abertura (ajustar a nova 1A-3). |
 | P-007 | 2026-10-05 | Resolver **não** grava mensagem automática no chat; o encerramento segue só pela mudança de status. |
