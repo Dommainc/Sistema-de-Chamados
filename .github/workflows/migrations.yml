@@ -1,0 +1,64 @@
+# Aplica as migrations nos projetos Supabase da nuvem (docs/go-live.md, passo 9).
+# DESLIGADO até os projetos existirem: cada job só roda se a variável do projeto estiver preenchida
+# (Settings → Secrets and variables → Actions → Variables): SUPABASE_DEV_PROJECT_ID / SUPABASE_PROD_PROJECT_ID.
+# Seed não roda aqui (docs/go-live.md, passo 3).
+name: Migrations
+
+on:
+  push:
+    branches: [main]
+    paths: ["supabase/migrations/**"]
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        description: "Onde aplicar"
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: migrations-${{ github.event.inputs.ambiente || 'dev' }}
+  cancel-in-progress: false
+
+jobs:
+  dev:
+    name: Aplicar no dev
+    if: >-
+      vars.SUPABASE_DEV_PROJECT_ID != '' &&
+      (github.event_name == 'push' || github.event.inputs.ambiente == 'dev')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: dev
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase link --project-ref "${{ vars.SUPABASE_DEV_PROJECT_ID }}"
+      - run: supabase db push
+
+  # Produção: só manual (Run workflow → prod) e com aprovação do revisor do environment "prod".
+  prod:
+    name: Aplicar no prod
+    if: >-
+      vars.SUPABASE_PROD_PROJECT_ID != '' &&
+      github.event_name == 'workflow_dispatch' && github.event.inputs.ambiente == 'prod'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: prod
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase link --project-ref "${{ vars.SUPABASE_PROD_PROJECT_ID }}"
+      - run: supabase db push

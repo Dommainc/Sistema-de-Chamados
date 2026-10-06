@@ -11,11 +11,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Gravidade | Tipo | Descrição | Onde resolver |
 |---|---|---|---|---|
-| P-005 | 🟡 | regra | Quem marca `profiles.ativo = false` quando alguém sai da empresa? Sem Graph, nada sincroniza; hoje só o login no Entra barra. | Antes do go-live |
-| P-008 | 🟡 | regra | Tela de Configurações adiada: categorias, campos, SLA e feriados só mudam por migration/SQL. Feriados cadastrados só até 2027. | Antes de dez/2027 ou na Fase 2 |
-| P-009 | 🟡 | banco | Solicitante com `ativo = false` ainda lê os próprios chamados, mensagens e histórico direto pelo Supabase (as policies só checam `ativo` para a TI). O bloqueio previsto fica só na API. | Migration nova (junto com P-005) |
 | P-010 | ⚪ | banco | Trocar a categoria de um chamado não recalcula `area_id` nem `prazo_sla` (só calculados na abertura). | 1B / regra de recategorização |
-| P-014 | 🟡 | banco | Não há procedimento para levar o `seed.sql` à produção: `supabase db push` não roda seed. | 1A-4 / `docs/go-live.md` |
 | P-015 | ⚪ | ambiente | `[auth.external.azure] enabled = true` no `config.toml` lê variáveis que ainda não existem; conferir se o `supabase start` local funciona sem elas. | Início da 1A-2 |
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
@@ -29,12 +25,16 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-033 | ⚪ | ambiente | O `uv` foi instalado com `pip install --user` e ficou fora do PATH: usar `python -m uv` ou adicionar `%APPDATA%\Python\Python314\Scripts` ao PATH. | Quando quiser |
 | P-035 | 🟡 | ambiente | Nos projetos da nuvem, **desligar o provedor de e-mail** no painel do Supabase (Authentication → Providers → Email): login só com conta Microsoft. O `config.toml` deixa ligado só para o ambiente local/CI (usuários de teste). | Ao criar os projetos (P-022) |
 | P-036 | ⚪ | ci | Ações do CI (`checkout@v4`, `setup-uv@v6`, `supabase/setup-cli@v1`) usam Node 20, descontinuado no GitHub: atualizar as versões quando saírem. | Quando quiser |
-| P-037 | 🟡 | negócio | Ao **concluir**, pedir um "O que foi feito" que vai para o Relato técnico? Opcional ou obrigatório? Ajudaria a montar uma base de soluções. Hoje concluir não pede nada. | Decisão do dono |
 
 ## Resolvidas
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-037 | 2026-10-06 | Decisão do dono: não haverá "O que foi feito" ao concluir — o **Relato técnico** já cumpre esse papel. |
+| P-005 | 2026-10-06 | Decisão do dono: integração Microsoft só para o login, e só `@dommainc.com.br` acessa. Migration 0018 (perfil fora do domínio nasce inativo) + login single-tenant e sessão limitada (`docs/go-live.md`, passo 5). Desligamento = bloquear no Microsoft; opcionalmente `ativo = false`. |
+| P-009 | 2026-10-06 | Migration 0018: leituras do solicitante exigem perfil ativo (`app.eu_ativo()`, `app.eh_solicitante_do_chamado`). Teste `005`. |
+| P-008 | 2026-10-06 | Decisão do dono: tela de Configurações (categorias, campos, SLA, feriados) fica para a **Fase 2**; até lá, SQL. Lembrete: cadastrar feriados de 2028 antes do fim de 2027. |
+| P-014 | 2026-10-06 | Procedimento em `docs/go-live.md`, passo 3: `seed.sql` é idempotente e roda uma vez por `psql` em cada projeto; `seed.dev.sql` nunca na nuvem. |
 | P-034 | 2026-10-06 | Validado no job `banco` do CI (Supabase local no runner): abrir, assumir, transferir, aguardar, nota interna, resposta automática, lido, concluir, cancelar, permissões e anexo (upload assinado → mover → download) passaram contra o banco real. Falta só repetir no projeto `dev` da nuvem. |
 | P-023 | 2026-10-06 | Job `banco` do CI aplica as 17 migrations do zero e roda os 62 testes pgTAP a cada push. Ajustes nos testes: ids próprios no 001 (colidiam com o `seed.dev.sql`), `grant central_api` só na transação de teste (Postgres 17 não deixa o criador assumir o papel) e acesso ao pgTAP no 004. |
 | P-028 | 2026-10-06 | Rotas criadas na API (`app/routers/chamados.py`, ADR 0008) com o contrato de `apps/web/lib/dados/tipos.ts`; testadas em memória. Validação com banco segue em P-034. |

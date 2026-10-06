@@ -1,6 +1,6 @@
 # Banco de dados
 
-Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0017) e testado
+Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0018) e testado
 por `supabase/tests/database/` (pgTAP). **Nunca editar uma migration já commitada**: sempre criar uma nova.
 Situação: validado a cada push no job `banco` do CI (Supabase local e descartável: migrations do zero + pgTAP + integração da API). Projetos da nuvem aguardam a assinatura (`pendencias.md` P-022).
 
@@ -41,7 +41,7 @@ erDiagram
 ### Pessoas
 | Tabela | O que guarda | Pontos importantes |
 |---|---|---|
-| `profiles` | Nome, e-mail, departamento, telefone, papel (`solicitante`/`ti`), `ativo` | Criado sozinho no 1º login. O usuário só edita departamento e telefone; o papel vem do Entra |
+| `profiles` | Nome, e-mail, departamento, telefone, papel (`solicitante`/`ti`), `ativo` | Criado sozinho no 1º login — **ativo só se o e-mail for `@dommainc.com.br`** (`configuracoes.dominios_permitidos`, migration 0018). Inativo não lê nem faz nada. O usuário só edita departamento e telefone; o papel vem do Entra |
 | `perfis_publicos` (view) | Só nome, departamento, papel e ativo de todos | Para mostrar o nome do técnico/solicitante sem expor contato |
 
 ### Chamados
@@ -105,3 +105,4 @@ pública (migration 0015).
 | 0015 | `20261005120000_status_simplificados.sql` | 6 status (ADR 0005), `concluido_em`, sem fechamento automático |
 | 0016 | `20261005150000_categorias_icone_nome_curto.sql` | Ícone e nome curto das categorias |
 | 0017 | `20261005180000_chamado_leituras.sql` | Leitura da conversa (selo "Nova mensagem") |
+| 0018 | `20261007090000_dominio_e_inativos.sql` | Só `@dommainc.com.br` fica ativo; solicitante inativo não lê mais nada (P-005, P-009) |
