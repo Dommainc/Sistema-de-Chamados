@@ -49,7 +49,7 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await expect(page.getByText(/49,8 GB/)).toBeVisible();
   await print(page, "08-atendimento", p);
 
-  await page.goto("/atendimento?modo=lista");
-  await expect(page.getByRole("table")).toBeVisible();
-  await print(page, "09-lista", p);
+  await page.goto("/atendimento/encerrados");
+  await expect(page.getByRole("heading", { name: /Chamados encerrados/ })).toBeVisible();
+  await print(page, "09-encerrados", p);
 });

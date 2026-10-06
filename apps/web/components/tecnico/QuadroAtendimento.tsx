@@ -181,6 +181,19 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         ) : null}
       </div>
 
+      {filtros.busca ? (
+        <p className="text-sm text-texto-suave">
+          Mostrando só os chamados com “<strong className="text-texto">{filtros.busca}</strong>” no
+          título ·{" "}
+          <Link
+            href="/atendimento"
+            className="inline-flex min-h-11 items-center font-semibold text-primaria underline"
+          >
+            limpar busca
+          </Link>
+        </p>
+      ) : null}
+
       <div className="grid items-start gap-5 lg:grid-cols-3">
         {COLUNAS.map((c) => (
           <ColunaQuadro
@@ -201,7 +214,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
 
       <p className="text-center">
         <Link
-          href="/atendimento?modo=lista&encerrados=1"
+          href="/atendimento/encerrados"
           className="inline-flex min-h-11 items-center text-sm font-semibold text-primaria underline underline-offset-2"
         >
           Ver encerrados

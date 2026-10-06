@@ -15,6 +15,7 @@ O mockup foi desenhado com o fluxo antigo (Resolvido + confirmação + fechament
 | Coluna "Resolvidos · Falta o solicitante confirmar" / "Fecha sozinho em 2 dias úteis" | Não existe. Quadro: Novos · Em atendimento · Aguardando usuário (+ "Ver encerrados") |
 | Botão "Marcar como resolvido" / "Resolver" | **"Marcar como concluído"** (desktop) / **"Concluir"** (celular) |
 | Painel do técnico: "Contato: Ramal" | **"Telefone"** (o primeiro acesso pede telefone/celular) |
+| Alternância "Quadro \| Lista" na barra escura | **Só o quadro (kanban)** — decisão do dono em 2026-10-06. Busca por texto filtra o quadro; "Ver encerrados" é uma página de cartões só para consulta |
 | Destaque "perto de vencer" | **Menos de 1 h** para o prazo (mockup) — substitui os "20% do SLA" da 1A-3 |
 
 ## Fundamentos
@@ -100,7 +101,7 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
 
 ## Área técnica (computador primeiro)
 
-**Casca:** barra escura `barra`: "DOMMA Atendimento TI", alternância **Quadro | Lista**, busca "Buscar #número ou título",
+**Casca:** barra escura `barra`: "DOMMA Atendimento TI", busca "Buscar #número ou título",
 avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 
 6. **Quadro** (`/atendimento`)

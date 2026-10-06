@@ -226,4 +226,5 @@ própria de UI/UX antes da Entrega 2. Mudanças em relação ao texto acima:
   Todos · Só os meus · Sem responsável · categoria · prazo; destaque **vence em menos de 1 h** (substitui 20% do SLA);
   selo "Transferido para você · por Thiago"; ação **Retomar atendimento** (aguardando_usuario → em_andamento);
   botão "Marcar como concluído"; no celular, abas Conversa · Detalhes · Histórico.
-- **Modo Lista é o padrão** até o Quadro existir; na Entrega 3 o Quadro passa a ser o padrão.
+- **Só o quadro (kanban)** na área técnica (decisão do dono, 2026-10-06): sem modo Lista. Busca por texto filtra o quadro;
+  "Ver encerrados" abre `/atendimento/encerrados` (cartões, só consulta).

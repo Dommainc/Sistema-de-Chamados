@@ -59,7 +59,8 @@ Ao entrar, você vê o **quadro** com três colunas: **Novos**, **Em atendimento
 - **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo.
 - **Filtros:** Todos / Só os meus / Sem responsável, categoria e prazo. O link da página guarda os filtros.
 - **Busca:** digite o número (ex.: `42`) para abrir o chamado direto, ou parte do título.
-- Prefere tabela? Use **Lista** na barra de cima. Os encerrados ficam em **Ver encerrados**.
+- **Busca por texto** (ex.: `impressora`) deixa no quadro só os chamados com essa palavra no título.
+- Os chamados concluídos e cancelados ficam em **Ver encerrados**, no fim do quadro.
 
 ### Atendendo um chamado
 

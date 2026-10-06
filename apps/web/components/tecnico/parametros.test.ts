@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { destinoBusca, lerCategoria, lerFiltro, lerModo, lerPrazo } from "./parametros";
+import { destinoBusca, lerCategoria, lerFiltro, lerPrazo } from "./parametros";
 
 describe("destinoBusca", () => {
   it("número abre o chamado direto (com ou sem #)", () => {
@@ -8,10 +8,8 @@ describe("destinoBusca", () => {
     expect(destinoBusca("042")).toBe("/atendimento/42");
   });
 
-  it("texto filtra a lista pelo título", () => {
-    expect(destinoBusca("impressora 3º")).toBe(
-      "/atendimento?modo=lista&busca=impressora%203%C2%BA",
-    );
+  it("texto filtra o quadro pelo título", () => {
+    expect(destinoBusca("impressora 3º")).toBe("/atendimento?busca=impressora%203%C2%BA");
   });
 
   it("vazio não faz nada", () => {
@@ -21,9 +19,6 @@ describe("destinoBusca", () => {
 
 describe("parâmetros da URL", () => {
   it("valores desconhecidos caem no padrão", () => {
-    expect(lerModo("xyz")).toBe("quadro");
-    expect(lerModo(null)).toBe("quadro");
-    expect(lerModo("lista")).toBe("lista");
     expect(lerPrazo("vencido")).toBe("vencido");
     expect(lerPrazo("qualquer")).toBe("todos");
     expect(lerCategoria("3")).toBe(3);

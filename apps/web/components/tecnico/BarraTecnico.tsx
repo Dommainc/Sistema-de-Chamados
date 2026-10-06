@@ -2,14 +2,13 @@
 
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { MenuUsuario } from "@/components/comum/MenuUsuario";
 import { Logo } from "@/components/ui/Logo";
-import { Segmentado } from "@/components/ui/Segmentado";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
-import { destinoBusca, lerModo } from "./parametros";
+import { destinoBusca } from "./parametros";
 
 const consultarContadores = (fonte: FonteDeDados) => fonte.obterContadores();
 
@@ -45,9 +44,6 @@ function CampoBusca({ className = "" }: { className?: string }) {
 /** Barra escura da área técnica (docs/ui-ux.md, telas 6–9). */
 export function BarraTecnico() {
   const usuario = useUsuario();
-  const caminho = usePathname();
-  const parametros = useSearchParams();
-  const modo = lerModo(parametros.get("modo"));
   const { dados: contadores } = useConsulta(consultarContadores);
   const resumo =
     contadores === undefined ? undefined : `${contadores.meusAtendimentos} em atendimento`;
@@ -59,19 +55,6 @@ export function BarraTecnico() {
           <Link href="/atendimento" className="flex min-h-11 items-center">
             <Logo subtitulo="Atendimento TI" tema="escuro" emLinha />
           </Link>
-          {caminho === "/atendimento" ? (
-            <div className="hidden md:block">
-              <Segmentado
-                tema="escuro"
-                rotuloAcessivel="Modo de visualização"
-                valor={modo}
-                opcoes={[
-                  { valor: "quadro", rotulo: "Quadro", href: "/atendimento?modo=quadro" },
-                  { valor: "lista", rotulo: "Lista", href: "/atendimento?modo=lista" },
-                ]}
-              />
-            </div>
-          ) : null}
         </div>
         <div className="flex items-center gap-4">
           <CampoBusca className="hidden w-72 md:block" />

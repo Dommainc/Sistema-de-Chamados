@@ -34,6 +34,16 @@ export interface FiltrosQuadro {
   responsavel: FiltroResponsavel;
   categoriaId: number | null;
   prazo: FiltroPrazo;
+  /** Texto da busca da barra (parte do título); vazio = sem busca. */
+  busca: string;
+}
+
+/** Ignora acentos e maiúsculas: "impressao" encontra "Impressora". */
+function normalizar(texto: string): string {
+  return texto
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLocaleLowerCase("pt-BR");
 }
 
 export function filtrarChamados(
@@ -49,6 +59,8 @@ export function filtrarChamados(
     if (filtros.prazo !== "todos" && situacaoPrazo(c.prazoSla, agora) !== filtros.prazo) {
       return false;
     }
+    const termo = normalizar(filtros.busca.trim());
+    if (termo && !normalizar(c.titulo).includes(termo)) return false;
     return true;
   });
 }

@@ -39,7 +39,7 @@ function chamado(
   };
 }
 
-const TODOS: FiltrosQuadro = { responsavel: "todos", categoriaId: null, prazo: "todos" };
+const TODOS: FiltrosQuadro = { responsavel: "todos", categoriaId: null, prazo: "todos", busca: "" };
 
 describe("colunas", () => {
   it("pendente e transferido vão para Novos; encerrados ficam fora", () => {
@@ -95,6 +95,24 @@ describe("filtros", () => {
     ).toEqual([1]);
     expect(
       filtrarChamados(lista, { ...TODOS, prazo: "vence_em_breve" }, "eu", agora).map((c) => c.id),
+    ).toEqual([2]);
+  });
+});
+
+describe("busca", () => {
+  it("filtra pelo título, sem ligar para acentos e maiúsculas", () => {
+    const lista = [
+      { ...chamado(1, "pendente", 60), titulo: "Impressora não imprime" },
+      { ...chamado(2, "pendente", 60), titulo: "VPN caiu" },
+    ];
+    expect(
+      filtrarChamados(lista, { ...TODOS, busca: "IMPRESSAO" }, "eu", agora).map((c) => c.id),
+    ).toEqual([]);
+    expect(
+      filtrarChamados(lista, { ...TODOS, busca: "imprime" }, "eu", agora).map((c) => c.id),
+    ).toEqual([1]);
+    expect(
+      filtrarChamados(lista, { ...TODOS, busca: "vpn" }, "eu", agora).map((c) => c.id),
     ).toEqual([2]);
   });
 });

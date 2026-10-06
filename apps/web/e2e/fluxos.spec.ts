@@ -145,6 +145,18 @@ test("conversa em tempo real entre Ana e Rafael; nota interna nunca chega à Ana
   await expect(ana.getByText(/voltou para Em atendimento/)).toBeVisible();
 });
 
+test("busca: número abre o chamado; texto filtra o quadro", async ({ page }) => {
+  await entrar(page, "Rafael Lima");
+  await page
+    .getByRole("searchbox", { name: /Buscar chamado/ })
+    .first()
+    .fill("impressora");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/atendimento\?busca=impressora$/);
+  await expect(page.getByRole("article", { name: /^Chamado 36:/ })).toBeVisible();
+  await expect(page.getByRole("article", { name: /^Chamado 41:/ })).toHaveCount(0);
+});
+
 test("busca por 41 na barra técnica abre o chamado 41", async ({ page }) => {
   await entrar(page, "Rafael Lima");
   await page
