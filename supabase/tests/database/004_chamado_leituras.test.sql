@@ -6,6 +6,10 @@ begin;
 create extension if not exists pgtap with schema extensions;
 select plan(6);
 
+-- No Postgres 16+, quem cria um papel pode administrá-lo, mas não assumi-lo (set role).
+-- Só dentro desta transação de teste (desfeito no rollback).
+grant central_api to current_user;
+
 insert into auth.users (id, email, raw_user_meta_data) values
   ('f1111111-0000-0000-0000-000000000001', 'leitora@domma.com.br', '{"full_name":"Leitora"}'),
   ('f2222222-0000-0000-0000-000000000002', 'outro@domma.com.br',   '{"full_name":"Outro"}');

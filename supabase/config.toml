@@ -35,7 +35,10 @@ jwt_expiry = 3600
 enable_signup = true   # necessário para o 1º login via Microsoft criar o usuário
 
 [auth.email]
-enable_signup = false  # login só com conta Microsoft
+# true = provedor de e-mail LIGADO (no CLI, false desliga também o login por senha).
+# Só local, para os usuários de teste (seed.dev.sql). Na nuvem o provedor de e-mail fica DESLIGADO
+# no painel: login só com conta Microsoft (P-035).
+enable_signup = true
 
 [auth.external.azure]
 enabled = true
