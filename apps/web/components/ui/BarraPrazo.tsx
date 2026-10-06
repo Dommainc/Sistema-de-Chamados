@@ -17,16 +17,21 @@ export function BarraPrazo({
   criadoEm,
   prazo,
   agora = new Date(),
+  semTexto = false,
 }: {
   criadoEm: string;
   prazo: string;
   agora?: Date;
+  /** Só a barra (quando o texto do prazo já aparece ao lado, como no cartão PRAZO). */
+  semTexto?: boolean;
 }) {
   const situacao = situacaoPrazo(prazo, agora);
   const progresso = situacao === "vencido" ? 1 : progressoPrazo(criadoEm, prazo, agora);
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
-      <span className={`text-sm ${COR_TEXTO[situacao]}`}>{textoPrazo(prazo, agora)}</span>
+      {semTexto ? null : (
+        <span className={`text-sm ${COR_TEXTO[situacao]}`}>{textoPrazo(prazo, agora)}</span>
+      )}
       <span className="h-1 w-full overflow-hidden rounded-full bg-superficie-2" aria-hidden="true">
         <span
           className={`block h-full rounded-full ${COR_BARRA[situacao]}`}

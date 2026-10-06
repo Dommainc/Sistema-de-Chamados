@@ -27,6 +27,8 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
 | P-028 | 🟡 | api | A versão real precisa de rotas que a simulada já usa: `POST /chamados/{id}/mensagens`, `POST /chamados/{id}/cancelar`, `POST /chamados/{id}/lido` (grava `chamado_leituras`), `GET /anexos/{id}/url`, além de `GET /categorias/{id}/previsao` (P-026). Contrato em `apps/web/lib/dados/tipos.ts`. | 1A-2 / implementação real |
 | P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
+| P-030 | ⚪ | web | No modo simulado, a sessão fica num cookie: **um navegador = um usuário por vez**. Para ver Ana e Rafael ao mesmo tempo, abra a aba da Ana, depois entre como Rafael em outra aba — a da Ana continua como Ana até recarregar (é o que o E2E faz). Some com o login real. | Implementação real (1A-2) |
+| P-031 | ⚪ | ci | `pnpm e2e` não roda no CI (baixar o navegador deixa o CI lento). Incluir quando a implementação real existir, junto com o banco local no CI. | 1A-4 restante |
 
 ## Resolvidas
 

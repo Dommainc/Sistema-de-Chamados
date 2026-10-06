@@ -8,6 +8,7 @@ import type { PerfilPublico, UsuarioSessao } from "@/lib/dados/tipos";
 import { acoesDisponiveis } from "@/lib/dominio/estados";
 import type { Categoria, Chamado, EventoHistorico, Perfil } from "@/lib/dominio/tipos";
 import { formatarDataHora } from "@/lib/formato";
+import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
 import { textoHistorico } from "@/components/chamado/linhaDoTempo";
 import type { AcaoDeBotao } from "../useAcaoChamado";
 import type { AcaoComModal } from "./ModalAcao";
@@ -117,6 +118,12 @@ export function PainelAcoes({
   );
 }
 
+const COR_PREVISAO = {
+  vencido: "text-perigo",
+  vence_em_breve: "text-alerta",
+  no_prazo: "",
+} as const;
+
 export function CartaoPrazo({
   chamado,
   categoria,
@@ -131,9 +138,11 @@ export function CartaoPrazo({
   return (
     <Secao titulo="Prazo">
       <Linha rotulo="Previsão">
-        <strong>{formatarDataHora(chamado.prazoSla)}</strong>
+        <strong className={COR_PREVISAO[situacaoPrazo(chamado.prazoSla)]}>
+          {textoPrazo(chamado.prazoSla)}
+        </strong>
       </Linha>
-      <BarraPrazo criadoEm={chamado.criadoEm} prazo={chamado.prazoSla} />
+      <BarraPrazo criadoEm={chamado.criadoEm} prazo={chamado.prazoSla} semTexto />
       <Linha rotulo="Responsável">
         {responsavel
           ? `${responsavel.nome}${responsavel.id === euId ? " (você)" : ""}`

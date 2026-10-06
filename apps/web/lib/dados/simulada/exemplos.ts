@@ -14,6 +14,8 @@ import type {
   StatusChamado,
   TipoCampo,
 } from "@/lib/dominio/tipos";
+import { adicionarHorasUteis } from "@/lib/dominio/horario-util";
+import { EXPEDIENTE_SIMULADO } from "./feriados";
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 const [ANA, BRUNO, RAFAEL, THIAGO] = USUARIOS_SIMULADOS.map((u) => u.id);
@@ -530,7 +532,11 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       status: e.status,
       prioridade: "media",
       respostasForm: { descricao: e.descricao },
-      prazoSla: minutos(e.prazoEm),
+      // Prazo futuro em horas úteis (como o banco); vencidos e "vence em menos de 1 h" ficam exatos.
+      prazoSla:
+        e.prazoEm >= 60
+          ? adicionarHorasUteis(agora, e.prazoEm / 60, EXPEDIENTE_SIMULADO).toISOString()
+          : minutos(e.prazoEm),
       criadoEm: minutos(-e.abertoHa),
       atualizadoEm,
       concluidoEm: e.status === "concluido" ? atualizadoEm : null,
