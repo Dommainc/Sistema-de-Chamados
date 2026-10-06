@@ -9,6 +9,8 @@ select plan(6);
 -- No Postgres 16+, quem cria um papel pode administrá-lo, mas não assumi-lo (set role).
 -- Só dentro desta transação de teste (desfeito no rollback).
 grant central_api to current_user;
+-- As funções do pgTAP ficam em "extensions"; o central_api precisa enxergá-las durante o teste.
+grant usage on schema extensions to central_api;
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('f1111111-0000-0000-0000-000000000001', 'leitora@domma.com.br', '{"full_name":"Leitora"}'),
