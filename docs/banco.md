@@ -2,7 +2,7 @@
 
 Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0017) e testado
 por `supabase/tests/database/` (pgTAP). **Nunca editar uma migration já commitada**: sempre criar uma nova.
-Situação: escrito, **ainda não executado** (aguardando a assinatura do Supabase — `pendencias.md` P-022/P-023).
+Situação: validado a cada push no job `banco` do CI (Supabase local e descartável: migrations do zero + pgTAP + integração da API). Projetos da nuvem aguardam a assinatura (`pendencias.md` P-022).
 
 ## Desenho
 

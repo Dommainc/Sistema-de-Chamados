@@ -18,6 +18,7 @@ uv run fastapi dev app/main.py   # http://localhost:8000/docs
 ```bash
 uv run ruff check . && uv run ruff format --check .
 uv run pytest               # testes com banco (marcados "banco") são pulados sem DATABASE_URL
+# Com banco: rodam no job "banco" do CI (Supabase local); variáveis em tests/integracao/ajuda.py
 ```
 
 ## Onde fica cada coisa

@@ -2,7 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
-| 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migration 0015 dos 6 status escrita depois, **ainda não executada** (P-023) |
+| 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migrations 0015–0017 validadas no CI (job `banco`, Supabase local no runner) |
 | 1A-3 Entrega 1 — Base do front e perfis | ✅ Concluída | Dados simulados (ADR 0006); Next 16, 42 testes; lint, typecheck e build verdes |
 | 1A-4 (parte) CI do front | ✅ Concluída | `.github/workflows/ci.yml` (formatação, lint, tipos, testes, build), PR template, `.editorconfig` |
 | UI/UX — base visual do mockup | ✅ Concluída | `docs/ui-ux.md`; tokens, IBM Plex, lucide, cascas, componentes, rótulos; 59 testes |
@@ -10,8 +10,8 @@
 | 1A-3 Entrega 2 — Parte B: acompanhar | ✅ Concluída | Telas 4–5: chat, nova mensagem, cancelar, encerrado; migration 0017 `chamado_leituras`; 144 testes |
 | 1A-3 Entrega 3 — Parte A: ações + quadro | ✅ Concluída | Quadro (kanban) com Próximo da fila, filtros, arrastar; ações com histórico e notificação; 173 testes |
 | 1A-3 Entrega 3 — Parte B: tela de atendimento | ✅ Concluída | Chat com nota interna, painel de ações, modais, solicitante com contato, histórico completo, versão celular; 180 testes |
-| 1A-2 API base + dados reais | 🟡 Em andamento | **Base pronta sem banco**: FastAPI, catálogo de erros (igual ao do front), JWT (JWKS/HS256), máquina de estados e formulário em Python, `/saude`, `/me`, `/auth/sincronizar`; **rotas de chamados** (abrir, ações, mensagens, anexos, lido, previsão — ADR 0008); 95 testes (+4 de banco pulados). Falta: rodar contra o Supabase (P-022/P-023/P-034) e a camada de dados `real` do front |
-| 1A-4 (restante) CI de banco/API e docs | ⏳ Pendente | |
+| 1A-2 API base + dados reais | 🟡 Em andamento | **Base pronta sem banco**: FastAPI, catálogo de erros (igual ao do front), JWT (JWKS/HS256), máquina de estados e formulário em Python, `/saude`, `/me`, `/auth/sincronizar`; **rotas de chamados** (abrir, ações, mensagens, anexos, lido, previsão — ADR 0008); 95 testes (+4 de banco pulados). Rotas validadas contra banco real no CI (8 testes de integração). Falta: o Supabase da nuvem (P-022) e a camada de dados `real` do front |
+| 1A-4 (restante) CI de banco/API e docs | 🟡 Em andamento | **CI do banco pronto**: job `banco` sobe Supabase local no runner, aplica migrations + seeds, roda pgTAP e a integração da API. Falta: docs da API |
 | 1E Teams | ⏳ Pendente | Depende do código do bot existente |
 | 1F Fechamento | ⏳ Pendente | |
 
@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-06 | CI do banco (parte da 1A-4): job `banco` com Supabase local e descartável no runner do GitHub (não é o projeto pago): 17 migrations do zero, 62 testes pgTAP e 8 testes de integração da API (ciclo do chamado, RLS pelo REST, permissões, anexo pelo Storage). Achados corrigidos: ids do teste 001, `grant central_api` nos testes, login por senha local desligado pelo `config.toml`. Falhas viram anotação no resumo do run. P-023 e P-034 resolvidas; abertas P-035 e P-036. |
 | 2026-10-06 | Rotas de chamados na API (sem banco): `POST /chamados`, `GET /chamados/{id}/acoes`, assumir/aguardar/retomar/concluir/transferir/devolver/cancelar, mensagens (com volta automática para em atendimento), `lido`, `POST /anexos/upload-url`, `GET /anexos/{id}/url`, `GET /categorias/{id}/previsao`. Serviços + repositório (Postgres e memória) + Storage Supabase. ADR 0008. 95 testes, incluindo solicitante tentando cada ação da TI e o chamado de outra pessoa. P-028 resolvido (lado da API); aberto P-034. |
 | 2026-10-06 | API base (1A-2, sem banco): `apps/api` com uv/Python 3.12, FastAPI, catálogo de erros com teste de paridade com o front, validação do JWT (JWKS + HS256), `dominio/estados.py` (fonte única) e `formulario.py` com os mesmos casos do front, papel pelo grupo do Entra (provisório), `/saude`, `/me`, `/auth/sincronizar`. `seed.dev.sql` (4 usuários de teste). ADR 0007. Job da API no CI. |
 | 2026-10-06 | Documentação técnica (parte da 1A-4): `docs/README.md`, `arquitetura.md` (diagrama), `banco.md` (ER, tabelas, RLS, migrations), `status.md`, `erros.md`, `segredos.md`, runbooks (restaurar backup, rotacionar chave, bot parado — rascunho). |

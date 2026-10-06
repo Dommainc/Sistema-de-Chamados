@@ -9,7 +9,7 @@ conversa pelo chat e recebe avisos no Teams. Substitui o processo antigo (Lists 
 | Parte | Situação |
 |---|---|
 | Front (`apps/web`) | ✅ Completo em **modo de demonstração** (dados simulados no navegador, [ADR 0006](adr/0006-front-com-dados-simulados.md)) |
-| Banco (`supabase/`) | ✅ Escrito (17 migrations, seed, 4 arquivos de teste) · ⏳ ainda **não executado** — aguardando a assinatura do Supabase |
+| Banco (`supabase/`) | ✅ 17 migrations, seeds e 62 testes pgTAP **rodando no CI** (Supabase local no runner) · ⏳ nuvem aguarda a assinatura do Supabase |
 | API (`apps/api`) | ⏳ Em construção (etapa 1A-2) |
 | Avisos no Teams | ⏳ Etapa 1E (depende do bot existente) |
 

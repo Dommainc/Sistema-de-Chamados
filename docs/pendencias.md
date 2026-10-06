@@ -20,7 +20,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🟡 | ambiente | **Supabase praticamente aprovado pela diretoria — falta só a assinatura** (atualizado em 2026-10-06). Depois: criar projetos `dev` e `prod` em `sa-east-1` (ADR 0001) e rodar as migrations (P-023). | Assinatura da diretoria |
-| P-023 | 🟡 | banco | Migrations 0015, 0016 e 0017 e os testes `001` (33), `002` (18), `003` (5) e `004` (6) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
 | P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada já é calculada no front (`lib/dominio/horario-util.ts`, espelho de `app.adicionar_horas_uteis`). | 1A-2 / implementação real |
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
 | P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
@@ -28,12 +27,15 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-031 | ⚪ | ci | `pnpm e2e` não roda no CI (baixar o navegador deixa o CI lento). Incluir quando a implementação real existir, junto com o banco local no CI. | 1A-4 restante |
 | P-032 | 🟡 | api | Confirmar o ponto de entrada da API na Vercel (FastAPI em `app/main.py`) no primeiro deploy; ajustar `vercel.json` se a Vercel não detectar sozinha. | Primeiro deploy |
 | P-033 | ⚪ | ambiente | O `uv` foi instalado com `pip install --user` e ficou fora do PATH: usar `python -m uv` ou adicionar `%APPDATA%\Python\Python314\Scripts` ao PATH. | Quando quiser |
-| P-034 | 🟡 | api | `RepositorioPostgres` (SQL das rotas de chamados) e `ArmazenamentoSupabase` (URL assinada, mover, download) foram escritos **sem banco**: validar com testes de integração `@pytest.mark.banco` e um upload real quando o Supabase existir. | Quando o Supabase for assinado (P-022) |
+| P-035 | 🟡 | ambiente | Nos projetos da nuvem, **desligar o provedor de e-mail** no painel do Supabase (Authentication → Providers → Email): login só com conta Microsoft. O `config.toml` deixa ligado só para o ambiente local/CI (usuários de teste). | Ao criar os projetos (P-022) |
+| P-036 | ⚪ | ci | Ações do CI (`checkout@v4`, `setup-uv@v6`, `supabase/setup-cli@v1`) usam Node 20, descontinuado no GitHub: atualizar as versões quando saírem. | Quando quiser |
 
 ## Resolvidas
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-034 | 2026-10-06 | Validado no job `banco` do CI (Supabase local no runner): abrir, assumir, transferir, aguardar, nota interna, resposta automática, lido, concluir, cancelar, permissões e anexo (upload assinado → mover → download) passaram contra o banco real. Falta só repetir no projeto `dev` da nuvem. |
+| P-023 | 2026-10-06 | Job `banco` do CI aplica as 17 migrations do zero e roda os 62 testes pgTAP a cada push. Ajustes nos testes: ids próprios no 001 (colidiam com o `seed.dev.sql`), `grant central_api` só na transação de teste (Postgres 17 não deixa o criador assumir o papel) e acesso ao pgTAP no 004. |
 | P-028 | 2026-10-06 | Rotas criadas na API (`app/routers/chamados.py`, ADR 0008) com o contrato de `apps/web/lib/dados/tipos.ts`; testadas em memória. Validação com banco segue em P-034. |
 | P-016 | 2026-10-06 | `supabase/seed.dev.sql` criado (4 usuários de teste, senha local do `central_api`) e incluído no `config.toml`. Não executado ainda (P-023). |
 | P-013 | 2026-10-06 | Documentado em `docs/banco.md`: usuário com chamados não é apagado; desligamento = `ativo = false` (quem marca continua em P-005). |
