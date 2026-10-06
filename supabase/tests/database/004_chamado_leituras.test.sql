@@ -13,8 +13,8 @@ grant central_api to current_user;
 grant usage on schema extensions to central_api;
 
 insert into auth.users (id, email, raw_user_meta_data) values
-  ('f1111111-0000-0000-0000-000000000001', 'leitora@domma.com.br', '{"full_name":"Leitora"}'),
-  ('f2222222-0000-0000-0000-000000000002', 'outro@domma.com.br',   '{"full_name":"Outro"}');
+  ('f1111111-0000-0000-0000-000000000001', 'leitora@dommainc.com.br', '{"full_name":"Leitora"}'),
+  ('f2222222-0000-0000-0000-000000000002', 'outro@dommainc.com.br',   '{"full_name":"Outro"}');
 
 create temp table fx (id bigint);
 with c as (

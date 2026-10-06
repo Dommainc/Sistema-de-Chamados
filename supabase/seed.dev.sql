@@ -10,6 +10,12 @@
 --   thiago@teste.local  Thiago Martins  TI
 -- =============================================================================
 
+-- Libera o domínio dos usuários de teste (migration 0018: só @dommainc.com.br fica ativo).
+-- Tem que vir ANTES de criar os usuários: o perfil nasce ativo ou não no 1º insert.
+update public.configuracoes
+   set valor = '["dommainc.com.br", "teste.local"]'::jsonb
+ where chave = 'dominios_permitidos';
+
 with usuarios(id, email, nome) as (
   values
     ('aaaaaaaa-0000-0000-0000-000000000001'::uuid, 'ana@teste.local',    'Ana Souza'),

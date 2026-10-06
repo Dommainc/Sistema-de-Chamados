@@ -11,8 +11,8 @@ select plan(18);
 -- Massa de teste: S = solicitante, T = TI
 -- -----------------------------------------------------------------------------
 insert into auth.users (id, email, raw_user_meta_data) values
-  ('dddddddd-0000-0000-0000-000000000001', 'sol.status@domma.com.br', '{"full_name":"Solicitante Status"}'),
-  ('eeeeeeee-0000-0000-0000-000000000002', 'tec.status@domma.com.br', '{"full_name":"Técnico Status"}');
+  ('dddddddd-0000-0000-0000-000000000001', 'sol.status@dommainc.com.br', '{"full_name":"Solicitante Status"}'),
+  ('eeeeeeee-0000-0000-0000-000000000002', 'tec.status@dommainc.com.br', '{"full_name":"Técnico Status"}');
 
 update public.profiles set papel = 'ti'
  where id = 'eeeeeeee-0000-0000-0000-000000000002';

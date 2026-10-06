@@ -55,9 +55,9 @@ $$;
 -- A e B: solicitantes. T: TI.
 -- -----------------------------------------------------------------------------
 insert into auth.users (id, email, raw_user_meta_data) values
-  ('a0000001-0000-0000-0000-000000000001', 'ana@domma.com.br',   '{"full_name":"Ana Teste"}'),
-  ('b0000002-0000-0000-0000-000000000002', 'bruno@domma.com.br', '{"full_name":"Bruno Teste"}'),
-  ('c0000003-0000-0000-0000-000000000003', 'tec@domma.com.br',   '{"full_name":"Técnico Teste"}');
+  ('a0000001-0000-0000-0000-000000000001', 'ana@dommainc.com.br',   '{"full_name":"Ana Teste"}'),
+  ('b0000002-0000-0000-0000-000000000002', 'bruno@dommainc.com.br', '{"full_name":"Bruno Teste"}'),
+  ('c0000003-0000-0000-0000-000000000003', 'tec@dommainc.com.br',   '{"full_name":"Técnico Teste"}');
 
 update public.profiles set papel = 'ti'
  where id = 'c0000003-0000-0000-0000-000000000003';
