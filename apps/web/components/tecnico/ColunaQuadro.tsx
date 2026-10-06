@@ -104,6 +104,7 @@ export function ColunaQuadro({
 
   return (
     <section
+      id={`coluna-${id}`}
       aria-label={`${titulo}: ${cartoes.length}`}
       onDragOver={(e) => {
         if (!e.dataTransfer.types.includes(TIPO_ARRASTE)) return;

@@ -151,7 +151,12 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
               type="button"
               role="tab"
               aria-selected={colunaCelular === c.id}
-              onClick={() => setColunaCelular(c.id)}
+              onClick={() => {
+                setColunaCelular(c.id);
+                document
+                  .getElementById(`coluna-${c.id}`)
+                  ?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+              }}
               className={`min-h-11 shrink-0 rounded-full border px-4 font-semibold whitespace-nowrap ${
                 colunaCelular === c.id
                   ? "border-barra bg-barra text-sobre-barra"
@@ -163,7 +168,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
           ))}
         </div>
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-texto-suave">Toque nos botões para trocar de coluna</p>
+          <p className="text-sm text-texto-suave">Deslize para o lado para ver as outras colunas</p>
           <button
             type="button"
             aria-expanded={filtrosAbertos}
@@ -194,7 +199,8 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         </p>
       ) : null}
 
-      <div className="grid items-start gap-5 lg:grid-cols-3">
+      {/* Sempre kanban: colunas lado a lado. Em tela estreita, desliza-se para o lado entre elas. */}
+      <div className="-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-3 lg:mx-0 lg:grid lg:snap-none lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
         {COLUNAS.map((c) => (
           <ColunaQuadro
             key={c.id}
@@ -207,7 +213,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
             destacados={destacados}
             aoAssumir={assumir}
             aoSoltar={soltar}
-            className={colunaCelular === c.id ? "" : "hidden lg:flex"}
+            className="w-[85vw] max-w-[22rem] shrink-0 snap-start lg:w-auto lg:max-w-none"
           />
         ))}
       </div>

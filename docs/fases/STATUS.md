@@ -17,7 +17,7 @@
 
 ## Pendências externas
 - [ ] App Registration no Entra ID + grupo `Central-Chamados-TI` (claim `groups`, só grupos atribuídos ao app)
-- [ ] **Aprovação do Supabase pela diretoria** (custo / novo projeto) — P-022
+- [ ] **Aprovação do Supabase pela diretoria** — praticamente ok, falta a assinatura (2026-10-06) — P-022
 - [ ] Projetos Supabase `dev` e `prod` em `sa-east-1`
 - [ ] Validar no Supabase hospedado: `grant authenticated to central_api` (migration 0001)
 - [ ] Validar se o Supabase repassa o claim `groups` no login (ADR 0004)
@@ -32,6 +32,8 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-06 | Quadro sempre em kanban: abaixo de ~1024 px (janela estreita, zoom, celular) as colunas continuam lado a lado com rolagem lateral; antes mostrava uma coluna por vez e não parecia kanban. |
+| 2026-10-06 | Supabase praticamente aprovado (falta assinatura) — P-022 atualizada. |
 | 2026-10-06 | Área técnica só com o kanban (pedido do dono): saem o modo Lista e a alternância Quadro \| Lista; busca por texto filtra o quadro (`?busca=`, sem acento/maiúscula); "Ver encerrados" vira `/atendimento/encerrados` com cartões. 181 testes unitários e 10 E2E. Docs e prints atualizados. |
 | 2026-10-06 | Testes E2E com Playwright (`pnpm e2e`: 9 fluxos dos critérios de pronto, computador e celular) e prints (`pnpm prints` → `docs/guia/img`). Revisão visual pelos prints: prazos de exemplo em horas úteis, cartão PRAZO sem previsão repetida, indicador de desenvolvimento do Next desligado. `docs/guia-usuario.md` (1 página, com prints). |
 | 2026-10-06 | Entrega 3 Parte B: `/atendimento/[id]` com chat (seletor "Responder à Ana / Nota interna"), cartões AÇÕES (só as permitidas: assumir, concluir, transferir, aguardar/retomar, devolver, cancelar), PRAZO, SOLICITANTE (telefone e e-mail via `obterPerfilCompleto`, só TI), PEDIDO e HISTÓRICO completo (transferências com motivo). Modais de transferir/devolver/cancelar (motivo) e concluir (confirmação). Celular: faixa escura, botões e abas Conversa · Detalhes · Histórico. **1A-3 concluída** (com dados simulados). |

@@ -123,7 +123,9 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      **PEDIDO** (descrição + anexos), **HISTÓRICO** (lista com horário).
    - **Implementação:** em "Novos", os vencidos vêm primeiro, depois os "Transferido para você", depois o resto por prazo;
      arrastar só com mouse (P-029); o quadro é a visão padrão de `/atendimento`.
-8. **Quadro no celular**: "Próximo da fila" + "Pegar o próximo"; colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
+8. **Quadro no celular** — *implementação (2026-10-06):* as colunas ficam sempre lado a lado (kanban) e desliza-se para o lado;
+   as pílulas viram atalho para pular até a coluna. Vale para qualquer tela abaixo de ~1024 px (janela estreita, zoom).
+   Mockup original:: "Próximo da fila" + "Pegar o próximo"; colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
 9. **Atendimento no celular**: cabeçalho escuro com "‹ Quadro" e "⋯", canhoto Nº, título, status, prazo;
    botões Concluir · Transferir · Retomar; abas **Conversa · Detalhes · Histórico**; cartão do solicitante com botão de e-mail.
 
