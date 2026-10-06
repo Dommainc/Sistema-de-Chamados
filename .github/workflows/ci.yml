@@ -100,12 +100,21 @@ jobs:
           version: latest
 
       - name: Subir Supabase (migrations + seed + seed.dev)
+        id: supabase
         run: supabase start -x studio,edge-runtime,logflare,vector,imgproxy
 
+      # As falhas viram anotação (::error), legível no resumo do run mesmo sem abrir o log.
       - name: Testes do banco (pgTAP)
-        run: supabase test db
+        run: |
+          set -o pipefail
+          supabase test db 2>&1 | tee pgtap.log || {
+            echo "::error title=pgTAP::$(grep -E 'not ok|^#|ERROR|Failed|psql' pgtap.log | head -40 | sed ':a;N;$!ba;s/
+/%0A/g')"
+            exit 1
+          }
 
       - name: Variáveis do banco local para a API
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
         run: |
           eval "$(supabase status -o env)"
           {
@@ -119,15 +128,22 @@ jobs:
           echo "::add-mask::$SERVICE_ROLE_KEY"
 
       - uses: astral-sh/setup-uv@v6
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
         with:
           enable-cache: true
           cache-dependency-glob: apps/api/uv.lock
 
       - name: Testes de integração da API
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
         working-directory: apps/api
         run: |
+          set -o pipefail
           uv sync --frozen
-          uv run pytest -m banco -v -rs
+          uv run pytest -m banco -v -rs --tb=short 2>&1 | tee pytest.log || {
+            echo "::error title=Integração da API::$(grep -E 'FAILED|ERROR|Error|assert|codigo|detalhe' pytest.log | head -40 | sed ':a;N;$!ba;s/
+/%0A/g')"
+            exit 1
+          }
 
       - name: Logs do Supabase (se falhar)
         if: failure()
