@@ -8,6 +8,7 @@ import type {
   EventoHistorico,
   Leitura,
   Mensagem,
+  Notificacao,
   Perfil,
 } from "@/lib/dominio/tipos";
 import { apagarTodosOsArquivos } from "./arquivos";
@@ -15,7 +16,7 @@ import { gerarChamadosExemplo, gerarConversasExemplo, gerarHistoricoExemplo } fr
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 4;
+const VERSAO = 5;
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 
@@ -27,6 +28,7 @@ export interface EstadoSimulado {
   mensagens: Mensagem[];
   anexos: Anexo[];
   leituras: Leitura[];
+  notificacoes: Notificacao[];
 }
 
 export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
@@ -43,6 +45,7 @@ export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
     mensagens: conversas.mensagens,
     anexos: conversas.anexos,
     leituras: conversas.leituras,
+    notificacoes: [],
   };
 }
 

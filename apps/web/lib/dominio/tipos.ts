@@ -122,6 +122,24 @@ export interface Leitura {
   lidoAte: string;
 }
 
+export type TipoNotificacao =
+  | "chamado_aberto"
+  | "chamado_assumido"
+  | "chamado_transferido"
+  | "status_alterado"
+  | "nova_mensagem";
+
+/** Registro de public.notificacoes (outbox do Teams, ADR 0003). O envio é na etapa 1E. */
+export interface Notificacao {
+  id: number;
+  chamadoId: number;
+  destinatarioId: string;
+  tipo: TipoNotificacao;
+  payload: Record<string, string>;
+  status: "pendente" | "enviada" | "falhou";
+  criadoEm: string;
+}
+
 export function estaEncerrado(status: StatusChamado): boolean {
   return STATUS_ENCERRADOS.includes(status);
 }

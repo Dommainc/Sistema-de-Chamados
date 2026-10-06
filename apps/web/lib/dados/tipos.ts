@@ -3,6 +3,7 @@
 // Erros: toda falha é um ErroApp do catálogo (lib/erros/catalogo.ts).
 
 import type { ModoFonteDados } from "@/lib/dados/config";
+import type { AcaoChamado, DadosAcao } from "@/lib/dominio/estados";
 import type {
   Anexo,
   CampoForm,
@@ -131,6 +132,17 @@ export interface FonteDeDados {
   marcarComoLido(chamadoId: number): Promise<void>;
   /** Números dos meus chamados com mensagem da TI ainda não lida ("• Nova mensagem"). */
   listarNaoLidos(): Promise<number[]>;
+  /** Quantas mensagens não lidas cada chamado tem (contador 💬 dos cartões da TI). */
+  contarNaoLidas(): Promise<Record<number, number>>;
+
+  /**
+   * Ação da máquina de estados (POST /chamados/{id}/assumir, /transferir, /status...).
+   * Grava histórico e notificação pendente na mesma operação. Erros do catálogo
+   * (TRANSICAO_INVALIDA, MOTIVO_OBRIGATORIO, SEM_PERMISSAO, CAMPO_OBRIGATORIO...).
+   */
+  executarAcao(chamadoId: number, acao: AcaoChamado, dados?: DadosAcao): Promise<Chamado>;
+  /** Chamado sem responsável com o prazo mais apertado ("Pegar o próximo"). Só TI. */
+  proximoDaFila(): Promise<Chamado | null>;
 
   /** Avisa quando os dados mudarem (simula o Realtime). Devolve a função para cancelar. */
   aoMudar(callback: () => void): () => void;

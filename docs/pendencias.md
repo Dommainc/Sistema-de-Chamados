@@ -26,6 +26,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada já é calculada no front (`lib/dominio/horario-util.ts`, espelho de `app.adicionar_horas_uteis`). | 1A-2 / implementação real |
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
 | P-028 | 🟡 | api | A versão real precisa de rotas que a simulada já usa: `POST /chamados/{id}/mensagens`, `POST /chamados/{id}/cancelar`, `POST /chamados/{id}/lido` (grava `chamado_leituras`), `GET /anexos/{id}/url`, além de `GET /categorias/{id}/previsao` (P-026). Contrato em `apps/web/lib/dados/tipos.ts`. | 1A-2 / implementação real |
+| P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
 
 ## Resolvidas
 

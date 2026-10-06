@@ -120,6 +120,8 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    - Direita — cartões: **AÇÕES** (Marcar como concluído · Transferir · Retomar atendimento · Cancelar chamado em link vermelho),
      **PRAZO** (previsão + barra, responsável, categoria), **SOLICITANTE** (nome, departamento, telefone, e-mail),
      **PEDIDO** (descrição + anexos), **HISTÓRICO** (lista com horário).
+   - **Implementação:** em "Novos", os vencidos vêm primeiro, depois os "Transferido para você", depois o resto por prazo;
+     arrastar só com mouse (P-029); o quadro é a visão padrão de `/atendimento`.
 8. **Quadro no celular**: "Próximo da fila" + "Pegar o próximo"; colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
 9. **Atendimento no celular**: cabeçalho escuro com "‹ Quadro" e "⋯", canhoto Nº, título, status, prazo;
    botões Concluir · Transferir · Retomar; abas **Conversa · Detalhes · Histórico**; cartão do solicitante com botão de e-mail.

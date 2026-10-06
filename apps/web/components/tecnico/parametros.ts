@@ -5,9 +5,21 @@ import type { EscopoChamados } from "@/lib/dados/tipos";
 export type ModoAtendimento = "quadro" | "lista";
 export type FiltroResponsavel = "todos" | "meus" | "sem_responsavel";
 
-/** Lista por enquanto; o quadro vira o padrão na Entrega 3. */
+/** O quadro é a visão padrão (mockup, tela 6). */
 export function lerModo(valor: string | null | undefined): ModoAtendimento {
-  return valor === "quadro" ? "quadro" : "lista";
+  return valor === "lista" ? "lista" : "quadro";
+}
+
+export type FiltroPrazoUrl = "todos" | "vencido" | "vence_em_breve" | "no_prazo";
+
+export function lerPrazo(valor: string | null | undefined): FiltroPrazoUrl {
+  return valor === "vencido" || valor === "vence_em_breve" || valor === "no_prazo"
+    ? valor
+    : "todos";
+}
+
+export function lerCategoria(valor: string | null | undefined): number | null {
+  return valor && /^\d+$/.test(valor) ? Number(valor) : null;
 }
 
 export function lerFiltro(valor: string | null | undefined): FiltroResponsavel {

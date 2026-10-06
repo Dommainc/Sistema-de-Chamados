@@ -5,10 +5,12 @@ import { useCallback } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { BarraPrazo } from "@/components/ui/BarraPrazo";
-import { useConsulta } from "@/lib/dados/provedor";
+import { Botao } from "@/components/ui/Botao";
+import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { formatarNumeroChamado, tempoRelativo } from "@/lib/formato";
 import { ESCOPO_DO_FILTRO, type FiltroResponsavel } from "./parametros";
+import { useAcaoChamado } from "./useAcaoChamado";
 
 const VAZIO: Record<FiltroResponsavel, string> = {
   todos: "Nenhum chamado em aberto.",
@@ -17,14 +19,24 @@ const VAZIO: Record<FiltroResponsavel, string> = {
 };
 
 /**
- * Modo "Lista" da área técnica: chamados não encerrados, prazo mais próximo primeiro.
- * Ações rápidas e "Ver encerrados" chegam na Entrega 3.
+ * Modo "Lista" da área técnica. Abertos: prazo mais próximo primeiro, com "Assumir" na linha.
+ * Encerrados ("Ver encerrados"): mais recentes primeiro, só leitura.
  */
-export function TabelaAtendimento({ filtro, busca }: { filtro: FiltroResponsavel; busca: string }) {
+export function TabelaAtendimento({
+  filtro,
+  busca,
+  encerrados = false,
+}: {
+  filtro: FiltroResponsavel;
+  busca: string;
+  encerrados?: boolean;
+}) {
+  const usuario = useUsuario();
+  const executar = useAcaoChamado();
   const consultar = useCallback(
     async (fonte: FonteDeDados) => {
       const [chamados, categorias, perfis] = await Promise.all([
-        fonte.listarChamados({ escopo: ESCOPO_DO_FILTRO[filtro], encerrados: false }),
+        fonte.listarChamados({ escopo: ESCOPO_DO_FILTRO[filtro], encerrados }),
         fonte.listarCategorias(),
         fonte.listarPerfisPublicos(),
       ]);
@@ -33,7 +45,11 @@ export function TabelaAtendimento({ filtro, busca }: { filtro: FiltroResponsavel
       const termo = busca.trim().toLocaleLowerCase("pt-BR");
       return chamados
         .filter((c) => !termo || c.titulo.toLocaleLowerCase("pt-BR").includes(termo))
-        .sort((a, b) => a.prazoSla.localeCompare(b.prazoSla))
+        .sort((a, b) =>
+          encerrados
+            ? b.atualizadoEm.localeCompare(a.atualizadoEm)
+            : a.prazoSla.localeCompare(b.prazoSla),
+        )
         .map((c) => ({
           chamado: c,
           categoria: categoria.get(c.categoriaId),
@@ -41,7 +57,7 @@ export function TabelaAtendimento({ filtro, busca }: { filtro: FiltroResponsavel
           responsavel: c.responsavelId ? perfil.get(c.responsavelId) : undefined,
         }));
     },
-    [filtro, busca],
+    [filtro, busca, encerrados],
   );
   const { dados: linhas, erro, carregando } = useConsulta(consultar);
 
@@ -50,7 +66,11 @@ export function TabelaAtendimento({ filtro, busca }: { filtro: FiltroResponsavel
   if (!linhas || linhas.length === 0) {
     return (
       <p className="rounded-2xl border border-borda bg-superficie p-6 text-center text-texto-suave">
-        {busca ? `Nenhum chamado com "${busca}" no título.` : VAZIO[filtro]}
+        {busca
+          ? `Nenhum chamado com "${busca}" no título.`
+          : encerrados
+            ? "Nenhum chamado encerrado."
+            : VAZIO[filtro]}
       </p>
     );
   }
@@ -66,7 +86,12 @@ export function TabelaAtendimento({ filtro, busca }: { filtro: FiltroResponsavel
             <th className="px-4 py-3">Status</th>
             <th className="px-4 py-3">Responsável</th>
             <th className="px-4 py-3">Aberto</th>
-            <th className="w-56 px-4 py-3">Prazo</th>
+            <th className="w-56 px-4 py-3">{encerrados ? "Encerrado" : "Prazo"}</th>
+            {encerrados ? null : (
+              <th className="px-4 py-3">
+                <span className="sr-only">Ação</span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -102,8 +127,26 @@ export function TabelaAtendimento({ filtro, busca }: { filtro: FiltroResponsavel
                 {tempoRelativo(c.criadoEm, agora)}
               </td>
               <td className="px-4 py-3">
-                <BarraPrazo criadoEm={c.criadoEm} prazo={c.prazoSla} agora={agora} />
+                {encerrados ? (
+                  <span className="text-texto-suave">{tempoRelativo(c.atualizadoEm, agora)}</span>
+                ) : (
+                  <BarraPrazo criadoEm={c.criadoEm} prazo={c.prazoSla} agora={agora} />
+                )}
               </td>
+              {encerrados ? null : (
+                <td className="px-4 py-3 text-right">
+                  {c.status === "pendente" ||
+                  (c.status === "transferido" && c.responsavelId === usuario.id) ? (
+                    <Botao
+                      variante="escuro"
+                      className="min-h-10 px-3 text-sm"
+                      onClick={() => void executar(c.id, "assumir")}
+                    >
+                      Assumir
+                    </Botao>
+                  ) : null}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>

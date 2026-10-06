@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
 import { Segmentado } from "@/components/ui/Segmentado";
+import { Legenda } from "@/components/tecnico/FiltrosQuadro";
+import { QuadroAtendimento } from "@/components/tecnico/QuadroAtendimento";
 import { TabelaAtendimento } from "@/components/tecnico/TabelaAtendimento";
-import { lerFiltro, lerModo, type FiltroResponsavel } from "@/components/tecnico/parametros";
+import {
+  lerCategoria,
+  lerFiltro,
+  lerModo,
+  lerPrazo,
+  type FiltroResponsavel,
+} from "@/components/tecnico/parametros";
 
 export const metadata: Metadata = { title: "Atendimento" };
 
@@ -21,34 +28,39 @@ export default async function PaginaAtendimento({ searchParams }: PageProps<"/at
   const parametros = await searchParams;
   const modo = lerModo(primeiro(parametros.modo));
   const filtro = lerFiltro(primeiro(parametros.filtro));
-  const busca = primeiro(parametros.busca) ?? "";
 
   if (modo === "quadro") {
     return (
-      <Card className="mx-auto max-w-xl p-6 text-center">
-        <h1 className="text-xl font-semibold">Quadro</h1>
-        <p className="mt-2 text-texto-suave">
-          O quadro com as colunas Novos, Em atendimento e Aguardando usuário chega na Entrega 3.
-        </p>
-        <Link
-          href="/atendimento?modo=lista"
-          className="mt-4 inline-flex min-h-11 items-center font-semibold text-primaria underline"
-        >
-          Ver em lista
-        </Link>
-      </Card>
+      <QuadroAtendimento
+        filtros={{
+          responsavel: filtro,
+          categoriaId: lerCategoria(primeiro(parametros.categoria)),
+          prazo: lerPrazo(primeiro(parametros.prazo)),
+        }}
+      />
     );
   }
 
+  const busca = primeiro(parametros.busca) ?? "";
+  const encerrados = primeiro(parametros.encerrados) === "1";
   const hrefFiltro = (valor: FiltroResponsavel, manterBusca = true) => {
     const p = new URLSearchParams({ modo: "lista" });
     if (valor !== "todos") p.set("filtro", valor);
     if (busca && manterBusca) p.set("busca", busca);
+    if (encerrados) p.set("encerrados", "1");
     return `/atendimento?${p.toString()}`;
   };
 
   return (
     <div className="flex flex-col gap-4">
+      {encerrados ? (
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h1 className="text-2xl font-bold">Chamados encerrados</h1>
+          <Link href="/atendimento" className="font-semibold text-primaria underline">
+            Voltar ao quadro
+          </Link>
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-center gap-3">
         <Segmentado
           rotuloAcessivel="Filtrar por responsável"
@@ -66,22 +78,13 @@ export default async function PaginaAtendimento({ searchParams }: PageProps<"/at
             </Link>
           </p>
         ) : null}
-        <ul
-          className="ml-auto flex items-center gap-4 text-xs text-texto-suave"
-          aria-label="Legenda de prazo"
-        >
-          <li className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm bg-perigo" /> Vencido
-          </li>
-          <li className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm bg-laranja" /> Vence em menos de 1h
-          </li>
-          <li className="flex items-center gap-1.5">
-            <span className="size-2.5 rounded-sm bg-sucesso" /> No prazo
-          </li>
-        </ul>
+        {encerrados ? null : (
+          <div className="ml-auto">
+            <Legenda />
+          </div>
+        )}
       </div>
-      <TabelaAtendimento filtro={filtro} busca={busca} />
+      <TabelaAtendimento filtro={filtro} busca={busca} encerrados={encerrados} />
     </div>
   );
 }

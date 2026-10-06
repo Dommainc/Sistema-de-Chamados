@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { destinoBusca, lerFiltro, lerModo } from "./parametros";
+import { destinoBusca, lerCategoria, lerFiltro, lerModo, lerPrazo } from "./parametros";
 
 describe("destinoBusca", () => {
   it("número abre o chamado direto (com ou sem #)", () => {
@@ -21,8 +21,13 @@ describe("destinoBusca", () => {
 
 describe("parâmetros da URL", () => {
   it("valores desconhecidos caem no padrão", () => {
-    expect(lerModo("xyz")).toBe("lista");
-    expect(lerModo("quadro")).toBe("quadro");
+    expect(lerModo("xyz")).toBe("quadro");
+    expect(lerModo(null)).toBe("quadro");
+    expect(lerModo("lista")).toBe("lista");
+    expect(lerPrazo("vencido")).toBe("vencido");
+    expect(lerPrazo("qualquer")).toBe("todos");
+    expect(lerCategoria("3")).toBe(3);
+    expect(lerCategoria("abc")).toBeNull();
     expect(lerFiltro(null)).toBe("todos");
     expect(lerFiltro("sem_responsavel")).toBe("sem_responsavel");
   });

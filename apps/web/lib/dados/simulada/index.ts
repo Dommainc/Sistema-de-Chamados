@@ -14,7 +14,7 @@ import type {
   NovaMensagem,
   PerfilPublico,
 } from "@/lib/dados/tipos";
-import { validarAcao } from "@/lib/dominio/estados";
+import { validarAcao, type AcaoChamado, type DadosAcao } from "@/lib/dominio/estados";
 import { validarFormulario } from "@/lib/dominio/formulario";
 import { adicionarHorasUteis } from "@/lib/dominio/horario-util";
 import {
@@ -24,11 +24,13 @@ import {
   type Chamado,
   type EventoHistorico,
   type Mensagem,
+  type Notificacao,
   type Perfil,
+  type TipoNotificacao,
 } from "@/lib/dominio/tipos";
 import { ErroApp, mensagemErro } from "@/lib/erros/catalogo";
 import { rotuloStatus } from "@/lib/status";
-import { assinar, gravarEstado, lerEstado, proximoId } from "./armazenamento";
+import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from "./armazenamento";
 import { guardarArquivo, lerArquivo } from "./arquivos";
 import { CAMPOS_FORM, CATEGORIAS } from "./exemplos";
 import { EXPEDIENTE_SIMULADO } from "./feriados";
@@ -59,6 +61,50 @@ function anexoVisivel(anexo: Anexo, perfil: Perfil, mensagens: readonly Mensagem
   if (perfil.papel === "ti" || anexo.mensagemId === null) return true;
   return mensagens.some((m) => m.id === anexo.mensagemId && !m.interna);
 }
+
+type NovoEvento = Omit<EventoHistorico, "id">;
+type NovaNotificacao = Omit<Notificacao, "id" | "status">;
+
+/** Dá ids sequenciais (como o identity do banco) aos registros novos. */
+function comIds<T extends { id: number }>(existentes: readonly T[], novos: Omit<T, "id">[]): T[] {
+  let id = proximoId(existentes);
+  return novos.map((n) => ({ ...n, id: id++ }) as T);
+}
+
+function notificacao(
+  chamado: Chamado,
+  destinatarioId: string,
+  tipo: TipoNotificacao,
+  criadoEm: string,
+  extra: Record<string, string> = {},
+): NovaNotificacao {
+  return {
+    chamadoId: chamado.id,
+    destinatarioId,
+    tipo,
+    criadoEm,
+    payload: {
+      numero: String(chamado.id),
+      titulo: chamado.titulo,
+      link: `/chamados/${chamado.id}`,
+      ...extra,
+    },
+  };
+}
+
+/** Evento do histórico gravado por cada ação (publico = false: só a TI vê). */
+const EVENTO_DA_ACAO: Record<
+  Exclude<AcaoChamado, "resposta_solicitante">,
+  { acao: string; publico: boolean }
+> = {
+  assumir: { acao: "assumido", publico: true },
+  aguardar_usuario: { acao: "status_alterado", publico: true },
+  retomar: { acao: "status_alterado", publico: true },
+  transferir: { acao: "transferido", publico: false },
+  devolver_fila: { acao: "devolvido_fila", publico: false },
+  concluir: { acao: "concluido", publico: true },
+  cancelar: { acao: "cancelado", publico: true },
+};
 
 /** Sem internet a mensagem não sai (na versão real, o fetch falharia). */
 function semConexao(): boolean {
@@ -94,6 +140,118 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
     return lerEstado()
       .mensagens.filter((m) => m.chamadoId === chamadoId && (perfil.papel === "ti" || !m.interna))
       .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm));
+  }
+
+  function tecnicosAtivos(): Perfil[] {
+    return lerEstado().perfis.filter((p) => p.papel === "ti" && p.ativo);
+  }
+
+  /** Grava chamado alterado + eventos + notificações juntos (na API: uma transação). */
+  function gravarMudanca(
+    chamado: Chamado | null,
+    eventos: NovoEvento[],
+    notificacoes: NovaNotificacao[],
+    extra: Partial<Pick<EstadoSimulado, "mensagens" | "anexos" | "chamados">> = {},
+  ): void {
+    const atual = lerEstado();
+    const chamados = extra.chamados ?? atual.chamados;
+    gravarEstado({
+      ...atual,
+      ...extra,
+      chamados: chamado ? chamados.map((c) => (c.id === chamado.id ? chamado : c)) : chamados,
+      historico: [...atual.historico, ...comIds(atual.historico, eventos)],
+      notificacoes: [
+        ...atual.notificacoes,
+        ...comIds(
+          atual.notificacoes,
+          notificacoes.map((n) => ({ ...n, status: "pendente" as const })),
+        ),
+      ],
+    });
+  }
+
+  async function executar(
+    chamadoId: number,
+    acao: AcaoChamado,
+    dados: DadosAcao = {},
+  ): Promise<Chamado> {
+    const perfil = eu();
+    const chamado = chamadoVisivel(chamadoId);
+    if (acao === "resposta_solicitante") throw new ErroApp("SEM_PERMISSAO"); // só via mensagem
+    const ator = { id: perfil.id, papel: perfil.papel };
+    const { para, responsavelId } = validarAcao(chamado, acao, ator, dados);
+
+    if (acao === "transferir" && !tecnicosAtivos().some((t) => t.id === responsavelId)) {
+      throw new ErroApp("CAMPO_OBRIGATORIO", { campo: "Técnico de destino" });
+    }
+
+    const agora = new Date().toISOString();
+    const motivo = dados.motivo?.trim();
+    const atualizado: Chamado = {
+      ...chamado,
+      status: para,
+      responsavelId,
+      atualizadoEm: agora,
+      concluidoEm: para === "concluido" ? agora : chamado.concluidoEm,
+      canceladoEm: para === "cancelado" ? agora : chamado.canceladoEm,
+      motivoCancelamento: para === "cancelado" ? (motivo ?? null) : chamado.motivoCancelamento,
+    };
+
+    const { acao: acaoHistorico, publico } = EVENTO_DA_ACAO[acao];
+    const detalhe: Record<string, string> = {};
+    if (motivo) detalhe.motivo = motivo;
+    if (acao === "transferir" && responsavelId) detalhe.para_responsavel_id = responsavelId;
+    const evento: NovoEvento = {
+      chamadoId,
+      autorId: perfil.id,
+      acao: acaoHistorico,
+      de: chamado.status,
+      para,
+      detalhe,
+      publico,
+      criadoEm: agora,
+    };
+
+    // Quem é avisado (docs/escopo.md 7.5): o solicitante e, na transferência, o novo responsável.
+    const mudanca = { de: chamado.status, para };
+    const avisos: NovaNotificacao[] = [];
+    const tipo: TipoNotificacao =
+      acao === "assumir"
+        ? "chamado_assumido"
+        : acao === "transferir"
+          ? "chamado_transferido"
+          : "status_alterado";
+    if (chamado.solicitanteId !== perfil.id) {
+      avisos.push(notificacao(atualizado, chamado.solicitanteId, tipo, agora, mudanca));
+    } else if (chamado.responsavelId && chamado.responsavelId !== perfil.id) {
+      avisos.push(notificacao(atualizado, chamado.responsavelId, tipo, agora, mudanca));
+    }
+    if (acao === "transferir" && responsavelId) {
+      avisos.push(notificacao(atualizado, responsavelId, "chamado_transferido", agora, mudanca));
+    }
+
+    gravarMudanca(atualizado, [evento], avisos);
+    return { ...atualizado };
+  }
+
+  /** Mensagens de outras pessoas depois do que eu li, por chamado. */
+  function contagemNaoLidas(): Record<number, number> {
+    const perfil = eu();
+    const { mensagens, leituras } = lerEstado();
+    const resultado: Record<number, number> = {};
+    for (const c of visiveis()) {
+      const lidoAte =
+        leituras.find((l) => l.chamadoId === c.id && l.profileId === perfil.id)?.lidoAte ?? "";
+      const total = mensagens.filter(
+        (m) =>
+          m.chamadoId === c.id &&
+          m.autorId !== perfil.id &&
+          (perfil.papel === "ti" || !m.interna) &&
+          m.criadoEm > lidoAte,
+      ).length;
+      if (total > 0) resultado[c.id] = total;
+    }
+    return resultado;
   }
 
   async function guardarAnexos(
@@ -217,15 +375,13 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       };
 
       // Na API real: chamado + anexos + historico + notificacoes numa única transação.
+      // Avisos: o solicitante e cada técnico ativo (docs/escopo.md 7.5).
+      const destinatarios = new Set([perfil.id, ...tecnicosAtivos().map((t) => t.id)]);
       const atual = lerEstado();
-      gravarEstado({
-        ...atual,
-        chamados: [...atual.chamados, chamado],
-        anexos: [...atual.anexos, ...anexos],
-        historico: [
-          ...atual.historico,
+      gravarMudanca(
+        null,
+        [
           {
-            id: proximoId(atual.historico),
             chamadoId: id,
             autorId: perfil.id,
             acao: "criado",
@@ -236,7 +392,9 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
             criadoEm,
           },
         ],
-      });
+        [...destinatarios].map((d) => notificacao(chamado, d, "chamado_aberto", criadoEm)),
+        { chamados: [...atual.chamados, chamado], anexos: [...atual.anexos, ...anexos] },
+      );
       return { id, prazoSla: chamado.prazoSla };
     },
 
@@ -342,11 +500,9 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       };
       const anexos = await guardarAnexos(dados.anexos, chamado.id, mensagem.id, criadoEm);
 
-      const atual = lerEstado();
-      const eventos: EventoHistorico[] = voltaAoAtendimento
+      const eventos: NovoEvento[] = voltaAoAtendimento
         ? [
             {
-              id: proximoId(atual.historico),
               chamadoId: chamado.id,
               autorId: null, // automático
               acao: "status_alterado",
@@ -358,52 +514,29 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
             },
           ]
         : [];
-      gravarEstado({
-        ...atual,
-        mensagens: [...atual.mensagens, mensagem],
-        anexos: [...atual.anexos, ...anexos],
-        historico: [...atual.historico, ...eventos],
-        chamados: atual.chamados.map((c) =>
-          c.id === chamado.id ? { ...c, status: novoStatus, atualizadoEm: criadoEm } : c,
-        ),
-      });
+      // Mensagem não interna avisa a outra parte: solicitante ↔ responsável (sem responsável → TI).
+      const atualizado: Chamado = { ...chamado, status: novoStatus, atualizadoEm: criadoEm };
+      const destinatarios: string[] = dados.interna
+        ? []
+        : perfil.id === chamado.solicitanteId
+          ? chamado.responsavelId
+            ? [chamado.responsavelId]
+            : tecnicosAtivos().map((t) => t.id)
+          : [chamado.solicitanteId];
+      const atual = lerEstado();
+      gravarMudanca(
+        atualizado,
+        eventos,
+        destinatarios
+          .filter((d) => d !== perfil.id)
+          .map((d) => notificacao(atualizado, d, "nova_mensagem", criadoEm)),
+        { mensagens: [...atual.mensagens, mensagem], anexos: [...atual.anexos, ...anexos] },
+      );
       return { ...mensagem };
     },
 
     async cancelarChamado(chamadoId: number, motivo: string) {
-      const perfil = eu();
-      const chamado = chamadoVisivel(chamadoId);
-      validarAcao(chamado, "cancelar", { id: perfil.id, papel: perfil.papel }, { motivo });
-      const agora = new Date().toISOString();
-      const atual = lerEstado();
-      gravarEstado({
-        ...atual,
-        chamados: atual.chamados.map((c) =>
-          c.id === chamadoId
-            ? {
-                ...c,
-                status: "cancelado",
-                motivoCancelamento: motivo.trim(),
-                canceladoEm: agora,
-                atualizadoEm: agora,
-              }
-            : c,
-        ),
-        historico: [
-          ...atual.historico,
-          {
-            id: proximoId(atual.historico),
-            chamadoId,
-            autorId: perfil.id,
-            acao: "cancelado",
-            de: chamado.status,
-            para: "cancelado",
-            detalhe: { motivo: motivo.trim() },
-            publico: true,
-            criadoEm: agora,
-          },
-        ],
-      });
+      await executar(chamadoId, "cancelar", { motivo });
     },
 
     async marcarComoLido(chamadoId: number) {
@@ -425,21 +558,23 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
     },
 
     async listarNaoLidos() {
-      const perfil = eu();
-      const { mensagens, leituras } = lerEstado();
-      return visiveis()
-        .filter((c) => {
-          const lidoAte =
-            leituras.find((l) => l.chamadoId === c.id && l.profileId === perfil.id)?.lidoAte ?? "";
-          return mensagens.some(
-            (m) =>
-              m.chamadoId === c.id &&
-              m.autorId !== perfil.id &&
-              (perfil.papel === "ti" || !m.interna) &&
-              m.criadoEm > lidoAte,
-          );
-        })
-        .map((c) => c.id);
+      return Object.keys(contagemNaoLidas()).map(Number);
+    },
+
+    async contarNaoLidas() {
+      return contagemNaoLidas();
+    },
+
+    async executarAcao(chamadoId: number, acao: AcaoChamado, dados?: DadosAcao) {
+      return executar(chamadoId, acao, dados);
+    },
+
+    async proximoDaFila() {
+      if (eu().papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+      const fila = visiveis()
+        .filter((c) => c.status === "pendente")
+        .sort((a, b) => a.prazoSla.localeCompare(b.prazoSla));
+      return fila[0] ? { ...fila[0] } : null;
     },
 
     aoMudar(callback: () => void) {
