@@ -130,7 +130,11 @@ export function ColunaQuadro({
           </h2>
           <span className="text-xs text-texto-suave">{apoio}</span>
         </div>
-        <BarraProporcao cartoes={cartoes} agora={agora} />
+        {id === "concluidos" ? (
+          <div className="h-1.5 rounded-full bg-sucesso" aria-hidden="true" />
+        ) : (
+          <BarraProporcao cartoes={cartoes} agora={agora} />
+        )}
       </header>
 
       {cartoes.length === 0 ? (

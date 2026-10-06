@@ -8,6 +8,7 @@ import { Botao } from "@/components/ui/Botao";
 import { NumeroTicket } from "@/components/ui/NumeroTicket";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
+import { formatarAtualizacao } from "@/lib/formato";
 import { situacaoPrazo } from "@/lib/prazo";
 import { ehNovo, type ColunaQuadro } from "./quadro";
 
@@ -43,21 +44,22 @@ export function CartaoChamado({
   const situacao = situacaoPrazo(c.prazoSla, agora);
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
   const podeAssumir = c.status === "pendente" || transferidoParaMim;
+  const concluido = coluna === "concluidos";
   const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
   return (
     <article
-      draggable
+      draggable={!concluido}
       onDragStart={(e) => {
         e.dataTransfer.setData(TIPO_ARRASTE, JSON.stringify({ id: c.id, coluna }));
         e.dataTransfer.effectAllowed = "move";
       }}
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex cursor-grab overflow-hidden rounded-2xl border bg-superficie shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing ${
+      className={`flex overflow-hidden rounded-2xl border bg-superficie shadow-sm transition-shadow hover:shadow-md ${concluido ? "" : "cursor-grab active:cursor-grabbing"} ${
         destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"
       }`}
     >
-      <NumeroTicket numero={c.id} situacao={situacao} />
+      <NumeroTicket numero={c.id} situacao={concluido ? "neutro" : situacao} />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
         {ehNovo(c, agora) || c.status === "transferido" ? (
           <div className="flex flex-wrap gap-1">
@@ -87,7 +89,13 @@ export function CartaoChamado({
           {solicitante?.nome ?? "—"} · {assunto}
         </p>
         <div className="mt-1 flex items-end gap-3">
-          <BarraPrazo criadoEm={c.criadoEm} prazo={c.prazoSla} agora={agora} />
+          {concluido ? (
+            <span className="flex-1 text-sm font-semibold text-sucesso">
+              Concluído {formatarAtualizacao(c.concluidoEm ?? c.atualizadoEm, agora)}
+            </span>
+          ) : (
+            <BarraPrazo criadoEm={c.criadoEm} prazo={c.prazoSla} agora={agora} />
+          )}
           {coluna === "novos" && podeAssumir ? (
             <Botao
               variante="escuro"

@@ -226,5 +226,8 @@ própria de UI/UX antes da Entrega 2. Mudanças em relação ao texto acima:
   Todos · Só os meus · Sem responsável · categoria · prazo; destaque **vence em menos de 1 h** (substitui 20% do SLA);
   selo "Transferido para você · por Thiago"; ação **Retomar atendimento** (aguardando_usuario → em_andamento);
   botão "Marcar como concluído"; no celular, abas Conversa · Detalhes · Histórico.
+- **Quarta coluna "Concluídos"** (pedido do dono, 2026-10-06): concluídos dos últimos 7 dias, só leitura; arrastar
+  de Em atendimento/Aguardando para ela conclui com confirmação. Quatro colunas lado a lado a partir de ~1280 px;
+  abaixo disso, rolagem lateral com atalhos por coluna.
 - **Só o quadro (kanban)** na área técnica (decisão do dono, 2026-10-06): sem modo Lista. Busca por texto filtra o quadro;
   "Ver encerrados" abre `/atendimento/encerrados` (cartões, só consulta).

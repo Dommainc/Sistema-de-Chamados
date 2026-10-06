@@ -21,6 +21,7 @@ import {
   type ColunaQuadro as IdColuna,
   type FiltrosQuadro as Filtros,
 } from "./quadro";
+import { ModalAcao } from "./atendimento/ModalAcao";
 import { useAcaoChamado } from "./useAcaoChamado";
 
 const SEGUNDOS_DESTAQUE = 6;
@@ -35,11 +36,12 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const [colunaCelular, setColunaCelular] = useState<IdColuna>("novos");
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [destacados, setDestacados] = useState<ReadonlySet<number>>(new Set());
+  const [concluindo, setConcluindo] = useState<number | null>(null);
   const conhecidos = useRef<Set<number> | null>(null);
 
   const consultar = useCallback(async (f: FonteDeDados) => {
     const [chamados, categorias, perfis, naoLidas, proximo] = await Promise.all([
-      f.listarChamados({ escopo: "todos", encerrados: false }),
+      f.listarChamados({ escopo: "todos" }),
       f.listarCategorias(),
       f.listarPerfisPublicos(),
       f.contarNaoLidas(),
@@ -83,7 +85,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const agora = new Date();
   const perfil = new Map(dados.perfis.map((p) => [p.id, p]));
   const categoria = new Map(dados.categorias.map((c) => [c.id, c]));
-  const quadro = montarQuadro(filtrarChamados(dados.chamados, filtros, usuario.id, agora));
+  const quadro = montarQuadro(filtrarChamados(dados.chamados, filtros, usuario.id, agora), agora);
   quadro.novos = ordenarNovos(quadro.novos, usuario.id, agora);
   const cartoes = (coluna: IdColuna): DadosCartao[] =>
     quadro[coluna].map((c) => {
@@ -118,7 +120,9 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       mostrar(mensagemErro("TRANSICAO_INVALIDA", { de: titulo(de), para: titulo(para) }), "erro");
       return;
     }
-    void executar(chamadoId, acao);
+    // Concluir encerra o chamado de vez: pede confirmação, como o botão da tela de atendimento.
+    if (acao === "concluir") setConcluindo(chamadoId);
+    else void executar(chamadoId, acao);
   }
 
   const totalPorColuna = (id: IdColuna) => quadro[id].length;
@@ -139,7 +143,28 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         <Legenda />
       </div>
 
+      {/* Celular: filtros atrás do botão "Filtros". */}
       <div className="flex flex-col gap-3 lg:hidden">
+        <div className="flex items-center justify-end">
+          <button
+            type="button"
+            aria-expanded={filtrosAbertos}
+            onClick={() => setFiltrosAbertos((v) => !v)}
+            className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-primaria"
+          >
+            <ListFilter aria-hidden="true" className="size-5" /> Filtros
+          </button>
+        </div>
+        {filtrosAbertos ? (
+          <div className="flex flex-col gap-3 rounded-2xl border border-borda bg-superficie p-4">
+            <FiltrosQuadro filtros={filtros} categorias={dados.categorias} />
+            <Legenda />
+          </div>
+        ) : null}
+      </div>
+
+      {/* Até ~1280 px nem todas as colunas cabem: atalhos para pular até cada uma. */}
+      <div className="flex flex-col gap-2 xl:hidden">
         <div
           role="tablist"
           aria-label="Colunas do quadro"
@@ -167,23 +192,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
             </button>
           ))}
         </div>
-        <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-texto-suave">Deslize para o lado para ver as outras colunas</p>
-          <button
-            type="button"
-            aria-expanded={filtrosAbertos}
-            onClick={() => setFiltrosAbertos((v) => !v)}
-            className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-primaria"
-          >
-            <ListFilter aria-hidden="true" className="size-5" /> Filtros
-          </button>
-        </div>
-        {filtrosAbertos ? (
-          <div className="flex flex-col gap-3 rounded-2xl border border-borda bg-superficie p-4">
-            <FiltrosQuadro filtros={filtros} categorias={dados.categorias} />
-            <Legenda />
-          </div>
-        ) : null}
+        <p className="text-sm text-texto-suave">Deslize para o lado para ver as outras colunas</p>
       </div>
 
       {filtros.busca ? (
@@ -199,8 +208,8 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         </p>
       ) : null}
 
-      {/* Sempre kanban: colunas lado a lado. Em tela estreita, desliza-se para o lado entre elas. */}
-      <div className="-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-3 lg:mx-0 lg:grid lg:snap-none lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0 lg:pb-0">
+      {/* Sempre kanban: colunas lado a lado. Abaixo de ~1280 px, desliza-se para o lado entre elas. */}
+      <div className="-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-4 xl:gap-4 xl:overflow-visible xl:px-0 xl:pb-0">
         {COLUNAS.map((c) => (
           <ColunaQuadro
             key={c.id}
@@ -213,10 +222,18 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
             destacados={destacados}
             aoAssumir={assumir}
             aoSoltar={soltar}
-            className="w-[85vw] max-w-[22rem] shrink-0 snap-start lg:w-auto lg:max-w-none"
+            className="w-[85vw] max-w-[21rem] shrink-0 snap-start xl:w-auto xl:max-w-none"
           />
         ))}
       </div>
+
+      <ModalAcao
+        acao={concluindo === null ? null : "concluir"}
+        chamadoId={concluindo ?? 0}
+        responsavelId={null}
+        tecnicos={[]}
+        aoFechar={() => setConcluindo(null)}
+      />
 
       <p className="text-center">
         <Link

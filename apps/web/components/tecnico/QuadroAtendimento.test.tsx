@@ -64,6 +64,38 @@ describe("QuadroAtendimento", () => {
     expect(within(cartao(42)).getByText("NOVO")).toBeInTheDocument();
   });
 
+  it("coluna Concluídos mostra os concluídos recentes, sem botão Assumir", async () => {
+    renderizar();
+    await screen.findByText("Próximo da fila");
+    const concluidos = coluna("Concluídos");
+    expect(within(concluidos).getByText("Notebook muito lento")).toBeInTheDocument();
+    expect(within(concluidos).getByText("Impressora do RH com papel preso")).toBeInTheDocument();
+    expect(within(concluidos).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Headset novo para reuniões")).not.toBeInTheDocument(); // cancelado
+  });
+
+  it("arrastar para Concluídos pede confirmação e conclui", async () => {
+    renderizar();
+    await screen.findByText("Próximo da fila");
+    fireEvent.drop(coluna("Concluídos"), {
+      dataTransfer: {
+        types: [TIPO_ARRASTE],
+        getData: () => JSON.stringify({ id: 38, coluna: "em_atendimento" }),
+      },
+    });
+    const modal = await screen.findByRole("dialog", { hidden: true });
+    expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("em_andamento");
+    fireEvent.click(
+      within(modal).getByRole("button", { name: "Marcar como concluído", hidden: true }),
+    );
+    await waitFor(() =>
+      expect(
+        within(coluna("Concluídos")).getByText("Instalar AutoCAD no notebook"),
+      ).toBeInTheDocument(),
+    );
+    expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("concluido");
+  });
+
   it("Assumir no cartão leva o chamado para Em atendimento", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");

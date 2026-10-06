@@ -50,12 +50,14 @@ assim que você responder, o atendimento volta a andar.
 
 ### O quadro
 
-Ao entrar, você vê o **quadro** com três colunas: **Novos**, **Em atendimento** e **Aguardando usuário**.
+Ao entrar, você vê o **quadro** com quatro colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando usuário**
+e **Concluídos** (os dos últimos 7 dias). Em tela menor, deslize para o lado ou use os botões das colunas.
 
 ![Quadro da TI](guia/img/computador-07-quadro.png)
 
 - **Pegar o próximo:** assume o chamado mais urgente da fila e abre direto nele.
-- **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna.
+- **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna —
+  arrastar para **Concluídos** conclui o chamado (pede confirmação).
 - **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo.
 - **Filtros:** Todos / Só os meus / Sem responsável, categoria e prazo. O link da página guarda os filtros.
 - **Busca:** digite o número (ex.: `42`) para abrir o chamado direto, ou parte do título.

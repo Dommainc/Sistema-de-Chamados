@@ -12,7 +12,7 @@ O mockup foi desenhado com o fluxo antigo (Resolvido + confirmação + fechament
 |---|---|
 | Barra de progresso Recebido → Em atendimento → Resolvido → Encerrado | **Recebido → Em atendimento → Concluído** (3 passos) |
 | Card "#35 · Deu certo? Confirme · Resolvido" | Não existe. Concluído vai para a aba Encerrados |
-| Coluna "Resolvidos · Falta o solicitante confirmar" / "Fecha sozinho em 2 dias úteis" | Não existe. Quadro: Novos · Em atendimento · Aguardando usuário (+ "Ver encerrados") |
+| Coluna "Resolvidos · Falta o solicitante confirmar" / "Fecha sozinho em 2 dias úteis" | Vira **"Concluídos"** (pedido do dono, 2026-10-06): concluídos dos **últimos 7 dias**, só leitura, sem confirmação nem fechamento automático. Arrastar para ela conclui (com confirmação). Cancelados e mais antigos: "Ver encerrados" |
 | Botão "Marcar como resolvido" / "Resolver" | **"Marcar como concluído"** (desktop) / **"Concluir"** (celular) |
 | Painel do técnico: "Contato: Ramal" | **"Telefone"** (o primeiro acesso pede telefone/celular) |
 | Alternância "Quadro \| Lista" na barra escura | **Só o quadro (kanban)** — decisão do dono em 2026-10-06. Busca por texto filtra o quadro; "Ver encerrados" é uma página de cartões só para consulta |
