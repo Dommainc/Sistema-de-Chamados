@@ -65,7 +65,8 @@ export interface Chamado {
   status: StatusChamado;
   prioridade: Prioridade;
   respostasForm: Record<string, ValorResposta>;
-  prazoSla: string;
+  /** Definido por um técnico (docs/adr/0009); null = ainda sem prazo. */
+  prazoSla: string | null;
   criadoEm: string;
   atualizadoEm: string;
   concluidoEm: string | null;
@@ -126,6 +127,7 @@ export type TipoNotificacao =
   | "chamado_aberto"
   | "chamado_assumido"
   | "chamado_transferido"
+  | "prazo_definido"
   | "status_alterado"
   | "nova_mensagem";
 

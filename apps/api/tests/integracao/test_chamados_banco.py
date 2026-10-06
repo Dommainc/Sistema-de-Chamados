@@ -3,6 +3,7 @@
 """
 
 import os
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import pytest
@@ -67,9 +68,34 @@ def abrir(cliente, auth, categoria_id: int, **extra) -> dict:
     return resposta.json()
 
 
-def test_previsao_usa_horas_uteis_do_banco(cliente, ana, outros):
-    resposta = cliente.get(f"/categorias/{outros}/previsao", headers=ana)
-    assert resposta.status_code == 200, resposta.text
+def test_prazo_nasce_vazio_e_a_ti_define_e_altera(cliente, ana, rafael, outros):
+    chamado = abrir(cliente, ana, outros)
+    assert chamado["prazo_sla"] is None
+    n = chamado["id"]
+    amanha = (datetime.now(UTC) + timedelta(days=1)).replace(microsecond=0)
+
+    definido = cliente.post(
+        f"/chamados/{n}/prazo", headers=rafael, json={"prazo": amanha.isoformat()}
+    )
+    assert definido.status_code == 200, definido.text
+    sem_motivo = cliente.post(
+        f"/chamados/{n}/prazo",
+        headers=rafael,
+        json={"prazo": (amanha + timedelta(days=1)).isoformat()},
+    )
+    assert sem_motivo.json()["erro"]["codigo"] == "MOTIVO_OBRIGATORIO"
+    alterado = cliente.post(
+        f"/chamados/{n}/prazo",
+        headers=rafael,
+        json={"prazo": (amanha + timedelta(days=1)).isoformat(), "motivo": "Peça em falta"},
+    )
+    assert alterado.status_code == 200, alterado.text
+
+    # O solicitante vê a nova previsão e o motivo (histórico público).
+    eventos = ler("historico", f"chamado_id=eq.{n}&acao=eq.prazo_definido&order=id", ana)
+    assert len(eventos) == 2 and eventos[-1]["detalhe"]["motivo"] == "Peça em falta"
+    negado = cliente.post(f"/chamados/{n}/prazo", headers=ana, json={"prazo": amanha.isoformat()})
+    assert negado.json()["erro"]["codigo"] == "SEM_PERMISSAO"
 
 
 def test_ciclo_completo_com_historico_e_notificacoes(cliente, ana, bruno, rafael, thiago, outros):

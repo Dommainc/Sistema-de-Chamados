@@ -56,8 +56,12 @@ export function ConfirmacaoChamado({ id }: { id: number }) {
           <div className="flex gap-3 p-4">
             <Clock aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primaria" />
             <div>
-              <p className="text-sm text-texto-suave">Previsão de atendimento</p>
-              <p className="text-lg font-bold">{maiuscula(formatarPrevisao(chamado.prazoSla))}</p>
+              <p className="text-sm text-texto-suave">Previsão de conclusão</p>
+              <p className="text-lg font-bold">
+                {chamado.prazoSla
+                  ? maiuscula(formatarPrevisao(chamado.prazoSla))
+                  : "A TI vai analisar e informar"}
+              </p>
             </div>
           </div>
           <div className="mx-4 border-t border-borda" />

@@ -148,7 +148,7 @@ describe("proporção de prazos", () => {
         [chamado(1, "pendente", -5), chamado(2, "pendente", 50), chamado(3, "pendente", 500)],
         agora,
       ),
-    ).toEqual({ vencido: 1, vence_em_breve: 1, no_prazo: 1 });
+    ).toEqual({ vencido: 1, vence_em_breve: 1, no_prazo: 1, sem_prazo: 0 });
   });
 });
 

@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado, EventoHistorico, Mensagem } from "@/lib/dominio/tipos";
-import { contarRelato, montarConversa, montarRelato, rotuloDia } from "./linhaDoTempo";
+import {
+  contarRelato,
+  montarConversa,
+  montarRelato,
+  rotuloDia,
+  textoEvento,
+  textoHistorico,
+} from "./linhaDoTempo";
 
 // 05/10/2026 em São Paulo
 const agora = new Date("2026-10-05T13:30:00Z");
@@ -282,5 +289,44 @@ describe("rotuloDia", () => {
     expect(rotuloDia("2026-10-05T12:00:00Z", agora)).toBe("Hoje");
     expect(rotuloDia("2026-10-04T12:00:00Z", agora)).toBe("Ontem");
     expect(rotuloDia("2026-10-01T12:00:00Z", agora)).toBe("01/10/2026");
+  });
+});
+
+describe("prazo definido pela TI (ADR 0009)", () => {
+  const nome = (id: string | null | undefined) => (id === RAFAEL ? "Rafael Lima" : null);
+  const evento = (detalhe: Record<string, string>): EventoHistorico => ({
+    id: 99,
+    chamadoId: 41,
+    autorId: RAFAEL,
+    acao: "prazo_definido",
+    de: "em_andamento",
+    para: "em_andamento",
+    detalhe,
+    publico: true,
+    criadoEm: "2026-10-05T13:00:00Z",
+  });
+  const definido = evento({ prazo: "2026-10-08T21:00:00Z" });
+  const alterado = evento({
+    prazo: "2026-10-09T21:00:00Z",
+    prazo_anterior: "2026-10-08T21:00:00Z",
+    motivo: "Aguardando a peça",
+  });
+
+  it("o solicitante vê a previsão e, se mudou, o motivo", () => {
+    expect(textoEvento(definido, nome, ANA, "solicitante")).toBe(
+      "Previsão de conclusão: 08/10/2026 18:00",
+    );
+    expect(textoEvento(alterado, nome, ANA, "solicitante")).toBe(
+      "Previsão de conclusão alterada para 09/10/2026 18:00: Aguardando a peça",
+    );
+  });
+
+  it("a TI vê quem definiu ou alterou", () => {
+    expect(textoEvento(definido, nome, RAFAEL, "ti")).toBe(
+      "Você definiu o prazo: 08/10/2026 18:00",
+    );
+    expect(textoHistorico(alterado, nome)).toBe(
+      "Prazo alterado por Rafael Lima para 09/10/2026 18:00 — Aguardando a peça",
+    );
   });
 });

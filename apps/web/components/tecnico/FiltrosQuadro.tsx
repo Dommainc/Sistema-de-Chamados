@@ -17,6 +17,7 @@ const PRAZOS: { valor: FiltroPrazo; rotulo: string }[] = [
   { valor: "vencido", rotulo: "Vencido" },
   { valor: "vence_em_breve", rotulo: "Vence em menos de 1h" },
   { valor: "no_prazo", rotulo: "No prazo" },
+  { valor: "sem_prazo", rotulo: "Sem prazo" },
 ];
 
 /** Monta a URL trocando um parâmetro (filtros ficam na URL para poder compartilhar o link). */
@@ -44,6 +45,9 @@ export function Legenda() {
       </li>
       <li className="flex items-center gap-1.5">
         <span className="size-2.5 rounded-sm bg-sucesso" /> No prazo
+      </li>
+      <li className="flex items-center gap-1.5">
+        <span className="size-2.5 rounded-sm bg-borda" /> Sem prazo
       </li>
     </ul>
   );

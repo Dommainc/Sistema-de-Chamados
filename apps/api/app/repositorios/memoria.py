@@ -114,9 +114,8 @@ class RepositorioMemoria:
     async def listar_campos_form(self, categoria_id: int) -> list[CampoForm]:
         return list(self._e.campos.get(categoria_id, []))
 
-    async def calcular_prazo(self, sla_horas: float) -> datetime:
-        # Simplificação dos testes: horas corridas (o banco usa horas úteis).
-        return self._e.relogio + timedelta(hours=sla_horas)
+    async def agora(self) -> datetime:
+        return self._e.relogio
 
     async def listar_tecnicos_ativos(self) -> list[str]:
         return [p.id for p in self._e.perfis.values() if p.papel == "ti" and p.ativo]
@@ -135,7 +134,7 @@ class RepositorioMemoria:
             solicitante_id=solicitante_id,
             responsavel_id=None,
             status="pendente",
-            prazo_sla=await self.calcular_prazo(categoria.sla_horas),
+            prazo_sla=None,  # quem define é a TI (docs/adr/0009)
             criado_em=agora,
             atualizado_em=agora,
             respostas_form=dict(respostas),
@@ -161,6 +160,11 @@ class RepositorioMemoria:
             cancelado_em=agora if status == "cancelado" else atual.cancelado_em,
             motivo_cancelamento=motivo_cancelamento or atual.motivo_cancelamento,
         )
+        self._e.chamados[chamado_id] = novo
+        return novo
+
+    async def definir_prazo(self, chamado_id: int, prazo: datetime) -> ChamadoLinha:
+        novo = replace(self._e.chamados[chamado_id], prazo_sla=prazo, atualizado_em=self._e.agora())
         self._e.chamados[chamado_id] = novo
         return novo
 

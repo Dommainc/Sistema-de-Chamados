@@ -1,6 +1,6 @@
 "use client";
 
-import { Mail, Phone } from "lucide-react";
+import { CalendarClock, Mail, Phone } from "lucide-react";
 import { Avatar } from "@/components/ui/Avatar";
 import { BarraPrazo } from "@/components/ui/BarraPrazo";
 import { Botao } from "@/components/ui/Botao";
@@ -122,18 +122,23 @@ const COR_PREVISAO = {
   vencido: "text-perigo",
   vence_em_breve: "text-alerta",
   no_prazo: "",
+  sem_prazo: "text-texto-suave font-normal",
 } as const;
 
+/** Cartão PRAZO (ADR 0009): o técnico define ou altera o prazo aqui (`aoDefinirPrazo`). */
 export function CartaoPrazo({
   chamado,
   categoria,
   responsavel,
   euId,
+  aoDefinirPrazo,
 }: {
   chamado: Chamado;
   categoria: Categoria | null;
   responsavel: PerfilPublico | null;
   euId: string;
+  /** Ausente em chamado encerrado (prazo não muda mais). */
+  aoDefinirPrazo?: () => void;
 }) {
   return (
     <Secao titulo="Prazo">
@@ -143,6 +148,12 @@ export function CartaoPrazo({
         </strong>
       </Linha>
       <BarraPrazo criadoEm={chamado.criadoEm} prazo={chamado.prazoSla} semTexto />
+      {aoDefinirPrazo ? (
+        <Botao variante="contorno" onClick={aoDefinirPrazo} className="min-h-11">
+          <CalendarClock aria-hidden="true" className="size-4" />
+          {chamado.prazoSla ? "Alterar prazo" : "Definir prazo"}
+        </Botao>
+      ) : null}
       <Linha rotulo="Responsável">
         {responsavel
           ? `${responsavel.nome}${responsavel.id === euId ? " (você)" : ""}`

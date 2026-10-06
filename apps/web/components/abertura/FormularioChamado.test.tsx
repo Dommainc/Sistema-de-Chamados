@@ -48,14 +48,16 @@ beforeEach(() => {
 });
 
 describe("FormularioChamado", () => {
-  it("mostra os campos da categoria, com seleção em cartões e a previsão", async () => {
+  it("mostra os campos da categoria, com seleção em cartões, sem previsão automática", async () => {
     renderizar();
     expect(await screen.findByText("Conte o que está acontecendo")).toBeInTheDocument();
     expect(screen.getByLabelText(/Resumo do problema/)).toBeInTheDocument();
     expect(
       screen.getByRole("radio", { name: "O escritório ou a obra inteira" }),
     ).toBeInTheDocument();
-    expect((await screen.findAllByText(/Previsão de atendimento/)).length).toBeGreaterThan(0);
+    expect(
+      await screen.findByText(/A TI analisa o pedido e informa a previsão/),
+    ).toBeInTheDocument();
   });
 
   it("enviar vazio mostra o erro embaixo de cada campo obrigatório", async () => {

@@ -6,14 +6,15 @@ import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { Segmentado } from "@/components/ui/Segmentado";
 import { useConsulta } from "@/lib/dados/provedor";
 import type { FonteDeDados, PerfilPublico } from "@/lib/dados/tipos";
-import type { Chamado } from "@/lib/dominio/tipos";
+import { estaEncerrado, type Chamado } from "@/lib/dominio/tipos";
 import { formatarAtualizacao, formatarNumeroChamado, formatarQuando } from "@/lib/formato";
 
 type Aba = "andamento" | "encerrados";
 
-/** A informação mais útil no canto do cartão (mockup, tela 4). */
+/** A informação mais útil no canto do cartão (mockup, tela 4). A previsão só existe se a TI definiu. */
 function infoDoCanto(c: Chamado, responsavel: PerfilPublico | undefined): string | null {
-  if (c.status === "pendente") return `Previsão: ${formatarQuando(c.prazoSla)}`;
+  if (estaEncerrado(c.status)) return null;
+  if (c.prazoSla) return `Previsão: ${formatarQuando(c.prazoSla)}`;
   if (["em_andamento", "aguardando_usuario", "transferido"].includes(c.status) && responsavel) {
     return `Com ${responsavel.nome}`;
   }

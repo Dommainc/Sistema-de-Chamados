@@ -3,10 +3,13 @@
 
 export type FiltroResponsavel = "todos" | "meus" | "sem_responsavel";
 
-export type FiltroPrazoUrl = "todos" | "vencido" | "vence_em_breve" | "no_prazo";
+export type FiltroPrazoUrl = "todos" | "vencido" | "vence_em_breve" | "no_prazo" | "sem_prazo";
 
 export function lerPrazo(valor: string | null | undefined): FiltroPrazoUrl {
-  return valor === "vencido" || valor === "vence_em_breve" || valor === "no_prazo"
+  return valor === "vencido" ||
+    valor === "vence_em_breve" ||
+    valor === "no_prazo" ||
+    valor === "sem_prazo"
     ? valor
     : "todos";
 }

@@ -8,7 +8,7 @@ arquivos, o Armazenamento. O comportamento espelha o modo simulado do front
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from app.dominio.anexos import (
     caminho_definitivo,
@@ -136,14 +136,11 @@ async def _guardar_anexos(
     return await repo.inserir_anexos(novos) if novos else []
 
 
+#: Prazo mais distante aceito (evita data digitada errada, ex.: 2062).
+PRAZO_MAXIMO = timedelta(days=366)
+
+
 # ------------------------------------------------------------------------------------- rotas
-async def previsao(repo: Repositorio, categoria_id: int) -> datetime:
-    """Prazo se o chamado fosse aberto agora (P-026)."""
-    await _eu(repo)
-    categoria = await repo.obter_categoria_ativa(categoria_id)
-    if categoria is None:
-        raise ErroApp("ERRO_INESPERADO", detalhe=f"categoria {categoria_id} inativa ou inexistente")
-    return await repo.calcular_prazo(categoria.sla_horas)
 
 
 async def criar_upload(
@@ -249,6 +246,51 @@ async def executar_acao(
             _aviso(atualizado, resultado.responsavel_id, "chamado_transferido", **mudanca)
         )
     await repo.inserir_notificacoes(avisos)
+    return atualizado
+
+
+async def definir_prazo(
+    repo: Repositorio, chamado_id: int, prazo: datetime, motivo: str | None
+) -> ChamadoLinha:
+    """Prazo para concluir, definido por um técnico (docs/adr/0009).
+
+    1ª vez: sem motivo. Alteração: motivo obrigatório. Grava histórico (público: o solicitante vê a
+    nova previsão e o motivo) e avisa o solicitante, na mesma transação.
+    """
+    eu = await _eu(repo)
+    chamado = await _chamado_visivel(repo, eu, chamado_id)
+    if eu.papel != "ti":
+        raise ErroApp("SEM_PERMISSAO", detalhe="só a TI define o prazo")
+    if esta_encerrado(chamado.status):
+        rotulo = ROTULOS["ti"][chamado.status]
+        raise ErroApp(
+            "TRANSICAO_INVALIDA", {"de": rotulo, "para": rotulo}, detalhe="prazo de encerrado"
+        )
+    agora = await repo.agora()
+    if prazo.tzinfo is None or not agora < prazo <= agora + PRAZO_MAXIMO:
+        raise ErroApp("PRAZO_INVALIDO", detalhe=f"prazo {prazo.isoformat()}")
+    motivo = (motivo or "").strip() or None
+    anterior = chamado.prazo_sla
+    if anterior is not None and not motivo:
+        raise ErroApp("MOTIVO_OBRIGATORIO")
+
+    atualizado = await repo.definir_prazo(chamado.id, prazo)
+    detalhe = {"prazo": prazo.isoformat()}
+    if anterior is not None:
+        detalhe["prazo_anterior"] = anterior.isoformat()
+    if motivo:
+        detalhe["motivo"] = motivo
+    await repo.inserir_eventos(
+        [
+            NovoEvento(
+                chamado.id, eu.id, "prazo_definido", chamado.status, chamado.status, detalhe, True
+            )
+        ]
+    )
+    if chamado.solicitante_id != eu.id:
+        await repo.inserir_notificacoes(
+            [_aviso(atualizado, chamado.solicitante_id, "prazo_definido", **detalhe)]
+        )
     return atualizado
 
 

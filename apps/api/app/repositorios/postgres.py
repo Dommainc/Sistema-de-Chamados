@@ -145,9 +145,8 @@ class RepositorioPostgres:
             for linha in linhas
         ]
 
-    async def calcular_prazo(self, sla_horas: float) -> datetime:
-        await self._t.como_api()
-        return await self._c.fetchval("select app.adicionar_horas_uteis(now(), $1)", sla_horas)
+    async def agora(self) -> datetime:
+        return await self._c.fetchval("select now()")
 
     async def listar_tecnicos_ativos(self) -> list[str]:
         await self._t.como_api()
@@ -161,7 +160,7 @@ class RepositorioPostgres:
         self, titulo: str, categoria_id: int, solicitante_id: str, respostas: dict[str, Any]
     ) -> ChamadoLinha:
         await self._t.como_api()
-        # Área, prazo e datas são definidos pelo trigger app.chamados_antes_inserir.
+        # Área e datas vêm do trigger app.chamados_antes_inserir; o prazo nasce vazio (ADR 0009).
         linha = await self._c.fetchrow(
             f"""
             insert into public.chamados (titulo, categoria_id, solicitante_id, respostas_form)
@@ -197,6 +196,15 @@ class RepositorioPostgres:
             status,
             responsavel_id,
             motivo_cancelamento,
+        )
+        return _chamado(linha)
+
+    async def definir_prazo(self, chamado_id: int, prazo: datetime) -> ChamadoLinha:
+        await self._t.como_api()
+        linha = await self._c.fetchrow(
+            f"update public.chamados set prazo_sla = $2 where id = $1 returning {_COLUNAS_CHAMADO}",
+            chamado_id,
+            prazo,
         )
         return _chamado(linha)
 

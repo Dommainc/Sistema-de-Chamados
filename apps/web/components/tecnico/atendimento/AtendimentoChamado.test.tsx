@@ -152,6 +152,37 @@ describe("AtendimentoChamado", () => {
     expect(within(relato).getByText(/Thiago cuida de e-mail/)).toBeInTheDocument();
   });
 
+  it("Definir prazo: chamado novo sem prazo; atalho + confirmar grava e mostra no histórico", async () => {
+    renderizar(RAFAEL, 34);
+    const prazo = await screen.findByRole("region", { name: "Prazo" });
+    expect(within(prazo).getByText("Sem prazo")).toBeInTheDocument();
+    fireEvent.click(within(prazo).getByRole("button", { name: "Definir prazo" }));
+    const modal = await screen.findByRole("dialog", { name: "Definir prazo", hidden: true });
+    fireEvent.click(within(modal).getByRole("button", { name: "Amanhã 18h", hidden: true }));
+    expect(within(modal).queryByRole("textbox", { hidden: true })).not.toBeInTheDocument(); // sem motivo
+    fireEvent.click(within(modal).getByRole("button", { name: "Definir prazo", hidden: true }));
+    await waitFor(() => expect(chamado(34).prazoSla).not.toBeNull());
+    expect(await screen.findByText(/Prazo definido por Rafael Lima/)).toBeInTheDocument();
+  });
+
+  it("Alterar prazo exige o motivo", async () => {
+    renderizar(); // #41 já tem prazo
+    const prazo = await screen.findByRole("region", { name: "Prazo" });
+    const anterior = chamado(41).prazoSla;
+    fireEvent.click(within(prazo).getByRole("button", { name: "Alterar prazo" }));
+    const modal = await screen.findByRole("dialog", { name: "Alterar prazo", hidden: true });
+    fireEvent.click(within(modal).getByRole("button", { name: "Em 3 dias úteis", hidden: true }));
+    fireEvent.click(within(modal).getByRole("button", { name: "Alterar prazo", hidden: true }));
+    expect(await within(modal).findByText("Informe o motivo para continuar.")).toBeInTheDocument();
+    expect(chamado(41).prazoSla).toBe(anterior);
+
+    fireEvent.change(within(modal).getByRole("textbox", { hidden: true }), {
+      target: { value: "Aguardando a licença do Office" },
+    });
+    fireEvent.click(within(modal).getByRole("button", { name: "Alterar prazo", hidden: true }));
+    await waitFor(() => expect(chamado(41).prazoSla).not.toBe(anterior));
+  });
+
   it("transferido para outro técnico: quem não é o destino só devolve ou cancela", async () => {
     renderizar(THIAGO, 39); // #39 foi transferido para o Rafael
     await screen.findByRole("region", { name: "Ações" });

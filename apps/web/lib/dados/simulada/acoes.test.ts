@@ -139,7 +139,7 @@ describe("solicitante não faz ações da TI", () => {
 });
 
 describe("fila e contadores", () => {
-  it("próximo da fila = pendente com o prazo mais apertado", async () => {
+  it("próximo da fila = pendente com o prazo mais apertado (sem prazo vai depois)", async () => {
     const proximo = await criarFonteSimulada(RAFAEL.id).proximoDaFila();
     expect(proximo?.id).toBe(36); // venceu há 3 h
   });

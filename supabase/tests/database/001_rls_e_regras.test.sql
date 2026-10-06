@@ -105,10 +105,10 @@ select is(
   'Números dos chamados são sequenciais'
 );
 
-select isnt(
+select is(
   (select prazo_sla from public.chamados where id = (select id from fx where nome = 'chamado_a')),
   null,
-  'Prazo é calculado na abertura'
+  'Chamado nasce sem prazo (quem define é a TI — migration 0019)'
 );
 
 select is(

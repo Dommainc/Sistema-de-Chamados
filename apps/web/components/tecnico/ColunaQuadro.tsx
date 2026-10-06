@@ -11,6 +11,7 @@ const COR_SEGMENTO: Record<SituacaoPrazo, string> = {
   vencido: "bg-perigo",
   vence_em_breve: "bg-laranja",
   no_prazo: "bg-sucesso",
+  sem_prazo: "bg-borda",
 };
 
 /** Barra fina no topo da coluna: proporção de vencidos, vencendo e no prazo. */

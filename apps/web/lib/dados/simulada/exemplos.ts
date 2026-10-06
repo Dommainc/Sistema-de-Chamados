@@ -312,7 +312,8 @@ interface ChamadoExemplo {
   /** Minutos atrás da última atualização. */
   atualizadoHa: number;
   /** Prazo em minutos a partir de agora (negativo = vencido). */
-  prazoEm: number;
+  /** Minutos até o prazo; ausente = a TI ainda não definiu (docs/adr/0009). */
+  prazoEm?: number;
   descricao: string;
   motivoCancelamento?: string;
 }
@@ -380,7 +381,6 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
     status: "pendente",
     abertoHa: 2 * H,
     atualizadoHa: 2 * H,
-    prazoEm: 6 * H,
     descricao: "O monitor da esquerda pisca de tempos em tempos.",
   },
   {
@@ -452,7 +452,6 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
     status: "pendente",
     abertoHa: 160,
     atualizadoHa: 160,
-    prazoEm: -40,
     descricao: "Errei a senha três vezes e bloqueou.",
   },
   {
@@ -489,7 +488,6 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
     status: "pendente",
     abertoHa: 30,
     atualizadoHa: 30,
-    prazoEm: 3 * H + 30,
     descricao: "Ninguém me escuta nas reuniões.",
   },
   {
@@ -513,7 +511,6 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
     status: "pendente",
     abertoHa: 10,
     atualizadoHa: 10,
-    prazoEm: 7 * H,
     descricao: "Sem sinal desde hoje cedo, só no meu aparelho.",
   },
 ];
@@ -532,11 +529,13 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       status: e.status,
       prioridade: "media",
       respostasForm: { descricao: e.descricao },
-      // Prazo futuro em horas úteis (como o banco); vencidos e "vence em menos de 1 h" ficam exatos.
+      // Prazo futuro em horas úteis; vencidos e "vence em menos de 1 h" ficam exatos.
       prazoSla:
-        e.prazoEm >= 60
-          ? adicionarHorasUteis(agora, e.prazoEm / 60, EXPEDIENTE_SIMULADO).toISOString()
-          : minutos(e.prazoEm),
+        e.prazoEm === undefined
+          ? null
+          : e.prazoEm >= 60
+            ? adicionarHorasUteis(agora, e.prazoEm / 60, EXPEDIENTE_SIMULADO).toISOString()
+            : minutos(e.prazoEm),
       criadoEm: minutos(-e.abertoHa),
       atualizadoEm,
       concluidoEm: e.status === "concluido" ? atualizadoEm : null,
@@ -575,6 +574,19 @@ export function gerarHistoricoExemplo(chamados: readonly Chamado[]): EventoHisto
         detalhe: {},
         publico: true,
         criadoEm: assumidoEm,
+      });
+    }
+    if (c.prazoSla) {
+      // Quem definiu o prazo: o responsável (ou, nos novos, o Rafael), logo depois da abertura.
+      eventos.push({
+        chamadoId: c.id,
+        autorId: c.responsavelId ?? RAFAEL,
+        acao: "prazo_definido",
+        de: c.status,
+        para: c.status,
+        detalhe: { prazo: c.prazoSla },
+        publico: true,
+        criadoEm: new Date(new Date(c.criadoEm).getTime() + 60_000).toISOString(),
       });
     }
   }

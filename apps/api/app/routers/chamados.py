@@ -52,7 +52,7 @@ class ChamadoSaida(BaseModel):
     titulo: str
     status: StatusChamado
     responsavel_id: str | None
-    prazo_sla: datetime
+    prazo_sla: datetime | None = Field(description="Definido pela TI; null = ainda sem prazo")
     criado_em: datetime
     atualizado_em: datetime
 
@@ -104,19 +104,13 @@ class UploadUrlSaida(BaseModel):
     url: str
 
 
-class PrevisaoSaida(BaseModel):
-    prazo: datetime
+class PrazoEntrada(BaseModel):
+    prazo: datetime = Field(description="Data e hora com fuso, no futuro (até 1 ano)")
+    motivo: str = Field(default="", description="Obrigatório ao ALTERAR um prazo já definido")
 
 
 class UrlSaida(BaseModel):
     url: str
-
-
-# --------------------------------------------------------------------------------- previsão
-@router.get("/categorias/{categoria_id}/previsao", summary="Prazo se o chamado fosse aberto agora")
-async def previsao(categoria_id: int, usuario: UsuarioAtual, fabrica: Fabrica) -> PrevisaoSaida:
-    async with fabrica(usuario) as repo:
-        return PrevisaoSaida(prazo=await servicos.previsao(repo, categoria_id))
 
 
 # ---------------------------------------------------------------------------------- anexos
@@ -222,6 +216,16 @@ async def cancelar(
     chamado_id: int, dados: MotivoEntrada, usuario: UsuarioAtual, fabrica: Fabrica
 ) -> ChamadoSaida:
     return await _acao(fabrica, usuario, chamado_id, "cancelar", DadosAcao(motivo=dados.motivo))
+
+
+@router.post("/chamados/{chamado_id}/prazo", summary="Definir ou alterar o prazo (TI)")
+async def definir_prazo(
+    chamado_id: int, dados: PrazoEntrada, usuario: UsuarioAtual, fabrica: Fabrica
+) -> ChamadoSaida:
+    async with fabrica(usuario) as repo:
+        return ChamadoSaida.de(
+            await servicos.definir_prazo(repo, chamado_id, dados.prazo, dados.motivo)
+        )
 
 
 # ------------------------------------------------------------------------------- mensagens

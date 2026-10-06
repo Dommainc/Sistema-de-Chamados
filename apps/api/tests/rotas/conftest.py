@@ -31,7 +31,9 @@ INTERNET = 2
 OUTROS = 13
 
 
-def _chamado(id_: int, solicitante: str, status, responsavel=None, horas_atras=2) -> ChamadoLinha:
+def _chamado(
+    id_: int, solicitante: str, status, responsavel=None, horas_atras=2, com_prazo=True
+) -> ChamadoLinha:
     criado = datetime(2026, 10, 6, 12, 0, tzinfo=UTC) - timedelta(hours=horas_atras)
     return ChamadoLinha(
         id=id_,
@@ -41,7 +43,7 @@ def _chamado(id_: int, solicitante: str, status, responsavel=None, horas_atras=2
         solicitante_id=solicitante,
         responsavel_id=responsavel,
         status=status,
-        prazo_sla=criado + timedelta(hours=8),
+        prazo_sla=criado + timedelta(hours=8) if com_prazo else None,
         criado_em=criado,
         atualizado_em=criado,
     )
@@ -71,10 +73,10 @@ def estado() -> EstadoMemoria:
     }
     e.chamados = {
         35: _chamado(35, ANA, "concluido", RAFAEL, 72),
-        36: _chamado(36, BRUNO, "pendente"),
+        36: _chamado(36, BRUNO, "pendente", com_prazo=False),
         39: _chamado(39, BRUNO, "transferido", RAFAEL),
         41: _chamado(41, ANA, "aguardando_usuario", RAFAEL),
-        42: _chamado(42, ANA, "pendente"),
+        42: _chamado(42, ANA, "pendente", com_prazo=False),
     }
     e.mensagens = [
         MensagemMemoria(1, 41, RAFAEL, "Caixa cheia", True, e.relogio - timedelta(minutes=20)),

@@ -16,6 +16,7 @@ export const CATALOGO = {
   MOTIVO_OBRIGATORIO: "Informe o motivo para continuar.",
   CANCELAMENTO_NAO_PERMITIDO:
     "Esse chamado já está sendo atendido. Para cancelar, fale com a TI pelo chat.",
+  PRAZO_INVALIDO: "Escolha uma data e hora no futuro para o prazo.",
   MENSAGEM_NAO_ENVIADA: "Sua mensagem não foi enviada. Toque para tentar de novo.",
   SEM_CONEXAO: "Sem conexão. As mensagens novas vão aparecer quando a conexão voltar.",
   ERRO_INESPERADO:

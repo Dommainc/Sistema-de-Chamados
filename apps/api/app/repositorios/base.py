@@ -44,7 +44,8 @@ class ChamadoLinha:
     solicitante_id: str
     responsavel_id: str | None
     status: StatusChamado
-    prazo_sla: datetime
+    #: Definido por um técnico (docs/adr/0009); None = ainda sem prazo.
+    prazo_sla: datetime | None
     criado_em: datetime
     atualizado_em: datetime
     concluido_em: datetime | None = None
@@ -130,8 +131,8 @@ class Repositorio(Protocol):
 
     async def listar_campos_form(self, categoria_id: int) -> list[CampoForm]: ...
 
-    async def calcular_prazo(self, sla_horas: float) -> datetime:
-        """Agora + horas úteis (app.adicionar_horas_uteis no banco)."""
+    async def agora(self) -> datetime:
+        """Hora do banco (now()), para validar que o prazo está no futuro."""
         ...
 
     async def listar_tecnicos_ativos(self) -> list[str]: ...
@@ -148,6 +149,8 @@ class Repositorio(Protocol):
         responsavel_id: str | None,
         motivo_cancelamento: str | None,
     ) -> ChamadoLinha: ...
+
+    async def definir_prazo(self, chamado_id: int, prazo: datetime) -> ChamadoLinha: ...
 
     async def inserir_mensagem(
         self, chamado_id: int, autor_id: str, conteudo: str, interna: bool

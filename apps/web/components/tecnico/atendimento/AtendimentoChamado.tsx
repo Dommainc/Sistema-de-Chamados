@@ -13,11 +13,13 @@ import { NumeroTicket } from "@/components/ui/NumeroTicket";
 import { Segmentado } from "@/components/ui/Segmentado";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
+import { estaEncerrado } from "@/lib/dominio/tipos";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
 import { useAcaoChamado } from "../useAcaoChamado";
 import { CartaoHistorico, CartaoPrazo, CartaoSolicitante, PainelAcoes, Secao } from "./Cartoes";
 import { ModalAcao, type AcaoComModal } from "./ModalAcao";
+import { ModalPrazo } from "./ModalPrazo";
 import { RelatoTecnico } from "./RelatoTecnico";
 
 type Aba = "conversa" | "detalhes" | "historico";
@@ -33,6 +35,7 @@ export function AtendimentoChamado({ id }: { id: number }) {
   const { dados, erro, carregando } = useChamadoDetalhado(id);
   const [quadro, setQuadro] = useState<Quadro>("conversa");
   const [modal, setModal] = useState<AcaoComModal | null>(null);
+  const [modalPrazo, setModalPrazo] = useState(false);
   const [aba, setAba] = useState<Aba>("conversa");
 
   const solicitanteId = dados?.chamado.solicitanteId;
@@ -104,7 +107,9 @@ export function AtendimentoChamado({ id }: { id: number }) {
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <BadgeStatus status={chamado.status} papel="ti" tamanho="pequeno" />
               <span className="text-sobre-barra-suave lg:hidden">
-                Prazo {textoPrazo(chamado.prazoSla, agora).toLowerCase()}
+                {chamado.prazoSla
+                  ? `Prazo ${textoPrazo(chamado.prazoSla, agora).toLowerCase()}`
+                  : "Sem prazo"}
               </span>
             </div>
           </div>
@@ -176,6 +181,7 @@ export function AtendimentoChamado({ id }: { id: number }) {
               categoria={categoria}
               responsavel={responsavel}
               euId={usuario.id}
+              aoDefinirPrazo={estaEncerrado(chamado.status) ? undefined : () => setModalPrazo(true)}
             />
             <CartaoSolicitante perfil={extras?.solicitante} />
             <Secao titulo="Pedido">
@@ -190,6 +196,9 @@ export function AtendimentoChamado({ id }: { id: number }) {
         </aside>
       </div>
 
+      {modalPrazo ? (
+        <ModalPrazo chamado={chamado} aberto aoFechar={() => setModalPrazo(false)} />
+      ) : null}
       <ModalAcao
         acao={modal}
         chamadoId={chamado.id}

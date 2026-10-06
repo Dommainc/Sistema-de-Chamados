@@ -61,7 +61,10 @@ function PainelChamado({
         </span>
         {!estaEncerrado(chamado.status) ? (
           <span className="text-texto-suave">
-            Previsão: <strong className="text-texto">{formatarQuando(chamado.prazoSla)}</strong>
+            Previsão:{" "}
+            <strong className="text-texto">
+              {chamado.prazoSla ? formatarQuando(chamado.prazoSla) : "a TI vai informar"}
+            </strong>
           </span>
         ) : null}
       </div>

@@ -90,6 +90,19 @@ export function textoEvento(
     }
     case "devolvido_fila":
       return `${autor} devolveu o chamado para a fila`;
+    case "prazo_definido": {
+      // ADR 0009: o solicitante vê a previsão e, se mudou, o motivo.
+      const prazo = evento.detalhe.prazo ? formatarDataHora(evento.detalhe.prazo) : "";
+      const motivo = evento.detalhe.motivo ? `: ${evento.detalhe.motivo}` : "";
+      if (evento.detalhe.prazo_anterior) {
+        return papel === "solicitante"
+          ? `Previsão de conclusão alterada para ${prazo}${motivo}`
+          : `${autor} alterou o prazo para ${prazo}${motivo}`;
+      }
+      return papel === "solicitante"
+        ? `Previsão de conclusão: ${prazo}`
+        : `${autor} definiu o prazo: ${prazo}`;
+    }
     case "concluido":
       return "Chamado concluído";
     case "cancelado":
@@ -303,6 +316,12 @@ export function textoHistorico(
       }`;
     case "devolvido_fila":
       return `Devolvido à fila por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;
+    case "prazo_definido": {
+      const prazo = evento.detalhe.prazo ? formatarDataHora(evento.detalhe.prazo) : "";
+      return evento.detalhe.prazo_anterior
+        ? `Prazo alterado por ${autor} para ${prazo}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`
+        : `Prazo definido por ${autor}: ${prazo}`;
+    }
     case "concluido":
       return `Concluído por ${autor}`;
     case "cancelado":

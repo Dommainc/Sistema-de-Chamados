@@ -16,7 +16,6 @@ import type {
 } from "@/lib/dados/tipos";
 import { validarAcao, type AcaoChamado, type DadosAcao } from "@/lib/dominio/estados";
 import { validarFormulario } from "@/lib/dominio/formulario";
-import { adicionarHorasUteis } from "@/lib/dominio/horario-util";
 import {
   estaEncerrado,
   type Anexo,
@@ -29,11 +28,11 @@ import {
   type TipoNotificacao,
 } from "@/lib/dominio/tipos";
 import { ErroApp, mensagemErro } from "@/lib/erros/catalogo";
+import { compararPrazo } from "@/lib/prazo";
 import { rotuloStatus } from "@/lib/status";
 import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from "./armazenamento";
 import { guardarArquivo, lerArquivo } from "./arquivos";
 import { CAMPOS_FORM, CATEGORIAS } from "./exemplos";
-import { EXPEDIENTE_SIMULADO } from "./feriados";
 
 function categoriaAtiva(categoriaId: number): Categoria {
   const categoria = CATEGORIAS.find((c) => c.id === categoriaId);
@@ -42,9 +41,8 @@ function categoriaAtiva(categoriaId: number): Categoria {
   return categoria;
 }
 
-function prazoPara(categoria: Categoria, agora: Date): string {
-  return adicionarHorasUteis(agora, categoria.slaHoras, EXPEDIENTE_SIMULADO).toISOString();
-}
+/** Prazo mais distante aceito (como a API): evita data digitada errada. */
+const PRAZO_MAXIMO_MS = 366 * 24 * 60 * 60 * 1000;
 
 function novoId(): string {
   return (
@@ -348,11 +346,6 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       );
     },
 
-    async calcularPrevisao(categoriaId: number) {
-      eu();
-      return prazoPara(categoriaAtiva(categoriaId), new Date());
-    },
-
     async criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado> {
       const perfil = eu();
       const categoria = categoriaAtiva(dados.categoriaId);
@@ -374,7 +367,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         status: "pendente",
         prioridade: "media",
         respostasForm: respostas,
-        prazoSla: prazoPara(categoria, agora),
+        prazoSla: null, // quem define é a TI (docs/adr/0009)
         criadoEm,
         atualizadoEm: criadoEm,
         concluidoEm: null,
@@ -403,7 +396,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         [...destinatarios].map((d) => notificacao(chamado, d, "chamado_aberto", criadoEm)),
         { chamados: [...atual.chamados, chamado], anexos: [...atual.anexos, ...anexos] },
       );
-      return { id, prazoSla: chamado.prazoSla };
+      return { id };
     },
 
     async listarChamados(filtro: FiltroChamados) {
@@ -433,7 +426,9 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return {
         fila: abertos.filter((c) => c.status === "pendente").length,
         meusAtendimentos: abertos.filter((c) => c.responsavelId === perfil.id).length,
-        vencidos: abertos.filter((c) => new Date(c.prazoSla).getTime() < agora).length,
+        vencidos: abertos.filter(
+          (c) => c.prazoSla !== null && new Date(c.prazoSla).getTime() < agora,
+        ).length,
       };
     },
 
@@ -577,11 +572,52 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return executar(chamadoId, acao, dados);
     },
 
+    async definirPrazo(chamadoId: number, prazo: string, motivo?: string) {
+      const perfil = eu();
+      const chamado = chamadoVisivel(chamadoId);
+      if (perfil.papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+      if (estaEncerrado(chamado.status)) {
+        const rotulo = rotuloStatus(chamado.status, "ti").texto;
+        throw new ErroApp("TRANSICAO_INVALIDA", { de: rotulo, para: rotulo });
+      }
+      const quando = new Date(prazo).getTime();
+      const agora = Date.now();
+      if (Number.isNaN(quando) || quando <= agora || quando > agora + PRAZO_MAXIMO_MS) {
+        throw new ErroApp("PRAZO_INVALIDO");
+      }
+      const texto = motivo?.trim();
+      if (chamado.prazoSla !== null && !texto) throw new ErroApp("MOTIVO_OBRIGATORIO");
+
+      const criadoEm = new Date(agora).toISOString();
+      const novoPrazo = new Date(quando).toISOString();
+      const atualizado: Chamado = { ...chamado, prazoSla: novoPrazo, atualizadoEm: criadoEm };
+      const detalhe: Record<string, string> = { prazo: novoPrazo };
+      if (chamado.prazoSla !== null) detalhe.prazo_anterior = chamado.prazoSla;
+      if (texto) detalhe.motivo = texto;
+      // Público: o solicitante vê a nova previsão e o motivo.
+      const evento: NovoEvento = {
+        chamadoId,
+        autorId: perfil.id,
+        acao: "prazo_definido",
+        de: chamado.status,
+        para: chamado.status,
+        detalhe,
+        publico: true,
+        criadoEm,
+      };
+      const avisos =
+        chamado.solicitanteId !== perfil.id
+          ? [notificacao(atualizado, chamado.solicitanteId, "prazo_definido", criadoEm, detalhe)]
+          : [];
+      gravarMudanca(atualizado, [evento], avisos);
+      return { ...atualizado };
+    },
+
     async proximoDaFila() {
       if (eu().papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
       const fila = visiveis()
         .filter((c) => c.status === "pendente")
-        .sort((a, b) => a.prazoSla.localeCompare(b.prazoSla));
+        .sort(compararPrazo); // mesma ordem da coluna Novos
       return fila[0] ? { ...fila[0] } : null;
     },
 

@@ -42,7 +42,8 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `TRANSICAO_INVALIDA` | 409 | Ação que não vale no status atual; chamado encerrado (nada muda depois de concluído/cancelado) |
 | `CANCELAMENTO_NAO_PERMITIDO` | 409 | Solicitante cancelando depois que a TI assumiu |
 | `CAMPO_OBRIGATORIO` | 422 | Formulário incompleto; mensagem vazia; destino da transferência não é técnico ativo |
-| `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir ou devolver sem motivo |
+| `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir, devolver ou alterar o prazo sem motivo |
+| `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |
 | `ANEXO_MUITO_GRANDE` / `ANEXO_TIPO_INVALIDO` | 422 | Arquivo acima de 10 MB ou tipo não aceito (vale o tamanho **real** do arquivo enviado) |
 | `UPLOAD_FALHOU` | 502 | Storage fora do ar; arquivo não chegou; upload de outra pessoa |
 | `ERRO_INESPERADO` | 500 | Qualquer outra coisa (com `ref`) |
@@ -60,10 +61,9 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 
 ### Abrir chamado
 
-**1. Previsão (antes de enviar)** — `GET /categorias/{categoria_id}/previsao` → `{"prazo": "2026-10-06T15:00:00Z"}`
-(horas úteis, feriados e expediente do banco).
+O chamado nasce **sem prazo** (`prazo_sla: null`): quem define é a TI ([ADR 0009](adr/0009-prazo-definido-pela-ti.md)).
 
-**2. Anexos (opcional, um por arquivo)** — `POST /anexos/upload-url`
+**1. Anexos (opcional, um por arquivo)** — `POST /anexos/upload-url`
 
 ```json
 { "nome": "print-20261006-090000.png", "mime": "image/png", "tamanho": 48213 }
@@ -72,7 +72,7 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 O navegador envia o arquivo **direto** para a `url` (`PUT`, corpo = arquivo, `Content-Type` = mime), sem passar pela
 API (limite de 4,5 MB da Vercel).
 
-**3. Enviar** — `POST /chamados` → **201**
+**2. Enviar** — `POST /chamados` → **201**
 
 ```json
 {
@@ -82,7 +82,7 @@ API (limite de 4,5 MB da Vercel).
   "anexos": [{ "upload_id": "temporarios/...", "nome": "print-20261006-090000.png", "origem": "colado" }]
 }
 ```
-→ `{id, titulo, status: "pendente", responsavel_id: null, prazo_sla, criado_em, atualizado_em}`.
+→ `{id, titulo, status: "pendente", responsavel_id: null, prazo_sla: null, criado_em, atualizado_em}`.
 A API confere cada arquivo no Storage (existe, é meu, tamanho e tipo reais), move para `chamados/{id}/...`, grava o
 histórico `criado` e avisa o solicitante e a TI. `respostas` segue as chaves de `campos_form` da categoria.
 
@@ -103,6 +103,18 @@ aviso. Regras completas em [`docs/status.md`](status.md).
 | `POST /chamados/{id}/cancelar` | TI; solicitante só em `pendente` | `{"motivo": "..."}` | `cancelado` |
 
 O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no Relato técnico).
+
+### Prazo (definido pela TI)
+
+`POST /chamados/{id}/prazo` → chamado atualizado ([ADR 0009](adr/0009-prazo-definido-pela-ti.md))
+
+```json
+{ "prazo": "2026-10-08T21:00:00Z", "motivo": "Aguardando a peça" }
+```
+
+- Só **TI**; chamado não encerrado (`TRANSICAO_INVALIDA`); `prazo` com fuso, no futuro e até 1 ano (`PRAZO_INVALIDO`).
+- 1ª definição: `motivo` opcional. **Alterar** um prazo já definido: `motivo` obrigatório (`MOTIVO_OBRIGATORIO`).
+- Grava `historico` `prazo_definido` (público: o solicitante vê a nova data e o motivo) e avisa o solicitante.
 
 ### Conversa e Relato técnico
 

@@ -3,7 +3,7 @@
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
 import type { Chamado, StatusChamado } from "@/lib/dominio/tipos";
-import { situacaoPrazo, type SituacaoPrazo } from "@/lib/prazo";
+import { compararPrazo, situacaoPrazo, type SituacaoPrazo } from "@/lib/prazo";
 import type { FiltroResponsavel } from "./parametros";
 
 export type ColunaQuadro = "novos" | "em_atendimento" | "aguardando" | "concluidos";
@@ -95,7 +95,7 @@ export function montarQuadro(chamados: readonly Chamado[], agora: Date = new Dat
     quadro[coluna].push(c);
   }
   for (const coluna of ["novos", "em_atendimento", "aguardando"] as const) {
-    quadro[coluna].sort((a, b) => a.prazoSla.localeCompare(b.prazoSla));
+    quadro[coluna].sort(compararPrazo);
   }
   quadro.concluidos.sort((a, b) =>
     (b.concluidoEm ?? b.atualizadoEm).localeCompare(a.concluidoEm ?? a.atualizadoEm),
@@ -105,7 +105,7 @@ export function montarQuadro(chamados: readonly Chamado[], agora: Date = new Dat
 
 /**
  * Ordem da coluna "Novos" (mockup): primeiro os vencidos, depois o que foi transferido para mim
- * (é direcionado a mim), depois o resto pelo prazo mais próximo.
+ * (é direcionado a mim), depois o resto (compararPrazo).
  */
 export function ordenarNovos(
   chamados: readonly Chamado[],
@@ -117,17 +117,20 @@ export function ordenarNovos(
     if (c.status === "transferido" && c.responsavelId === euId) return 1;
     return 2;
   };
-  return [...chamados].sort(
-    (a, b) => prioridade(a) - prioridade(b) || a.prazoSla.localeCompare(b.prazoSla),
-  );
+  return [...chamados].sort((a, b) => prioridade(a) - prioridade(b) || compararPrazo(a, b));
 }
 
-/** Quantos estão vencidos, vencendo em menos de 1 h e no prazo (barrinha do topo da coluna). */
+/** Quantos estão vencidos, vencendo em menos de 1 h, no prazo e sem prazo (barrinha do topo da coluna). */
 export function proporcaoPrazos(
   chamados: readonly Chamado[],
   agora: Date = new Date(),
 ): Record<SituacaoPrazo, number> {
-  const contagem: Record<SituacaoPrazo, number> = { vencido: 0, vence_em_breve: 0, no_prazo: 0 };
+  const contagem: Record<SituacaoPrazo, number> = {
+    vencido: 0,
+    vence_em_breve: 0,
+    no_prazo: 0,
+    sem_prazo: 0,
+  };
   for (const c of chamados) contagem[situacaoPrazo(c.prazoSla, agora)]++;
   return contagem;
 }

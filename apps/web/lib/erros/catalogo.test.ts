@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 describe("catálogo de erros", () => {
-  it("tem os 14 códigos da seção 8 do escopo", () => {
+  it("tem os 14 códigos do escopo + PRAZO_INVALIDO (ADR 0009)", () => {
     expect(Object.keys(CATALOGO).sort()).toEqual(
       [
         "CAMPO_OBRIGATORIO",
@@ -27,6 +27,7 @@ describe("catálogo de erros", () => {
         "TRANSICAO_INVALIDA",
         "MOTIVO_OBRIGATORIO",
         "CANCELAMENTO_NAO_PERMITIDO",
+        "PRAZO_INVALIDO",
         "MENSAGEM_NAO_ENVIADA",
         "SEM_CONEXAO",
         "ERRO_INESPERADO",

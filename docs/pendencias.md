@@ -11,12 +11,10 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Gravidade | Tipo | Descrição | Onde resolver |
 |---|---|---|---|---|
-| P-010 | ⚪ | banco | Trocar a categoria de um chamado não recalcula `area_id` nem `prazo_sla` (só calculados na abertura). | 1B / regra de recategorização |
 | P-015 | ⚪ | ambiente | `[auth.external.azure] enabled = true` no `config.toml` lê variáveis que ainda não existem; conferir se o `supabase start` local funciona sem elas. | Início da 1A-2 |
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🟡 | ambiente | **Supabase praticamente aprovado pela diretoria — falta só a assinatura** (atualizado em 2026-10-06). Depois: criar projetos `dev` e `prod` em `sa-east-1` (ADR 0001) e rodar as migrations (P-023). | Assinatura da diretoria |
-| P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada já é calculada no front (`lib/dominio/horario-util.ts`, espelho de `app.adicionar_horas_uteis`). | 1A-2 / implementação real |
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
 | P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
 | P-030 | ⚪ | web | No modo simulado, a sessão fica num cookie: **um navegador = um usuário por vez**. Para ver Ana e Rafael ao mesmo tempo, abra a aba da Ana, depois entre como Rafael em outra aba — a da Ana continua como Ana até recarregar (é o que o E2E faz). Some com o login real. | Implementação real (1A-2) |
@@ -30,6 +28,8 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-026 | 2026-10-07 | Obsoleta: não existe mais previsão automática antes de enviar — o prazo é definido pela TI (ADR 0009). Rota `GET /categorias/{id}/previsao` removida. |
+| P-010 | 2026-10-07 | Obsoleta: o prazo não depende mais da categoria (ADR 0009). Trocar a categoria não mexe no prazo. |
 | P-037 | 2026-10-06 | Decisão do dono: não haverá "O que foi feito" ao concluir — o **Relato técnico** já cumpre esse papel. |
 | P-005 | 2026-10-06 | Decisão do dono: integração Microsoft só para o login, e só `@dommainc.com.br` acessa. Migration 0018 (perfil fora do domínio nasce inativo) + login single-tenant e sessão limitada (`docs/go-live.md`, passo 5). Desligamento = bloquear no Microsoft; opcionalmente `ativo = false`. |
 | P-009 | 2026-10-06 | Migration 0018: leituras do solicitante exigem perfil ativo (`app.eu_ativo()`, `app.eh_solicitante_do_chamado`). Teste `005`. |

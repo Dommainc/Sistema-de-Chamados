@@ -22,11 +22,11 @@ Os campos com <span style="color:#b42318">*</span> são obrigatórios.
 - **Mande um print:** aperte **Win + Shift + S**, recorte a tela e depois **Ctrl + V** no formulário.
   No celular, toque em **Tirar foto ou anexar arquivo**.
 - Arquivos aceitos: imagens, PDF e documentos do Office, até **10 MB** cada.
-- Embaixo aparece a **previsão de atendimento** (em horário comercial).
 
 ![Formulário do pedido](guia/img/computador-03-abrir-passo2.png)
 
-**Passo 3 — Pronto!** Você recebe o **número do chamado** (ex.: **#42**) e a previsão.
+**Passo 3 — Pronto!** Você recebe o **número do chamado** (ex.: **#42**). A **previsão de conclusão** quem
+informa é a TI, depois de analisar o pedido: ela aparece no chamado e você recebe um aviso.
 Você também vai receber avisos no **Teams** quando o técnico assumir ou responder.
 
 ### 2. Acompanhar e conversar
@@ -58,7 +58,9 @@ e **Concluídos** (os dos últimos 7 dias). Em tela menor, deslize para o lado o
 - **Pegar o próximo:** assume o chamado mais urgente da fila e abre direto nele.
 - **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna —
   arrastar para **Concluídos** conclui o chamado (pede confirmação).
-- **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo.
+- **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo · cinza = sem prazo.
+- **O prazo é você quem define:** na tela do chamado, cartão **Prazo** → **Definir prazo** (data e hora, com atalhos).
+  Para mudar depois, **Alterar prazo** pede o motivo. O solicitante vê a previsão e o motivo.
 - **Filtros:** Todos / Só os meus / Sem responsável, categoria e prazo. O link da página guarda os filtros.
 - **Busca:** digite o número (ex.: `42`) para abrir o chamado direto, ou parte do título.
 - **Busca por texto** (ex.: `impressora`) deixa no quadro só os chamados com essa palavra no título.

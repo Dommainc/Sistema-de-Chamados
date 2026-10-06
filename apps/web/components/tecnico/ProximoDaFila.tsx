@@ -12,6 +12,7 @@ const TOM_PRAZO = {
   vencido: "bg-perigo-suave text-perigo",
   vence_em_breve: "bg-laranja-suave text-alerta",
   no_prazo: "bg-sucesso-suave text-sucesso",
+  sem_prazo: "bg-superficie-2 text-texto-suave",
 } as const;
 
 /** Faixa "PRÓXIMO DA FILA" com "Pegar o próximo" (mockup, telas 6 e 8). */

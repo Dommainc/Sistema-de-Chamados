@@ -60,10 +60,65 @@ def test_tecnico_tambem_abre_chamado(cliente, como, estado):
     assert estado.chamados[resposta.json()["id"]].solicitante_id == RAFAEL
 
 
-def test_previsao_antes_de_abrir(cliente, como):
-    resposta = cliente.get(f"/categorias/{INTERNET}/previsao", headers=como(ANA))
+def test_chamado_nasce_sem_prazo(cliente, como):
+    resposta = cliente.post(
+        "/chamados",
+        headers=como(ANA),
+        json={"categoria_id": OUTROS, "titulo": "Sem prazo", "respostas": {"descricao": "x"}},
+    )
+    assert resposta.json()["prazo_sla"] is None
+
+
+# ---------------------------------------------------------------------------------- prazo
+def test_tecnico_define_o_prazo_e_o_solicitante_e_avisado(cliente, como, estado):
+    resposta = cliente.post(
+        "/chamados/42/prazo", headers=como(RAFAEL), json={"prazo": "2026-10-08T20:00:00Z"}
+    )
     assert resposta.status_code == 200
-    assert resposta.json()["prazo"].startswith("2026-10-06T15:00")
+    assert resposta.json()["prazo_sla"] == "2026-10-08T20:00:00Z"
+    evento = estado.eventos[-1]
+    assert (evento.acao, evento.publico) == ("prazo_definido", True)
+    assert evento.detalhe == {"prazo": "2026-10-08T20:00:00+00:00"}
+    [aviso] = estado.notificacoes
+    assert (aviso.tipo, aviso.destinatario_id) == ("prazo_definido", ANA)
+
+
+def test_alterar_o_prazo_exige_motivo_e_guarda_o_anterior(cliente, como, estado):
+    url = "/chamados/41/prazo"
+    sem_motivo = cliente.post(url, headers=como(RAFAEL), json={"prazo": "2026-10-09T20:00:00Z"})
+    assert codigo(sem_motivo) == "MOTIVO_OBRIGATORIO"
+    ok = cliente.post(
+        url,
+        headers=como(THIAGO),
+        json={"prazo": "2026-10-09T20:00:00Z", "motivo": "Aguardando a licença"},
+    )
+    assert ok.status_code == 200
+    detalhe = estado.eventos[-1].detalhe
+    assert detalhe["motivo"] == "Aguardando a licença"
+    assert detalhe["prazo_anterior"].startswith("2026-10-06T")
+
+
+@pytest.mark.parametrize(
+    "prazo",
+    ["2026-10-06T12:00:00Z", "2028-01-01T12:00:00Z", "2026-10-08T17:00:00"],
+    ids=["passado", "mais-de-um-ano", "sem-fuso"],
+)
+def test_prazo_invalido(cliente, como, prazo):
+    resposta = cliente.post("/chamados/42/prazo", headers=como(RAFAEL), json={"prazo": prazo})
+    assert resposta.status_code == 422
+    assert codigo(resposta) == "PRAZO_INVALIDO"
+
+
+def test_prazo_so_da_ti_e_nunca_em_encerrado(cliente, como, estado):
+    corpo = {"prazo": "2026-10-08T20:00:00Z"}
+    assert codigo(cliente.post("/chamados/42/prazo", headers=como(ANA), json=corpo)) == (
+        "SEM_PERMISSAO"
+    )
+    assert estado.chamados[42].prazo_sla is None
+    encerrado = cliente.post(
+        "/chamados/35/prazo", headers=como(RAFAEL), json={**corpo, "motivo": "x"}
+    )
+    assert codigo(encerrado) == "TRANSICAO_INVALIDA"
 
 
 # ---------------------------------------------------------------------------------- anexos
@@ -255,10 +310,7 @@ def test_solicitante_cancela_so_antes_do_atendimento(cliente, como):
 
 
 def test_perfil_inativo_e_barrado(cliente, como):
-    assert (
-        codigo(cliente.get(f"/categorias/{OUTROS}/previsao", headers=como(INATIVO)))
-        == "SEM_PERMISSAO"
-    )
+    assert codigo(cliente.get("/chamados/42/acoes", headers=como(INATIVO))) == "SEM_PERMISSAO"
 
 
 def test_sem_login_da_sessao_expirada(cliente):

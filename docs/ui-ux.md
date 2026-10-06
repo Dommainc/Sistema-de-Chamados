@@ -65,9 +65,10 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 | concluido | Concluído | Concluído | verde |
 | cancelado | Cancelado | Cancelado | cinza apagado |
 
-### Prazo (`apps/web/lib/prazo.ts`)
+### Prazo (`apps/web/lib/prazo.ts`) — definido pela TI (ADR 0009, mudança do dono em 2026-10-07)
 - **Vencido** (vermelho): "Venceu há 3 h". **Vence em < 1 h** (laranja/âmbar): "Vence em 50 min".
   **No prazo** (verde): "Hoje, 11:30" · "Amanhã, 17:00" · "13/10, 09:00".
+  **Sem prazo** (cinza): "Sem prazo" — o chamado nasce assim; a TI define quando quiser.
 - Barra fina abaixo do prazo = fração do tempo já consumido (abertura → prazo).
 
 ## Portal do solicitante (celular primeiro)
@@ -91,10 +92,11 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
    - Campos dinâmicos: `selecao` vira **cartões de opção (rádio)**; texto e texto longo como campos normais.
    - "Fotos e arquivos (opcional)": área tracejada com câmera, "Tirar foto ou anexar arquivo",
      "No computador: cole um print com Ctrl+V"; lista de arquivos com miniatura, nome, tamanho e remover (×).
-   - Rodapé fixo: "🕒 Previsão de atendimento: **hoje, até 11:30**" + botão principal de enviar.
+   - Rodapé fixo com o botão principal de enviar. No computador, o resumo lateral diz "Previsão de conclusão:
+     A TI analisa o pedido e informa a previsão aqui no chamado" (não há mais previsão automática — ADR 0009).
 3. **Passo 3 de 3 — confirmação**
    - Círculo verde com ✓, "Pronto! Seu chamado é o", **#42** grande em azul, título do chamado.
-   - Cartão: "Previsão de atendimento · Hoje, até 11:30" e "Você vai receber avisos no **Teams** quando o técnico assumir ou responder."
+   - Cartão: "Previsão de conclusão · A TI vai analisar e informar" e "Você vai receber avisos no **Teams** quando o técnico assumir ou responder."
    - Botões no rodapé: [Acompanhar meu chamado] (azul) e [Abrir outro pedido] (contorno).
 4. **Meus chamados** (`/meus-chamados`)
    - Seletor "Em andamento (4) | Encerrados".
@@ -104,7 +106,8 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
 5. **Chamado** (`/meus-chamados/41`)
    - "‹ Meus chamados", "Chamado #41" (mono), título, barra de progresso de 3 passos (concluído = ✓ verde; atual = ponto laranja).
    - Aviso âmbar: "Rafael está esperando sua resposta. Responda abaixo para ele continuar."
-   - "Técnico: **Rafael Lima**" · "Previsão: **hoje, 14:00**". Link "Ver detalhes do pedido" (abre respostas do formulário e arquivos).
+   - "Técnico: **Rafael Lima**" · "Previsão: **hoje, 14:00**" (sem prazo: "Previsão: **a TI vai informar**").
+     Na conversa, pílula "Previsão de conclusão: 08/10/2026 18:00" (ou "alterada para …: motivo"). Link "Ver detalhes do pedido" (abre respostas do formulário e arquivos).
    - Chat: separador "Hoje"; mensagens do solicitante em bolha azul à direita; da TI em bolha branca à esquerda com
      "Rafael Lima · TI · 09:52"; eventos do sistema em pílula cinza centralizada ("Rafael Lima assumiu o chamado · 09:40");
      anexos como miniatura.
@@ -117,7 +120,7 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 
 6. **Quadro** (`/atendimento`)
    - Faixa "PRÓXIMO DA FILA": "#36 título · solicitante, departamento", selo de prazo, botão **"Pegar o próximo →"**.
-   - Filtros: Todos · Só os meus · Sem responsável | Todas as categorias | Qualquer prazo. Legenda: Vencido · Vence em menos de 1h · No prazo.
+   - Filtros: Todos · Só os meus · Sem responsável | Todas as categorias | Qualquer prazo. Legenda: Vencido · Vence em menos de 1h · No prazo · Sem prazo.
    - Colunas com contador e barra colorida pela proporção de prazos:
      **Novos** ("Arraste para assumir"; seções "PRAZO VENCIDO · 2" e "NA FILA · 6"; "Ver mais 3"),
      **Em atendimento** ("TI cuidando"), **Aguardando usuário** ("Bola com o solicitante"). "Ver encerrados" ao final.
@@ -136,9 +139,11 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
        botão "Adicionar ao relato". Encerrado → só consulta. Por baixo continuam sendo as notas internas
        (`mensagens.interna`), protegidas pelo RLS.
    - Direita — cartões: **AÇÕES** (Marcar como concluído · Transferir · Retomar atendimento · Cancelar chamado em link vermelho),
-     **PRAZO** (previsão + barra, responsável, categoria), **SOLICITANTE** (nome, departamento, telefone, e-mail),
+     **PRAZO** (previsão + barra, botão **Definir prazo** / **Alterar prazo**, responsável, categoria — a janela tem
+     atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias úteis, campo de data e hora e, ao alterar, o motivo), **SOLICITANTE** (nome, departamento, telefone, e-mail),
      **PEDIDO** (descrição + anexos), **HISTÓRICO** (lista com horário).
-   - **Implementação:** em "Novos", os vencidos vêm primeiro, depois os "Transferido para você", depois o resto por prazo;
+   - **Implementação:** em "Novos", os vencidos vêm primeiro, depois os "Transferido para você", depois o resto
+     (com prazo pelo mais próximo; sem prazo pelo mais antigo — `compararPrazo`);
      arrastar só com mouse (P-029); o quadro é a visão padrão de `/atendimento`.
 8. **Quadro no celular** — *implementação (2026-10-06):* as colunas ficam sempre lado a lado (kanban) e desliza-se para o lado;
    as pílulas viram atalho para pular até a coluna. Vale para qualquer tela abaixo de ~1024 px (janela estreita, zoom).

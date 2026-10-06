@@ -77,7 +77,6 @@ export interface DadosNovoChamado {
 
 export interface ChamadoCriado {
   id: number;
-  prazoSla: string;
 }
 
 export interface NovaMensagem {
@@ -101,8 +100,6 @@ export interface FonteDeDados {
   listarCategorias(): Promise<Categoria[]>;
   listarCamposForm(categoriaId: number): Promise<CampoForm[]>;
 
-  /** Prazo previsto se o chamado fosse aberto agora (horas úteis da categoria). */
-  calcularPrevisao(categoriaId: number): Promise<string>;
   /**
    * Abre o chamado (POST /chamados). Erros: CAMPO_OBRIGATORIO (com `campos`),
    * ANEXO_MUITO_GRANDE, ANEXO_TIPO_INVALIDO, UPLOAD_FALHOU.
@@ -143,7 +140,13 @@ export interface FonteDeDados {
    * (TRANSICAO_INVALIDA, MOTIVO_OBRIGATORIO, SEM_PERMISSAO, CAMPO_OBRIGATORIO...).
    */
   executarAcao(chamadoId: number, acao: AcaoChamado, dados?: DadosAcao): Promise<Chamado>;
-  /** Chamado sem responsável com o prazo mais apertado ("Pegar o próximo"). Só TI. */
+  /**
+   * POST /chamados/{id}/prazo (docs/adr/0009). Só TI; chamado não encerrado; data e hora no futuro
+   * (até 1 ano). 1ª vez sem motivo; ALTERAR exige motivo. Avisa o solicitante.
+   * Erros: SEM_PERMISSAO, TRANSICAO_INVALIDA, PRAZO_INVALIDO, MOTIVO_OBRIGATORIO.
+   */
+  definirPrazo(chamadoId: number, prazo: string, motivo?: string): Promise<Chamado>;
+  /** Primeiro da coluna Novos sem responsável: prazo mais próximo; sem prazo, o mais antigo. Só TI. */
   proximoDaFila(): Promise<Chamado | null>;
 
   /** Avisa quando os dados mudarem (simula o Realtime). Devolve a função para cancelar. */

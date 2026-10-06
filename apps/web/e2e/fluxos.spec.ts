@@ -8,7 +8,9 @@ test.beforeEach(({}, info) => {
   test.skip(info.project.name !== "computador", "Fluxos completos rodam na tela de computador.");
 });
 
-test("Ana abre um chamado colando um print e recebe número e previsão", async ({ page }) => {
+test("Ana abre um chamado colando um print e recebe o número (previsão vem da TI)", async ({
+  page,
+}) => {
   await entrar(page, "Ana Souza");
   await page.getByRole("link", { name: "Internet, rede ou VPN" }).click();
   await expect(page.getByRole("heading", { name: "Conte o que está acontecendo" })).toBeVisible();
@@ -16,12 +18,12 @@ test("Ana abre um chamado colando um print e recebe número e previsão", async 
   await preencherInternet(page, "Sem internet na obra Recreio");
   await colarImagem(page, "textarea");
   await expect(page.getByText(/^print-\d{8}-\d{6}\.png$/)).toBeVisible();
-  await expect(page.getByText(/Previsão de atendimento/).first()).toBeVisible();
 
   await page.getByRole("button", { name: "Enviar pedido" }).click();
   await expect(page.getByText("Pronto! Seu chamado é o")).toBeVisible();
   await expect(page.getByText("#46")).toBeVisible();
   await expect(page.getByText(/Você vai receber avisos no/)).toBeVisible();
+  await expect(page.getByText("A TI vai analisar e informar")).toBeVisible();
 
   await page.getByRole("link", { name: "Acompanhar meu chamado" }).click();
   await expect(page).toHaveURL(/\/meus-chamados\/46$/);
@@ -144,6 +146,22 @@ test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à 
   await expect(ana.getByText("Ótimo! Vou arquivar e-mails antigos.")).toBeVisible();
   await expect(ana.getByText("Segredo interno da TI")).toHaveCount(0);
   await expect(ana.getByText(/voltou para Em atendimento/)).toBeVisible();
+
+  // Prazo definido pela TI (ADR 0009): alterar pede motivo, e a Ana vê a nova previsão e o motivo.
+  await rafael
+    .getByRole("region", { name: "Prazo" })
+    .getByRole("button", { name: "Alterar prazo" })
+    .click();
+  const modal = rafael.getByRole("dialog");
+  await modal.getByRole("button", { name: "Em 3 dias úteis" }).click();
+  await modal
+    .getByRole("textbox", { name: /Por que está mudando o prazo/ })
+    .fill("Licença em compra");
+  await modal.getByRole("button", { name: "Alterar prazo" }).click();
+  await expect(rafael.getByText(/Prazo do chamado #41/)).toBeVisible();
+  await expect(
+    ana.getByText(/Previsão de conclusão alterada para .*: Licença em compra/),
+  ).toBeVisible();
 });
 
 test("busca: número abre o chamado; texto filtra o quadro", async ({ page }) => {

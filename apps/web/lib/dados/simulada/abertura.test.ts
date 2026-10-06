@@ -52,9 +52,7 @@ describe("criarChamado", () => {
       titulo: "Sem internet na obra Recreio",
       respostasForm: RESPOSTAS_OK,
     });
-    expect(new Date(chamado.prazoSla).getTime()).toBeGreaterThan(
-      new Date(chamado.criadoEm).getTime(),
-    );
+    expect(chamado.prazoSla).toBeNull(); // quem define é a TI (ADR 0009)
   });
 
   it("registra 'criado' no histórico", async () => {
@@ -140,9 +138,52 @@ describe("criarChamado", () => {
   });
 });
 
-describe("calcularPrevisao", () => {
-  it("devolve um instante futuro", async () => {
-    const previsao = await criarFonteSimulada(ANA.id).calcularPrevisao(INTERNET.id);
-    expect(new Date(previsao).getTime()).toBeGreaterThan(Date.now());
+describe("definirPrazo (ADR 0009)", () => {
+  const daqui = (horas: number) => new Date(Date.now() + horas * 3_600_000).toISOString();
+
+  async function novoChamado() {
+    return (
+      await criarFonteSimulada(ANA.id).criarChamado({
+        categoriaId: INTERNET.id,
+        titulo: "Sem internet",
+        respostas: RESPOSTAS_OK,
+        anexos: [],
+      })
+    ).id;
+  }
+
+  it("TI define; alterar exige motivo; o solicitante é avisado e vê no histórico", async () => {
+    const id = await novoChamado();
+    const ti = criarFonteSimulada(RAFAEL.id);
+    const definido = await ti.definirPrazo(id, daqui(24));
+    expect(new Date(definido.prazoSla ?? 0).getTime()).toBeGreaterThan(Date.now());
+    await expect(ti.definirPrazo(id, daqui(48))).rejects.toMatchObject({
+      codigo: "MOTIVO_OBRIGATORIO",
+    });
+    await ti.definirPrazo(id, daqui(48), "Aguardando a peça");
+
+    const historico = await criarFonteSimulada(ANA.id).listarHistorico(id);
+    const prazos = historico.filter((h) => h.acao === "prazo_definido");
+    expect(prazos).toHaveLength(2);
+    expect(prazos[1].detalhe).toMatchObject({ motivo: "Aguardando a peça" });
+    expect(prazos[1].detalhe.prazo_anterior).toBeDefined();
+    const avisos = lerEstado().notificacoes.filter(
+      (n) => n.chamadoId === id && n.tipo === "prazo_definido",
+    );
+    expect(avisos.map((n) => n.destinatarioId)).toEqual([ANA.id, ANA.id]);
+  });
+
+  it("prazo no passado ou depois de 1 ano é recusado; solicitante não define", async () => {
+    const id = await novoChamado();
+    const ti = criarFonteSimulada(RAFAEL.id);
+    await expect(ti.definirPrazo(id, daqui(-1))).rejects.toMatchObject({
+      codigo: "PRAZO_INVALIDO",
+    });
+    await expect(ti.definirPrazo(id, daqui(24 * 400))).rejects.toMatchObject({
+      codigo: "PRAZO_INVALIDO",
+    });
+    await expect(criarFonteSimulada(ANA.id).definirPrazo(id, daqui(5))).rejects.toMatchObject({
+      codigo: "SEM_PERMISSAO",
+    });
   });
 });

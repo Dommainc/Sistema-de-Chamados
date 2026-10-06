@@ -1,6 +1,6 @@
 # Banco de dados
 
-Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0018) e testado
+Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0019) e testado
 por `supabase/tests/database/` (pgTAP). **Nunca editar uma migration já commitada**: sempre criar uma nova.
 Situação: validado a cada push no job `banco` do CI (Supabase local e descartável: migrations do zero + pgTAP + integração da API). Projetos da nuvem aguardam a assinatura (`pendencias.md` P-022).
 
@@ -35,7 +35,7 @@ erDiagram
 | `configuracoes` | Parâmetros: fuso, expediente (08–18), limites de anexo, texto da resposta do bot | `publico = true` → qualquer usuário logado lê; o resto só a TI |
 | `feriados` | Dias sem expediente (2026–2027 no seed: nacionais, RJ e Rio) | `ativo = false` em vez de apagar. **Cadastrar 2028 antes do fim de 2027** (P-008) |
 | `areas` | Áreas que atendem (Fase 1: só TI) | — |
-| `categorias` | Assuntos com prazo (`sla_horas`, em horas úteis), `nome_curto` e `icone` do portal | 13 no seed |
+| `categorias` | Assuntos, `nome_curto` e `icone` do portal | 13 no seed. `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |
 | `campos_form` | Campos do formulário dinâmico por categoria (texto, texto longo, número, data, seleção, múltipla, sim/não) | `chave` estável (as respostas são guardadas por ela) |
 
 ### Pessoas
@@ -47,8 +47,8 @@ erDiagram
 ### Chamados
 | Tabela | O que guarda | Pontos importantes |
 |---|---|---|
-| `chamados` | Número (`id` 1, 2, 3...), título, categoria, solicitante, responsável, status, respostas do formulário, prazo, datas | Prazo calculado no banco (horas úteis + feriados). Regras: ver [status.md](status.md). **Nunca é apagado**; encerrado é só leitura |
-| `historico` | Linha do tempo (criado, assumido, status, transferido, devolvido, concluído, cancelado) | Só inserção. `publico = false` → só a TI vê (ex.: motivo de transferência) |
+| `chamados` | Número (`id` 1, 2, 3...), título, categoria, solicitante, responsável, status, respostas do formulário, prazo, datas | `prazo_sla` nasce **vazio**: um técnico define e altera com motivo (ADR 0009). Regras: ver [status.md](status.md). **Nunca é apagado**; encerrado é só leitura |
+| `historico` | Linha do tempo (criado, assumido, status, transferido, devolvido, prazo definido, concluído, cancelado) | Só inserção. `publico = false` → só a TI vê (ex.: motivo de transferência) |
 | `transferencias` | De quem, para quem, motivo | Só inserção; só a TI lê |
 | `mensagens` | Chat | Só inserção. `interna = true` → nota interna (só TI escreve e lê). Encerrado não aceita mensagem |
 | `anexos` | Nome, tipo, tamanho, origem (`upload`/`colado`), caminho no Storage | Só inserção. Anexo de nota interna é invisível ao solicitante (inclusive no Storage) |
@@ -106,3 +106,4 @@ pública (migration 0015).
 | 0016 | `20261005150000_categorias_icone_nome_curto.sql` | Ícone e nome curto das categorias |
 | 0017 | `20261005180000_chamado_leituras.sql` | Leitura da conversa (selo "Nova mensagem") |
 | 0018 | `20261007090000_dominio_e_inativos.sql` | Só `@dommainc.com.br` fica ativo; solicitante inativo não lê mais nada (P-005, P-009) |
+| 0019 | `20261007120000_prazo_definido_pela_ti.sql` | Chamado nasce sem prazo; quem define é a TI (ADR 0009) |

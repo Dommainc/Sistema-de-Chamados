@@ -12,7 +12,7 @@ import type { FonteDeDados } from "@/lib/dados/tipos";
 import { CHAVE_TITULO, ROTULO_TITULO, TITULO_MAX } from "@/lib/dominio/formulario";
 import type { CampoForm, Categoria } from "@/lib/dominio/tipos";
 import { ErroApp } from "@/lib/erros/catalogo";
-import { formatarNumeroChamado, formatarPrevisao } from "@/lib/formato";
+import { formatarNumeroChamado } from "@/lib/formato";
 import { caminhosAbertura, comReferente, type CaminhosAbertura } from "@/lib/rotas";
 import { CampoDinamico, idDoCampo } from "./CampoDinamico";
 import { lerRascunho, limparRascunho, salvarRascunho, type RascunhoTexto } from "./rascunho";
@@ -93,12 +93,6 @@ function FormularioCarregado({
   const [erros, setErros] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
   const { arquivos, adicionar, remover } = useArquivosSelecionados();
-
-  const consultarPrevisao = useCallback(
-    (f: FonteDeDados) => f.calcularPrevisao(categoria.id),
-    [categoria.id],
-  );
-  const { dados: previsao } = useConsulta(consultarPrevisao);
 
   function mudar(proximo: RascunhoTexto, chaveEditada: string) {
     setRascunho(proximo);
@@ -219,15 +213,15 @@ function FormularioCarregado({
               <p className="text-sm text-texto-suave">Assunto</p>
               <p className="font-semibold">{categoria.nomeCurto}</p>
             </div>
-            {previsao ? (
-              <div className="flex gap-2">
-                <Clock aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primaria" />
-                <div>
-                  <p className="text-sm text-texto-suave">Previsão de atendimento</p>
-                  <p className="font-semibold">{formatarPrevisao(previsao)}</p>
-                </div>
+            <div className="flex gap-2">
+              <Clock aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primaria" />
+              <div>
+                <p className="text-sm text-texto-suave">Previsão de conclusão</p>
+                <p className="text-sm">
+                  A TI analisa o pedido e informa a previsão aqui no chamado.
+                </p>
               </div>
-            ) : null}
+            </div>
             {arquivos.length > 0 ? (
               <p className="text-sm text-texto-suave">
                 {arquivos.length === 1
@@ -242,16 +236,9 @@ function FormularioCarregado({
         </aside>
       </div>
 
-      {/* Celular: rodapé fixo com previsão e envio (mockup, tela 2). */}
+      {/* Celular: rodapé fixo com o envio (mockup, tela 2). A previsão quem informa é a TI (ADR 0009). */}
       <div className="sticky bottom-0 border-t border-borda bg-superficie lg:hidden">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:px-8">
-          {previsao ? (
-            <p className="flex items-center gap-2 text-texto-suave">
-              <Clock aria-hidden="true" className="size-5" />
-              Previsão de atendimento:{" "}
-              <strong className="text-texto">{formatarPrevisao(previsao)}</strong>
-            </p>
-          ) : null}
           <Botao type="submit" carregando={enviando} larguraTotal className="min-h-13 text-lg">
             Enviar pedido
           </Botao>
