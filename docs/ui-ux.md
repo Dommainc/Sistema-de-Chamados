@@ -18,6 +18,17 @@ O mockup foi desenhado com o fluxo antigo (Resolvido + confirmação + fechament
 | Alternância "Quadro \| Lista" na barra escura | **Só o quadro (kanban)** — decisão do dono em 2026-10-06. Busca por texto filtra o quadro; "Ver encerrados" é uma página de cartões só para consulta |
 | Destaque "perto de vencer" | **Menos de 1 h** para o prazo (mockup) — substitui os "20% do SLA" da 1A-3 |
 
+## Chat no estilo dos apps de mensagem (pedido do dono, 2026-10-06)
+
+Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do mockup):
+- **Hora dentro do balão**, no canto de baixo à direita (ou "Enviando..." / "não enviada").
+- **Mensagens seguidas da mesma pessoa** ficam agrupadas (quase coladas); entre pessoas diferentes, mais espaço.
+- **"Pontinha"** do balão e **nome do autor** (dentro do balão, ex.: "Rafael Lima · TI") só no primeiro do grupo;
+  as minhas não mostram nome.
+- **Anexos dentro do balão**, acima do texto.
+- Nota interna: mesmo formato, fundo âmbar, com "🔒 Nota interna · só a TI vê" no primeiro do grupo.
+- Cores do mockup mantidas: minhas em azul à direita, dos outros em branco à esquerda; eventos do sistema em pílula.
+
 ## Fundamentos
 
 ### Cores (tokens em `apps/web/app/globals.css`)

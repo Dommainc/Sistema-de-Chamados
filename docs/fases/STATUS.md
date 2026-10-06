@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-06 | Chat no estilo WhatsApp (pedido do dono): hora dentro do balão, mensagens seguidas da mesma pessoa agrupadas, pontinha e nome só no primeiro balão do grupo, anexos dentro do balão. Vale para solicitante e TI. 184 testes + 10 E2E. |
 | 2026-10-06 | Quarta coluna "Concluídos" no quadro (últimos 7 dias, só leitura; arrastar para ela conclui com confirmação). Quatro colunas lado a lado a partir de ~1280 px; abaixo, rolagem lateral com atalhos das colunas. 183 testes + 10 E2E. |
 | 2026-10-06 | Quadro sempre em kanban: abaixo de ~1024 px (janela estreita, zoom, celular) as colunas continuam lado a lado com rolagem lateral; antes mostrava uma coluna por vez e não parecia kanban. |
 | 2026-10-06 | Supabase praticamente aprovado (falta assinatura) — P-022 atualizada. |

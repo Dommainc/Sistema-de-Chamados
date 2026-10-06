@@ -94,7 +94,9 @@ describe("montarConversa (mockup, tela 5)", () => {
       tipo: "mensagem",
       minha: true,
       conteudo: "Desde ontem o Outlook não recebe e-mails novos.",
-      rodape: "Você · 08:46",
+      autor: null, // as minhas não mostram nome
+      hora: "08:46",
+      inicioDeGrupo: true,
     });
   });
 
@@ -110,7 +112,8 @@ describe("montarConversa (mockup, tela 5)", () => {
     expect(itens[3]).toMatchObject({
       tipo: "mensagem",
       minha: false,
-      rodape: "Rafael Lima · TI · 09:52",
+      autor: "Rafael Lima · TI",
+      hora: "09:52",
     });
     expect(itens[4]).toMatchObject({
       tipo: "evento",
@@ -139,6 +142,74 @@ describe("montarConversa (mockup, tela 5)", () => {
     expect(daTi.find((i) => i.tipo === "evento" && i.texto.startsWith("Status"))).toMatchObject({
       texto: "Status alterado para Aguardando usuário",
     });
+  });
+});
+
+describe("agrupamento (estilo WhatsApp)", () => {
+  it("mensagens seguidas da mesma pessoa ficam no mesmo grupo; outra pessoa ou nota interna abre outro", () => {
+    const seguidas: Mensagem[] = [
+      {
+        id: 1,
+        chamadoId: 41,
+        autorId: RAFAEL,
+        conteudo: "Oi",
+        interna: false,
+        criadoEm: "2026-10-05T12:50:00Z",
+      },
+      {
+        id: 2,
+        chamadoId: 41,
+        autorId: RAFAEL,
+        conteudo: "Tudo bem?",
+        interna: false,
+        criadoEm: "2026-10-05T12:51:00Z",
+      },
+      {
+        id: 3,
+        chamadoId: 41,
+        autorId: RAFAEL,
+        conteudo: "nota",
+        interna: true,
+        criadoEm: "2026-10-05T12:52:00Z",
+      },
+      {
+        id: 4,
+        chamadoId: 41,
+        autorId: ANA,
+        conteudo: "Oi!",
+        interna: false,
+        criadoEm: "2026-10-05T12:53:00Z",
+      },
+      {
+        id: 5,
+        chamadoId: 41,
+        autorId: ANA,
+        conteudo: "Tudo",
+        interna: false,
+        criadoEm: "2026-10-05T12:54:00Z",
+      },
+    ];
+    const itens = montarConversa({
+      chamado: { ...chamado, criadoEm: "2026-10-05T12:00:00Z" },
+      mensagens: seguidas,
+      historico: [],
+      anexos: [],
+      perfis,
+      euId: RAFAEL,
+      papel: "ti",
+      agora,
+    });
+    const grupos = itens.flatMap((i) =>
+      i.tipo === "mensagem" ? [[i.chave, i.inicioDeGrupo]] : [],
+    );
+    expect(grupos).toEqual([
+      ["pedido", true],
+      ["m1", true],
+      ["m2", false],
+      ["m3", true],
+      ["m4", true],
+      ["m5", false],
+    ]);
   });
 });
 

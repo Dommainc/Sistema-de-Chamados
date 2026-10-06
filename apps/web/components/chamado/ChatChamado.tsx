@@ -147,7 +147,13 @@ export function ChatChamado({
           <ol className="mt-3 flex flex-col gap-3" aria-label="Mensagens sendo enviadas">
             {pendentes.map((p) => (
               <li key={p.idLocal} className="flex flex-col gap-1.5">
-                <Balao conteudo={p.conteudo || "(arquivo)"} minha interna={p.interna} esmaecido />
+                <Balao
+                  conteudo={p.conteudo || "(arquivo)"}
+                  minha
+                  interna={p.interna}
+                  hora={p.estado === "falhou" ? "não enviada" : "Enviando..."}
+                  esmaecido
+                />
                 {p.estado === "falhou" ? (
                   <button
                     type="button"
@@ -156,9 +162,7 @@ export function ChatChamado({
                   >
                     {mensagemErro("MENSAGEM_NAO_ENVIADA")}
                   </button>
-                ) : (
-                  <p className="self-end text-xs text-texto-suave">Enviando...</p>
-                )}
+                ) : null}
               </li>
             ))}
           </ol>

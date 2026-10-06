@@ -11,7 +11,16 @@ import type { Anexo } from "@/lib/dominio/tipos";
  * Anexo dentro da conversa: miniatura (imagem) ou cartão com nome (outros tipos).
  * Clicar abre em tamanho real numa nova aba (URL temporária, como a URL assinada do Storage).
  */
-export function AnexoMiniatura({ anexo, minha }: { anexo: Anexo; minha: boolean }) {
+export function AnexoMiniatura({
+  anexo,
+  minha,
+  dentroDoBalao = false,
+}: {
+  anexo: Anexo;
+  minha: boolean;
+  /** Dentro do balão da conversa: ocupa a largura do balão, sem alinhamento próprio. */
+  dentroDoBalao?: boolean;
+}) {
   const fonte = useDados();
   const { mostrar, mostrarErro } = useToast();
   const [previa, setPrevia] = useState<string | null>(null);
@@ -49,13 +58,21 @@ export function AnexoMiniatura({ anexo, minha }: { anexo: Anexo; minha: boolean 
       type="button"
       onClick={abrir}
       aria-label={`Abrir ${anexo.nome} (${formatarTamanho(anexo.tamanho)})`}
-      className={`flex w-56 max-w-full flex-col overflow-hidden rounded-2xl border border-borda bg-superficie-2 text-left ${minha ? "self-end" : "self-start"}`}
+      className={`flex max-w-full flex-col overflow-hidden text-left ${
+        dentroDoBalao
+          ? "w-64 rounded-xl bg-black/10"
+          : `w-56 rounded-2xl border border-borda bg-superficie-2 ${minha ? "self-end" : "self-start"}`
+      }`}
     >
       {previa ? (
         // eslint-disable-next-line @next/next/no-img-element -- arquivo local/URL temporária
         <img src={previa} alt="" className="h-36 w-full object-cover" />
       ) : (
-        <span className="flex h-28 w-full items-center justify-center gap-2 px-3 text-sm text-texto-suave">
+        <span
+          className={`flex h-28 w-full items-center justify-center gap-2 px-3 text-sm ${
+            dentroDoBalao && minha ? "text-sobre-primaria/90" : "text-texto-suave"
+          }`}
+        >
           {imagem ? (
             <ImageIcon aria-hidden="true" className="size-5 shrink-0" />
           ) : (

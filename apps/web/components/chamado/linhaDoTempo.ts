@@ -23,8 +23,13 @@ export type ItemConversa =
       conteudo: string;
       interna: boolean;
       minha: boolean;
-      /** "Você · 08:46" · "Rafael Lima · TI · 09:52" */
-      rodape: string;
+      autorId: string;
+      /** Nome mostrado no balão de quem não sou eu: "Rafael Lima · TI" · "Ana Souza". Nulo nas minhas. */
+      autor: string | null;
+      /** "09:52" — vai dentro do balão, como no WhatsApp. */
+      hora: string;
+      /** Primeira de uma sequência da mesma pessoa: leva a "pontinha" e o nome. */
+      inicioDeGrupo: boolean;
       anexos: Anexo[];
       criadoEm: string;
     };
@@ -106,12 +111,11 @@ export function montarConversa({
   const perfil = new Map(perfis.map((p) => [p.id, p]));
   const nome = (id: string | null | undefined) => (id ? (perfil.get(id)?.nome ?? null) : null);
 
-  function rodape(autorId: string, criadoEm: string): string {
-    const hora = formatarHora(criadoEm);
-    if (autorId === euId) return `Você · ${hora}`;
-    const autor = perfil.get(autorId);
-    if (!autor) return hora;
-    return autor.papel === "ti" ? `${autor.nome} · TI · ${hora}` : `${autor.nome} · ${hora}`;
+  function autor(autorId: string): string | null {
+    if (autorId === euId) return null;
+    const p = perfil.get(autorId);
+    if (!p) return null;
+    return p.papel === "ti" ? `${p.nome} · TI` : p.nome;
   }
 
   const descricao = chamado.respostasForm.descricao;
@@ -122,7 +126,10 @@ export function montarConversa({
       conteudo: typeof descricao === "string" && descricao ? descricao : chamado.titulo,
       interna: false,
       minha: chamado.solicitanteId === euId,
-      rodape: rodape(chamado.solicitanteId, chamado.criadoEm),
+      autorId: chamado.solicitanteId,
+      autor: autor(chamado.solicitanteId),
+      hora: formatarHora(chamado.criadoEm),
+      inicioDeGrupo: true,
       anexos: anexos.filter((a) => a.mensagemId === null),
       criadoEm: chamado.criadoEm,
     },
@@ -132,7 +139,10 @@ export function montarConversa({
       conteudo: m.conteudo,
       interna: m.interna,
       minha: m.autorId === euId,
-      rodape: rodape(m.autorId, m.criadoEm),
+      autorId: m.autorId,
+      autor: autor(m.autorId),
+      hora: formatarHora(m.criadoEm),
+      inicioDeGrupo: true,
       anexos: anexos.filter((a) => a.mensagemId === m.id),
       criadoEm: m.criadoEm,
     })),
@@ -167,7 +177,18 @@ export function montarConversa({
       resultado.push({ tipo: "dia", chave: `dia-${item.criadoEm}`, texto: dia });
       diaAtual = dia;
     }
-    resultado.push(item);
+    // Mensagens seguidas da mesma pessoa (e do mesmo tipo) ficam agrupadas, como no WhatsApp.
+    const anterior = resultado.at(-1);
+    if (
+      item.tipo === "mensagem" &&
+      anterior?.tipo === "mensagem" &&
+      anterior.autorId === item.autorId &&
+      anterior.interna === item.interna
+    ) {
+      resultado.push({ ...item, inicioDeGrupo: false });
+    } else {
+      resultado.push(item);
+    }
   }
   return resultado;
 }
