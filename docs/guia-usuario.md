@@ -68,7 +68,13 @@ e **Concluídos** (os dos últimos 7 dias). Em tela menor, deslize para o lado o
 
 ![Tela de atendimento](guia/img/computador-08-atendimento.png)
 
-- **Responder ao solicitante** ou escrever uma **Nota interna** (fundo amarelo, **só a TI vê**).
+- A aba **Conversa com …** é só para falar com o solicitante: tudo o que você escreve ali, ele recebe.
+- A aba **Relato técnico** é o diário da TI (**o solicitante não vê**): anote o que foi verificado e o que foi
+  feito, cole prints com Ctrl+V. As transferências e devoluções à fila aparecem ali com o motivo. As anotações
+  não podem ser editadas nem apagadas.
+
+![Relato técnico](guia/img/computador-08b-relato-tecnico.png)
+
 - **Ações** mostra só o que dá para fazer agora:
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
   - **Aguardar usuário / Retomar atendimento** — quando você precisa de uma resposta;

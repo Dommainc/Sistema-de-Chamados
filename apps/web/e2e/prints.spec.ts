@@ -46,8 +46,12 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await print(page, "07-quadro", p);
 
   await page.goto("/atendimento/41");
-  await expect(page.getByText(/49,8 GB/)).toBeVisible();
+  await expect(page.getByText(/Consegue abrir o Outlook pelo navegador/)).toBeVisible();
   await print(page, "08-atendimento", p);
+
+  await page.getByRole("tab", { name: /Relato técnico/ }).click();
+  await expect(page.getByText(/49,8 GB/)).toBeVisible();
+  await print(page, "08b-relato-tecnico", p);
 
   await page.goto("/atendimento/encerrados");
   await expect(page.getByRole("heading", { name: /Chamados encerrados/ })).toBeVisible();

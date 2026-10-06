@@ -44,10 +44,10 @@ beforeEach(() => {
 });
 
 describe("AtendimentoChamado", () => {
-  it("mostra conversa com nota interna, solicitante com contato, pedido e histórico", async () => {
+  it("mostra a conversa (sem notas internas), solicitante com contato, pedido e histórico", async () => {
     renderizar();
-    expect(await screen.findByText(/49,8 GB/)).toBeInTheDocument();
-    expect(screen.getAllByText(/Nota interna · só a TI vê/).length).toBeGreaterThan(0);
+    expect(await screen.findByText(/Consegue abrir o Outlook pelo navegador/)).toBeInTheDocument();
+    expect(screen.queryByText(/49,8 GB/)).not.toBeInTheDocument();
     const solicitante = await screen.findByRole("region", { name: "Solicitante" });
     expect(within(solicitante).getByText("Ana Souza")).toBeInTheDocument();
     expect(within(solicitante).getByText("ana@teste.local")).toBeInTheDocument();
@@ -58,7 +58,7 @@ describe("AtendimentoChamado", () => {
 
   it("em 'Aguardando usuário' as ações são: concluir, transferir, retomar, devolver, cancelar", async () => {
     renderizar();
-    await screen.findByText(/49,8 GB/);
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
     const acoes = painelAcoes();
     for (const nome of [
       "Marcar como concluído",
@@ -72,25 +72,44 @@ describe("AtendimentoChamado", () => {
     expect(within(acoes).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
   });
 
-  it("nota interna: o seletor manda a mensagem como interna", async () => {
+  it("Relato técnico: aba própria com as notas e o contador; anotar grava como interna", async () => {
     renderizar();
-    await screen.findByText(/49,8 GB/);
-    fireEvent.click(screen.getByRole("tab", { name: "Nota interna" }));
-    fireEvent.change(screen.getByRole("textbox", { name: "Mensagem" }), {
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
+    const aba = await screen.findByRole("tab", { name: /Relato técnico\s*1/ });
+    fireEvent.click(aba);
+    expect(await screen.findByText(/49,8 GB/)).toBeInTheDocument();
+    expect(screen.getByText(/Só a TI vê o relato técnico/)).toBeInTheDocument();
+    expect(screen.queryByText(/Consegue abrir o Outlook pelo navegador/)).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByRole("textbox", { name: "Anotação" }), {
       target: { value: "Verificar licença do Office" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar ao relato" }));
     await waitFor(() =>
       expect(lerEstado().mensagens.at(-1)).toMatchObject({
         conteudo: "Verificar licença do Office",
         interna: true,
       }),
     );
+    expect(await screen.findByRole("tab", { name: /Relato técnico\s*2/ })).toBeInTheDocument();
+  });
+
+  it("responder na conversa nunca grava como interna", async () => {
+    renderizar();
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
+    fireEvent.change(screen.getByRole("textbox", { name: "Mensagem" }), {
+      target: { value: "Pode testar de novo?" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+    await waitFor(() =>
+      expect(lerEstado().mensagens.at(-1)).toMatchObject({ conteudo: "Pode testar de novo?" }),
+    );
+    expect(lerEstado().mensagens.at(-1)?.interna).toBe(false);
   });
 
   it("concluir pelo modal encerra o chamado, mesmo sem resposta do solicitante", async () => {
     renderizar();
-    await screen.findByText(/49,8 GB/);
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
     fireEvent.click(within(painelAcoes()).getByRole("button", { name: "Marcar como concluído" }));
     const modal = await screen.findByRole("dialog", { hidden: true });
     fireEvent.click(
@@ -102,7 +121,7 @@ describe("AtendimentoChamado", () => {
 
   it("transferir exige técnico e motivo; depois grava a transferência", async () => {
     renderizar();
-    await screen.findByText(/49,8 GB/);
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
     fireEvent.click(within(painelAcoes()).getByRole("button", { name: "Transferir" }));
     const modal = await screen.findByRole("dialog", { hidden: true });
     const confirmar = () =>
@@ -126,6 +145,11 @@ describe("AtendimentoChamado", () => {
     await waitFor(() =>
       expect(chamado(41)).toMatchObject({ status: "transferido", responsavelId: THIAGO.id }),
     );
+    // O motivo vai para o Relato técnico.
+    fireEvent.click(screen.getByRole("tab", { name: /Relato técnico/ }));
+    const relato = await screen.findByRole("list", { name: "Relato técnico do chamado" });
+    expect(within(relato).getByText("Você transferiu para Thiago Martins")).toBeInTheDocument();
+    expect(within(relato).getByText(/Thiago cuida de e-mail/)).toBeInTheDocument();
   });
 
   it("transferido para outro técnico: quem não é o destino só devolve ou cancela", async () => {

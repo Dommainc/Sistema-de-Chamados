@@ -1,5 +1,5 @@
 // Chat (mockup, tela 5): envio, falha com "tentar de novo" mantendo o texto, faixa offline
-// e notas internas invisíveis ao solicitante.
+// e notas internas fora da conversa (ficam no Relato técnico da TI).
 
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -59,10 +59,10 @@ describe("ChatChamado", () => {
     expect(screen.queryByText(/Nota interna/)).not.toBeInTheDocument();
   });
 
-  it("a TI vê a nota interna com a etiqueta 'só a TI vê'", async () => {
+  it("nem para a TI a conversa mostra a nota interna (ela fica no Relato técnico)", async () => {
     renderizar(RAFAEL);
-    expect(await screen.findByText(/49,8 GB/)).toBeInTheDocument();
-    expect(screen.getByText(/Nota interna · só a TI vê/)).toBeInTheDocument();
+    expect(await screen.findByText(/Consegue abrir o Outlook pelo navegador/)).toBeInTheDocument();
+    expect(screen.queryByText(/49,8 GB/)).not.toBeInTheDocument();
   });
 
   it("enviar mostra a mensagem na conversa", async () => {

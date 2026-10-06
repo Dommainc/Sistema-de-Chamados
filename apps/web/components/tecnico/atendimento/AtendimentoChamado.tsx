@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 import { ChatChamado } from "@/components/chamado/ChatChamado";
 import { DetalhesPedido } from "@/components/chamado/DetalhesPedido";
+import { contarRelato } from "@/components/chamado/linhaDoTempo";
 import { TelaMensagem } from "@/components/comum/TelaMensagem";
 import { useChamadoDetalhado } from "@/components/comum/useChamadoDetalhado";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
@@ -17,27 +18,39 @@ import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
 import { useAcaoChamado } from "../useAcaoChamado";
 import { CartaoHistorico, CartaoPrazo, CartaoSolicitante, PainelAcoes, Secao } from "./Cartoes";
 import { ModalAcao, type AcaoComModal } from "./ModalAcao";
+import { RelatoTecnico } from "./RelatoTecnico";
 
 type Aba = "conversa" | "detalhes" | "historico";
+type Quadro = "conversa" | "relato";
 
-/** /atendimento/[id] (mockup, telas 7 e 9): chat com nota interna à esquerda, painel à direita. */
+/**
+ * /atendimento/[id] (mockup, telas 7 e 9): à esquerda, abas "Conversa com a Ana" e "Relato técnico"
+ * (notas só da TI, separadas da conversa — pedido do dono, 2026-10-06); à direita, ações e dados.
+ */
 export function AtendimentoChamado({ id }: { id: number }) {
   const usuario = useUsuario();
   const executar = useAcaoChamado();
   const { dados, erro, carregando } = useChamadoDetalhado(id);
-  const [interna, setInterna] = useState(false);
+  const [quadro, setQuadro] = useState<Quadro>("conversa");
   const [modal, setModal] = useState<AcaoComModal | null>(null);
   const [aba, setAba] = useState<Aba>("conversa");
 
   const solicitanteId = dados?.chamado.solicitanteId;
   const consultarExtras = useCallback(
     async (f: FonteDeDados) => {
-      const [perfis, historico, solicitante] = await Promise.all([
+      const [perfis, historico, mensagens, solicitante] = await Promise.all([
         f.listarPerfisPublicos(),
         f.listarHistorico(id),
+        f.listarMensagens(id),
         solicitanteId ? f.obterPerfilCompleto(solicitanteId) : Promise.resolve(undefined),
       ]);
-      return { perfis, historico, solicitante, tecnicos: perfis.filter((p) => p.papel === "ti") };
+      return {
+        perfis,
+        historico,
+        solicitante,
+        tecnicos: perfis.filter((p) => p.papel === "ti"),
+        itensRelato: contarRelato(mensagens, historico),
+      };
     },
     [id, solicitanteId],
   );
@@ -116,24 +129,41 @@ export function AtendimentoChamado({ id }: { id: number }) {
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <section
-          aria-label="Conversa"
+          aria-label="Conversa e relato técnico"
           className={`min-h-[36rem] flex-col overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm ${aba === "conversa" ? "flex" : "hidden lg:flex"}`}
         >
-          <ChatChamado
-            chamadoId={chamado.id}
-            interna={interna}
-            acimaDoCompositor={
-              <Segmentado
-                rotuloAcessivel="Tipo de mensagem"
-                valor={interna ? "interna" : "resposta"}
-                aoMudar={(v) => setInterna(v === "interna")}
-                opcoes={[
-                  { valor: "resposta", rotulo: `Responder à ${primeiroNome}` },
-                  { valor: "interna", rotulo: "Nota interna" },
-                ]}
-              />
-            }
-          />
+          <div className="border-b border-borda px-3 py-3">
+            <Segmentado
+              rotuloAcessivel="Conversa ou relato técnico"
+              larguraTotal
+              valor={quadro}
+              aoMudar={setQuadro}
+              opcoes={[
+                { valor: "conversa", rotulo: `Conversa com ${primeiroNome}` },
+                {
+                  valor: "relato",
+                  rotulo: (
+                    <span className="inline-flex items-center gap-2">
+                      Relato técnico
+                      {extras?.itensRelato ? (
+                        <span className="rounded-full bg-alerta-suave px-2 text-xs text-alerta">
+                          {extras.itensRelato}
+                        </span>
+                      ) : null}
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          </div>
+          {quadro === "conversa" ? (
+            <ChatChamado
+              chamadoId={chamado.id}
+              placeholder={`Escreva para ${primeiroNome}... (Ctrl+V cola prints)`}
+            />
+          ) : (
+            <RelatoTecnico chamadoId={chamado.id} />
+          )}
         </section>
 
         <aside className={`flex-col gap-4 ${aba === "conversa" ? "hidden lg:flex" : "flex"}`}>

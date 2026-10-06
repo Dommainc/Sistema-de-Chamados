@@ -3,8 +3,8 @@
 // Conversa no estilo dos apps de mensagem (pedido do dono, 2026-10-06): hora dentro do balão,
 // mensagens seguidas da mesma pessoa agrupadas, "pontinha" e nome só no primeiro balão do grupo,
 // anexos dentro do balão. Cores do mockup: as minhas em azul à direita, as dos outros em branco.
+// Notas internas não aparecem aqui: ficam no Relato técnico (components/tecnico/atendimento/RelatoTecnico).
 
-import { Lock } from "lucide-react";
 import type { Anexo } from "@/lib/dominio/tipos";
 import { AnexoMiniatura } from "./AnexoMiniatura";
 import type { ItemConversa } from "./linhaDoTempo";
@@ -25,18 +25,12 @@ const CORES = {
     hora: "text-sobre-primaria/75",
   },
   outra: { balao: "bg-superficie text-texto", ponta: "bg-superficie", hora: "text-texto-suave" },
-  interna: {
-    balao: "bg-alerta-suave text-texto",
-    ponta: "bg-alerta-suave",
-    hora: "text-alerta/80",
-  },
 } as const;
 
 /** Balão de mensagem. `inicioDeGrupo` = primeiro da sequência: ganha a pontinha e o nome. */
 export function Balao({
   conteudo,
   minha,
-  interna,
   autor = null,
   hora,
   inicioDeGrupo = true,
@@ -45,7 +39,6 @@ export function Balao({
 }: {
   conteudo: string;
   minha: boolean;
-  interna: boolean;
   autor?: string | null;
   /** Texto do canto do balão: "09:52" ou "Enviando...". */
   hora: string;
@@ -53,7 +46,7 @@ export function Balao({
   anexos?: Anexo[];
   esmaecido?: boolean;
 }) {
-  const cor = interna ? CORES.interna : minha ? CORES.minha : CORES.outra;
+  const cor = minha ? CORES.minha : CORES.outra;
   const lado = minha ? "self-end" : "self-start";
   const canto = inicioDeGrupo ? (minha ? "rounded-tr-sm" : "rounded-tl-sm") : "";
 
@@ -72,11 +65,6 @@ export function Balao({
         />
       ) : null}
 
-      {interna && inicioDeGrupo ? (
-        <span className="flex items-center gap-1 text-xs font-semibold text-alerta">
-          <Lock aria-hidden="true" className="size-3.5" /> Nota interna · só a TI vê
-        </span>
-      ) : null}
       {autor && inicioDeGrupo ? (
         <span className="text-xs font-semibold text-primaria">{autor}</span>
       ) : null}
@@ -120,7 +108,6 @@ export function Conversa({ itens }: { itens: ItemConversa[] }) {
             <Balao
               conteudo={item.conteudo}
               minha={item.minha}
-              interna={item.interna}
               autor={item.autor}
               hora={item.hora}
               inicioDeGrupo={item.inicioDeGrupo}

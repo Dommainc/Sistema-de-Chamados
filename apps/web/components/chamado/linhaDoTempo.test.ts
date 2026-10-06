@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado, EventoHistorico, Mensagem } from "@/lib/dominio/tipos";
-import { montarConversa, rotuloDia } from "./linhaDoTempo";
+import { contarRelato, montarConversa, montarRelato, rotuloDia } from "./linhaDoTempo";
 
 // 05/10/2026 em São Paulo
 const agora = new Date("2026-10-05T13:30:00Z");
@@ -146,7 +146,7 @@ describe("montarConversa (mockup, tela 5)", () => {
 });
 
 describe("agrupamento (estilo WhatsApp)", () => {
-  it("mensagens seguidas da mesma pessoa ficam no mesmo grupo; outra pessoa ou nota interna abre outro", () => {
+  it("mensagens seguidas da mesma pessoa ficam no mesmo grupo; outra pessoa abre outro; nota interna não entra", () => {
     const seguidas: Mensagem[] = [
       {
         id: 1,
@@ -206,10 +206,74 @@ describe("agrupamento (estilo WhatsApp)", () => {
       ["pedido", true],
       ["m1", true],
       ["m2", false],
-      ["m3", true],
       ["m4", true],
       ["m5", false],
     ]);
+  });
+});
+
+describe("Relato técnico (só TI)", () => {
+  const notas: Mensagem[] = [
+    {
+      id: 7,
+      chamadoId: 41,
+      autorId: RAFAEL,
+      conteudo: "Caixa com 49,8 GB",
+      interna: true,
+      criadoEm: "2026-10-05T12:45:00Z",
+    },
+    ...mensagens,
+  ];
+  const transferencia: EventoHistorico = {
+    id: 9,
+    chamadoId: 41,
+    autorId: RAFAEL,
+    acao: "transferido",
+    de: "em_andamento",
+    para: "transferido",
+    detalhe: { para_responsavel_id: ANA, motivo: "Ana cuida de e-mail" },
+    publico: false,
+    criadoEm: "2026-10-05T13:00:00Z",
+  };
+
+  it("junta as notas internas e a transferência com motivo, em ordem de tempo", () => {
+    const relato = montarRelato({
+      mensagens: notas,
+      historico: [...historico, transferencia],
+      anexos: [],
+      perfis,
+      euId: RAFAEL,
+    });
+    expect(relato).toEqual([
+      expect.objectContaining({
+        tipo: "anotacao",
+        autor: "Você",
+        conteudo: "Caixa com 49,8 GB",
+        quando: "05/10/2026 09:45",
+      }),
+      expect.objectContaining({
+        tipo: "registro",
+        texto: "Você transferiu para Ana Souza",
+        motivo: "Ana cuida de e-mail",
+      }),
+    ]);
+    expect(contarRelato(notas, [...historico, transferencia])).toBe(2);
+  });
+
+  it("a conversa não mostra a nota interna nem o motivo da transferência", () => {
+    const conversa = montarConversa({
+      chamado,
+      mensagens: notas,
+      historico: [...historico, transferencia],
+      anexos: [],
+      perfis,
+      euId: RAFAEL,
+      papel: "ti",
+      agora,
+    });
+    const textos = conversa.map((i) => (i.tipo === "mensagem" ? i.conteudo : i.texto));
+    expect(textos).not.toContain("Caixa com 49,8 GB");
+    expect(textos).toContain("Você transferiu para Ana");
   });
 });
 

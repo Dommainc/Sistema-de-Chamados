@@ -42,7 +42,7 @@ test("abrir o chamado de outra pessoa pela URL mostra 'sem acesso'", async ({ pa
   await expect(page.getByText("Você não tem acesso a esta área")).toBeVisible();
 });
 
-test("técnico assume, conversa, faz nota interna, transfere; outro técnico assume e conclui", async ({
+test("técnico assume, conversa, anota no relato técnico, transfere; outro técnico assume e conclui", async ({
   page,
   context,
 }) => {
@@ -59,9 +59,9 @@ test("técnico assume, conversa, faz nota interna, transfere; outro técnico ass
   await page.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(page.getByText("Oi, Ana! Já estou olhando o roteador.")).toBeVisible();
 
-  await page.getByRole("tab", { name: "Nota interna" }).click();
-  await mensagem.fill("Trocar fonte do roteador.");
-  await page.getByRole("button", { name: "Enviar mensagem" }).click();
+  await page.getByRole("tab", { name: /Relato técnico/ }).click();
+  await page.getByRole("textbox", { name: "Anotação" }).fill("Trocar fonte do roteador.");
+  await page.getByRole("button", { name: "Adicionar ao relato" }).click();
   await expect(page.getByText("Trocar fonte do roteador.")).toBeVisible();
 
   const acoes = page.getByRole("region", { name: "Ações" });
@@ -113,7 +113,7 @@ test("Ana cancela antes do atendimento e não consegue cancelar depois", async (
   await expect(page.getByRole("button", { name: "Cancelar chamado" })).toHaveCount(0);
 });
 
-test("conversa em tempo real entre Ana e Rafael; nota interna nunca chega à Ana", async ({
+test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à Ana", async ({
   context,
 }) => {
   const ana = await context.newPage();
@@ -131,10 +131,11 @@ test("conversa em tempo real entre Ana e Rafael; nota interna nunca chega à Ana
   await ana.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(rafael.getByText("No navegador aparecem sim!")).toBeVisible();
 
-  await rafael.getByRole("tab", { name: "Nota interna" }).click();
-  await rafael.getByRole("textbox", { name: "Mensagem" }).fill("Segredo interno da TI");
-  await rafael.getByRole("button", { name: "Enviar mensagem" }).click();
-  await rafael.getByRole("tab", { name: /Responder à Ana/ }).click();
+  await rafael.getByRole("tab", { name: /Relato técnico/ }).click();
+  await rafael.getByRole("textbox", { name: "Anotação" }).fill("Segredo interno da TI");
+  await rafael.getByRole("button", { name: "Adicionar ao relato" }).click();
+  await expect(rafael.getByText("Segredo interno da TI")).toBeVisible();
+  await rafael.getByRole("tab", { name: /Conversa com Ana/ }).click();
   await rafael
     .getByRole("textbox", { name: "Mensagem" })
     .fill("Ótimo! Vou arquivar e-mails antigos.");

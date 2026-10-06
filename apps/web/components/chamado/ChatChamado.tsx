@@ -20,7 +20,6 @@ interface Pendente {
   idLocal: number;
   conteudo: string;
   anexos: ArquivoSelecionado[];
-  interna: boolean;
   estado: "enviando" | "falhou";
 }
 
@@ -32,17 +31,15 @@ let sequenciaLocal = 0;
 /**
  * Chat do chamado (mockup, tela 5): conversa em tempo real, envio otimista e,
  * se falhar, "Sua mensagem não foi enviada. Toque para tentar de novo." mantendo o texto.
+ * Só a conversa com o solicitante: as notas da TI ficam no Relato técnico.
  */
 export function ChatChamado({
   chamadoId,
-  acimaDoCompositor,
-  interna = false,
+  placeholder = "Escreva sua resposta...",
 }: {
   chamadoId: number;
-  /** Para a TI (Entrega 3): seletor "Responder / Nota interna". */
-  acimaDoCompositor?: React.ReactNode;
-  /** Envia como nota interna (só TI). */
-  interna?: boolean;
+  /** TI: "Escreva para a Ana... (Ctrl+V cola prints)". */
+  placeholder?: string;
 }) {
   const fonte = useDados();
   const usuario = useUsuario();
@@ -88,7 +85,6 @@ export function ChatChamado({
         await fonte.enviarMensagem({
           chamadoId,
           conteudo: pendente.conteudo,
-          interna: pendente.interna,
           anexos: pendente.anexos.map(({ arquivo, nome, mime, tamanho, origem }) => ({
             arquivo,
             nome,
@@ -117,7 +113,6 @@ export function ChatChamado({
       idLocal: ++sequenciaLocal,
       conteudo: conteudo.trim(),
       anexos,
-      interna,
       estado: "enviando",
     };
     setPendentes((atuais) => [...atuais, pendente]);
@@ -150,7 +145,6 @@ export function ChatChamado({
                 <Balao
                   conteudo={p.conteudo || "(arquivo)"}
                   minha
-                  interna={p.interna}
                   hora={p.estado === "falhou" ? "não enviada" : "Enviando..."}
                   esmaecido
                 />
@@ -182,11 +176,7 @@ export function ChatChamado({
             </p>
           </div>
         ) : (
-          <CompositorMensagem
-            aoEnviar={enviar}
-            acima={acimaDoCompositor}
-            placeholder={interna ? "Escreva uma nota interna..." : "Escreva sua resposta..."}
-          />
+          <CompositorMensagem aoEnviar={enviar} placeholder={placeholder} />
         )}
       </div>
     </div>

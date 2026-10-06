@@ -14,12 +14,14 @@ import { ACCEPT_ARQUIVOS } from "@/lib/anexos";
 export function CompositorMensagem({
   aoEnviar,
   placeholder = "Escreva sua resposta...",
-  acima,
+  rotuloCampo = "Mensagem",
+  rotuloEnviar = "Enviar mensagem",
 }: {
   aoEnviar: (conteudo: string, anexos: ArquivoSelecionado[]) => void;
   placeholder?: string;
-  /** Conteúdo acima do campo (ex.: seletor "Responder / Nota interna" da TI). */
-  acima?: React.ReactNode;
+  /** Nome acessível do campo e do botão (o Relato técnico usa "Anotação" / "Adicionar ao relato"). */
+  rotuloCampo?: string;
+  rotuloEnviar?: string;
 }) {
   const [texto, setTexto] = useState("");
   const { arquivos, adicionar, remover, esvaziar } = useArquivosSelecionados({ persistir: false });
@@ -35,7 +37,6 @@ export function CompositorMensagem({
 
   return (
     <div className="flex flex-col gap-2 border-t border-borda bg-superficie px-3 py-3">
-      {acima}
       {arquivos.length > 0 ? (
         <ul className="flex flex-wrap gap-2" aria-label="Arquivos que serão enviados">
           {arquivos.map((a) => (
@@ -95,7 +96,7 @@ export function CompositorMensagem({
             }
           }}
           rows={1}
-          aria-label="Mensagem"
+          aria-label={rotuloCampo}
           placeholder={placeholder}
           className="max-h-40 min-h-11 flex-1 resize-none rounded-3xl border border-borda bg-superficie px-4 py-2.5 text-base [field-sizing:content] placeholder:text-texto-suave"
         />
@@ -103,7 +104,7 @@ export function CompositorMensagem({
           type="button"
           onClick={enviar}
           disabled={!podeEnviar}
-          aria-label="Enviar mensagem"
+          aria-label={rotuloEnviar}
           className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primaria text-sobre-primaria hover:bg-primaria-forte disabled:opacity-50"
         >
           <SendHorizontal aria-hidden="true" className="size-5" />

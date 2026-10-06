@@ -26,7 +26,7 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 - **"Pontinha"** do balão e **nome do autor** (dentro do balão, ex.: "Rafael Lima · TI") só no primeiro do grupo;
   as minhas não mostram nome.
 - **Anexos dentro do balão**, acima do texto.
-- Nota interna: mesmo formato, fundo âmbar, com "🔒 Nota interna · só a TI vê" no primeiro do grupo.
+- Notas internas **não aparecem no chat**: ficam na aba **Relato técnico** da tela de atendimento (2026-10-06).
 - Cores do mockup mantidas: minhas em azul à direita, dos outros em branco à esquerda; eventos do sistema em pílula.
 
 ## Fundamentos
@@ -126,9 +126,15 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      **Assumir** (nos novos) ou avatar do responsável e contador de mensagens (nos demais).
 7. **Atendimento** (`/atendimento/41`)
    - "← Voltar para o quadro", "#41 título" + selo de status.
-   - Esquerda — chat: eventos do sistema em pílula; **nota interna** com fundo âmbar, borda tracejada e
-     "🔒 Nota interna · só a TI vê"; respostas do técnico em bolha azul à direita.
-     Compositor com seletor **Responder à Ana | Nota interna**, campo "Escreva para a Ana... (Ctrl+V cola prints)", clipe, Enviar.
+   - Esquerda — duas abas (**mudança do dono, 2026-10-06**, no lugar do seletor "Responder à Ana | Nota interna",
+     para os analistas não confundirem resposta com anotação):
+     - **Conversa com a Ana** — só a conversa com o solicitante: eventos do sistema em pílula, respostas do técnico
+       em bolha azul à direita; campo "Escreva para a Ana... (Ctrl+V cola prints)", clipe, Enviar.
+     - **Relato técnico** (com contador) — diário só da TI: faixa âmbar "🔒 Só a TI vê o relato técnico";
+       anotações em cartão com borda âmbar à esquerda, autor e data/hora (não se editam nem se apagam), prints com
+       Ctrl+V; transferências e devoluções à fila com o motivo. Campo "Anote o que foi verificado ou feito...",
+       botão "Adicionar ao relato". Encerrado → só consulta. Por baixo continuam sendo as notas internas
+       (`mensagens.interna`), protegidas pelo RLS.
    - Direita — cartões: **AÇÕES** (Marcar como concluído · Transferir · Retomar atendimento · Cancelar chamado em link vermelho),
      **PRAZO** (previsão + barra, responsável, categoria), **SOLICITANTE** (nome, departamento, telefone, e-mail),
      **PEDIDO** (descrição + anexos), **HISTÓRICO** (lista com horário).
