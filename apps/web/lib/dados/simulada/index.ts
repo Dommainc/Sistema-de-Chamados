@@ -328,6 +328,14 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       }));
     },
 
+    async obterPerfilCompleto(perfilId: string) {
+      const perfil = eu();
+      if (perfil.papel !== "ti" && perfilId !== perfil.id) throw new ErroApp("SEM_PERMISSAO");
+      const alvo = lerEstado().perfis.find((p) => p.id === perfilId);
+      if (!alvo) throw new ErroApp("SEM_PERMISSAO");
+      return { ...alvo };
+    },
+
     async listarCategorias() {
       eu();
       return [...CATEGORIAS].sort((a, b) => a.ordem - b.ordem);

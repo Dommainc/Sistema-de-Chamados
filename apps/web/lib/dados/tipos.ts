@@ -95,6 +95,8 @@ export interface FonteDeDados {
   /** Só departamento e telefone (o papel nunca é editável). */
   atualizarMeuPerfil(dados: DadosPrimeiroAcesso): Promise<Perfil>;
   listarPerfisPublicos(): Promise<PerfilPublico[]>;
+  /** Perfil com contato (e-mail, telefone). TI lê todos; cada um lê o próprio (policy profiles_leitura). */
+  obterPerfilCompleto(perfilId: string): Promise<Perfil>;
 
   listarCategorias(): Promise<Categoria[]>;
   listarCamposForm(categoriaId: number): Promise<CampoForm[]>;

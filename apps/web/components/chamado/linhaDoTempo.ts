@@ -171,3 +171,37 @@ export function montarConversa({
   }
   return resultado;
 }
+
+/**
+ * Linha do cartão HISTÓRICO da área técnica (mockup, tela 7): "Aberto por Ana Souza",
+ * "Assumido por Rafael Lima", "Em atendimento → Aguardando usuário", transferências com motivo.
+ */
+export function textoHistorico(
+  evento: EventoHistorico,
+  nome: (id: string | null | undefined) => string | null,
+): string {
+  const autor = nome(evento.autorId) ?? "Sistema";
+  const status = (s: string | null) => (s ? rotuloStatus(s as StatusChamado, "ti").texto : "");
+  switch (evento.acao) {
+    case "criado":
+      return `Aberto por ${autor}`;
+    case "assumido":
+      return `Assumido por ${autor}`;
+    case "status_alterado":
+      return evento.autorId === null
+        ? `Solicitante respondeu · ${status(evento.de)} → ${status(evento.para)}`
+        : `${status(evento.de)} → ${status(evento.para)}`;
+    case "transferido":
+      return `Transferido por ${autor} para ${nome(evento.detalhe.para_responsavel_id) ?? "outro técnico"}${
+        evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""
+      }`;
+    case "devolvido_fila":
+      return `Devolvido à fila por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;
+    case "concluido":
+      return `Concluído por ${autor}`;
+    case "cancelado":
+      return `Cancelado por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;
+    default:
+      return `${evento.acao} · ${autor}`;
+  }
+}

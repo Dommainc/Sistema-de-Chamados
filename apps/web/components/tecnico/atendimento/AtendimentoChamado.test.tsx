@@ -1,0 +1,139 @@
+// Tela de atendimento (mockup, tela 7). Sem CSS nos testes: versão celular e computador aparecem juntas,
+// por isso alguns botões existem em dobro (*AllBy*).
+
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ProvedorToast } from "@/components/ui/Toast";
+import { ProvedorDados } from "@/lib/dados/provedor";
+import {
+  _reiniciarParaTestes,
+  estadoInicial,
+  gravarEstado,
+  lerEstado,
+} from "@/lib/dados/simulada/armazenamento";
+import { USUARIOS_SIMULADOS } from "@/lib/dados/simulada/usuarios";
+import { AtendimentoChamado } from "./AtendimentoChamado";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/atendimento/41",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+const [, , RAFAEL, THIAGO] = USUARIOS_SIMULADOS;
+
+function renderizar(usuario = RAFAEL, id = 41) {
+  return render(
+    <ProvedorToast>
+      <ProvedorDados usuario={{ id: usuario.id, nome: usuario.nome, papel: usuario.papel }}>
+        <AtendimentoChamado id={id} />
+      </ProvedorDados>
+    </ProvedorToast>,
+  );
+}
+
+const painelAcoes = () => screen.getByRole("region", { name: "Ações" });
+const chamado = (id: number) => lerEstado().chamados.find((c) => c.id === id)!;
+
+beforeEach(() => {
+  localStorage.clear();
+  _reiniciarParaTestes();
+  gravarEstado(estadoInicial());
+  globalThis.URL.createObjectURL = vi.fn(() => "blob:x");
+  globalThis.URL.revokeObjectURL = vi.fn();
+});
+
+describe("AtendimentoChamado", () => {
+  it("mostra conversa com nota interna, solicitante com contato, pedido e histórico", async () => {
+    renderizar();
+    expect(await screen.findByText(/49,8 GB/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Nota interna · só a TI vê/).length).toBeGreaterThan(0);
+    const solicitante = await screen.findByRole("region", { name: "Solicitante" });
+    expect(within(solicitante).getByText("Ana Souza")).toBeInTheDocument();
+    expect(within(solicitante).getByText("ana@teste.local")).toBeInTheDocument();
+    const historico = await screen.findByRole("region", { name: "Histórico" });
+    expect(within(historico).getByText("Aberto por Ana Souza")).toBeInTheDocument();
+    expect(within(historico).getByText("Em atendimento → Aguardando usuário")).toBeInTheDocument();
+  });
+
+  it("em 'Aguardando usuário' as ações são: concluir, transferir, retomar, devolver, cancelar", async () => {
+    renderizar();
+    await screen.findByText(/49,8 GB/);
+    const acoes = painelAcoes();
+    for (const nome of [
+      "Marcar como concluído",
+      "Transferir",
+      "Retomar atendimento",
+      "Devolver à fila",
+      "Cancelar chamado",
+    ]) {
+      expect(within(acoes).getByRole("button", { name: nome })).toBeInTheDocument();
+    }
+    expect(within(acoes).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
+  });
+
+  it("nota interna: o seletor manda a mensagem como interna", async () => {
+    renderizar();
+    await screen.findByText(/49,8 GB/);
+    fireEvent.click(screen.getByRole("tab", { name: "Nota interna" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Mensagem" }), {
+      target: { value: "Verificar licença do Office" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Enviar mensagem" }));
+    await waitFor(() =>
+      expect(lerEstado().mensagens.at(-1)).toMatchObject({
+        conteudo: "Verificar licença do Office",
+        interna: true,
+      }),
+    );
+  });
+
+  it("concluir pelo modal encerra o chamado, mesmo sem resposta do solicitante", async () => {
+    renderizar();
+    await screen.findByText(/49,8 GB/);
+    fireEvent.click(within(painelAcoes()).getByRole("button", { name: "Marcar como concluído" }));
+    const modal = await screen.findByRole("dialog", { hidden: true });
+    fireEvent.click(
+      within(modal).getByRole("button", { name: "Marcar como concluído", hidden: true }),
+    );
+    await waitFor(() => expect(chamado(41).status).toBe("concluido"));
+    expect(await screen.findByText("Chamado #41 concluído.")).toBeInTheDocument();
+  });
+
+  it("transferir exige técnico e motivo; depois grava a transferência", async () => {
+    renderizar();
+    await screen.findByText(/49,8 GB/);
+    fireEvent.click(within(painelAcoes()).getByRole("button", { name: "Transferir" }));
+    const modal = await screen.findByRole("dialog", { hidden: true });
+    const confirmar = () =>
+      fireEvent.click(within(modal).getByRole("button", { name: "Transferir", hidden: true }));
+
+    confirmar();
+    expect(
+      await within(modal).findByText("Preencha o campo Técnico de destino para continuar."),
+    ).toBeInTheDocument();
+
+    fireEvent.change(within(modal).getByRole("combobox", { hidden: true }), {
+      target: { value: THIAGO.id },
+    });
+    confirmar();
+    expect(await within(modal).findByText("Informe o motivo para continuar.")).toBeInTheDocument();
+
+    fireEvent.change(within(modal).getByRole("textbox", { hidden: true }), {
+      target: { value: "Thiago cuida de e-mail" },
+    });
+    confirmar();
+    await waitFor(() =>
+      expect(chamado(41)).toMatchObject({ status: "transferido", responsavelId: THIAGO.id }),
+    );
+  });
+
+  it("transferido para outro técnico: quem não é o destino só devolve ou cancela", async () => {
+    renderizar(THIAGO, 39); // #39 foi transferido para o Rafael
+    await screen.findByRole("region", { name: "Ações" });
+    const nomes = within(painelAcoes())
+      .getAllByRole("button")
+      .map((b) => b.textContent);
+    expect(nomes).toEqual(["Devolver à fila", "Cancelar chamado"]);
+  });
+});

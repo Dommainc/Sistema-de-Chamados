@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { DetalheChamadoTecnico } from "@/components/tecnico/DetalheChamadoTecnico";
+import { AtendimentoChamado } from "@/components/tecnico/atendimento/AtendimentoChamado";
 
 export async function generateMetadata({
   params,
@@ -12,5 +12,5 @@ export async function generateMetadata({
 export default async function PaginaChamadoTecnico({ params }: PageProps<"/atendimento/[id]">) {
   const { id } = await params;
   if (!/^\d+$/.test(id)) notFound();
-  return <DetalheChamadoTecnico id={Number(id)} />;
+  return <AtendimentoChamado id={Number(id)} />;
 }

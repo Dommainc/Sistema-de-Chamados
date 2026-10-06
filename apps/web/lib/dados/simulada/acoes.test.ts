@@ -172,3 +172,14 @@ describe("fila e contadores", () => {
     expect(notificacoesDe(38)).toMatchObject([{ tipo: "nova_mensagem", destinatarioId: ANA.id }]);
   });
 });
+
+describe("perfil completo (contato)", () => {
+  it("TI lê o contato do solicitante; solicitante só o próprio", async () => {
+    const contato = await criarFonteSimulada(RAFAEL.id).obterPerfilCompleto(ANA.id);
+    expect(contato.email).toBe("ana@teste.local");
+    await expect(criarFonteSimulada(ANA.id).obterPerfilCompleto(RAFAEL.id)).rejects.toMatchObject({
+      codigo: "SEM_PERMISSAO",
+    });
+    expect((await criarFonteSimulada(ANA.id).obterPerfilCompleto(ANA.id)).id).toBe(ANA.id);
+  });
+});

@@ -9,7 +9,7 @@
 | 1A-3 Entrega 2 — Parte A: abrir chamado | ✅ Concluída | Telas 1–3 do mockup; máquina de estados, formulário, horas úteis e anexos (Ctrl+V); 118 testes |
 | 1A-3 Entrega 2 — Parte B: acompanhar | ✅ Concluída | Telas 4–5: chat, nova mensagem, cancelar, encerrado; migration 0017 `chamado_leituras`; 144 testes |
 | 1A-3 Entrega 3 — Parte A: ações + quadro | ✅ Concluída | Quadro (kanban) com Próximo da fila, filtros, arrastar; ações com histórico e notificação; 173 testes |
-| 1A-3 Entrega 3 — Parte B: tela de atendimento | ⏳ Pendente | Chat com nota interna, painel de ações, modais, histórico, versão celular |
+| 1A-3 Entrega 3 — Parte B: tela de atendimento | ✅ Concluída | Chat com nota interna, painel de ações, modais, solicitante com contato, histórico completo, versão celular; 180 testes |
 | 1A-2 API base + dados reais | ⏳ Pendente | Depende da aprovação do Supabase (P-022); login e papéis adiados pelo dono |
 | 1A-4 (restante) CI de banco/API e docs | ⏳ Pendente | |
 | 1E Teams | ⏳ Pendente | Depende do código do bot existente |
@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-06 | Entrega 3 Parte B: `/atendimento/[id]` com chat (seletor "Responder à Ana / Nota interna"), cartões AÇÕES (só as permitidas: assumir, concluir, transferir, aguardar/retomar, devolver, cancelar), PRAZO, SOLICITANTE (telefone e e-mail via `obterPerfilCompleto`, só TI), PEDIDO e HISTÓRICO completo (transferências com motivo). Modais de transferir/devolver/cancelar (motivo) e concluir (confirmação). Celular: faixa escura, botões e abas Conversa · Detalhes · Histórico. **1A-3 concluída** (com dados simulados). |
 | 2026-10-06 | Entrega 3 Parte A: quadro em `/atendimento` (padrão) com "Próximo da fila" + Pegar o próximo, filtros na URL (responsável, categoria, prazo), colunas Novos (vencidos → transferidos para mim → prazo) · Em atendimento · Aguardando usuário, cartões com canhoto Nº, selos NOVO/Transferido, contador 💬, arrastar entre colunas (assumir/aguardar/retomar), destaque de chamado novo, versão celular com pílulas e Filtros. Lista com Assumir e "Ver encerrados". `executarAcao`/`proximoDaFila`/`contarNaoLidas` na camada de dados; histórico e notificações pendentes em toda ação, abertura e mensagem (simulada v5). |
 | 2026-10-05 | Portal usa a largura da tela no computador (pedido do dono): grade de 3–4 colunas, Meus chamados em 2 colunas, passo 2 e chamado com painel lateral. Celular inalterado. `docs/ui-ux.md` atualizado. |
 | 2026-10-05 | Entrega 2 Parte B: `/meus-chamados/[id]` no layout de foco com chat (pedido como 1ª mensagem, eventos em pílula, separador de dia, anexos em miniatura), envio otimista com "tentar de novo" mantendo o texto, faixa `SEM_CONEXAO`, volta automática aguardando → em andamento, "Ver detalhes do pedido", cancelar com motivo (só Recebido), encerrado com "Abrir novo pedido" (`?referente=`). Selo "• Nova mensagem" e contador do menu por não lidas. Simulada v4: mensagens, leituras, conversas de exemplo (#41 igual ao mockup). Migration 0017 `chamado_leituras` + teste 004 (não executados). |
