@@ -15,7 +15,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-008 | 🟡 | regra | Tela de Configurações adiada: categorias, campos, SLA e feriados só mudam por migration/SQL. Feriados cadastrados só até 2027. | Antes de dez/2027 ou na Fase 2 |
 | P-009 | 🟡 | banco | Solicitante com `ativo = false` ainda lê os próprios chamados, mensagens e histórico direto pelo Supabase (as policies só checam `ativo` para a TI). O bloqueio previsto fica só na API. | Migration nova (junto com P-005) |
 | P-010 | ⚪ | banco | Trocar a categoria de um chamado não recalcula `area_id` nem `prazo_sla` (só calculados na abertura). | 1B / regra de recategorização |
-| P-013 | ⚪ | banco | Usuário com chamados não pode ser excluído de `auth.users` (FK sem cascata, de propósito). Desligamento precisa ser `ativo = false`. | Documentar em runbook (1A-4) |
 | P-014 | 🟡 | banco | Não há procedimento para levar o `seed.sql` à produção: `supabase db push` não roda seed. | 1A-4 / `docs/go-live.md` |
 | P-015 | ⚪ | ambiente | `[auth.external.azure] enabled = true` no `config.toml` lê variáveis que ainda não existem; conferir se o `supabase start` local funciona sem elas. | Início da 1A-2 |
 | P-016 | ⚪ | docs | O `CLAUDE.md` cita `supabase/seed.dev.sql`, que ainda não existe (previsto na 1A-2). | 1A-2 |
@@ -34,6 +33,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-013 | 2026-10-06 | Documentado em `docs/banco.md`: usuário com chamados não é apagado; desligamento = `ativo = false` (quem marca continua em P-005). |
 | P-006 | 2026-10-05 | Técnico **pode** abrir chamado: a TI também vê o formulário de abertura (ajustar a nova 1A-3). |
 | P-007 | 2026-10-05 | Resolver **não** grava mensagem automática no chat; o encerramento segue só pela mudança de status. |
 | P-025 | 2026-10-05 | Mockup do dono (9 telas) virou `docs/ui-ux.md` + base visual no front. Adaptado ao ADR 0005; contato = telefone/celular. |
