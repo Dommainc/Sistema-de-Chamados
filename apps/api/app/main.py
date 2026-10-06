@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import obter_settings
 from app.db import banco
 from app.erros.handlers import registrar_handlers
-from app.routers import me, saude
+from app.routers import chamados, me, saude
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
@@ -44,6 +44,7 @@ def criar_app() -> FastAPI:
     registrar_handlers(app)
     app.include_router(saude.router)
     app.include_router(me.router)
+    app.include_router(chamados.router)
     return app
 
 

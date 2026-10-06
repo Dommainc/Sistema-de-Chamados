@@ -10,7 +10,7 @@
 | 1A-3 Entrega 2 — Parte B: acompanhar | ✅ Concluída | Telas 4–5: chat, nova mensagem, cancelar, encerrado; migration 0017 `chamado_leituras`; 144 testes |
 | 1A-3 Entrega 3 — Parte A: ações + quadro | ✅ Concluída | Quadro (kanban) com Próximo da fila, filtros, arrastar; ações com histórico e notificação; 173 testes |
 | 1A-3 Entrega 3 — Parte B: tela de atendimento | ✅ Concluída | Chat com nota interna, painel de ações, modais, solicitante com contato, histórico completo, versão celular; 180 testes |
-| 1A-2 API base + dados reais | 🟡 Em andamento | **Base pronta sem banco**: FastAPI, catálogo de erros (igual ao do front), JWT (JWKS/HS256), máquina de estados e formulário em Python, `/saude`, `/me`, `/auth/sincronizar`; 63 testes (+4 de banco pulados). Falta: rodar contra o Supabase (P-022/P-023), rotas de chamados e a camada de dados `real` do front |
+| 1A-2 API base + dados reais | 🟡 Em andamento | **Base pronta sem banco**: FastAPI, catálogo de erros (igual ao do front), JWT (JWKS/HS256), máquina de estados e formulário em Python, `/saude`, `/me`, `/auth/sincronizar`; **rotas de chamados** (abrir, ações, mensagens, anexos, lido, previsão — ADR 0008); 95 testes (+4 de banco pulados). Falta: rodar contra o Supabase (P-022/P-023/P-034) e a camada de dados `real` do front |
 | 1A-4 (restante) CI de banco/API e docs | ⏳ Pendente | |
 | 1E Teams | ⏳ Pendente | Depende do código do bot existente |
 | 1F Fechamento | ⏳ Pendente | |
@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-06 | Rotas de chamados na API (sem banco): `POST /chamados`, `GET /chamados/{id}/acoes`, assumir/aguardar/retomar/concluir/transferir/devolver/cancelar, mensagens (com volta automática para em atendimento), `lido`, `POST /anexos/upload-url`, `GET /anexos/{id}/url`, `GET /categorias/{id}/previsao`. Serviços + repositório (Postgres e memória) + Storage Supabase. ADR 0008. 95 testes, incluindo solicitante tentando cada ação da TI e o chamado de outra pessoa. P-028 resolvido (lado da API); aberto P-034. |
 | 2026-10-06 | API base (1A-2, sem banco): `apps/api` com uv/Python 3.12, FastAPI, catálogo de erros com teste de paridade com o front, validação do JWT (JWKS + HS256), `dominio/estados.py` (fonte única) e `formulario.py` com os mesmos casos do front, papel pelo grupo do Entra (provisório), `/saude`, `/me`, `/auth/sincronizar`. `seed.dev.sql` (4 usuários de teste). ADR 0007. Job da API no CI. |
 | 2026-10-06 | Documentação técnica (parte da 1A-4): `docs/README.md`, `arquitetura.md` (diagrama), `banco.md` (ER, tabelas, RLS, migrations), `status.md`, `erros.md`, `segredos.md`, runbooks (restaurar backup, rotacionar chave, bot parado — rascunho). |
 | 2026-10-06 | Chat no estilo WhatsApp (pedido do dono): hora dentro do balão, mensagens seguidas da mesma pessoa agrupadas, pontinha e nome só no primeiro balão do grupo, anexos dentro do balão. Vale para solicitante e TI. 184 testes + 10 E2E. |

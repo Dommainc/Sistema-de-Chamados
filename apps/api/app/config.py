@@ -20,6 +20,8 @@ class Settings(BaseSettings):
 
     #: URL do projeto Supabase (para buscar as chaves públicas do login — JWKS).
     supabase_url: str | None = None
+    #: Chave service_role — SÓ na API, só para o Storage (URLs assinadas) e jobs. Nunca no front.
+    supabase_service_role_key: SecretStr | None = None
     #: Segredo do JWT (projetos antigos / ambiente local que assinam com HS256). Opcional.
     supabase_jwt_secret: SecretStr | None = None
     jwt_audience: str = "authenticated"

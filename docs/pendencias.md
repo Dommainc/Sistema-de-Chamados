@@ -23,17 +23,18 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-023 | 🟡 | banco | Migrations 0015, 0016 e 0017 e os testes `001` (33), `002` (18), `003` (5) e `004` (6) **nunca foram executados**. Rodar `supabase db reset` + `supabase test db` assim que houver Supabase (local ou nuvem). | Quando P-022/P-002 forem resolvidos |
 | P-026 | 🟡 | api | Previsão de atendimento exibida **antes** de enviar o chamado (mockup): na versão real precisa de endpoint na API (ex.: `GET /categorias/{id}/previsao`) usando `app.adicionar_horas_uteis`. Na simulada já é calculada no front (`lib/dominio/horario-util.ts`, espelho de `app.adicionar_horas_uteis`). | 1A-2 / implementação real |
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
-| P-028 | 🟡 | api | A versão real precisa de rotas que a simulada já usa: `POST /chamados/{id}/mensagens`, `POST /chamados/{id}/cancelar`, `POST /chamados/{id}/lido` (grava `chamado_leituras`), `GET /anexos/{id}/url`, além de `GET /categorias/{id}/previsao` (P-026). Contrato em `apps/web/lib/dados/tipos.ts`. | 1A-2 / implementação real |
 | P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
 | P-030 | ⚪ | web | No modo simulado, a sessão fica num cookie: **um navegador = um usuário por vez**. Para ver Ana e Rafael ao mesmo tempo, abra a aba da Ana, depois entre como Rafael em outra aba — a da Ana continua como Ana até recarregar (é o que o E2E faz). Some com o login real. | Implementação real (1A-2) |
 | P-031 | ⚪ | ci | `pnpm e2e` não roda no CI (baixar o navegador deixa o CI lento). Incluir quando a implementação real existir, junto com o banco local no CI. | 1A-4 restante |
 | P-032 | 🟡 | api | Confirmar o ponto de entrada da API na Vercel (FastAPI em `app/main.py`) no primeiro deploy; ajustar `vercel.json` se a Vercel não detectar sozinha. | Primeiro deploy |
 | P-033 | ⚪ | ambiente | O `uv` foi instalado com `pip install --user` e ficou fora do PATH: usar `python -m uv` ou adicionar `%APPDATA%\Python\Python314\Scripts` ao PATH. | Quando quiser |
+| P-034 | 🟡 | api | `RepositorioPostgres` (SQL das rotas de chamados) e `ArmazenamentoSupabase` (URL assinada, mover, download) foram escritos **sem banco**: validar com testes de integração `@pytest.mark.banco` e um upload real quando o Supabase existir. | Quando o Supabase for assinado (P-022) |
 
 ## Resolvidas
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-028 | 2026-10-06 | Rotas criadas na API (`app/routers/chamados.py`, ADR 0008) com o contrato de `apps/web/lib/dados/tipos.ts`; testadas em memória. Validação com banco segue em P-034. |
 | P-016 | 2026-10-06 | `supabase/seed.dev.sql` criado (4 usuários de teste, senha local do `central_api`) e incluído no `config.toml`. Não executado ainda (P-023). |
 | P-013 | 2026-10-06 | Documentado em `docs/banco.md`: usuário com chamados não é apagado; desligamento = `ativo = false` (quem marca continua em P-005). |
 | P-006 | 2026-10-05 | Técnico **pode** abrir chamado: a TI também vê o formulário de abertura (ajustar a nova 1A-3). |

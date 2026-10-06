@@ -27,6 +27,7 @@ select = ["E", "F", "I", "UP", "B", "SIM", "ASYNC", "RUF", "N", "C4"]
 ignore = [
   "RUF001", "RUF002", "RUF003",  # aspas e travessões do português são intencionais
   "N818",  # nomes do domínio em português (ErroApp), não "...Error"
+  "E501",  # o formatador cuida do tamanho do código; comentários e textos longos são aceitos
 ]
 
 [tool.pytest.ini_options]

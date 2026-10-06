@@ -19,6 +19,9 @@ Uma etapa (ou entrega) por sessão (`/clear` entre elas). Ordem:
 | 8 | `1E-teams.md` | Notificações e resposta automática do bot |
 | 9 | `1F-fechamento.md` | Revisão de erros, docs finais, critérios de pronto |
 
+**O bot do Teams (1E) é a última etapa de construção** (decisão do dono, 2026-10-06): até lá, as ações só gravam
+as notificações como `pendente` (outbox, ADR 0003).
+
 O front é construído primeiro com **dados simulados** (`docs/adr/0006`), porque o Supabase está em avaliação pela diretoria.
 
 `1B-chamados.md`, `1C-chat-anexos.md` e `1D-fila-ti.md` **não são mais etapas**: foram absorvidos pela 1A-3 e servem
