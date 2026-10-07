@@ -174,7 +174,8 @@ export function CartaoChamado({
       >
         {c.titulo}
       </Link>
-      <p className="truncate text-sm text-texto">
+      {/* Nome · categoria inteiros (sem "…"): letra um pouco menor e quebra de linha se precisar. */}
+      <p className="text-[13px] leading-snug text-texto">
         <span className="font-medium">{solicitante?.nome ?? "—"}</span>
         <span className="text-texto-suave"> · {assunto}</span>
       </p>
