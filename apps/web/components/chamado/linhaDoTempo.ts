@@ -23,6 +23,8 @@ export type ItemConversa =
       chave: string;
       conteudo: string;
       minha: boolean;
+      /** Aviso automático da Central (sem autor). */
+      sistema: boolean;
       autorId: string;
       /** Nome mostrado no balão de quem não sou eu: "Rafael Lima · TI" · "Ana Souza". Nulo nas minhas. */
       autor: string | null;
@@ -77,6 +79,12 @@ export function textoEvento(
     case "assumido":
       return `${autor} iniciou o atendimento`;
     case "status_alterado":
+      if (evento.detalhe.motivo === "sem_resposta_2h_uteis") {
+        // Automação (ADR 0011): a TI respondeu e passaram 2 h úteis sem resposta.
+        return papel === "solicitante"
+          ? "Aguardando sua resposta para continuar"
+          : "Sem resposta há 2 h úteis · foi para Aguardando usuário";
+      }
       if (evento.autorId === null && evento.para === "em_andamento") {
         return papel === "solicitante"
           ? "Você respondeu e o chamado voltou para Em atendimento"
@@ -125,7 +133,8 @@ export function montarConversa({
   const perfil = new Map(perfis.map((p) => [p.id, p]));
   const nome = (id: string | null | undefined) => (id ? (perfil.get(id)?.nome ?? null) : null);
 
-  function autor(autorId: string): string | null {
+  function autor(autorId: string | null): string | null {
+    if (autorId === null) return "Aviso automático da Central";
     if (autorId === euId) return null;
     const p = perfil.get(autorId);
     if (!p) return null;
@@ -139,6 +148,7 @@ export function montarConversa({
       chave: "pedido",
       conteudo: typeof descricao === "string" && descricao ? descricao : chamado.titulo,
       minha: chamado.solicitanteId === euId,
+      sistema: false,
       autorId: chamado.solicitanteId,
       autor: autor(chamado.solicitanteId),
       hora: formatarHora(chamado.criadoEm),
@@ -153,7 +163,8 @@ export function montarConversa({
         chave: `m${m.id}`,
         conteudo: m.conteudo,
         minha: m.autorId === euId,
-        autorId: m.autorId,
+        sistema: m.autorId === null,
+        autorId: m.autorId ?? "sistema",
         autor: autor(m.autorId),
         hora: formatarHora(m.criadoEm),
         inicioDeGrupo: true,
@@ -307,6 +318,9 @@ export function textoHistorico(
     case "assumido":
       return `Iniciado por ${autor}`;
     case "status_alterado":
+      if (evento.detalhe.motivo === "sem_resposta_2h_uteis") {
+        return `Sistema · sem resposta há 2 h úteis · ${status(evento.de)} → ${status(evento.para)}`;
+      }
       return evento.autorId === null
         ? `Solicitante respondeu · ${status(evento.de)} → ${status(evento.para)}`
         : `${status(evento.de)} → ${status(evento.para)}`;

@@ -157,29 +157,31 @@ describe("não lidas", () => {
   });
 });
 
-describe("cancelarChamado", () => {
-  it("Ana cancela o próprio chamado em Recebido, com motivo", async () => {
-    const fonte = criarFonteSimulada(ANA.id);
-    await fonte.cancelarChamado(42, "Voltou a funcionar sozinho");
-    const chamado = await fonte.obterChamado(42);
+describe("cancelar (só a TI — pedido do dono, 2026-10-07)", () => {
+  it("o solicitante não cancela nem em Recebido: recebe a orientação do catálogo", async () => {
+    await expect(
+      criarFonteSimulada(ANA.id).executarAcao(42, "cancelar", { motivo: "Voltou sozinho" }),
+    ).rejects.toMatchObject({ codigo: "CANCELAMENTO_NAO_PERMITIDO" });
+    expect((await criarFonteSimulada(ANA.id).obterChamado(42)).status).toBe("pendente");
+  });
+
+  it("a TI cancela com motivo", async () => {
+    const chamado = await criarFonteSimulada(RAFAEL.id).executarAcao(42, "cancelar", {
+      motivo: "Voltou a funcionar sozinho",
+    });
     expect(chamado).toMatchObject({
       status: "cancelado",
       motivoCancelamento: "Voltou a funcionar sozinho",
     });
-    expect(lerEstado().historico.at(-1)).toMatchObject({ acao: "cancelado", publico: true });
   });
 
-  it("sem motivo → MOTIVO_OBRIGATORIO", async () => {
-    await expect(criarFonteSimulada(ANA.id).cancelarChamado(42, " ")).rejects.toMatchObject({
-      codigo: "MOTIVO_OBRIGATORIO",
-    });
-  });
-
-  it("depois que a TI começou → CANCELAMENTO_NAO_PERMITIDO", async () => {
+  it("a TI só conversa com o solicitante depois de iniciar (o relato é livre)", async () => {
+    const ti = criarFonteSimulada(RAFAEL.id);
     await expect(
-      criarFonteSimulada(ANA.id).cancelarChamado(41, "Não preciso mais"),
-    ).rejects.toMatchObject({
-      codigo: "CANCELAMENTO_NAO_PERMITIDO",
-    });
+      ti.enviarMensagem({ chamadoId: 42, conteudo: "Oi, Ana", anexos: [] }),
+    ).rejects.toMatchObject({ codigo: "CHAMADO_NAO_INICIADO" });
+    await expect(
+      ti.enviarMensagem({ chamadoId: 42, conteudo: "Anotação", interna: true, anexos: [] }),
+    ).resolves.toBeDefined();
   });
 });

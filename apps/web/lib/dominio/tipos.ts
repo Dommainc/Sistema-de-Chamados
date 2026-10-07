@@ -109,7 +109,8 @@ export interface EventoHistorico {
 export interface Mensagem {
   id: number;
   chamadoId: number;
-  autorId: string;
+  /** Nulo = mensagem automática do sistema (aviso de inatividade — ADR 0011). */
+  autorId: string | null;
   conteudo: string;
   /** true = nota interna, só a TI vê. */
   interna: boolean;
@@ -128,6 +129,7 @@ export type TipoNotificacao =
   | "chamado_assumido"
   | "chamado_transferido"
   | "prazo_definido"
+  | "aviso_inatividade"
   | "status_alterado"
   | "nova_mensagem";
 

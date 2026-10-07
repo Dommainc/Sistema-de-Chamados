@@ -1,6 +1,6 @@
 # Banco de dados
 
-Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0020) e testado
+Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0021) e testado
 por `supabase/tests/database/` (pgTAP). **Nunca editar uma migration já commitada**: sempre criar uma nova.
 Situação: validado a cada push no job `banco` do CI (Supabase local e descartável: migrations do zero + pgTAP + integração da API). Projetos da nuvem aguardam a assinatura (`pendencias.md` P-022).
 
@@ -110,3 +110,4 @@ pública (migration 0015).
 | 0018 | `20261007090000_dominio_e_inativos.sql` | Só `@dommainc.com.br` fica ativo; solicitante inativo não lê mais nada (P-005, P-009) |
 | 0019 | `20261007120000_prazo_definido_pela_ti.sql` | Chamado nasce sem prazo; quem define é a TI (ADR 0009) |
 | 0020 | `20261007150000_views_quadro_e_encerrados.sql` | Views `chamados_quadro` e `chamados_encerrados` + índices (consultas leves com dados reais) |
+| 0021 | `20261008090000_automacoes_inatividade.sql` | Automações por tempo (`app.processar_inatividade`, pg_cron 5 min): 2 h úteis → aguardando usuário; 24 h úteis → aviso no chat. `mensagens.autor_id` nulo = mensagem do sistema (ADR 0011) |

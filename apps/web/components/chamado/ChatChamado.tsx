@@ -36,10 +36,13 @@ let sequenciaLocal = 0;
 export function ChatChamado({
   chamadoId,
   placeholder = "Escreva sua resposta...",
+  bloqueio,
 }: {
   chamadoId: number;
   /** TI: "Escreva para a Ana... (Ctrl+V cola prints)". */
   placeholder?: string;
+  /** Texto no lugar do campo de escrever (ex.: TI antes de iniciar o chamado). */
+  bloqueio?: string;
 }) {
   const fonte = useDados();
   const usuario = useUsuario();
@@ -179,6 +182,10 @@ export function ChatChamado({
               </Link>
             </p>
           </div>
+        ) : bloqueio ? (
+          <p className="border-t border-borda bg-fundo px-4 py-4 text-center font-semibold text-texto-suave">
+            {bloqueio}
+          </p>
         ) : (
           <CompositorMensagem aoEnviar={enviar} placeholder={placeholder} />
         )}

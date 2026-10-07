@@ -22,6 +22,7 @@ CodigoErro = Literal[
     "TRANSICAO_INVALIDA",
     "MOTIVO_OBRIGATORIO",
     "CANCELAMENTO_NAO_PERMITIDO",
+    "CHAMADO_NAO_INICIADO",
     "PRAZO_INVALIDO",
     "MENSAGEM_NAO_ENVIADA",
     "SEM_CONEXAO",
@@ -48,8 +49,9 @@ CATALOGO: dict[CodigoErro, str] = {
     "TRANSICAO_INVALIDA": "Não é possível mudar de {de} para {para}.",
     "MOTIVO_OBRIGATORIO": "Informe o motivo para continuar.",
     "CANCELAMENTO_NAO_PERMITIDO": (
-        "Esse chamado já está sendo atendido. Para cancelar, fale com a TI pelo chat."
+        "Quem cancela o chamado é a TI. Se não precisa mais, avise pelo chat."
     ),
+    "CHAMADO_NAO_INICIADO": "Inicie o chamado para conversar com o solicitante.",
     "PRAZO_INVALIDO": "Escolha uma data e hora no futuro para o prazo.",
     "MENSAGEM_NAO_ENVIADA": "Sua mensagem não foi enviada. Toque para tentar de novo.",
     "SEM_CONEXAO": "Sem conexão. As mensagens novas vão aparecer quando a conexão voltar.",
@@ -72,6 +74,7 @@ STATUS_HTTP: dict[CodigoErro, int] = {
     "MOTIVO_OBRIGATORIO": 422,
     "CANCELAMENTO_NAO_PERMITIDO": 409,
     "PRAZO_INVALIDO": 422,
+    "CHAMADO_NAO_INICIADO": 409,
     "MENSAGEM_NAO_ENVIADA": 503,
     "SEM_CONEXAO": 503,
     "ERRO_INESPERADO": 500,

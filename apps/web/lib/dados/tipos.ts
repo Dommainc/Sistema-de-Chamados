@@ -150,8 +150,6 @@ export interface FonteDeDados {
    * Resposta do solicitante em aguardando_usuario volta o chamado para em_andamento.
    */
   enviarMensagem(dados: NovaMensagem): Promise<Mensagem>;
-  /** POST /chamados/{id}/cancelar. Erros: MOTIVO_OBRIGATORIO, CANCELAMENTO_NAO_PERMITIDO... */
-  cancelarChamado(chamadoId: number, motivo: string): Promise<void>;
   /** Marca a conversa como lida por mim (tabela chamado_leituras). */
   marcarComoLido(chamadoId: number): Promise<void>;
   /** Números dos meus chamados com mensagem da TI ainda não lida ("• Nova mensagem"). */

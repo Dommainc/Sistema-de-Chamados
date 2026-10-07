@@ -65,8 +65,9 @@ Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
 | De | Para | Quem | Exige |
 |---|---|---|---|
 | pendente | em_andamento | TI (assumir) | responsável = quem assumiu |
-| pendente | cancelado | solicitante ou TI | motivo |
+| pendente | cancelado | TI | motivo |
 | em_andamento | aguardando_usuario | TI | — |
+| em_andamento | aguardando_usuario | **automático**: 2 h úteis sem resposta à mensagem da TI | — |
 | aguardando_usuario | em_andamento | solicitante responde no chat (automático) ou TI | — |
 | em_andamento, aguardando_usuario | transferido | TI | destino técnico + motivo |
 | em_andamento, aguardando_usuario, transferido | pendente | TI (devolver à fila) | motivo; limpa o responsável |
@@ -78,7 +79,10 @@ Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
 Não há confirmação, reabertura nem fechamento automático: se o problema voltar, o solicitante abre um novo chamado.
 **Prazo** (`docs/adr/0009`): o chamado nasce **sem prazo**; qualquer técnico define (data e hora) quando quiser e pode
 alterar **com motivo** (`POST /chamados/{id}/prazo`). O solicitante vê a previsão e o motivo. Nada é calculado pela categoria.
-Solicitante tentando cancelar fora de `pendente` → `CANCELAMENTO_NAO_PERMITIDO`.
+**Só a TI cancela**: solicitante tentando → `CANCELAMENTO_NAO_PERMITIDO` (`docs/adr/0011`).
+A TI só conversa com o solicitante depois de **Iniciar** (`pendente`/`transferido` → `CHAMADO_NAO_INICIADO`; o Relato técnico é livre).
+24 h úteis sem resposta à mensagem da TI → **aviso automático** no chat (uma vez). Automações: `app.processar_inatividade()` (pg_cron, 5 min).
+Na interface, "assumir" aparece como **Iniciar** (a ação interna continua `assumir`).
 Toda transição grava `historico` + `notificacoes` (pendente) na mesma transação.
 
 ### Erros do banco (SQLSTATE próprios → catálogo)

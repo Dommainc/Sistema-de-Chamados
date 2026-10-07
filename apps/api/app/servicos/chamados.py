@@ -311,6 +311,9 @@ async def enviar_mensagem(
         )
     if interna and eu.papel != "ti":
         raise ErroApp("SEM_PERMISSAO", detalhe="nota interna é só da TI")
+    # A TI só conversa com o solicitante depois de iniciar o chamado (o Relato técnico é livre).
+    if eu.papel == "ti" and not interna and chamado.status in ("pendente", "transferido"):
+        raise ErroApp("CHAMADO_NAO_INICIADO")
     texto = conteudo.strip()
     if not texto and not uploads:
         raise ErroApp(

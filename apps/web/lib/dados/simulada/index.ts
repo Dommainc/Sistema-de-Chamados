@@ -35,6 +35,7 @@ import { compararPrazo } from "@/lib/prazo";
 import { rotuloStatus } from "@/lib/status";
 import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from "./armazenamento";
 import { guardarArquivo, lerArquivo } from "./arquivos";
+import { processarInatividade } from "./inatividade";
 import { CAMPOS_FORM, CATEGORIAS } from "./exemplos";
 
 function categoriaAtiva(categoriaId: number): Categoria {
@@ -114,6 +115,9 @@ function semConexao(): boolean {
 
 export function criarFonteSimulada(usuarioId: string): FonteDeDados {
   function eu(): Perfil {
+    // Automações por tempo (no banco: pg_cron a cada 5 min — ADR 0011). Aqui, a cada leitura.
+    const comAutomacoes = processarInatividade(lerEstado(), new Date());
+    if (comAutomacoes) gravarEstado(comAutomacoes);
     const perfil = lerEstado().perfis.find((p) => p.id === usuarioId);
     if (!perfil || !perfil.ativo) throw new ErroApp("SEM_PERMISSAO");
     return perfil;
@@ -247,6 +251,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         (m) =>
           m.chamadoId === c.id &&
           m.autorId !== perfil.id &&
+          (m.autorId !== null || perfil.papel !== "ti") &&
           (perfil.papel === "ti" || !m.interna) &&
           m.criadoEm > lidoAte,
       ).length;
@@ -512,6 +517,14 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         });
       }
       if (dados.interna && perfil.papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+      // A TI só conversa com o solicitante depois de iniciar o chamado (o Relato técnico é livre).
+      if (
+        perfil.papel === "ti" &&
+        !dados.interna &&
+        (chamado.status === "pendente" || chamado.status === "transferido")
+      ) {
+        throw new ErroApp("CHAMADO_NAO_INICIADO");
+      }
       const conteudo = dados.conteudo.trim();
       if (!conteudo && dados.anexos.length === 0) {
         const mensagem = mensagemErro("CAMPO_OBRIGATORIO", { campo: "Mensagem" });
@@ -574,10 +587,6 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         { mensagens: [...atual.mensagens, mensagem], anexos: [...atual.anexos, ...anexos] },
       );
       return { ...mensagem };
-    },
-
-    async cancelarChamado(chamadoId: number, motivo: string) {
-      await executar(chamadoId, "cancelar", { motivo });
     },
 
     async marcarComoLido(chamadoId: number) {

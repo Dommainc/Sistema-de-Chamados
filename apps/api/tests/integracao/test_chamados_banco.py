@@ -136,7 +136,9 @@ def test_ciclo_completo_com_historico_e_notificacoes(cliente, ana, bruno, rafael
     assert recusada.json()["erro"]["codigo"] == "TRANSICAO_INVALIDA"
 
 
-def test_bruno_nao_mexe_no_chamado_da_ana_e_ana_nao_faz_acao_da_ti(cliente, ana, bruno, outros):
+def test_bruno_nao_mexe_no_chamado_da_ana_e_ana_nao_faz_acao_da_ti(
+    cliente, ana, bruno, rafael, outros
+):
     n = abrir(cliente, ana, outros)["id"]
     for auth, rota, corpo in [
         (bruno, "cancelar", {"motivo": "não é meu"}),
@@ -146,7 +148,16 @@ def test_bruno_nao_mexe_no_chamado_da_ana_e_ana_nao_faz_acao_da_ti(cliente, ana,
     ]:
         resposta = cliente.post(f"/chamados/{n}/{rota}", headers=auth, json=corpo)
         assert resposta.json()["erro"]["codigo"] == "SEM_PERMISSAO", rota
-    cancelado = cliente.post(f"/chamados/{n}/cancelar", headers=ana, json={"motivo": "resolvido"})
+    # Só a TI cancela (2026-10-07); a TI só conversa depois de iniciar.
+    pela_ana = cliente.post(f"/chamados/{n}/cancelar", headers=ana, json={"motivo": "resolvido"})
+    assert pela_ana.json()["erro"]["codigo"] == "CANCELAMENTO_NAO_PERMITIDO"
+    antes_de_iniciar = cliente.post(
+        f"/chamados/{n}/mensagens", headers=rafael, json={"conteudo": "Oi"}
+    )
+    assert antes_de_iniciar.json()["erro"]["codigo"] == "CHAMADO_NAO_INICIADO"
+    cancelado = cliente.post(
+        f"/chamados/{n}/cancelar", headers=rafael, json={"motivo": "resolvido"}
+    )
     assert cancelado.json()["status"] == "cancelado"
 
 

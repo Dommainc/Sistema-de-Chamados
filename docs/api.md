@@ -40,7 +40,8 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `SEM_PERMISSAO` | 403 | Ação de TI feita por solicitante; chamado de outra pessoa; perfil inativo |
 | `CHAMADO_NAO_ENCONTRADO` | 404 | Só para a TI. Para o solicitante, número inexistente também é `SEM_PERMISSAO` (não revela quais números existem) |
 | `TRANSICAO_INVALIDA` | 409 | Ação que não vale no status atual; chamado encerrado (nada muda depois de concluído/cancelado) |
-| `CANCELAMENTO_NAO_PERMITIDO` | 409 | Solicitante cancelando depois que a TI assumiu |
+| `CANCELAMENTO_NAO_PERMITIDO` | 409 | Solicitante tentando cancelar (só a TI cancela — ADR 0011) |
+| `CHAMADO_NAO_INICIADO` | 409 | TI mandando mensagem ao solicitante com o chamado em `pendente`/`transferido` (nota interna pode) |
 | `CAMPO_OBRIGATORIO` | 422 | Formulário incompleto; mensagem vazia; destino da transferência não é técnico ativo |
 | `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir, devolver ou alterar o prazo sem motivo |
 | `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |
@@ -100,7 +101,7 @@ aviso. Regras completas em [`docs/status.md`](status.md).
 | `POST /chamados/{id}/concluir` | TI | — | `concluido` (final; mesmo sem resposta do solicitante) |
 | `POST /chamados/{id}/transferir` | TI | `{"destino_id": "<uuid>", "motivo": "..."}` | `transferido`; o destino precisa assumir |
 | `POST /chamados/{id}/devolver` | TI | `{"motivo": "..."}` | `pendente`, sem responsável |
-| `POST /chamados/{id}/cancelar` | TI; solicitante só em `pendente` | `{"motivo": "..."}` | `cancelado` |
+| `POST /chamados/{id}/cancelar` | TI (solicitante → `CANCELAMENTO_NAO_PERMITIDO`) | `{"motivo": "..."}` | `cancelado` |
 
 O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no Relato técnico).
 
@@ -125,6 +126,8 @@ O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no 
 ```
 
 - `interna: true` = anotação do **Relato técnico** (só TI; solicitante → `SEM_PERMISSAO`). Não gera aviso.
+- TI mandando mensagem **não interna** antes de iniciar (`pendente`/`transferido`) → `CHAMADO_NAO_INICIADO`.
+- Automações por tempo (2 h úteis → `aguardando_usuario`; 24 h úteis → aviso no chat) rodam **no banco** (pg_cron), não na API — ADR 0011.
 - Resposta do solicitante com o chamado em `aguardando_usuario` → volta sozinho para `em_andamento` (histórico sem
   autor) e avisa o técnico responsável.
 - Texto vazio sem anexo → `CAMPO_OBRIGATORIO` (`conteudo`). Chamado encerrado → `TRANSICAO_INVALIDA`.

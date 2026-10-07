@@ -99,21 +99,26 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   await expect(historico.getByText("Concluído por Thiago Martins")).toBeVisible();
 });
 
-test("Ana cancela antes do atendimento e não consegue cancelar depois", async ({ page }) => {
+test("só a TI cancela; antes de iniciar, a TI não conversa com o solicitante", async ({
+  page,
+  context,
+}) => {
   await entrar(page, "Ana Souza");
   await page.goto("/meus-chamados/42");
+  await expect(page.getByRole("heading", { name: "Sem internet na obra Recreio" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cancelar chamado" })).toHaveCount(0);
+
+  await trocarPara(context, page, "Rafael Lima");
+  await page.goto("/atendimento/42");
+  await expect(page.getByText("Inicie o chamado para conversar com Ana.")).toBeVisible();
+  await expect(page.getByRole("textbox", { name: "Mensagem" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Mais ações" }).click();
   await page.getByRole("button", { name: "Cancelar chamado" }).click();
   const modal = page.getByRole("dialog");
-  await modal.getByRole("button", { name: "Cancelar chamado" }).click();
-  await expect(modal.getByText("Informe o motivo para continuar.")).toBeVisible();
   await modal.getByRole("textbox").fill("A internet voltou sozinha.");
   await modal.getByRole("button", { name: "Cancelar chamado" }).click();
   await expect(page.getByText("Chamado #42 cancelado.")).toBeVisible();
-  await expect(page.getByText("Este chamado foi encerrado.")).toBeVisible();
-
-  await page.goto("/meus-chamados/38"); // já em atendimento
-  await expect(page.getByRole("heading", { name: "Instalar AutoCAD no notebook" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Cancelar chamado" })).toHaveCount(0);
 });
 
 test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à Ana", async ({

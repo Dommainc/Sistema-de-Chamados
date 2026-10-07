@@ -133,6 +133,11 @@ export function AtendimentoChamado({ id }: { id: number }) {
             <ChatChamado
               chamadoId={chamado.id}
               placeholder={`Escreva para ${primeiroNome}... (Ctrl+V cola prints)`}
+              bloqueio={
+                chamado.status === "pendente" || chamado.status === "transferido"
+                  ? `Inicie o chamado para conversar com ${primeiroNome}.`
+                  : undefined
+              }
             />
           ) : (
             <RelatoTecnico chamadoId={chamado.id} />

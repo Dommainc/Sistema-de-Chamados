@@ -89,16 +89,13 @@ export function validarAcao(
   if (acao === "resposta_solicitante") {
     if (!ehDono) throw new ErroApp("SEM_PERMISSAO");
   } else if (acao === "cancelar") {
-    if (!ehTi && !ehDono) throw new ErroApp("SEM_PERMISSAO");
+    // Só a TI cancela (pedido do dono, 2026-10-07). O solicitante recebe a orientação do catálogo.
+    if (!ehTi) throw new ErroApp(ehDono ? "CANCELAMENTO_NAO_PERMITIDO" : "SEM_PERMISSAO");
   } else if (!ehTi) {
     throw new ErroApp("SEM_PERMISSAO");
   }
 
   if (estaEncerrado(de) || !ORIGENS[acao].includes(de)) {
-    // Solicitante cancelando depois que a TI começou: mensagem própria do catálogo.
-    if (acao === "cancelar" && !ehTi && !estaEncerrado(de)) {
-      throw new ErroApp("CANCELAMENTO_NAO_PERMITIDO");
-    }
     throw transicaoInvalida(de, para, ator.papel);
   }
 
@@ -123,7 +120,6 @@ export function validarAcao(
       return { para, responsavelId: null };
 
     case "cancelar":
-      if (!ehTi && de !== "pendente") throw new ErroApp("CANCELAMENTO_NAO_PERMITIDO");
       exigirMotivo(dados);
       return { para, responsavelId: chamado.responsavelId };
 

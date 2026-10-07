@@ -25,12 +25,15 @@ const CORES = {
     hora: "text-sobre-primaria/75",
   },
   outra: { balao: "bg-superficie text-texto", ponta: "bg-superficie", hora: "text-texto-suave" },
+  // Aviso automático da Central (ADR 0011): azul-claro, para não parecer mensagem de uma pessoa.
+  sistema: { balao: "bg-info-suave text-texto", ponta: "bg-info-suave", hora: "text-texto-suave" },
 } as const;
 
 /** Balão de mensagem. `inicioDeGrupo` = primeiro da sequência: ganha a pontinha e o nome. */
 export function Balao({
   conteudo,
   minha,
+  sistema = false,
   autor = null,
   hora,
   inicioDeGrupo = true,
@@ -39,6 +42,8 @@ export function Balao({
 }: {
   conteudo: string;
   minha: boolean;
+  /** Aviso automático da Central (sem autor). */
+  sistema?: boolean;
   autor?: string | null;
   /** Texto do canto do balão: "09:52" ou "Enviando...". */
   hora: string;
@@ -46,7 +51,7 @@ export function Balao({
   anexos?: Anexo[];
   esmaecido?: boolean;
 }) {
-  const cor = minha ? CORES.minha : CORES.outra;
+  const cor = sistema ? CORES.sistema : minha ? CORES.minha : CORES.outra;
   const lado = minha ? "self-end" : "self-start";
   const canto = inicioDeGrupo ? (minha ? "rounded-tr-sm" : "rounded-tl-sm") : "";
 
@@ -124,6 +129,7 @@ export function Conversa({ itens }: { itens: ItemConversa[] }) {
             <Balao
               conteudo={item.conteudo}
               minha={item.minha}
+              sistema={item.sistema}
               autor={item.autor}
               hora={item.hora}
               inicioDeGrupo={item.inicioDeGrupo}

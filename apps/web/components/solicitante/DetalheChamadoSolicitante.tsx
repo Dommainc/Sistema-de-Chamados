@@ -5,15 +5,12 @@ import Link from "next/link";
 import { useState } from "react";
 import { ChatChamado } from "@/components/chamado/ChatChamado";
 import { DetalhesPedido } from "@/components/chamado/DetalhesPedido";
-import { ModalCancelar } from "@/components/chamado/ModalCancelar";
 import { TelaMensagem } from "@/components/comum/TelaMensagem";
 import { useChamadoDetalhado } from "@/components/comum/useChamadoDetalhado";
 import { Aviso } from "@/components/ui/Aviso";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { BarraProgresso } from "@/components/ui/BarraProgresso";
 import type { PerfilPublico } from "@/lib/dados/tipos";
-import { useUsuario } from "@/lib/dados/provedor";
-import { acoesDisponiveis } from "@/lib/dominio/estados";
 import { estaEncerrado, type Chamado } from "@/lib/dominio/tipos";
 import { formatarNumeroChamado, formatarQuando } from "@/lib/formato";
 
@@ -24,14 +21,10 @@ import { formatarNumeroChamado, formatarQuando } from "@/lib/formato";
 function PainelChamado({
   chamado,
   responsavel,
-  podeCancelar,
-  aoCancelar,
   detalhesSempreAbertos,
 }: {
   chamado: Chamado;
   responsavel: PerfilPublico | null;
-  podeCancelar: boolean;
-  aoCancelar: () => void;
   detalhesSempreAbertos: boolean;
 }) {
   const [detalhesAbertos, setDetalhesAbertos] = useState(false);
@@ -94,25 +87,13 @@ function PainelChamado({
           Motivo do cancelamento: {chamado.motivoCancelamento}
         </p>
       ) : null}
-
-      {podeCancelar ? (
-        <button
-          type="button"
-          onClick={aoCancelar}
-          className="inline-flex min-h-11 items-center self-start font-semibold text-perigo"
-        >
-          Cancelar chamado
-        </button>
-      ) : null}
     </div>
   );
 }
 
 /** /meus-chamados/[id] — o chat é o centro da tela (mockup, tela 5). */
 export function DetalheChamadoSolicitante({ id }: { id: number }) {
-  const usuario = useUsuario();
   const { dados, erro, carregando } = useChamadoDetalhado(id);
-  const [cancelando, setCancelando] = useState(false);
 
   if (carregando) return <p className="p-6 text-texto-suave">Carregando...</p>;
   if (erro || !dados) {
@@ -129,8 +110,6 @@ export function DetalheChamadoSolicitante({ id }: { id: number }) {
   const painel = {
     chamado,
     responsavel,
-    podeCancelar: acoesDisponiveis(chamado, usuario).includes("cancelar"),
-    aoCancelar: () => setCancelando(true),
   };
 
   return (
@@ -168,12 +147,6 @@ export function DetalheChamadoSolicitante({ id }: { id: number }) {
           <PainelChamado {...painel} detalhesSempreAbertos />
         </aside>
       </div>
-
-      <ModalCancelar
-        chamadoId={chamado.id}
-        aberto={cancelando}
-        aoFechar={() => setCancelando(false)}
-      />
     </div>
   );
 }

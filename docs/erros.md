@@ -21,7 +21,8 @@ Formato da API:
 | `CHAMADO_NAO_ENCONTRADO` | Número inexistente (só para a TI) | Não encontramos o chamado **#{numero}**. Confira o número e tente de novo. | Tela inteira |
 | `TRANSICAO_INVALIDA` | Mudança de status não permitida (ou chamado encerrado) | Não é possível mudar de **{de}** para **{para}**. | Aviso |
 | `MOTIVO_OBRIGATORIO` | Cancelar/transferir/devolver sem motivo | Informe o motivo para continuar. | Embaixo do campo do motivo |
-| `CANCELAMENTO_NAO_PERMITIDO` | Solicitante cancelando depois do início do atendimento | Esse chamado já está sendo atendido. Para cancelar, fale com a TI pelo chat. | Aviso |
+| `CANCELAMENTO_NAO_PERMITIDO` | Solicitante tentando cancelar (só a TI cancela — ADR 0011) | Quem cancela o chamado é a TI. Se não precisa mais, avise pelo chat. | Aviso |
+| `CHAMADO_NAO_INICIADO` | TI escrevendo ao solicitante antes de iniciar (ADR 0011) | Inicie o chamado para conversar com o solicitante. | Aviso (a tela já trava o campo) |
 | `PRAZO_INVALIDO` | Técnico escolhe prazo no passado ou a mais de 1 ano (ADR 0009) | Escolha uma data e hora no futuro para o prazo. | Abaixo do campo |
 | `MENSAGEM_NAO_ENVIADA` | Falha ao enviar mensagem | Sua mensagem não foi enviada. Toque para tentar de novo. *(o texto é mantido)* | No próprio balão |
 | `SEM_CONEXAO` | Sem internet / tempo real caiu | Sem conexão. As mensagens novas vão aparecer quando a conexão voltar. | Faixa no chat |

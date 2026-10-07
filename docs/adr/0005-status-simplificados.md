@@ -30,6 +30,10 @@ Regras decididas pelo dono do projeto:
 
 A tabela de transições oficial está no `CLAUDE.md`.
 
+> **Atualizado pelo [ADR 0011](0011-regras-de-atendimento-e-automacoes.md) (2026-10-07):** só a TI cancela; a TI só
+> conversa depois de iniciar; volta um job agendado, para as automações por tempo (2 h úteis → aguardando usuário;
+> 24 h úteis → aviso no chat). Nada é encerrado automaticamente.
+
 ## Motivos
 - Menos status = mais fácil para quem abre e para quem atende entender em que pé está o pedido.
 - Sem etapa de confirmação, o técnico controla o encerramento e não depende de job agendado.

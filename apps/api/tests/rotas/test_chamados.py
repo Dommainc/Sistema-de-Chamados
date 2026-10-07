@@ -242,7 +242,7 @@ def test_concluir_mesmo_aguardando_e_depois_nao_aceita_mais_nada(cliente, como):
 
 
 def test_acoes_disponiveis(cliente, como):
-    assert cliente.get("/chamados/42/acoes", headers=como(ANA)).json() == {"acoes": ["cancelar"]}
+    assert cliente.get("/chamados/42/acoes", headers=como(ANA)).json() == {"acoes": []}
     assert set(cliente.get("/chamados/41/acoes", headers=como(RAFAEL)).json()["acoes"]) == {
         "retomar",
         "transferir",
@@ -298,15 +298,28 @@ def test_ti_com_numero_inexistente_recebe_nao_encontrado(cliente, como):
     assert "#9999" in resposta.json()["erro"]["mensagem"]
 
 
-def test_solicitante_cancela_so_antes_do_atendimento(cliente, como):
-    depois = cliente.post(
-        "/chamados/41/cancelar", headers=como(ANA), json={"motivo": "não preciso"}
+def test_solicitante_nao_cancela_so_a_ti(cliente, como, estado):
+    for numero in (41, 42):
+        resposta = cliente.post(
+            f"/chamados/{numero}/cancelar", headers=como(ANA), json={"motivo": "não preciso"}
+        )
+        assert codigo(resposta) == "CANCELAMENTO_NAO_PERMITIDO"
+    assert estado.chamados[42].status == "pendente"
+    ti = cliente.post("/chamados/42/cancelar", headers=como(RAFAEL), json={"motivo": "duplicado"})
+    assert ti.json()["status"] == "cancelado"
+
+
+def test_ti_so_conversa_depois_de_iniciar(cliente, como, estado):
+    antes = cliente.post("/chamados/42/mensagens", headers=como(RAFAEL), json={"conteudo": "Oi"})
+    assert antes.status_code == 409
+    assert codigo(antes) == "CHAMADO_NAO_INICIADO"
+    nota = cliente.post(
+        "/chamados/42/mensagens", headers=como(RAFAEL), json={"conteudo": "nota", "interna": True}
     )
-    assert codigo(depois) == "CANCELAMENTO_NAO_PERMITIDO"
-    antes = cliente.post(
-        "/chamados/42/cancelar", headers=como(ANA), json={"motivo": "voltou sozinho"}
-    )
-    assert antes.json()["status"] == "cancelado"
+    assert nota.status_code == 201  # o Relato técnico é livre
+    cliente.post("/chamados/42/assumir", headers=como(RAFAEL))
+    depois = cliente.post("/chamados/42/mensagens", headers=como(RAFAEL), json={"conteudo": "Oi"})
+    assert depois.status_code == 201
 
 
 def test_perfil_inativo_e_barrado(cliente, como):

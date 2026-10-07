@@ -115,15 +115,13 @@ def validar_acao(
         if not eh_dono:
             raise ErroApp("SEM_PERMISSAO")
     elif acao == "cancelar":
-        if not eh_ti and not eh_dono:
-            raise ErroApp("SEM_PERMISSAO")
+        # Só a TI cancela (pedido do dono, 2026-10-07). O solicitante recebe a orientação do catálogo.
+        if not eh_ti:
+            raise ErroApp("CANCELAMENTO_NAO_PERMITIDO" if eh_dono else "SEM_PERMISSAO")
     elif not eh_ti:
         raise ErroApp("SEM_PERMISSAO")
 
     if esta_encerrado(de) or de not in ORIGENS[acao]:
-        # Solicitante cancelando depois que a TI começou: mensagem própria do catálogo.
-        if acao == "cancelar" and not eh_ti and not esta_encerrado(de):
-            raise ErroApp("CANCELAMENTO_NAO_PERMITIDO")
         raise _transicao_invalida(de, para, ator.papel)
 
     if acao == "assumir":
@@ -146,8 +144,6 @@ def validar_acao(
         return ResultadoTransicao(para, None)
 
     if acao == "cancelar":
-        if not eh_ti and de != "pendente":
-            raise ErroApp("CANCELAMENTO_NAO_PERMITIDO")
         _exigir_motivo(dados)
 
     return ResultadoTransicao(para, chamado.responsavel_id)

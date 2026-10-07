@@ -39,9 +39,11 @@ describe("tabela de transições (CLAUDE.md)", () => {
     });
   });
 
-  it("pendente → cancelado: solicitante ou TI, com motivo", () => {
-    expect(validarAcao(chamado("pendente"), "cancelar", SOL, MOTIVO).para).toBe("cancelado");
+  it("pendente → cancelado: só a TI, com motivo (o solicitante recebe a orientação)", () => {
     expect(validarAcao(chamado("pendente"), "cancelar", TEC, MOTIVO).para).toBe("cancelado");
+    expect(codigoDoErro(() => validarAcao(chamado("pendente"), "cancelar", SOL, MOTIVO))).toBe(
+      "CANCELAMENTO_NAO_PERMITIDO",
+    );
   });
 
   it("em_andamento → aguardando_usuario: TI", () => {
@@ -113,7 +115,7 @@ describe("tabela de transições (CLAUDE.md)", () => {
 describe("regras de exigência", () => {
   it("cancelar, transferir e devolver sem motivo → MOTIVO_OBRIGATORIO", () => {
     expect(
-      codigoDoErro(() => validarAcao(chamado("pendente"), "cancelar", SOL, { motivo: " " })),
+      codigoDoErro(() => validarAcao(chamado("pendente"), "cancelar", TEC, { motivo: " " })),
     ).toBe("MOTIVO_OBRIGATORIO");
     expect(
       codigoDoErro(() =>
@@ -185,9 +187,8 @@ describe("regras de exigência", () => {
 });
 
 describe("acoesDisponiveis", () => {
-  it("solicitante só vê Cancelar, e só em pendente", () => {
-    expect(acoesDisponiveis(chamado("pendente"), SOL)).toEqual(["cancelar"]);
-    for (const de of STATUS.filter((s) => s !== "pendente")) {
+  it("solicitante não tem botões de ação (nem Cancelar)", () => {
+    for (const de of STATUS) {
       expect(acoesDisponiveis(chamado(de, TEC.id), SOL)).toEqual([]);
     }
   });

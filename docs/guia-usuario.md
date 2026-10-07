@@ -40,8 +40,10 @@ assim que você responder, o atendimento volta a andar.
 ![Conversa do chamado](guia/img/computador-06-chamado-solicitante.png)
 
 - **Sem internet?** Aparece um aviso. Sua mensagem não se perde: toque nela para enviar de novo.
-- **Mudou de ideia?** Enquanto o chamado estiver **Recebido** (antes de um técnico assumir), use
-  **Cancelar chamado** e diga o motivo. Depois disso, peça o cancelamento pela conversa.
+- **Mudou de ideia ou o problema se resolveu?** Avise pela conversa — quem cancela o chamado é a TI.
+- **Respondeu e a TI pediu algo?** Se você ficar 2 horas (de expediente) sem responder, o chamado fica como
+  **Aguardando sua resposta**; depois de 24 horas, a Central manda um lembrete no chat. É só responder que o
+  atendimento continua.
 - **Concluído e o problema voltou?** Toque em **Abrir novo pedido** — ele já vem com o número do anterior.
 
 ---
@@ -77,7 +79,10 @@ mostra o **status**.
 
 ![Tela de atendimento](guia/img/computador-08-atendimento.png)
 
-- A aba **Conversa com …** é só para falar com o solicitante: tudo o que você escreve ali, ele recebe.
+- A aba **Conversa com …** é só para falar com o solicitante: tudo o que você escreve ali, ele recebe. Ela fica
+  **travada até você clicar em Iniciar** (o Relato técnico fica liberado).
+- Depois que você responde, se o solicitante ficar **2 horas úteis** sem responder, o chamado vai sozinho para
+  **Aguardando usuário**; com **24 horas úteis**, a Central manda um lembrete automático para ele. Quem conclui é você.
 - A aba **Relato técnico** é o diário da TI (**o solicitante não vê**): anote o que foi verificado e o que foi
   feito, cole prints com Ctrl+V. As transferências e devoluções à fila aparecem ali com o motivo. As anotações
   não podem ser editadas nem apagadas.

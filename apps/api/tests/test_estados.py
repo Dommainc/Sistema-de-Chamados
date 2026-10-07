@@ -42,9 +42,13 @@ def test_pendente_para_em_andamento_ti_assume_e_vira_responsavel():
     assert (r.para, r.responsavel_id) == ("em_andamento", TEC.id)
 
 
-def test_pendente_para_cancelado_solicitante_ou_ti_com_motivo():
-    assert validar_acao(chamado("pendente"), "cancelar", SOL, MOTIVO).para == "cancelado"
+def test_so_a_ti_cancela_e_o_solicitante_recebe_a_orientacao():
+    """Pedido do dono (2026-10-07): o solicitante não cancela mais, nem em pendente."""
     assert validar_acao(chamado("pendente"), "cancelar", TEC, MOTIVO).para == "cancelado"
+    assert (
+        codigo(lambda: validar_acao(chamado("pendente"), "cancelar", SOL, MOTIVO))
+        == "CANCELAMENTO_NAO_PERMITIDO"
+    )
 
 
 def test_em_andamento_para_aguardando_usuario():
@@ -103,7 +107,7 @@ def test_encerrados_sao_finais(de):
 # --------------------------------------------------------------------------- regras de exigência
 def test_sem_motivo():
     assert (
-        codigo(lambda: validar_acao(chamado("pendente"), "cancelar", SOL, DadosAcao(motivo=" ")))
+        codigo(lambda: validar_acao(chamado("pendente"), "cancelar", TEC, DadosAcao(motivo=" ")))
         == "MOTIVO_OBRIGATORIO"
     )
     sem_motivo = DadosAcao(destino_id=TEC2.id)
@@ -163,11 +167,9 @@ def test_mensagem_de_transicao_invalida_usa_rotulos_do_perfil():
 
 
 # ----------------------------------------------------------------------------- acoes_disponiveis
-def test_solicitante_so_cancela_e_so_em_pendente():
-    assert acoes_disponiveis(chamado("pendente"), SOL) == ["cancelar"]
+def test_solicitante_nao_tem_botoes_de_acao():
     for status in STATUS:
-        if status != "pendente":
-            assert acoes_disponiveis(chamado(status, TEC.id), SOL) == []
+        assert acoes_disponiveis(chamado(status, TEC.id), SOL) == []
 
 
 def test_ti_em_aguardando_usuario():
