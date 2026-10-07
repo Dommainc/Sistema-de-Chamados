@@ -3,16 +3,19 @@
 // a máquina de estados e as validações. Toda falha sai como ErroApp do catálogo.
 
 import { validarArquivo } from "@/lib/anexos";
-import type {
-  ArquivoNovo,
-  ChamadoCriado,
-  Contadores,
-  DadosNovoChamado,
-  DadosPrimeiroAcesso,
-  FiltroChamados,
-  FonteDeDados,
-  NovaMensagem,
-  PerfilPublico,
+import {
+  ENCERRADOS_POR_PAGINA,
+  type ArquivoNovo,
+  type ChamadoCriado,
+  type ChamadoQuadro,
+  type Contadores,
+  type DadosNovoChamado,
+  type DadosPrimeiroAcesso,
+  type FiltroChamados,
+  type FonteDeDados,
+  type NovaMensagem,
+  type PaginaEncerrados,
+  type PerfilPublico,
 } from "@/lib/dados/tipos";
 import { validarAcao, type AcaoChamado, type DadosAcao } from "@/lib/dominio/estados";
 import { validarFormulario } from "@/lib/dominio/formulario";
@@ -413,6 +416,41 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         lista = lista.filter((c) => estaEncerrado(c.status) === filtro.encerrados);
       }
       return ordenarRecentes(lista);
+    },
+
+    async listarQuadro(): Promise<ChamadoQuadro[]> {
+      const perfil = eu();
+      const { historico } = lerEstado();
+      const limite = Date.now() - 7 * 86_400_000;
+      const naoLidas = contagemNaoLidas();
+      return visiveis()
+        .filter(
+          (c) =>
+            !estaEncerrado(c.status) ||
+            new Date(c.concluidoEm ?? c.canceladoEm ?? c.atualizadoEm).getTime() >= limite,
+        )
+        .map((c) => ({
+          ...c,
+          // Como no banco: o motivo/autor da transferência só aparece para a TI (historico.publico = false).
+          transferidoPorId:
+            perfil.papel === "ti"
+              ? (historico.filter((h) => h.chamadoId === c.id && h.acao === "transferido").at(-1)
+                  ?.autorId ?? null)
+              : null,
+          naoLidas: naoLidas[c.id] ?? 0,
+        }));
+    },
+
+    async listarEncerrados(pagina: number): Promise<PaginaEncerrados> {
+      const encerrado = (c: Chamado) => c.concluidoEm ?? c.canceladoEm ?? c.atualizadoEm;
+      const todos = visiveis()
+        .filter((c) => estaEncerrado(c.status))
+        .sort((a, b) => encerrado(b).localeCompare(encerrado(a)));
+      const inicio = (Math.max(1, pagina) - 1) * ENCERRADOS_POR_PAGINA;
+      return {
+        itens: todos.slice(inicio, inicio + ENCERRADOS_POR_PAGINA).map((c) => ({ ...c })),
+        total: todos.length,
+      };
     },
 
     async obterChamado(id: number) {

@@ -75,6 +75,24 @@ export interface DadosNovoChamado {
   anexos: ArquivoNovo[];
 }
 
+/** Linha do quadro da TI (view `chamados_quadro`, migration 0020): o chamado + o que o cartão precisa. */
+export interface ChamadoQuadro extends Chamado {
+  /** Quem fez a última transferência (selo "por Thiago"); null se nunca foi transferido. */
+  transferidoPorId: string | null;
+  /** Mensagens de outras pessoas que EU ainda não li. */
+  naoLidas: number;
+}
+
+/** Uma página de "Ver encerrados" (view `chamados_encerrados`). */
+export interface PaginaEncerrados {
+  itens: Chamado[];
+  /** Total de encerrados (para "Mostrando 1–20 de 57"). */
+  total: number;
+}
+
+/** Quantos encerrados por página. */
+export const ENCERRADOS_POR_PAGINA = 20;
+
 export interface ChamadoCriado {
   id: number;
 }
@@ -107,6 +125,13 @@ export interface FonteDeDados {
   criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado>;
 
   listarChamados(filtro: FiltroChamados): Promise<Chamado[]>;
+  /**
+   * Quadro da TI numa consulta só (view `chamados_quadro`): abertos + encerrados dos últimos 7 dias,
+   * já com quem transferiu e quantas mensagens eu não li.
+   */
+  listarQuadro(): Promise<ChamadoQuadro[]>;
+  /** "Ver encerrados", do mais recente ao mais antigo, paginado (página começa em 1). */
+  listarEncerrados(pagina: number): Promise<PaginaEncerrados>;
   /** SEM_PERMISSAO se não puder ver; CHAMADO_NAO_ENCONTRADO só para a TI. */
   obterChamado(id: number): Promise<Chamado>;
   obterContadores(): Promise<Contadores>;

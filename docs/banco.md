@@ -1,6 +1,6 @@
 # Banco de dados
 
-Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0019) e testado
+Postgres no Supabase (`sa-east-1`). Tudo é criado pelas migrations em `supabase/migrations/` (0001–0020) e testado
 por `supabase/tests/database/` (pgTAP). **Nunca editar uma migration já commitada**: sempre criar uma nova.
 Situação: validado a cada push no job `banco` do CI (Supabase local e descartável: migrations do zero + pgTAP + integração da API). Projetos da nuvem aguardam a assinatura (`pendencias.md` P-022).
 
@@ -43,6 +43,8 @@ erDiagram
 |---|---|---|
 | `profiles` | Nome, e-mail, departamento, telefone, papel (`solicitante`/`ti`), `ativo` | Criado sozinho no 1º login — **ativo só se o e-mail for `@dommainc.com.br`** (`configuracoes.dominios_permitidos`, migration 0018). Inativo não lê nem faz nada. O usuário só edita departamento e telefone; o papel vem do Entra |
 | `perfis_publicos` (view) | Só nome, departamento, papel e ativo de todos | Para mostrar o nome do técnico/solicitante sem expor contato |
+| `chamados_quadro` (view) | Quadro da TI: abertos + encerrados dos últimos 7 dias, com `transferido_por` e `nao_lidas` (do usuário logado) | `security_invoker`: o RLS de quem consulta vale dentro dela. Uma consulta em vez de uma por chamado |
+| `chamados_encerrados` (view) | Concluídos e cancelados com `encerrado_em` | Para paginar "Ver encerrados" (`order=encerrado_em.desc` + Range) |
 
 ### Chamados
 | Tabela | O que guarda | Pontos importantes |
@@ -107,3 +109,4 @@ pública (migration 0015).
 | 0017 | `20261005180000_chamado_leituras.sql` | Leitura da conversa (selo "Nova mensagem") |
 | 0018 | `20261007090000_dominio_e_inativos.sql` | Só `@dommainc.com.br` fica ativo; solicitante inativo não lê mais nada (P-005, P-009) |
 | 0019 | `20261007120000_prazo_definido_pela_ti.sql` | Chamado nasce sem prazo; quem define é a TI (ADR 0009) |
+| 0020 | `20261007150000_views_quadro_e_encerrados.sql` | Views `chamados_quadro` e `chamados_encerrados` + índices (consultas leves com dados reais) |

@@ -70,23 +70,20 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const [arrastado, setArrastado] = useState<number | null>(null);
 
   const consultar = useCallback(async (f: FonteDeDados) => {
-    const [chamados, categorias, perfis, naoLidas, proximo] = await Promise.all([
-      f.listarChamados({ escopo: "todos" }),
+    // Uma consulta para os cartões (view chamados_quadro: já traz "quem transferiu" e "não lidas").
+    const [chamados, categorias, perfis, proximo] = await Promise.all([
+      f.listarQuadro(),
       f.listarCategorias(),
       f.listarPerfisPublicos(),
-      f.contarNaoLidas(),
       f.proximoDaFila(),
     ]);
-    // Quem transferiu cada chamado transferido (selo "por Thiago").
-    const transferidos = chamados.filter((c) => c.status === "transferido");
-    const historicos = await Promise.all(transferidos.map((c) => f.listarHistorico(c.id)));
-    const transferidoPor = new Map(
-      transferidos.map((c, i) => [
-        c.id,
-        historicos[i].filter((h) => h.acao === "transferido").at(-1)?.autorId ?? null,
-      ]),
-    );
-    return { chamados, categorias, perfis, naoLidas, proximo, transferidoPor };
+    return {
+      chamados,
+      categorias,
+      perfis,
+      proximo,
+      extras: new Map(chamados.map((c) => [c.id, c])),
+    };
   }, []);
   const { dados, erro, carregando } = useConsulta(consultar);
 
@@ -119,14 +116,14 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   quadro.novos = ordenarNovos(quadro.novos, usuario.id, agora);
   const cartoes = (coluna: IdColuna): DadosCartao[] =>
     quadro[coluna].map((c) => {
-      const autorTransferencia = dados.transferidoPor.get(c.id);
+      const autorTransferencia = dados.extras.get(c.id)?.transferidoPorId;
       return {
         chamado: c,
         coluna,
         solicitante: perfil.get(c.solicitanteId),
         responsavel: c.responsavelId ? perfil.get(c.responsavelId) : undefined,
         assunto: categoria.get(c.categoriaId)?.nomeCurto ?? "—",
-        naoLidas: dados.naoLidas[c.id] ?? 0,
+        naoLidas: dados.extras.get(c.id)?.naoLidas ?? 0,
         transferidoPor: autorTransferencia ? perfil.get(autorTransferencia) : undefined,
       };
     });

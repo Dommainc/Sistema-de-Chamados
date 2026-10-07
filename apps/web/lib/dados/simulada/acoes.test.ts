@@ -183,3 +183,40 @@ describe("perfil completo (contato)", () => {
     expect((await criarFonteSimulada(ANA.id).obterPerfilCompleto(ANA.id)).id).toBe(ANA.id);
   });
 });
+
+describe("consultas do quadro e dos encerrados (views da migration 0020)", () => {
+  it("quadro: uma consulta com abertos + encerrados recentes, quem transferiu e não lidas", async () => {
+    const quadro = await criarFonteSimulada(RAFAEL.id).listarQuadro();
+    const porId = new Map(quadro.map((c) => [c.id, c]));
+    expect(porId.get(39)?.transferidoPorId).toBe(THIAGO.id); // #39 foi transferido pelo Thiago
+    expect(porId.get(31)?.naoLidas).toBe(1); // mensagem do Thiago no #31 que o Rafael não leu
+    expect(quadro.every((c) => c.status !== "cancelado" || c.id === 32)).toBe(true);
+  });
+
+  it("solicitante não vê quem transferiu (motivo/autor da transferência é só da TI)", async () => {
+    const quadro = await criarFonteSimulada(ANA.id).listarQuadro();
+    expect(quadro.every((c) => c.solicitanteId === ANA.id)).toBe(true);
+    expect(quadro.every((c) => c.transferidoPorId === null)).toBe(true);
+  });
+
+  it("encerrados vêm paginados, do mais recente ao mais antigo", async () => {
+    const estado = lerEstado();
+    const base = estado.chamados.find((c) => c.status === "concluido")!;
+    const extras = Array.from({ length: 25 }, (_, i) => ({
+      ...base,
+      id: 100 + i,
+      titulo: `Antigo ${i}`,
+      concluidoEm: new Date(Date.UTC(2026, 0, 1 + i)).toISOString(),
+    }));
+    gravarEstado({ ...estado, chamados: [...estado.chamados, ...extras] });
+
+    const fonte = criarFonteSimulada(RAFAEL.id);
+    const primeira = await fonte.listarEncerrados(1);
+    const segunda = await fonte.listarEncerrados(2);
+    expect(primeira.itens).toHaveLength(20);
+    expect(primeira.total).toBe(segunda.total);
+    expect(primeira.itens.length + segunda.itens.length).toBe(primeira.total);
+    const datas = [...primeira.itens, ...segunda.itens].map((c) => c.concluidoEm ?? c.canceladoEm!);
+    expect(datas).toEqual([...datas].sort().reverse());
+  });
+});

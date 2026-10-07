@@ -1,30 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
+import { Botao } from "@/components/ui/Botao";
 import { NumeroTicket } from "@/components/ui/NumeroTicket";
 import { useConsulta } from "@/lib/dados/provedor";
-import type { FonteDeDados } from "@/lib/dados/tipos";
+import { ENCERRADOS_POR_PAGINA, type FonteDeDados } from "@/lib/dados/tipos";
 import { formatarAtualizacao } from "@/lib/formato";
 
 /**
  * "Ver encerrados": concluídos e cancelados, mais recentes primeiro, só para consulta.
  * Mesmo visual dos cartões do quadro (a área técnica não tem modo lista).
+ * Paginado (20 por página, view chamados_encerrados): com meses de uso seriam centenas de chamados.
  */
 export function ChamadosEncerrados() {
-  const consultar = useCallback(async (f: FonteDeDados) => {
-    const [chamados, categorias, perfis] = await Promise.all([
-      f.listarChamados({ escopo: "todos", encerrados: true }),
-      f.listarCategorias(),
-      f.listarPerfisPublicos(),
-    ]);
-    return {
-      chamados,
-      categoria: new Map(categorias.map((c) => [c.id, c])),
-      perfil: new Map(perfis.map((p) => [p.id, p])),
-    };
-  }, []);
+  const [pagina, setPagina] = useState(1);
+  const consultar = useCallback(
+    async (f: FonteDeDados) => {
+      const [encerrados, categorias, perfis] = await Promise.all([
+        f.listarEncerrados(pagina),
+        f.listarCategorias(),
+        f.listarPerfisPublicos(),
+      ]);
+      return {
+        chamados: encerrados.itens,
+        total: encerrados.total,
+        categoria: new Map(categorias.map((c) => [c.id, c])),
+        perfil: new Map(perfis.map((p) => [p.id, p])),
+      };
+    },
+    [pagina],
+  );
   const { dados, erro, carregando } = useConsulta(consultar);
 
   if (carregando) return <p className="text-texto-suave">Carregando...</p>;
@@ -34,8 +41,7 @@ export function ChamadosEncerrados() {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h1 className="text-2xl font-bold">
-          Chamados encerrados{" "}
-          <span className="font-semibold text-texto-suave">{dados.chamados.length}</span>
+          Chamados encerrados <span className="font-semibold text-texto-suave">{dados.total}</span>
         </h1>
         <Link
           href="/atendimento"
@@ -81,6 +87,34 @@ export function ChamadosEncerrados() {
           })}
         </ul>
       )}
+
+      {dados.total > ENCERRADOS_POR_PAGINA ? (
+        <nav
+          aria-label="Páginas dos encerrados"
+          className="flex flex-wrap items-center justify-between gap-3 border-t border-borda pt-4"
+        >
+          <p className="text-sm text-texto-suave">
+            Mostrando {(pagina - 1) * ENCERRADOS_POR_PAGINA + 1}–
+            {Math.min(pagina * ENCERRADOS_POR_PAGINA, dados.total)} de {dados.total}
+          </p>
+          <div className="flex gap-2">
+            <Botao
+              variante="contorno"
+              disabled={pagina === 1}
+              onClick={() => setPagina((p) => p - 1)}
+            >
+              ← Anteriores
+            </Botao>
+            <Botao
+              variante="contorno"
+              disabled={pagina * ENCERRADOS_POR_PAGINA >= dados.total}
+              onClick={() => setPagina((p) => p + 1)}
+            >
+              Próximos →
+            </Botao>
+          </div>
+        </nav>
+      ) : null}
     </div>
   );
 }
