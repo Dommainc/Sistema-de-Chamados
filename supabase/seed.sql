@@ -38,6 +38,8 @@ cross join (values
   ('Microsoft',                         'Microsoft',                'grid-2x2',     'E-mail, Outlook, Teams, Word, Excel e OneDrive',       4, 30),
   ('Computador ou notebook',            'Computador ou notebook',   'laptop',       'Lento, travando, não liga ou com defeito',             8, 50),
   ('Impressora / scanner',              'Impressora / scanner',     'printer',      'Não imprime, papel preso, scanner',                    8, 60),
+  -- Infraestrutura: câmeras e cabeamento (pedido do dono, 2026-10-07).
+  ('Infraestrutura',                    'Infraestrutura',           'cctv',         'Câmeras, cabeamento e pontos de rede',                 8, 65),
   ('Celular corporativo',               'Celular corporativo',      'smartphone',   'Configuração, defeito ou troca',                       8, 70),
   ('Sistemas da empresa',               'Sistemas da empresa',      'app-window',  'Erro ou dúvida em sistemas internos',                  8, 80),
   ('Instalação de software',            'Instalar programa',        'download',     'Instalar ou atualizar um programa',                   16, 90),
@@ -78,6 +80,11 @@ join (values
 
   ('Computador ou notebook', 'patrimonio', 'Número de patrimônio', 'texto', false,
      '[]', 'Etiqueta colada no equipamento, se houver', 10),
+
+  ('Infraestrutura', 'item', 'O que é?', 'selecao', true,
+     '["Câmeras","Cabeamento / ponto de rede"]', null, 10),
+  ('Infraestrutura', 'local', 'Onde fica?', 'texto', true,
+     '[]', 'Ex.: escritório central, obra X, portaria', 20),
 
   ('Impressora / scanner', 'local', 'Onde fica a impressora?', 'texto', true,
      '[]', 'Ex.: 3º andar, sala do financeiro', 10),

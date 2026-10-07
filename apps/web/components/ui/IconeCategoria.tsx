@@ -1,5 +1,6 @@
 import {
   AppWindow,
+  Cctv,
   Download,
   Ellipsis,
   Grid2x2,
@@ -29,6 +30,7 @@ const ICONES: Record<string, LucideIcon> = {
   "layout-grid": LayoutGrid,
   "grid-2x2": Grid2x2,
   "app-window": AppWindow,
+  cctv: Cctv,
   download: Download,
   "user-plus": UserPlus,
   "user-minus": UserMinus,

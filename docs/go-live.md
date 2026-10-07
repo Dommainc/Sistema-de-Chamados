@@ -29,12 +29,12 @@ supabase db push            # aplica as 18 migrations
   `.github/workflows/migrations.yml` (passo 9).
 
 ## 3. Dados iniciais (P-014)
-O `db push` **não roda seed**. O `supabase/seed.sql` (área TI, 12 categorias, formulários, feriados até 2027,
+O `db push` **não roda seed**. O `supabase/seed.sql` (área TI, 13 categorias, formulários, feriados até 2027,
 configurações) foi escrito para poder rodar mais de uma vez (`on conflict do nothing`):
 ```bash
 psql "<connection string do projeto, usuário postgres>" -f supabase/seed.sql
 ```
-- [ ] Conferir: `select count(*) from public.categorias;` → 12.
+- [ ] Conferir: `select count(*) from public.categorias;` → 13.
 - [ ] **Nunca** rodar o `seed.dev.sql` na nuvem (usuários de teste com senha conhecida).
 - [ ] Conferir: `select valor from public.configuracoes where chave = 'dominios_permitidos';` → `["dommainc.com.br"]`
   (sem `teste.local`).

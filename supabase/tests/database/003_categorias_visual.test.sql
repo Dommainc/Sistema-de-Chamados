@@ -4,7 +4,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(7);
+select plan(8);
 
 select has_column('public', 'categorias', 'nome_curto', 'Categoria tem nome curto');
 select has_column('public', 'categorias', 'icone', 'Categoria tem ícone');
@@ -35,6 +35,13 @@ select is(
     where c.nome = 'Microsoft' and f.chave = 'programa'),
   'selecao',
   'Microsoft pergunta "Qual programa?"'
+);
+
+select is(
+  (select f.opcoes from public.campos_form f join public.categorias c on c.id = f.categoria_id
+    where c.nome = 'Infraestrutura' and f.chave = 'item'),
+  '["Câmeras","Cabeamento / ponto de rede"]'::jsonb,
+  'Infraestrutura pergunta "O que é?" com Câmeras e Cabeamento'
 );
 
 select * from finish();

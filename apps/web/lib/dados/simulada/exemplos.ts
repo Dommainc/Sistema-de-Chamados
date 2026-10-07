@@ -65,6 +65,8 @@ const LINHAS_CATEGORIAS: LinhaCategoria[] = [
     8,
     60,
   ],
+  // Infraestrutura: câmeras e cabeamento (pedido do dono, 2026-10-07).
+  ["Infraestrutura", "Infraestrutura", "cctv", "Câmeras, cabeamento e pontos de rede", 8, 65],
   [
     "Celular corporativo",
     "Celular corporativo",
@@ -130,6 +132,26 @@ function categoria(nome: string): Categoria {
 type LinhaCampo = [string, string, string, TipoCampo, boolean, string[], string | null, number];
 
 const CAMPOS_ESPECIFICOS: LinhaCampo[] = [
+  [
+    "Infraestrutura",
+    "item",
+    "O que é?",
+    "selecao",
+    true,
+    ["Câmeras", "Cabeamento / ponto de rede"],
+    null,
+    10,
+  ],
+  [
+    "Infraestrutura",
+    "local",
+    "Onde fica?",
+    "texto",
+    true,
+    [],
+    "Ex.: escritório central, obra X, portaria",
+    20,
+  ],
   [
     "Microsoft",
     "programa",

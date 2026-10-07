@@ -22,6 +22,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-035 | 🟡 | ambiente | Nos projetos da nuvem, **desligar o provedor de e-mail** no painel do Supabase (Authentication → Providers → Email): login só com conta Microsoft. O `config.toml` deixa ligado só para o ambiente local/CI (usuários de teste). | Ao criar os projetos (P-022) |
 | P-036 | ⚪ | ci | Ações do CI (`checkout@v4`, `setup-uv@v6`, `supabase/setup-cli@v1`) usam Node 20, descontinuado no GitHub: atualizar as versões quando saírem. | Quando quiser |
 | P-038 | ⚪ | api | Sem limite de requisições por usuário (rate limit) na API: na Vercel não há onde guardar a contagem sem serviço extra. Avaliar no go-live as regras de firewall da Vercel (WAF) para a API. | Go-live |
+| P-039 | 🟡 | negócio | "Ficou dúbio **sistemas versus problemas**": rever nomes/descrições das categorias (ex.: "Sistemas da empresa" × "Computador ou notebook" × "Instalar programa") para o solicitante escolher sem dúvida. Dono vai detalhar. | Dono do projeto |
 
 ## Resolvidas
 
