@@ -1,7 +1,7 @@
 // Quadro da área técnica (mockup, tela 6). Os testes rodam sem CSS: as três colunas aparecem juntas.
 
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProvedorToast } from "@/components/ui/Toast";
 import { ProvedorDados } from "@/lib/dados/provedor";
 import {
@@ -11,7 +11,6 @@ import {
   lerEstado,
 } from "@/lib/dados/simulada/armazenamento";
 import { USUARIOS_SIMULADOS } from "@/lib/dados/simulada/usuarios";
-import { TIPO_ARRASTE } from "./CartaoChamado";
 import { QuadroAtendimento } from "./QuadroAtendimento";
 import type { FiltrosQuadro } from "./quadro";
 
@@ -44,7 +43,51 @@ beforeEach(() => {
   _reiniciarParaTestes();
   gravarEstado(estadoInicial());
   navegacao.push.mockReset();
+  simularLayout();
 });
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+// O jsdom não calcula layout: cada coluna ganha uma posição (lado a lado, 300 px) e cada cartão fica
+// dentro da sua coluna — o suficiente para o dnd-kit saber sobre qual coluna o cartão está.
+// O "fantasma" (DragOverlay, fora das colunas) começa onde estava o cartão arrastado.
+const ORDEM = ["novos", "em_atendimento", "aguardando", "concluidos", "cancelados"];
+let colunaDeOrigem: number | null = null;
+function simularLayout() {
+  colunaDeOrigem = null;
+  vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+    const secao = this.closest('section[id^="coluna-"]');
+    const i = secao ? ORDEM.indexOf(secao.id.replace("coluna-", "")) : -1;
+    if (i < 0) {
+      return colunaDeOrigem === null
+        ? new DOMRect(0, 0, 0, 0)
+        : new DOMRect(colunaDeOrigem * 300 + 10, 50, 260, 120);
+    }
+    return this === secao
+      ? new DOMRect(i * 300, 0, 280, 1000)
+      : new DOMRect(i * 300 + 10, 50, 260, 120);
+  });
+}
+
+const tique = () => act(() => new Promise((r) => setTimeout(r, 10)));
+
+/** Arrasta pelo teclado (o mesmo dnd-kit do mouse e do dedo): espaço pega, → por coluna, espaço solta. */
+async function arrastarComTeclado(numero: number, colunasParaDireita: number) {
+  const alvo = cartao(numero);
+  const secao = alvo.closest('section[id^="coluna-"]');
+  colunaDeOrigem = secao ? ORDEM.indexOf(secao.id.replace("coluna-", "")) : null;
+  alvo.focus();
+  fireEvent.keyDown(alvo, { code: "Space", key: " " });
+  await tique();
+  for (let i = 0; i < colunasParaDireita; i++) {
+    fireEvent.keyDown(document, { code: "ArrowRight", key: "ArrowRight" });
+    await tique();
+  }
+  fireEvent.keyDown(document, { code: "Space", key: " " });
+  await tique();
+}
 
 describe("QuadroAtendimento", () => {
   it("monta Novos, Em atendimento e Aguardando usuário com os exemplos", async () => {
@@ -79,12 +122,7 @@ describe("QuadroAtendimento", () => {
   it("arrastar para Cancelados pede o motivo e cancela", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    fireEvent.drop(coluna("Cancelados"), {
-      dataTransfer: {
-        types: [TIPO_ARRASTE],
-        getData: () => JSON.stringify({ id: 40, coluna: "novos" }),
-      },
-    });
+    await arrastarComTeclado(40, 4); // → Cancelados
     const modal = await screen.findByRole("dialog", { hidden: true });
     const cancelar = () =>
       fireEvent.click(
@@ -105,12 +143,7 @@ describe("QuadroAtendimento", () => {
   it("arrastar para Concluídos pede confirmação e conclui", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    fireEvent.drop(coluna("Concluídos"), {
-      dataTransfer: {
-        types: [TIPO_ARRASTE],
-        getData: () => JSON.stringify({ id: 38, coluna: "em_atendimento" }),
-      },
-    });
+    await arrastarComTeclado(38, 2); // → Concluídos
     const modal = await screen.findByRole("dialog", { hidden: true });
     expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("em_andamento");
     fireEvent.click(
@@ -147,12 +180,7 @@ describe("QuadroAtendimento", () => {
   it("arrastar de Em atendimento para Aguardando usuário muda o status", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    fireEvent.drop(coluna("Aguardando usuário"), {
-      dataTransfer: {
-        types: [TIPO_ARRASTE],
-        getData: () => JSON.stringify({ id: 38, coluna: "em_atendimento" }),
-      },
-    });
+    await arrastarComTeclado(38, 1); // → Aguardando usuário
     await waitFor(() =>
       expect(
         within(coluna("Aguardando usuário")).getByText("Instalar AutoCAD no notebook"),
@@ -163,12 +191,7 @@ describe("QuadroAtendimento", () => {
   it("movimento que não vale avisa e não muda nada", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    fireEvent.drop(coluna("Aguardando usuário"), {
-      dataTransfer: {
-        types: [TIPO_ARRASTE],
-        getData: () => JSON.stringify({ id: 42, coluna: "novos" }),
-      },
-    });
+    await arrastarComTeclado(42, 2); // → Aguardando usuário
     expect(
       await screen.findByText("Não é possível mudar de Novos para Aguardando usuário."),
     ).toBeInTheDocument();

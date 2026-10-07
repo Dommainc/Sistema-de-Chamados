@@ -57,7 +57,8 @@ os botões das colunas. A **cor do número** do cartão mostra o **prazo**; a co
 ![Quadro da TI](guia/img/computador-07-quadro.png)
 
 - **Pegar o próximo:** assume o chamado mais urgente da fila e abre direto nele.
-- **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna —
+- **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna
+  (no celular: **segure o cartão** um instante e arraste; na borda da tela, ela rola sozinha) —
   arrastar para **Concluídos** conclui o chamado (pede confirmação) e para **Cancelados** cancela (pede o motivo).
 - **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo · cinza = sem prazo.
 - **O prazo é você quem define:** na tela do chamado, bloco **Prazo** no topo → **Definir prazo** (data e hora, com atalhos).

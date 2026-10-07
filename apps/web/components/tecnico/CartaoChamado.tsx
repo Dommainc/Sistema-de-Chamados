@@ -1,5 +1,6 @@
 "use client";
 
+import type { DraggableAttributes, DraggableSyntheticListeners } from "@dnd-kit/core";
 import { Hourglass, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
@@ -23,8 +24,14 @@ export interface DadosCartao {
   transferidoPor: PerfilPublico | undefined;
 }
 
-/** Tipo de dado arrastado entre colunas. */
-export const TIPO_ARRASTE = "application/x-central-chamado";
+/** O que o useDraggable (ColunaQuadro) entrega ao cartão para ele poder ser arrastado. */
+export interface PropsArraste {
+  ref: (elemento: HTMLElement | null) => void;
+  atributos: DraggableAttributes;
+  ouvintes: DraggableSyntheticListeners;
+  /** Este cartão está sendo arrastado (o original fica esmaecido; o "fantasma" acompanha o dedo). */
+  arrastando: boolean;
+}
 
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
@@ -84,12 +91,18 @@ export function CartaoChamado({
   agora,
   destacado,
   aoAssumir,
+  arraste,
+  fantasma = false,
 }: {
   dados: DadosCartao;
   euId: string;
   agora: Date;
   destacado: boolean;
   aoAssumir: (chamadoId: number) => void;
+  /** Ausente = cartão parado (ex.: o "fantasma" que acompanha o arraste). */
+  arraste?: PropsArraste;
+  /** Cópia que segue o dedo/mouse enquanto arrasta. */
+  fantasma?: boolean;
 }) {
   const { chamado: c, coluna, solicitante, responsavel, assunto, naoLidas, transferidoPor } = dados;
   if (coluna === "concluidos" || coluna === "cancelados") {
@@ -103,15 +116,13 @@ export function CartaoChamado({
 
   return (
     <article
-      draggable
-      onDragStart={(e) => {
-        e.dataTransfer.setData(TIPO_ARRASTE, JSON.stringify({ id: c.id, coluna }));
-        e.dataTransfer.effectAllowed = "move";
-      }}
+      ref={arraste?.ref}
+      {...arraste?.atributos}
+      {...arraste?.ouvintes}
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex cursor-grab overflow-hidden rounded-2xl border bg-superficie shadow-sm transition-shadow hover:shadow-md active:cursor-grabbing ${
+      className={`flex cursor-grab touch-manipulation overflow-hidden rounded-2xl border bg-superficie shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${
         destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"
-      }`}
+      } ${arraste?.arrastando ? "opacity-40" : ""} ${fantasma ? "rotate-1 cursor-grabbing shadow-xl" : ""}`}
     >
       <NumeroTicket numero={c.id} situacao={situacao} />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">

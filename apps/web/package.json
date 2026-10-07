@@ -16,6 +16,7 @@
     "prints": "playwright test --grep @prints"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
     "lucide-react": "^1.52.0",
     "next": "16.3.8",
     "react": "19.2.8",

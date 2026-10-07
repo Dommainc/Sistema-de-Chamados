@@ -1,5 +1,6 @@
 "use client";
 
+import { DndContext, DragOverlay, useSensor, useSensors } from "@dnd-kit/core";
 import { ListFilter } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,7 +9,19 @@ import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { mensagemErro } from "@/lib/erros/catalogo";
-import type { DadosCartao } from "./CartaoChamado";
+import {
+  AVISOS,
+  colisao,
+  INSTRUCOES,
+  OPCOES_MOUSE,
+  OPCOES_TOQUE,
+  pularColuna,
+  SensorMouse,
+  SensorTeclado,
+  SensorToque,
+  type DadosArraste,
+} from "./arraste";
+import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import { ColunaQuadro } from "./ColunaQuadro";
 import { FiltrosQuadro, Legenda } from "./FiltrosQuadro";
 import { ProximoDaFila } from "./ProximoDaFila";
@@ -26,6 +39,12 @@ import { useAcaoChamado } from "./useAcaoChamado";
 
 const SEGUNDOS_DESTAQUE = 6;
 
+/**
+ * Rolagem automática ao levar o cartão até a borda (celular: as colunas não cabem na tela).
+ * Só nos 10% da borda e devagar, para dar tempo de escolher a coluna antes de soltar.
+ */
+const ROLAGEM_AUTOMATICA = { threshold: { x: 0.1, y: 0.12 }, acceleration: 4 };
+
 /** Quadro da área técnica (mockup, telas 6 e 8). */
 export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const usuario = useUsuario();
@@ -42,6 +61,13 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
     acao: "concluir" | "cancelar";
   } | null>(null);
   const conhecidos = useRef<Set<number> | null>(null);
+  // Arrastar: mouse (depois de mexer 6 px), dedo (segurar ~0,25 s) e teclado (espaço + setas) — ADR 0010.
+  const sensores = useSensors(
+    useSensor(SensorMouse, OPCOES_MOUSE),
+    useSensor(SensorToque, OPCOES_TOQUE),
+    useSensor(SensorTeclado, { coordinateGetter: pularColuna }),
+  );
+  const [arrastado, setArrastado] = useState<number | null>(null);
 
   const consultar = useCallback(async (f: FonteDeDados) => {
     const [chamados, categorias, perfis, naoLidas, proximo] = await Promise.all([
@@ -131,6 +157,9 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   }
 
   const totalPorColuna = (id: IdColuna) => quadro[id].length;
+  const cartaoArrastado = arrastado
+    ? COLUNAS.flatMap((c) => cartoes(c.id)).find((d) => d.chamado.id === arrastado)
+    : undefined;
 
   return (
     <div className="flex flex-col gap-5">
@@ -214,27 +243,62 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       ) : null}
 
       {/* Sempre kanban: colunas lado a lado. Abaixo de ~1280 px, desliza-se para o lado entre elas. */}
-      {/* Três colunas de trabalho largas; Concluídos e Cancelados estreitas (pedido do dono, 2026-10-07). */}
-      <div className="-mx-4 flex snap-x snap-mandatory items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(3,minmax(0,1fr))_repeat(2,minmax(0,0.68fr))] xl:overflow-visible xl:px-0 xl:pb-0">
-        {COLUNAS.map((c) => (
-          <ColunaQuadro
-            key={c.id}
-            id={c.id}
-            titulo={c.titulo}
-            apoio={c.apoio}
-            encerrada={c.encerrada}
-            cartoes={cartoes(c.id)}
-            euId={usuario.id}
-            agora={agora}
-            destacados={destacados}
-            aoAssumir={assumir}
-            aoSoltar={soltar}
-            className={`shrink-0 snap-start xl:w-auto xl:max-w-none ${
-              c.encerrada ? "w-[70vw] max-w-[16rem]" : "w-[85vw] max-w-[21rem]"
-            }`}
-          />
-        ))}
-      </div>
+      <DndContext
+        sensors={sensores}
+        collisionDetection={colisao}
+        accessibility={{ announcements: AVISOS, screenReaderInstructions: INSTRUCOES }}
+        autoScroll={ROLAGEM_AUTOMATICA}
+        onDragStart={({ active }) =>
+          setArrastado((active.data.current as DadosArraste | undefined)?.chamadoId ?? null)
+        }
+        onDragCancel={() => setArrastado(null)}
+        onDragEnd={({ active, over }) => {
+          setArrastado(null);
+          const origem = active.data.current as DadosArraste | undefined;
+          if (origem && over && over.id !== origem.coluna) {
+            soltar(origem.chamadoId, origem.coluna, over.id as IdColuna);
+          }
+        }}
+      >
+        {/* Três colunas de trabalho largas; Concluídos e Cancelados estreitas (pedido do dono, 2026-10-07). */}
+        <div
+          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(3,minmax(0,1fr))_repeat(2,minmax(0,0.68fr))] xl:overflow-visible xl:px-0 xl:pb-0`}
+        >
+          {COLUNAS.map((c) => (
+            <ColunaQuadro
+              key={c.id}
+              id={c.id}
+              titulo={c.titulo}
+              apoio={c.apoio}
+              encerrada={c.encerrada}
+              cartoes={cartoes(c.id)}
+              euId={usuario.id}
+              agora={agora}
+              destacados={destacados}
+              aoAssumir={assumir}
+              className={`shrink-0 snap-start xl:w-auto xl:max-w-none ${
+                c.encerrada ? "w-[70vw] max-w-[16rem]" : "w-[85vw] max-w-[21rem]"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* "Fantasma" que acompanha o dedo/mouse. */}
+        <DragOverlay dropAnimation={null}>
+          {cartaoArrastado ? (
+            <div className="w-[min(85vw,20rem)]">
+              <CartaoChamado
+                dados={cartaoArrastado}
+                euId={usuario.id}
+                agora={agora}
+                destacado={false}
+                aoAssumir={() => undefined}
+                fantasma
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       <ModalAcao
         acao={encerrando?.acao ?? null}

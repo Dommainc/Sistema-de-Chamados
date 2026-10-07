@@ -16,7 +16,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🟡 | ambiente | **Supabase praticamente aprovado pela diretoria — falta só a assinatura** (atualizado em 2026-10-06). Depois: criar projetos `dev` e `prod` em `sa-east-1` (ADR 0001) e rodar as migrations (P-023). | Assinatura da diretoria |
 | P-027 | ⚪ | docs | Salvar o PDF do mockup em `docs/ui/central-chamados-ui-ux.pdf` (o `docs/ui-ux.md` aponta para ele). | Dono do projeto |
-| P-029 | ⚪ | web | Arrastar cartões no quadro só funciona com mouse (computador). No celular/tablet usa-se o botão Assumir e as ações da tela do chamado. Avaliar biblioteca de arrastar com toque se a TI pedir. | Quando houver demanda |
 | P-030 | ⚪ | web | No modo simulado, a sessão fica num cookie: **um navegador = um usuário por vez**. Para ver Ana e Rafael ao mesmo tempo, abra a aba da Ana, depois entre como Rafael em outra aba — a da Ana continua como Ana até recarregar (é o que o E2E faz). Some com o login real. | Implementação real (1A-2) |
 | P-031 | ⚪ | ci | `pnpm e2e` não roda no CI (baixar o navegador deixa o CI lento). Incluir quando a implementação real existir, junto com o banco local no CI. | 1A-4 restante |
 | P-032 | 🟡 | api | Confirmar o ponto de entrada da API na Vercel (FastAPI em `app/main.py`) no primeiro deploy; ajustar `vercel.json` se a Vercel não detectar sozinha. | Primeiro deploy |
@@ -28,6 +27,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-029 | 2026-10-07 | Decisão do dono: arrastar com o dedo. `@dnd-kit/core` com mouse, toque (segurar ~0,25 s) e teclado, rolagem automática na borda (ADR 0010). Testes: teclado (unitário) e mouse/toque (E2E). |
 | P-026 | 2026-10-07 | Obsoleta: não existe mais previsão automática antes de enviar — o prazo é definido pela TI (ADR 0009). Rota `GET /categorias/{id}/previsao` removida. |
 | P-010 | 2026-10-07 | Obsoleta: o prazo não depende mais da categoria (ADR 0009). Trocar a categoria não mexe no prazo. |
 | P-037 | 2026-10-06 | Decisão do dono: não haverá "O que foi feito" ao concluir — o **Relato técnico** já cumpre esse papel. |

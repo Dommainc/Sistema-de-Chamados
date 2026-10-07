@@ -1,8 +1,10 @@
 "use client";
 
+import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
 import { situacaoPrazo } from "@/lib/prazo";
-import { CartaoChamado, TIPO_ARRASTE, type DadosCartao } from "./CartaoChamado";
+import type { DadosArraste } from "./arraste";
+import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import type { ColunaQuadro as IdColuna } from "./quadro";
 
 const LIMITE_INICIAL = 6;
@@ -16,6 +18,37 @@ const COR_COLUNA: Record<IdColuna, string> = {
   cancelados: "bg-apagado",
 };
 
+type PropsCartao = {
+  dados: DadosCartao;
+  euId: string;
+  agora: Date;
+  destacado: boolean;
+  aoAssumir: (id: number) => void;
+};
+
+/** Cartão das colunas abertas, arrastável (mouse, dedo e teclado — ver arraste.ts). */
+function CartaoArrastavel(props: PropsCartao) {
+  const { chamado, coluna } = props.dados;
+  const dados: DadosArraste = { chamadoId: chamado.id, coluna };
+  const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
+    id: `chamado-${chamado.id}`,
+    data: dados,
+    // O cartão continua sendo um "article" (busca por cartão e leitores de tela); o dnd-kit põe "button".
+    attributes: { role: "article", roleDescription: "cartão arrastável" },
+  });
+  return (
+    <CartaoChamado
+      {...props}
+      arraste={{
+        ref: setNodeRef,
+        atributos: attributes,
+        ouvintes: listeners,
+        arrastando: isDragging,
+      }}
+    />
+  );
+}
+
 function ListaCartoes({
   cartoes,
   ...props
@@ -28,24 +61,29 @@ function ListaCartoes({
 }) {
   return (
     <ul className="flex flex-col gap-2.5">
-      {cartoes.map((d) => (
-        <li key={d.chamado.id}>
-          <CartaoChamado
-            dados={d}
-            euId={props.euId}
-            agora={props.agora}
-            destacado={props.destacados.has(d.chamado.id)}
-            aoAssumir={props.aoAssumir}
-          />
-        </li>
-      ))}
+      {cartoes.map((d) => {
+        const cartao = {
+          dados: d,
+          euId: props.euId,
+          agora: props.agora,
+          destacado: props.destacados.has(d.chamado.id),
+          aoAssumir: props.aoAssumir,
+        };
+        const encerrado = d.coluna === "concluidos" || d.coluna === "cancelados";
+        return (
+          <li key={d.chamado.id}>
+            {encerrado ? <CartaoChamado {...cartao} /> : <CartaoArrastavel {...cartao} />}
+          </li>
+        );
+      })}
     </ul>
   );
 }
 
 /**
  * Coluna do quadro (mockup, tela 6): uma "raia" com fundo próprio, título com a cor da coluna, contador e
- * cartões. Aceita soltar cartões. `encerrada` = Concluídos/Cancelados (estreita, cartões compactos).
+ * cartões. Recebe cartões arrastados (useDroppable; quem decide o que acontece é QuadroAtendimento).
+ * `encerrada` = Concluídos/Cancelados (estreita, cartões compactos, só recebem).
  */
 export function ColunaQuadro({
   id,
@@ -57,7 +95,6 @@ export function ColunaQuadro({
   agora,
   destacados,
   aoAssumir,
-  aoSoltar,
   className = "",
 }: {
   id: IdColuna;
@@ -69,11 +106,11 @@ export function ColunaQuadro({
   agora: Date;
   destacados: ReadonlySet<number>;
   aoAssumir: (id: number) => void;
-  aoSoltar: (chamadoId: number, de: IdColuna, para: IdColuna) => void;
   className?: string;
 }) {
   const [verTodos, setVerTodos] = useState(false);
-  const [alvo, setAlvo] = useState(false);
+  const { setNodeRef, isOver: alvo, active } = useDroppable({ id });
+  const vindoDeOutra = alvo && (active?.data.current as DadosArraste | undefined)?.coluna !== id;
 
   const visiveis = verTodos ? cartoes : cartoes.slice(0, LIMITE_INICIAL);
   const escondidos = cartoes.length - visiveis.length;
@@ -89,24 +126,10 @@ export function ColunaQuadro({
   return (
     <section
       id={`coluna-${id}`}
+      ref={setNodeRef}
       aria-label={`${titulo}: ${cartoes.length}`}
-      onDragOver={(e) => {
-        if (!e.dataTransfer.types.includes(TIPO_ARRASTE)) return;
-        e.preventDefault();
-        e.dataTransfer.dropEffect = "move";
-        setAlvo(true);
-      }}
-      onDragLeave={() => setAlvo(false)}
-      onDrop={(e) => {
-        setAlvo(false);
-        const bruto = e.dataTransfer.getData(TIPO_ARRASTE);
-        if (!bruto) return;
-        e.preventDefault();
-        const { id: chamadoId, coluna } = JSON.parse(bruto) as { id: number; coluna: IdColuna };
-        if (coluna !== id) aoSoltar(chamadoId, coluna, id);
-      }}
       className={`flex flex-col gap-3 rounded-2xl border p-2.5 transition-colors ${
-        alvo
+        vindoDeOutra
           ? "border-primaria bg-primaria-suave ring-2 ring-primaria"
           : encerrada
             ? "border-transparent bg-superficie-2/50"
