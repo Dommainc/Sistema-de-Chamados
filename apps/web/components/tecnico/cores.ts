@@ -10,7 +10,7 @@ export const COR_STATUS: Record<
 > = {
   novos: {
     faixa: "border-l-laranja",
-    fundo: "bg-laranja-suave/45",
+    fundo: "bg-laranja-cartao",
     bolinha: "bg-laranja",
     rotulo: "Novos",
   },
@@ -22,7 +22,7 @@ export const COR_STATUS: Record<
   },
   em_atendimento: {
     faixa: "border-l-amarelo",
-    fundo: "bg-amarelo-suave/70",
+    fundo: "bg-amarelo-suave",
     bolinha: "bg-amarelo",
     rotulo: "Em atendimento",
   },

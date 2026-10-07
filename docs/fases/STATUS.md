@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-07 | Cores do quadro: fundo de **Novos** laranja de verdade (token `laranja-cartao`; o laranja transparente parecia amarelo) e **Em atendimento** num amarelo mais nítido — os dois não se confundem mais. |
 | 2026-10-07 | Cartão do quadro: linha "Nome · Categoria" inteira (letra um pouco menor, quebra de linha em vez de "…"). |
 | 2026-10-07 | **Prioridade e chamado não iniciado (Entrega 2, ADR 0012):** não iniciado (novo/transferido) → só ver, Iniciar ou Cancelar; conversa, relato, prazo e prioridade travados na tela e na API (`CHAMADO_NAO_INICIADO`). **Prioridade** Alta/Média/Baixa (vermelho/amarelo/cinza) no cabeçalho do chamado, só TI, depois de iniciar, histórico interno; `POST /chamados/{id}/prioridade`; no quadro a alta sobe para o topo com "⚠ Prioridade alta". Sem migration (coluna já existia). 212 testes front + 107 API + E2E. |
 | 2026-10-07 | **Quadro — terceira revisão do dono (Entrega 1):** cor do cartão = **status** (faixa grossa + fundo clarinho; Novos laranja, Transferidos roxo, Em atendimento amarelo forte, Aguardando azul royal, Concluídos verde, Cancelados cinza; tokens novos `amarelo`, `royal`); prazo só no **retângulo** (vencido vermelho, < 1 h laranja, sem prazo amarelo, em dia neutro); etiqueta **ID verde-água** (token `id`); título em destaque e **Iniciar pequeno**; filtros **Status** e **Pessoa atendendo** (cada técnico); legenda nova. Saem a cor por urgência e a barrinha de prazo. |
