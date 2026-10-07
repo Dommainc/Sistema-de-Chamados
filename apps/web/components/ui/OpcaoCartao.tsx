@@ -1,5 +1,5 @@
 /**
- * Opção em cartão (mockup, tela 2: "Quem está sem conexão?").
+ * Opção em cartão (mockup, tela 2: "O que é?", "Qual sistema?").
  * `multipla` = caixa de seleção (várias respostas); senão, rádio.
  */
 export function OpcaoCartao({
@@ -10,6 +10,7 @@ export function OpcaoCartao({
   aoSelecionar,
   multipla = false,
   id,
+  marcador,
 }: {
   nome: string;
   valor: string;
@@ -18,6 +19,8 @@ export function OpcaoCartao({
   aoSelecionar: (valor: string) => void;
   multipla?: boolean;
   id?: string;
+  /** Classe de cor de um quadradinho ao lado do texto (ex.: cor do sistema — lib/sistemas.ts). */
+  marcador?: string;
 }) {
   return (
     <label
@@ -36,6 +39,9 @@ export function OpcaoCartao({
         onChange={() => aoSelecionar(valor)}
         className="size-6 shrink-0 accent-primaria"
       />
+      {marcador ? (
+        <span aria-hidden="true" className={`size-4 shrink-0 rounded ${marcador}`} />
+      ) : null}
       <span>{rotulo}</span>
     </label>
   );

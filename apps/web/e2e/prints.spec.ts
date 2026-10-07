@@ -20,10 +20,10 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await print(page, "01-login", p);
 
   await entrar(page, "Ana Souza");
-  await expect(page.getByRole("link", { name: "Internet, rede ou VPN" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Internet / Infraestrutura" })).toBeVisible();
   await print(page, "02-abrir-passo1", p);
 
-  await page.getByRole("link", { name: "Internet, rede ou VPN" }).click();
+  await page.getByRole("link", { name: "Internet / Infraestrutura" }).click();
   await preencherInternet(page, "Sem internet na obra Recreio");
   await colarImagem(page, "textarea");
   await expect(page.getByText(/^print-\d{8}-\d{6}\.png$/)).toBeVisible();
@@ -32,6 +32,12 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await page.getByRole("button", { name: "Enviar pedido" }).click();
   await expect(page.getByText("Pronto! Seu chamado é o")).toBeVisible();
   await print(page, "04-abrir-passo3", p);
+
+  // Acessos e permissões: sistemas com as cores de cada um.
+  await page.goto("/abrir/1");
+  await page.getByRole("radio", { name: "Sienge" }).check();
+  await expect(page.getByRole("radio", { name: "Não se aplica" })).toBeVisible();
+  await print(page, "03b-abrir-acessos", p);
 
   await page.goto("/meus-chamados");
   await expect(page.getByText("Outlook não sincroniza")).toBeVisible();

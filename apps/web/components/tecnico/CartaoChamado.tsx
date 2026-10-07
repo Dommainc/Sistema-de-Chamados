@@ -9,6 +9,7 @@ import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
 import { formatarAtualizacao, tempoRelativo } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
+import { CHAVE_SISTEMA, corDoSistema } from "@/lib/sistemas";
 import { COR_PRAZO, COR_STATUS } from "./cores";
 import { ehNovo, encerradoEm, type ColunaQuadro } from "./quadro";
 
@@ -131,6 +132,10 @@ export function CartaoChamado({
   }
 
   const cor = COR_STATUS[coluna];
+  const corSistema = corDoSistema(c.respostasForm[CHAVE_SISTEMA]);
+  const sistema = corSistema
+    ? { nome: String(c.respostasForm[CHAVE_SISTEMA]), cor: corSistema }
+    : null;
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
   const podeIniciar = c.status === "pendente" || transferidoParaMim;
   const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
@@ -150,6 +155,13 @@ export function CartaoChamado({
         {c.prioridade === "alta" ? (
           <span className="inline-flex items-center gap-1 rounded-md bg-perigo px-1.5 py-0.5 text-[11px] font-bold text-white">
             <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta
+          </span>
+        ) : null}
+        {sistema ? (
+          <span
+            className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${sistema.cor.fundo} ${sistema.cor.texto}`}
+          >
+            {sistema.nome}
           </span>
         ) : null}
         {ehNovo(c, agora) ? (

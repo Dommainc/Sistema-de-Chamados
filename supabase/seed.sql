@@ -32,16 +32,15 @@ insert into public.categorias (area_id, nome, nome_curto, icone, descricao, sla_
 select a.id, c.nome, c.nome_curto, c.icone, c.descricao, c.sla, c.ordem
 from public.areas a
 cross join (values
-  ('Acesso, senha e bloqueio de conta', 'Acesso, senha e bloqueio', 'key-round',    'Não consigo entrar, esqueci a senha, conta bloqueada', 2, 10),
-  ('Internet, rede ou VPN',             'Internet, rede ou VPN',    'wifi',         'Sem internet, Wi-Fi ou VPN fora do ar',                2, 20),
+  -- Unificações do dono (2026-10-07): "Acesso, senha e bloqueio" + "Sistemas da empresa" e
+  -- "Internet, rede ou VPN" + "Infraestrutura".
+  ('Solicitações de acesso e Permissões', 'Solicitações de acesso e Permissões', 'key-round', 'Novo acesso, permissão ou desbloqueio nos sistemas da empresa', 2, 10),
+  ('Internet / Infraestrutura',           'Internet / Infraestrutura',  'wifi',         'Internet, Wi-Fi, VPN, câmeras e pontos de rede',       2, 20),
   -- "E-mail / Outlook" e "Teams" unificados em "Microsoft" (pedido do dono, 2026-10-07).
   ('Microsoft',                         'Microsoft',                'grid-2x2',     'E-mail, Outlook, Teams, Word, Excel e OneDrive',       4, 30),
   ('Computador ou notebook',            'Computador ou notebook',   'laptop',       'Lento, travando, não liga ou com defeito',             8, 50),
   ('Impressora / scanner',              'Impressora / scanner',     'printer',      'Não imprime, papel preso, scanner',                    8, 60),
-  -- Infraestrutura: câmeras e cabeamento (pedido do dono, 2026-10-07).
-  ('Infraestrutura',                    'Infraestrutura',           'cctv',         'Câmeras, cabeamento e pontos de rede',                 8, 65),
   ('Celular corporativo',               'Celular corporativo',      'smartphone',   'Configuração, defeito ou troca',                       8, 70),
-  ('Sistemas da empresa',               'Sistemas da empresa',      'app-window',  'Erro ou dúvida em sistemas internos',                  8, 80),
   ('Instalação de software',            'Instalar programa',        'download',     'Instalar ou atualizar um programa',                   16, 90),
   ('Novo colaborador',                  'Novo colaborador',         'user-plus',    'Preparar acessos e equipamento para quem vai entrar', 24, 100),
   ('Desligamento',                      'Desligamento',             'user-minus',   'Bloquear acessos e recolher equipamento',              4, 110),
@@ -67,24 +66,21 @@ insert into public.campos_form (categoria_id, chave, label, tipo, obrigatorio, o
 select c.id, f.chave, f.label, f.tipo::public.tipo_campo, f.obrigatorio, f.opcoes::jsonb, f.ajuda, f.ordem
 from public.categorias c
 join (values
-  ('Acesso, senha e bloqueio de conta', 'acesso_a', 'Qual acesso?', 'selecao', true,
-     '["Computador / conta Microsoft","E-mail","Sistemas da empresa","Wi-Fi","Outro"]', null, 10),
+  ('Solicitações de acesso e Permissões', 'sistema', 'Qual sistema?', 'selecao', true,
+     '["Sienge","CVCRM","Construpoint","Construmanager","Docusign","Prevision","Metadados","Não se aplica"]', null, 10),
 
   ('Microsoft', 'programa', 'Qual programa?', 'selecao', true,
-     '["E-mail / Outlook","Teams","Word, Excel ou PowerPoint","OneDrive","Outro"]', null, 10),
+     '["E-mail / Outlook","Teams","Word, Excel ou PowerPoint","OneDrive","Redefinição de senha","Outro"]', null, 10),
 
-  ('Internet, rede ou VPN', 'alcance', 'Quem está sem conexão?', 'selecao', true,
+  ('Internet / Infraestrutura', 'item', 'O que é?', 'selecao', true,
+     '["Internet / Wi-Fi","VPN","Câmeras","Cabeamento / ponto de rede"]', null, 5),
+  ('Internet / Infraestrutura', 'alcance', 'Quem é afetado?', 'selecao', false,
      '["Só eu","Algumas pessoas do setor","O escritório / obra inteira"]', null, 10),
-  ('Internet, rede ou VPN', 'local', 'Onde você está?', 'texto', true,
-     '[]', 'Ex.: escritório central, obra X, home office', 20),
+  ('Internet / Infraestrutura', 'local', 'Onde fica?', 'texto', true,
+     '[]', 'Ex.: escritório central, obra X, portaria, home office', 20),
 
   ('Computador ou notebook', 'patrimonio', 'Número de patrimônio', 'texto', false,
      '[]', 'Etiqueta colada no equipamento, se houver', 10),
-
-  ('Infraestrutura', 'item', 'O que é?', 'selecao', true,
-     '["Câmeras","Cabeamento / ponto de rede"]', null, 10),
-  ('Infraestrutura', 'local', 'Onde fica?', 'texto', true,
-     '[]', 'Ex.: escritório central, obra X, portaria', 20),
 
   ('Impressora / scanner', 'local', 'Onde fica a impressora?', 'texto', true,
      '[]', 'Ex.: 3º andar, sala do financeiro', 10),

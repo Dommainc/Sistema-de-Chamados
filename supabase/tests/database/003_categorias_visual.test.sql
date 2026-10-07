@@ -4,7 +4,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(10);
 
 select has_column('public', 'categorias', 'nome_curto', 'Categoria tem nome curto');
 select has_column('public', 'categorias', 'icone', 'Categoria tem ícone');
@@ -39,9 +39,20 @@ select is(
 
 select is(
   (select f.opcoes from public.campos_form f join public.categorias c on c.id = f.categoria_id
-    where c.nome = 'Infraestrutura' and f.chave = 'item'),
-  '["Câmeras","Cabeamento / ponto de rede"]'::jsonb,
-  'Infraestrutura pergunta "O que é?" com Câmeras e Cabeamento'
+    where c.nome = 'Internet / Infraestrutura' and f.chave = 'item'),
+  '["Internet / Wi-Fi","VPN","Câmeras","Cabeamento / ponto de rede"]'::jsonb,
+  'Internet / Infraestrutura pergunta "O que é?" (internet, VPN, câmeras e cabeamento)'
+);
+select is(
+  (select f.opcoes from public.campos_form f join public.categorias c on c.id = f.categoria_id
+    where c.nome = 'Solicitações de acesso e Permissões' and f.chave = 'sistema'),
+  '["Sienge","CVCRM","Construpoint","Construmanager","Docusign","Prevision","Metadados","Não se aplica"]'::jsonb,
+  'Acessos e permissões pergunta "Qual sistema?" com os 8 sistemas'
+);
+select is(
+  (select count(*) from public.categorias
+    where nome in ('Acesso, senha e bloqueio de conta', 'Sistemas da empresa', 'Internet, rede ou VPN', 'Infraestrutura')),
+  0::bigint, 'Categorias antigas foram unificadas'
 );
 
 select * from finish();

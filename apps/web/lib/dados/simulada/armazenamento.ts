@@ -16,7 +16,7 @@ import { gerarChamadosExemplo, gerarConversasExemplo, gerarHistoricoExemplo } fr
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 9; // 7: Microsoft · 8: Infraestrutura, ADR 0011 · 9: prioridade (ADR 0012)
+const VERSAO = 10; // 9: prioridade (ADR 0012) · 10: categorias unificadas (acessos, internet/infra)
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 

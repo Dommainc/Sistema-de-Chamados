@@ -8,9 +8,10 @@ import { criarFonteSimulada } from "./index";
 import { USUARIOS_SIMULADOS } from "./usuarios";
 
 const [ANA, BRUNO, RAFAEL] = USUARIOS_SIMULADOS;
-const INTERNET = CATEGORIAS.find((c) => c.nome === "Internet, rede ou VPN")!;
+const INTERNET = CATEGORIAS.find((c) => c.nome === "Internet / Infraestrutura")!;
 
 const RESPOSTAS_OK = {
+  item: "Internet / Wi-Fi",
   alcance: "O escritório ou a obra inteira",
   local: "Obra Recreio — container do canteiro",
   descricao: "Desde as 8h ninguém consegue acessar a internet.",
@@ -90,7 +91,7 @@ describe("criarChamado", () => {
     expect(erro).toBeInstanceOf(ErroApp);
     expect((erro as ErroApp).campos.map((c) => c.campo)).toEqual([
       "titulo",
-      "alcance",
+      "item",
       "local",
       "descricao",
     ]);

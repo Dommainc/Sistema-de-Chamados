@@ -36,7 +36,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const ANA = USUARIOS_SIMULADOS[0];
-const INTERNET = CATEGORIAS.find((c) => c.nome === "Internet, rede ou VPN")!;
+const INTERNET = CATEGORIAS.find((c) => c.nome === "Internet / Infraestrutura")!;
 
 function renderizar(referente: number | null = null) {
   return render(
@@ -79,9 +79,7 @@ describe("FormularioChamado", () => {
     expect(
       await screen.findByText("Preencha o campo Resumo do problema para continuar."),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText("Preencha o campo Quem está sem conexão? para continuar."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Preencha o campo O que é? para continuar.")).toBeInTheDocument();
     expect(navegacao.replace).not.toHaveBeenCalled();
   });
 
@@ -90,8 +88,9 @@ describe("FormularioChamado", () => {
     fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
       target: { value: "Sem internet na obra Recreio" },
     });
+    fireEvent.click(screen.getByRole("radio", { name: "Internet / Wi-Fi" }));
     fireEvent.click(screen.getByRole("radio", { name: "Só eu" }));
-    fireEvent.change(screen.getByLabelText(/Onde você está/), {
+    fireEvent.change(screen.getByLabelText(/Onde fica/), {
       target: { value: "Obra Recreio" },
     });
     fireEvent.change(screen.getByLabelText(/Descreva o que está acontecendo/), {
@@ -142,8 +141,9 @@ describe("FormularioChamado", () => {
     fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
       target: { value: "Sem internet" },
     });
+    fireEvent.click(screen.getByRole("radio", { name: "Internet / Wi-Fi" }));
     fireEvent.click(screen.getByRole("radio", { name: "Só eu" }));
-    fireEvent.change(screen.getByLabelText(/Onde você está/), { target: { value: "Obra" } });
+    fireEvent.change(screen.getByLabelText(/Onde fica/), { target: { value: "Obra" } });
     const descricao = screen.getByLabelText(/Descreva o que está acontecendo/);
     fireEvent.change(descricao, { target: { value: "Roteador piscando" } });
     const imagem = new File(["png"], "image.png", { type: "image/png" });

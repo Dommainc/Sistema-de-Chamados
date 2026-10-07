@@ -139,6 +139,10 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento ↔ Aguardando, Em atendimento/Aguardando
      → Transferidos (**transferir**: técnico + motivo), → Novos (**devolver**: motivo), → Concluídos (confirma) e
      → Cancelados (motivo).
+   - **Sistema** (categoria de acessos): selo com o nome na cor do sistema (Sienge vermelho · CVCRM verde claro ·
+     Construpoint vermelho claro · Construmanager vermelho escuro · Docusign azul escuro · Prevision roxo · Metadados azul
+     claro · Não se aplica cinza; tokens `sis-*`, `lib/sistemas.ts`). No formulário, quadradinho da mesma cor em cada opção.
+   - **Fundo do cartão branco**, só com a faixa grossa na cor do status (teste do dono, 2026-10-07).
    - **Prioridade alta**: o cartão sobe para o topo da coluna e mostra o selo vermelho **"⚠ Prioridade alta"** (ADR 0012).
 7. **Atendimento** (`/atendimento/41`) — **reorganizada a pedido do dono (2026-10-07)**: antes a direita tinha 5 cartões
    empilhados, a descrição e o print se repetiam e as ações tinham tamanhos diferentes.

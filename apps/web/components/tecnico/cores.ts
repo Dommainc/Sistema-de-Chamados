@@ -10,37 +10,37 @@ export const COR_STATUS: Record<
 > = {
   novos: {
     faixa: "border-l-laranja",
-    fundo: "bg-laranja-cartao",
+    fundo: "bg-superficie",
     bolinha: "bg-laranja",
     rotulo: "Novos",
   },
   transferidos: {
     faixa: "border-l-roxo",
-    fundo: "bg-roxo-suave/60",
+    fundo: "bg-superficie",
     bolinha: "bg-roxo",
     rotulo: "Transferidos",
   },
   em_atendimento: {
     faixa: "border-l-amarelo",
-    fundo: "bg-amarelo-suave",
+    fundo: "bg-superficie",
     bolinha: "bg-amarelo",
     rotulo: "Em atendimento",
   },
   aguardando: {
     faixa: "border-l-royal",
-    fundo: "bg-royal-suave/60",
+    fundo: "bg-superficie",
     bolinha: "bg-royal",
     rotulo: "Aguardando usuário",
   },
   concluidos: {
     faixa: "border-l-sucesso",
-    fundo: "bg-sucesso-suave/60",
+    fundo: "bg-superficie",
     bolinha: "bg-sucesso",
     rotulo: "Concluídos",
   },
   cancelados: {
     faixa: "border-l-apagado",
-    fundo: "bg-apagado-suave/70",
+    fundo: "bg-superficie",
     bolinha: "bg-apagado",
     rotulo: "Cancelados",
   },

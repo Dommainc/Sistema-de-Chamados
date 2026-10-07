@@ -50,6 +50,17 @@
   --cor-id-suave: #d9f2ef;
   /* Fundo dos cartões de "Novos": laranja de verdade (o laranja-suave transparente parecia amarelo). */
   --cor-laranja-cartao: #ffe0c2;
+
+  /* Sistemas da empresa (lib/sistemas.ts): Sienge vermelho · CVCRM verde claro · Construpoint vermelho claro ·
+     Construmanager vermelho escuro · Docusign azul escuro · Prevision roxo · Metadados azul claro · Não se aplica cinza. */
+  --cor-sis-sienge: #c62828;
+  --cor-sis-cvcrm: #8fd19e;
+  --cor-sis-construpoint: #f4a3a3;
+  --cor-sis-construmanager: #7a1414;
+  --cor-sis-docusign: #1a2f6b;
+  --cor-sis-prevision: #6a3fb0;
+  --cor-sis-metadados: #8cc4f0;
+  --cor-sis-nenhum: #7b818b;
 }
 
 @theme inline {
@@ -89,6 +100,14 @@
   --color-id: var(--cor-id);
   --color-id-suave: var(--cor-id-suave);
   --color-laranja-cartao: var(--cor-laranja-cartao);
+  --color-sis-sienge: var(--cor-sis-sienge);
+  --color-sis-cvcrm: var(--cor-sis-cvcrm);
+  --color-sis-construpoint: var(--cor-sis-construpoint);
+  --color-sis-construmanager: var(--cor-sis-construmanager);
+  --color-sis-docusign: var(--cor-sis-docusign);
+  --color-sis-prevision: var(--cor-sis-prevision);
+  --color-sis-metadados: var(--cor-sis-metadados);
+  --color-sis-nenhum: var(--cor-sis-nenhum);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
 }

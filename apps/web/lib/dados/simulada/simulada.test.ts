@@ -21,12 +21,12 @@ describe("dados de exemplo", () => {
     }
   });
 
-  it("têm as 13 categorias do seed com campo descrição (menos Novo colaborador e Desligamento)", () => {
-    expect(CATEGORIAS).toHaveLength(13); // Microsoft (une E-mail/Outlook e Teams) + Infraestrutura
+  it("têm as 11 categorias do seed com campo descrição (menos Novo colaborador e Desligamento)", () => {
+    expect(CATEGORIAS).toHaveLength(11); // unificações do dono: Microsoft, acessos, internet/infra
     const comDescricao = new Set(
       CAMPOS_FORM.filter((c) => c.chave === "descricao").map((c) => c.categoriaId),
     );
-    expect(comDescricao.size).toBe(11);
+    expect(comDescricao.size).toBe(9);
   });
 
   it("chamados com responsável seguem as regras do banco (ADR 0005)", async () => {

@@ -5,6 +5,7 @@ import { useConsulta } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import type { Chamado, ValorResposta } from "@/lib/dominio/tipos";
 import { formatarDataHora } from "@/lib/formato";
+import { CHAVE_SISTEMA, corDoSistema } from "@/lib/sistemas";
 import { AnexoMiniatura } from "./AnexoMiniatura";
 
 function formatarResposta(valor: ValorResposta): string {
@@ -15,6 +16,19 @@ function formatarResposta(valor: ValorResposta): string {
     return `${d}/${m}/${a}`;
   }
   return String(valor);
+}
+
+/** Resposta do formulário; o sistema (Sienge, CVCRM...) aparece como selo na cor dele. */
+function RespostaComCor({ chave, valor }: { chave: string; valor: ValorResposta }) {
+  const cor = chave === CHAVE_SISTEMA ? corDoSistema(valor) : null;
+  if (!cor) return <>{formatarResposta(valor)}</>;
+  return (
+    <span
+      className={`inline-flex rounded-md px-2 py-0.5 text-sm font-bold ${cor.fundo} ${cor.texto}`}
+    >
+      {formatarResposta(valor)}
+    </span>
+  );
 }
 
 /**
@@ -63,7 +77,7 @@ export function DetalhesPedido({
           <div key={c.id}>
             <dt className="text-texto-suave">{c.label}</dt>
             <dd className="font-semibold whitespace-pre-line">
-              {formatarResposta(chamado.respostasForm[c.chave])}
+              <RespostaComCor chave={c.chave} valor={chamado.respostasForm[c.chave]} />
             </dd>
           </div>
         ))}
