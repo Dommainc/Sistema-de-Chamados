@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useState } from "react";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { Botao } from "@/components/ui/Botao";
-import { NumeroTicket } from "@/components/ui/NumeroTicket";
+import { EtiquetaId } from "@/components/ui/EtiquetaId";
 import { useConsulta } from "@/lib/dados/provedor";
 import { ENCERRADOS_POR_PAGINA, type FonteDeDados } from "@/lib/dados/tipos";
 import { formatarAtualizacao } from "@/lib/formato";
@@ -66,8 +66,8 @@ export function ChamadosEncerrados() {
                   aria-label={`Chamado ${c.id}: ${c.titulo}`}
                   className="flex h-full overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm hover:shadow-md"
                 >
-                  <NumeroTicket numero={c.id} />
                   <span className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
+                    <EtiquetaId numero={c.id} />
                     <span className="leading-snug font-semibold">{c.titulo}</span>
                     <span className="truncate text-xs text-texto-suave">
                       {dados.perfil.get(c.solicitanteId)?.nome ?? "—"} ·{" "}

@@ -27,7 +27,7 @@ Os campos com <span style="color:#b42318">*</span> são obrigatórios.
 
 **Passo 3 — Pronto!** Você recebe o **número do chamado** (ex.: **#42**). A **previsão de conclusão** quem
 informa é a TI, depois de analisar o pedido: ela aparece no chamado e você recebe um aviso.
-Você também vai receber avisos no **Teams** quando o técnico assumir ou responder.
+Você também vai receber avisos no **Teams** quando o técnico iniciar o atendimento ou responder.
 
 ### 2. Acompanhar e conversar
 
@@ -50,17 +50,22 @@ assim que você responder, o atendimento volta a andar.
 
 ### O quadro
 
-Ao entrar, você vê o **quadro** com cinco colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando usuário**
-e, mais estreitas, **Concluídos** e **Cancelados** (os dos últimos 7 dias). Em tela menor, deslize para o lado ou use
-os botões das colunas. A **cor do número** do cartão mostra o **prazo**; a coluna mostra o **status**.
+Ao entrar, você vê o **quadro** com seis colunas lado a lado: **Novos**, **Transferidos**, **Em atendimento**,
+**Aguardando usuário** e, mais estreitas, **Concluídos** e **Cancelados** (os dos últimos 7 dias). Em tela menor,
+deslize para o lado ou use os botões das colunas. A **cor do cartão** mostra **o que precisa de atenção**; a coluna
+mostra o **status**.
 
 ![Quadro da TI](guia/img/computador-07-quadro.png)
 
-- **Pegar o próximo:** assume o chamado mais urgente da fila e abre direto nele.
-- **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna
+- **Iniciar o próximo:** inicia o chamado mais urgente da fila e abre direto nele.
+- **Iniciar:** botão em cada cartão novo (e nos transferidos para você). Você também pode **arrastar** o cartão para
+  outra coluna
   (no celular: **segure o cartão** um instante e arraste; na borda da tela, ela rola sozinha) —
   arrastar para **Concluídos** conclui o chamado (pede confirmação) e para **Cancelados** cancela (pede o motivo).
-- **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo · cinza = sem prazo.
+- **Cores do cartão** (uma só, a mais importante): vermelho = prazo vencido · azul = mensagem nova · laranja = vence
+  em menos de 1 hora · amarelo = sem prazo definido · sem cor = em dia.
+- **Transferidos:** os chamados passados de um técnico para outro ficam nesta coluna até o técnico de destino clicar
+  em **Iniciar**. Arraste para cá para transferir (pede o técnico e o motivo).
 - **O prazo é você quem define:** na tela do chamado, bloco **Prazo** no topo → **Definir prazo** (data e hora, com atalhos).
   Para mudar depois, **Alterar prazo** pede o motivo. O solicitante vê a previsão e o motivo.
 - **Filtros:** Todos / Só os meus / Sem responsável, categoria e prazo. O link da página guarda os filtros.
@@ -83,7 +88,7 @@ os botões das colunas. A **cor do número** do cartão mostra o **prazo**; a co
   só as que dá para fazer agora (Devolver à fila e Cancelar ficam em **⋯**):
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
   - **Aguardar usuário / Retomar atendimento** — quando você precisa de uma resposta;
-  - **Transferir** — para outro técnico, com motivo (ele precisa assumir);
+  - **Transferir** — para outro técnico, com motivo (ele precisa iniciar);
   - **Devolver à fila** — volta para Novos, sem responsável, com motivo;
   - **Cancelar chamado** — com motivo.
 - Ao lado da conversa ficam as respostas do **pedido** e o **histórico** completo (clique para abrir),

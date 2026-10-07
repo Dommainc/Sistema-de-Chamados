@@ -53,7 +53,7 @@ afterEach(() => {
 // O jsdom não calcula layout: cada coluna ganha uma posição (lado a lado, 300 px) e cada cartão fica
 // dentro da sua coluna — o suficiente para o dnd-kit saber sobre qual coluna o cartão está.
 // O "fantasma" (DragOverlay, fora das colunas) começa onde estava o cartão arrastado.
-const ORDEM = ["novos", "em_atendimento", "aguardando", "concluidos", "cancelados"];
+const ORDEM = ["novos", "transferidos", "em_atendimento", "aguardando", "concluidos", "cancelados"];
 let colunaDeOrigem: number | null = null;
 function simularLayout() {
   colunaDeOrigem = null;
@@ -93,7 +93,7 @@ describe("QuadroAtendimento", () => {
   it("monta Novos, Em atendimento e Aguardando usuário com os exemplos", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    expect(within(coluna("Novos")).getByText(/Prazo vencido/)).toBeInTheDocument();
+    expect(within(coluna("Novos")).getByText(/^Prazo vencido · \d+$/)).toBeInTheDocument();
     expect(
       within(coluna("Novos")).getByText("Impressora do 3º andar não imprime"),
     ).toBeInTheDocument();
@@ -103,17 +103,19 @@ describe("QuadroAtendimento", () => {
     expect(
       within(coluna("Aguardando usuário")).getByText("Outlook não sincroniza"),
     ).toBeInTheDocument();
-    expect(screen.getByText(/Transferido para você · por Thiago/)).toBeInTheDocument();
+    expect(
+      within(coluna("Transferidos")).getByText(/Transferido para você · por Thiago/),
+    ).toBeInTheDocument();
     expect(within(cartao(42)).getByText("NOVO")).toBeInTheDocument();
   });
 
-  it("colunas Concluídos e Cancelados mostram os encerrados recentes, sem botão Assumir", async () => {
+  it("colunas Concluídos e Cancelados mostram os encerrados recentes, sem botão Iniciar", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
     const concluidos = coluna("Concluídos");
     expect(within(concluidos).getByText("Notebook muito lento")).toBeInTheDocument();
     expect(within(concluidos).getByText("Impressora do RH com papel preso")).toBeInTheDocument();
-    expect(within(concluidos).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
+    expect(within(concluidos).queryByRole("button", { name: "Iniciar" })).not.toBeInTheDocument();
     const cancelados = coluna("Cancelados");
     expect(within(cancelados).getByText("Headset novo para reuniões")).toBeInTheDocument();
     expect(within(cancelados).getByText(/Achei um headset sobrando/)).toBeInTheDocument();
@@ -122,7 +124,7 @@ describe("QuadroAtendimento", () => {
   it("arrastar para Cancelados pede o motivo e cancela", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    await arrastarComTeclado(40, 4); // → Cancelados
+    await arrastarComTeclado(40, 5); // → Cancelados
     const modal = await screen.findByRole("dialog", { hidden: true });
     const cancelar = () =>
       fireEvent.click(
@@ -157,22 +159,22 @@ describe("QuadroAtendimento", () => {
     expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("concluido");
   });
 
-  it("Assumir no cartão leva o chamado para Em atendimento", async () => {
+  it("Iniciar no cartão leva o chamado para Em atendimento", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    fireEvent.click(within(cartao(42)).getByRole("button", { name: "Assumir" }));
+    fireEvent.click(within(cartao(42)).getByRole("button", { name: "Iniciar" }));
     await waitFor(() =>
       expect(
         within(coluna("Em atendimento")).getByText("Sem internet na obra Recreio"),
       ).toBeInTheDocument(),
     );
     expect(lerEstado().chamados.find((c) => c.id === 42)?.responsavelId).toBe(RAFAEL.id);
-    expect(await screen.findByText("Você assumiu o chamado #42.")).toBeInTheDocument();
+    expect(await screen.findByText("Você iniciou o chamado #42.")).toBeInTheDocument();
   });
 
-  it("Pegar o próximo assume o mais urgente e abre o atendimento", async () => {
+  it("Iniciar o próximo inicia o mais urgente e abre o atendimento", async () => {
     renderizar();
-    fireEvent.click(await screen.findByRole("button", { name: /Pegar o próximo/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Iniciar o próximo/ }));
     await waitFor(() => expect(navegacao.push).toHaveBeenCalledWith("/atendimento/36"));
     expect(lerEstado().chamados.find((c) => c.id === 36)?.status).toBe("em_andamento");
   });
@@ -191,7 +193,7 @@ describe("QuadroAtendimento", () => {
   it("movimento que não vale avisa e não muda nada", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
-    await arrastarComTeclado(42, 2); // → Aguardando usuário
+    await arrastarComTeclado(42, 3); // → Aguardando usuário
     expect(
       await screen.findByText("Não é possível mudar de Novos para Aguardando usuário."),
     ).toBeInTheDocument();

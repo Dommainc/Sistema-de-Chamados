@@ -54,7 +54,7 @@ describe("ChatChamado", () => {
     renderizar();
     expect(await screen.findByText(/Desde ontem o Outlook não recebe/)).toBeInTheDocument();
     expect(screen.getByText(/Consegue abrir o Outlook pelo navegador/)).toBeInTheDocument();
-    expect(screen.getByText(/Rafael Lima assumiu o chamado/)).toBeInTheDocument();
+    expect(screen.getByText(/Rafael Lima iniciou o atendimento/)).toBeInTheDocument();
     expect(screen.queryByText(/49,8 GB/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Nota interna/)).not.toBeInTheDocument();
   });

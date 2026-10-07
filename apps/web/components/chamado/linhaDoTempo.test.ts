@@ -110,7 +110,7 @@ describe("montarConversa (mockup, tela 5)", () => {
   it("evento do sistema em texto simples, com hora", () => {
     expect(itens[2]).toMatchObject({
       tipo: "evento",
-      texto: "Rafael Lima assumiu o chamado",
+      texto: "Rafael Lima iniciou o atendimento",
       hora: "09:40",
     });
   });
@@ -144,7 +144,7 @@ describe("montarConversa (mockup, tela 5)", () => {
       agora,
     });
     expect(daTi.find((i) => i.tipo === "evento")).toMatchObject({
-      texto: "Você assumiu o chamado",
+      texto: "Você iniciou o atendimento",
     });
     expect(daTi.find((i) => i.tipo === "evento" && i.texto.startsWith("Status"))).toMatchObject({
       texto: "Status alterado para Aguardando usuário",

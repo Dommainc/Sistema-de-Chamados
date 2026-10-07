@@ -1,5 +1,5 @@
 // Monta a conversa do chamado (mockup, telas 5 e 7): o pedido de abertura como primeira mensagem,
-// as mensagens, os eventos do sistema em pílula ("Rafael Lima assumiu o chamado · 09:40")
+// as mensagens, os eventos do sistema em pílula ("Rafael Lima iniciou o atendimento · 09:40")
 // e os separadores de dia ("Hoje"). Funções puras — a visibilidade já vem filtrada pela camada de dados.
 // Notas internas NÃO entram na conversa: ficam no Relato técnico (montarRelato), só da TI.
 
@@ -75,7 +75,7 @@ export function textoEvento(
     case "criado":
       return null; // o próprio pedido já aparece como primeira mensagem
     case "assumido":
-      return `${autor} assumiu o chamado`;
+      return `${autor} iniciou o atendimento`;
     case "status_alterado":
       if (evento.autorId === null && evento.para === "em_andamento") {
         return papel === "solicitante"
@@ -293,7 +293,7 @@ export function montarRelato({
 
 /**
  * Linha do cartão HISTÓRICO da área técnica (mockup, tela 7): "Aberto por Ana Souza",
- * "Assumido por Rafael Lima", "Em atendimento → Aguardando usuário", transferências com motivo.
+ * "Iniciado por Rafael Lima", "Em atendimento → Aguardando usuário", transferências com motivo.
  */
 export function textoHistorico(
   evento: EventoHistorico,
@@ -305,7 +305,7 @@ export function textoHistorico(
     case "criado":
       return `Aberto por ${autor}`;
     case "assumido":
-      return `Assumido por ${autor}`;
+      return `Iniciado por ${autor}`;
     case "status_alterado":
       return evento.autorId === null
         ? `Solicitante respondeu · ${status(evento.de)} → ${status(evento.para)}`

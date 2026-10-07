@@ -31,10 +31,11 @@ import {
   filtrarChamados,
   montarQuadro,
   ordenarNovos,
+  ordenarTransferidos,
   type ColunaQuadro as IdColuna,
   type FiltrosQuadro as Filtros,
 } from "./quadro";
-import { ModalAcao } from "./atendimento/ModalAcao";
+import { ModalAcao, type AcaoComModal } from "./atendimento/ModalAcao";
 import { useAcaoChamado } from "./useAcaoChamado";
 
 const SEGUNDOS_DESTAQUE = 6;
@@ -55,11 +56,9 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const [colunaCelular, setColunaCelular] = useState<IdColuna>("novos");
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [destacados, setDestacados] = useState<ReadonlySet<number>>(new Set());
-  // Arrastar para Concluídos/Cancelados abre a janela da ação (confirmação ou motivo).
-  const [encerrando, setEncerrando] = useState<{
-    id: number;
-    acao: "concluir" | "cancelar";
-  } | null>(null);
+  // Arrastar para Concluídos, Cancelados, Transferidos ou de volta a Novos abre a janela da ação
+  // (confirmação, motivo, técnico de destino) — a mesma da tela de atendimento.
+  const [comJanela, setComJanela] = useState<{ id: number; acao: AcaoComModal } | null>(null);
   const conhecidos = useRef<Set<number> | null>(null);
   // Arrastar: mouse (depois de mexer 6 px), dedo (segurar ~0,25 s) e teclado (espaço + setas) — ADR 0010.
   const sensores = useSensors(
@@ -113,7 +112,8 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const perfil = new Map(dados.perfis.map((p) => [p.id, p]));
   const categoria = new Map(dados.categorias.map((c) => [c.id, c]));
   const quadro = montarQuadro(filtrarChamados(dados.chamados, filtros, usuario.id, agora), agora);
-  quadro.novos = ordenarNovos(quadro.novos, usuario.id, agora);
+  quadro.novos = ordenarNovos(quadro.novos, agora);
+  quadro.transferidos = ordenarTransferidos(quadro.transferidos, usuario.id);
   const cartoes = (coluna: IdColuna): DadosCartao[] =>
     quadro[coluna].map((c) => {
       const autorTransferencia = dados.extras.get(c.id)?.transferidoPorId;
@@ -147,9 +147,8 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       mostrar(mensagemErro("TRANSICAO_INVALIDA", { de: titulo(de), para: titulo(para) }), "erro");
       return;
     }
-    // Concluir e cancelar encerram o chamado de vez: abrem a mesma janela da tela de atendimento
-    // (concluir pede confirmação; cancelar pede o motivo).
-    if (acao === "concluir" || acao === "cancelar") setEncerrando({ id: chamadoId, acao });
+    const comModal: readonly string[] = ["concluir", "cancelar", "transferir", "devolver_fila"];
+    if (comModal.includes(acao)) setComJanela({ id: chamadoId, acao: acao as AcaoComModal });
     else void executar(chamadoId, acao);
   }
 
@@ -259,7 +258,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       >
         {/* Três colunas de trabalho largas; Concluídos e Cancelados estreitas (pedido do dono, 2026-10-07). */}
         <div
-          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(3,minmax(0,1fr))_repeat(2,minmax(0,0.68fr))] xl:overflow-visible xl:px-0 xl:pb-0`}
+          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(4,minmax(13rem,1fr))_repeat(2,minmax(10.5rem,0.7fr))] xl:px-0`}
         >
           {COLUNAS.map((c) => (
             <ColunaQuadro
@@ -298,11 +297,11 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       </DndContext>
 
       <ModalAcao
-        acao={encerrando?.acao ?? null}
-        chamadoId={encerrando?.id ?? 0}
-        responsavelId={null}
-        tecnicos={[]}
-        aoFechar={() => setEncerrando(null)}
+        acao={comJanela?.acao ?? null}
+        chamadoId={comJanela?.id ?? 0}
+        responsavelId={dados.chamados.find((c) => c.id === comJanela?.id)?.responsavelId ?? null}
+        tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
+        aoFechar={() => setComJanela(null)}
       />
 
       <p className="text-center">

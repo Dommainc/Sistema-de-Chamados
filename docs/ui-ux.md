@@ -39,7 +39,7 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 | `borda` | Bordas de cartões e campos | `#DCD8CF` |
 | `texto` / `texto-suave` | Texto principal / secundário | `#1A1C20` / `#5E626A` |
 | `primaria` (+ `forte`, `suave`) | Azul-marinho: botões principais, links, bolha do autor | `#1F4E8C` / `#173D6E` / `#E7EDF5` |
-| `barra` | Barra superior da área técnica e botão "Assumir" | `#16181C` |
+| `barra` | Barra superior da área técnica e botão "Iniciar" | `#16181C` |
 | `sucesso` (+ `suave`) | "Concluir", passo concluído, prazo ok | `#1E6B3C` / `#E3F0E7` |
 | `alerta` (+ `suave`, `borda`) | "Aguardando sua resposta", nota interna, vence em < 1 h | `#7A4A00` / `#FCF0DA` / `#E5B866` |
 | `laranja` | Contador do menu ("1") e barra de "vence em breve" | `#C2570C` |
@@ -96,7 +96,7 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
      A TI analisa o pedido e informa a previsão aqui no chamado" (não há mais previsão automática — ADR 0009).
 3. **Passo 3 de 3 — confirmação**
    - Círculo verde com ✓, "Pronto! Seu chamado é o", **#42** grande em azul, título do chamado.
-   - Cartão: "Previsão de conclusão · A TI vai analisar e informar" e "Você vai receber avisos no **Teams** quando o técnico assumir ou responder."
+   - Cartão: "Previsão de conclusão · A TI vai analisar e informar" e "Você vai receber avisos no **Teams** quando o técnico iniciar o atendimento ou responder."
    - Botões no rodapé: [Acompanhar meu chamado] (azul) e [Abrir outro pedido] (contorno).
 4. **Meus chamados** (`/meus-chamados`)
    - Seletor "Em andamento (4) | Encerrados".
@@ -109,7 +109,7 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
    - "Técnico: **Rafael Lima**" · "Previsão: **hoje, 14:00**" (sem prazo: "Previsão: **a TI vai informar**").
      Na conversa, pílula "Previsão de conclusão: 08/10/2026 18:00" (ou "alterada para …: motivo"). Link "Ver detalhes do pedido" (abre respostas do formulário e arquivos).
    - Chat: separador "Hoje"; mensagens do solicitante em bolha azul à direita; da TI em bolha branca à esquerda com
-     "Rafael Lima · TI · 09:52"; eventos do sistema em pílula cinza centralizada ("Rafael Lima assumiu o chamado · 09:40");
+     "Rafael Lima · TI · 09:52"; eventos do sistema em pílula cinza centralizada ("Rafael Lima iniciou o atendimento · 09:40");
      anexos como miniatura.
    - Rodapé: clipe, campo "Escreva sua resposta...", botão redondo azul de enviar.
 
@@ -121,25 +121,32 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 6. **Quadro** (`/atendimento`)
    **Revisão do dono (2026-10-07)** — cartões estavam "confundíveis": a data solta não dizia que era prazo, todos os
    cartões eram iguais em qualquer coluna e o responsável era só uma bolinha "RL". Mudou:
-   - Faixa "PRÓXIMO DA FILA" **numa linha só**: selo de prazo, "#36 título · solicitante, departamento", **"Pegar o próximo →"**.
+   **Segunda revisão (2026-10-07):** "Nº" virou **etiqueta "ID 36"** pequena no canto superior esquerdo; **"Assumir"
+   virou "Iniciar"** em toda a interface (por dentro a ação continua `assumir`); **uma cor por cartão** = o que mais
+   precisa de ação; nova coluna **Transferidos**.
+   - Faixa "PRÓXIMO DA FILA" **numa linha só**: selo de prazo, "#36 título · solicitante, departamento", **"Iniciar o próximo →"**.
    - Filtros: Todos · Só os meus · Sem responsável | Todas as categorias | Qualquer prazo.
-     Legenda: **"Cor do número = prazo:"** Vencido · Vence em menos de 1h · No prazo · Sem prazo.
-   - **Cinco colunas**, cada uma numa **raia com fundo próprio**, bolinha de cor da coluna (não é prazo) e contador:
-     **Novos** ("Arraste para assumir"; seções "PRAZO VENCIDO" e "NA FILA"; "Ver mais 3"), **Em atendimento**,
-     **Aguardando usuário** — largas — e **Concluídos** e **Cancelados** (últimos 7 dias) — **estreitas**.
-     Saiu a barra de proporção de prazos do topo da coluna (era mais uma cor de prazo).
-   - Cartão aberto: canhoto "Nº 36" (cor = prazo), selos ("NOVO", "Transferido para você · por Thiago"), título,
-     "solicitante · categoria"; depois **o que importa na coluna**: Em atendimento → "Com **Rafael**" (avatar + nome);
-     Aguardando → "⌛ Esperando **Ana** há 2h"; e o prazo **com rótulo** ("Prazo: hoje, 14:00" · "Venceu há 3 h" ·
-     "Sem prazo") numa linha, com a barra e o botão **Assumir** (Novos) embaixo.
-   - Cartão encerrado (Concluídos/Cancelados): uma linha "#30 título", "Concluído seg, 05/10 · Thiago" ou
+     Legenda: **"Cor do cartão = o que precisa de atenção:"** Prazo vencido · Mensagem nova · Vence em menos de 1h ·
+     Sem prazo · Em dia.
+   - **Seis colunas**, cada uma numa **raia com fundo próprio**, bolinha de cor da coluna (não é urgência) e contador:
+     **Novos** ("Arraste para iniciar"; seções "PRAZO VENCIDO" e "NA FILA"; "Ver mais 3"), **Transferidos** (os
+     transferidos para mim primeiro; "Aguardando Thiago iniciar" nos dos outros), **Em atendimento**, **Aguardando
+     usuário** — e, estreitas, **Concluídos** e **Cancelados** (últimos 7 dias). Abaixo de ~1280 px, rolagem lateral.
+   - Cartão aberto: **etiqueta "ID 36"** + rótulo da urgência; **borda esquerda e etiqueta na cor da urgência**, uma só,
+     nesta ordem: 🔴 prazo vencido · 🔵 mensagem nova · 🟠 vence em menos de 1 h · 🟡 sem prazo definido · sem cor = em
+     dia (`urgenciaDoCartao`). Depois selos ("NOVO", "Transferido para você · por Thiago"), título, "solicitante ·
+     categoria", o que importa na coluna (Em atendimento → "Com **Rafael**"; Aguardando → "⌛ Esperando **Ana** há 2h"),
+     o prazo **com rótulo** numa linha ("Prazo: hoje, 14:00" · "Venceu há 3 h" · "Sem prazo") e, em Novos/Transferidos,
+     o botão **Iniciar** na largura do cartão.
+   - Cartão encerrado (Concluídos/Cancelados): "ID 30", título, "Concluído seg, 05/10 · Thiago" ou
      "Cancelado sáb, 03/10" + o motivo. Só leitura.
-   - Arrastar: Novos → Em atendimento (assumir), Em atendimento ↔ Aguardando, → Concluídos (confirma) e
-     **→ Cancelados (pede o motivo)**.
+   - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento ↔ Aguardando, Em atendimento/Aguardando
+     → Transferidos (**transferir**: técnico + motivo), → Novos (**devolver**: motivo), → Concluídos (confirma) e
+     → Cancelados (motivo).
 7. **Atendimento** (`/atendimento/41`) — **reorganizada a pedido do dono (2026-10-07)**: antes a direita tinha 5 cartões
    empilhados, a descrição e o print se repetiam e as ações tinham tamanhos diferentes.
    - **Cabeçalho-resumo** (cartão no topo): "‹ Quadro", "#41 título" + selo de status e, à direita, as **ações**:
-     a principal em destaque (Assumir ou **Marcar como concluído**), Aguardar/Retomar e Transferir em contorno, e
+     a principal em destaque (**Iniciar** ou **Marcar como concluído**), Aguardar/Retomar e Transferir em contorno, e
      **"⋯ Mais ações"** com Devolver à fila e Cancelar chamado (vermelho). Abaixo, quatro blocos: **SOLICITANTE**
      (avatar, nome, departamento, telefone e e-mail clicáveis), **RESPONSÁVEL** (+ "Aberto em"), **PRAZO** (colorido,
      link **Definir prazo** / **Alterar prazo** — a janela tem atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias

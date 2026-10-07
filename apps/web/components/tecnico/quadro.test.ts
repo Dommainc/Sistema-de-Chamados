@@ -7,6 +7,8 @@ import {
   filtrarChamados,
   montarQuadro,
   ordenarNovos,
+  ordenarTransferidos,
+  urgenciaDoCartao,
   type FiltrosQuadro,
 } from "./quadro";
 
@@ -43,7 +45,7 @@ const TODOS: FiltrosQuadro = { responsavel: "todos", categoriaId: null, prazo: "
 describe("colunas", () => {
   it("pendente e transferido vão para Novos; concluído e cancelado têm coluna própria", () => {
     expect(colunaDoStatus("pendente")).toBe("novos");
-    expect(colunaDoStatus("transferido")).toBe("novos");
+    expect(colunaDoStatus("transferido")).toBe("transferidos");
     expect(colunaDoStatus("em_andamento")).toBe("em_atendimento");
     expect(colunaDoStatus("aguardando_usuario")).toBe("aguardando");
     expect(colunaDoStatus("concluido")).toBe("concluidos");
@@ -126,19 +128,33 @@ describe("busca", () => {
   });
 });
 
-describe("ordem da coluna Novos", () => {
-  it("vencidos, depois transferido para mim, depois pelo prazo", () => {
+describe("ordem das colunas Novos e Transferidos", () => {
+  it("Novos: vencidos primeiro, depois pelo prazo", () => {
     const ordem = ordenarNovos(
-      [
-        chamado(1, "pendente", 30),
-        chamado(2, "transferido", 900, "eu"),
-        chamado(3, "pendente", -10),
-        chamado(4, "transferido", 20, "outro"),
-      ],
-      "eu",
+      [chamado(1, "pendente", 30), chamado(3, "pendente", -10), chamado(5, "pendente", 10)],
       agora,
     ).map((c) => c.id);
-    expect(ordem).toEqual([3, 2, 4, 1]);
+    expect(ordem).toEqual([3, 5, 1]);
+  });
+
+  it("Transferidos: os que vieram para mim primeiro", () => {
+    const ordem = ordenarTransferidos(
+      [chamado(2, "transferido", 20, "outro"), chamado(4, "transferido", 900, "eu")],
+      "eu",
+    ).map((c) => c.id);
+    expect(ordem).toEqual([4, 2]);
+  });
+});
+
+describe("cor do cartão (o que mais precisa de ação)", () => {
+  it("vencido > mensagem nova > vence em menos de 1 h > sem prazo > em dia", () => {
+    expect(urgenciaDoCartao(chamado(1, "em_andamento", -5), 3, agora)).toBe("vencido");
+    expect(urgenciaDoCartao(chamado(1, "em_andamento", 30), 1, agora)).toBe("mensagem_nova");
+    expect(urgenciaDoCartao(chamado(1, "em_andamento", 30), 0, agora)).toBe("vence_em_breve");
+    expect(urgenciaDoCartao({ ...chamado(1, "pendente", 30), prazoSla: null }, 0, agora)).toBe(
+      "sem_prazo",
+    );
+    expect(urgenciaDoCartao(chamado(1, "em_andamento", 500), 0, agora)).toBe("em_dia");
   });
 });
 
@@ -148,7 +164,11 @@ describe("arrastar entre colunas", () => {
     expect(acaoDoArraste("em_atendimento", "aguardando")).toBe("aguardar_usuario");
     expect(acaoDoArraste("aguardando", "em_atendimento")).toBe("retomar");
     expect(acaoDoArraste("novos", "aguardando")).toBeNull();
-    expect(acaoDoArraste("em_atendimento", "novos")).toBeNull();
+    expect(acaoDoArraste("transferidos", "em_atendimento")).toBe("assumir");
+    expect(acaoDoArraste("em_atendimento", "transferidos")).toBe("transferir");
+    expect(acaoDoArraste("transferidos", "novos")).toBe("devolver_fila");
+    expect(acaoDoArraste("novos", "transferidos")).toBeNull();
+    expect(acaoDoArraste("em_atendimento", "novos")).toBe("devolver_fila");
     expect(acaoDoArraste("novos", "novos")).toBeNull();
     expect(acaoDoArraste("em_atendimento", "concluidos")).toBe("concluir");
     expect(acaoDoArraste("aguardando", "concluidos")).toBe("concluir");

@@ -51,9 +51,9 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   await entrar(page, "Rafael Lima");
   await page
     .getByRole("article", { name: /^Chamado 42:/ })
-    .getByRole("button", { name: "Assumir" })
+    .getByRole("button", { name: "Iniciar" })
     .click();
-  await expect(page.getByText("Você assumiu o chamado #42.")).toBeVisible();
+  await expect(page.getByText("Você iniciou o chamado #42.")).toBeVisible();
 
   await page.goto("/atendimento/42");
   const mensagem = page.getByRole("textbox", { name: "Mensagem" });
@@ -78,9 +78,9 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   await page.goto("/atendimento/42");
   await page
     .getByRole("region", { name: "Ações" })
-    .getByRole("button", { name: "Assumir" })
+    .getByRole("button", { name: "Iniciar" })
     .click();
-  await expect(page.getByText("Você assumiu o chamado #42.")).toBeVisible();
+  await expect(page.getByText("Você iniciou o chamado #42.")).toBeVisible();
   await page
     .getByRole("region", { name: "Ações" })
     .getByRole("button", { name: "Marcar como concluído" })
@@ -90,7 +90,7 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
 
   const historico = page.getByRole("region", { name: "Histórico" });
   await historico.locator("summary").click(); // recolhido por padrão
-  await expect(historico.getByText("Assumido por Rafael Lima")).toBeVisible();
+  await expect(historico.getByText("Iniciado por Rafael Lima")).toBeVisible();
   await expect(
     historico.getByText(
       "Transferido por Rafael Lima para Thiago Martins — Thiago está na obra Recreio hoje.",

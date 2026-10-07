@@ -63,7 +63,7 @@ describe("AtendimentoChamado", () => {
     for (const nome of ["Marcar como concluído", "Transferir", "Retomar atendimento"]) {
       expect(within(acoes).getByRole("button", { name: nome })).toBeInTheDocument();
     }
-    expect(within(acoes).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
+    expect(within(acoes).queryByRole("button", { name: "Iniciar" })).not.toBeInTheDocument();
     // Devolver e cancelar ficam no menu "Mais ações".
     expect(
       within(acoes).queryByRole("button", { name: "Cancelar chamado" }),

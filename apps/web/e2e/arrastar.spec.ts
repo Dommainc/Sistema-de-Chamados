@@ -85,7 +85,7 @@ test.describe("celular (dedo)", () => {
     expect(sobreEmAtendimento).toBe(true);
     await tocar("touchEnd", meio, inicio.y);
 
-    await expect(page.getByText("Você assumiu o chamado #36.")).toBeVisible();
+    await expect(page.getByText("Você iniciou o chamado #36.")).toBeVisible();
   });
 
   test("toque rápido no título abre o chamado (não vira arraste)", async ({ page }) => {

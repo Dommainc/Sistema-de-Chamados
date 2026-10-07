@@ -10,7 +10,7 @@ import { formatarNumeroChamado } from "@/lib/formato";
 export type AcaoDeBotao = Exclude<AcaoChamado, "resposta_solicitante">;
 
 const SUCESSO: Record<AcaoDeBotao, (numero: string) => string> = {
-  assumir: (n) => `Você assumiu o chamado ${n}.`,
+  assumir: (n) => `Você iniciou o chamado ${n}.`,
   aguardar_usuario: (n) => `Chamado ${n} aguardando o usuário.`,
   retomar: (n) => `Atendimento do chamado ${n} retomado.`,
   transferir: (n) => `Chamado ${n} transferido.`,
@@ -19,7 +19,7 @@ const SUCESSO: Record<AcaoDeBotao, (numero: string) => string> = {
   cancelar: (n) => `Chamado ${n} cancelado.`,
 };
 
-/** Aviso de sucesso de cada ação ("Você assumiu o chamado #42."). */
+/** Aviso de sucesso de cada ação ("Você iniciou o chamado #42."). */
 export function textoSucesso(acao: AcaoDeBotao, chamadoId: number): string {
   return SUCESSO[acao](formatarNumeroChamado(chamadoId));
 }

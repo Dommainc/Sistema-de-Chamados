@@ -28,5 +28,5 @@ test("técnico no celular: colunas viram botões e o atendimento tem abas", asyn
   await page.getByText("Instalar AutoCAD no notebook").click();
   await expect(page).toHaveURL(/\/atendimento\/38$/);
   await page.getByRole("tab", { name: "Histórico" }).click();
-  await expect(page.getByText("Assumido por Rafael Lima")).toBeVisible();
+  await expect(page.getByText("Iniciado por Rafael Lima")).toBeVisible();
 });

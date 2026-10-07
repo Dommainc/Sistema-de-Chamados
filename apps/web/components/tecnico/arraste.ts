@@ -22,7 +22,7 @@ export interface DadosArraste {
   coluna: ColunaQuadro;
 }
 
-/** Arrastar não começa em cima de um botão (ex.: "Assumir"): ali o toque/clique é do botão. */
+/** Arrastar não começa em cima de um botão (ex.: "Iniciar"): ali o toque/clique é do botão. */
 function emBotao(alvo: EventTarget | null): boolean {
   return alvo instanceof Element && alvo.closest("button") !== null;
 }

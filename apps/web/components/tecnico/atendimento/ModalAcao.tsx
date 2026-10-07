@@ -33,7 +33,7 @@ const CONFIG: Record<
   },
   transferir: {
     titulo: "Transferir chamado",
-    texto: (n) => `O chamado ${n} vai para o técnico escolhido, que precisa assumir.`,
+    texto: (n) => `O chamado ${n} vai para o técnico escolhido, que precisa iniciar.`,
     botao: "Transferir",
     variante: "primario",
     motivo: "Por que está transferindo?",
@@ -41,7 +41,7 @@ const CONFIG: Record<
   devolver_fila: {
     titulo: "Devolver à fila",
     texto: (n) =>
-      `O chamado ${n} volta para Novos, sem responsável, para qualquer técnico assumir.`,
+      `O chamado ${n} volta para Novos, sem responsável, para qualquer técnico iniciar.`,
     botao: "Devolver à fila",
     variante: "primario",
     motivo: "Por que está devolvendo?",

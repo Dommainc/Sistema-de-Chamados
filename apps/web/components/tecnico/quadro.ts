@@ -1,5 +1,5 @@
 // Regras puras do quadro da área técnica (mockup, tela 6; adaptado ao ADR 0005).
-// Cinco colunas: Novos · Em atendimento · Aguardando usuário · Concluídos · Cancelados
+// Seis colunas: Novos · Transferidos · Em atendimento · Aguardando usuário · Concluídos · Cancelados
 // (pedidos do dono, 2026-10-06 e 2026-10-07). As duas últimas são estreitas e só mostram os últimos 7 dias.
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
@@ -7,7 +7,8 @@ import type { Chamado, StatusChamado } from "@/lib/dominio/tipos";
 import { compararPrazo, situacaoPrazo, type SituacaoPrazo } from "@/lib/prazo";
 import type { FiltroResponsavel } from "./parametros";
 
-export type ColunaQuadro = "novos" | "em_atendimento" | "aguardando" | "concluidos" | "cancelados";
+export type ColunaQuadro =
+  "novos" | "transferidos" | "em_atendimento" | "aguardando" | "concluidos" | "cancelados";
 
 /** "Concluídos" e "Cancelados" mostram só os dos últimos dias (os demais ficam em "Ver encerrados"). */
 export const DIAS_CONCLUIDOS = 7;
@@ -21,7 +22,13 @@ export interface DefinicaoColuna {
 }
 
 export const COLUNAS: readonly DefinicaoColuna[] = [
-  { id: "novos", titulo: "Novos", apoio: "Arraste para assumir", encerrada: false },
+  { id: "novos", titulo: "Novos", apoio: "Arraste para iniciar", encerrada: false },
+  {
+    id: "transferidos",
+    titulo: "Transferidos",
+    apoio: "O técnico de destino inicia",
+    encerrada: false,
+  },
   { id: "em_atendimento", titulo: "Em atendimento", apoio: "TI cuidando", encerrada: false },
   {
     id: "aguardando",
@@ -46,8 +53,9 @@ export const COLUNAS: readonly DefinicaoColuna[] = [
 export function colunaDoStatus(status: StatusChamado): ColunaQuadro | null {
   switch (status) {
     case "pendente":
-    case "transferido":
       return "novos";
+    case "transferido":
+      return "transferidos";
     case "em_andamento":
       return "em_atendimento";
     case "aguardando_usuario":
@@ -111,6 +119,7 @@ export type Quadro = Record<ColunaQuadro, Chamado[]>;
 export function montarQuadro(chamados: readonly Chamado[], agora: Date = new Date()): Quadro {
   const quadro: Quadro = {
     novos: [],
+    transferidos: [],
     em_atendimento: [],
     aguardando: [],
     concluidos: [],
@@ -125,7 +134,7 @@ export function montarQuadro(chamados: readonly Chamado[], agora: Date = new Dat
     }
     quadro[coluna].push(c);
   }
-  for (const coluna of ["novos", "em_atendimento", "aguardando"] as const) {
+  for (const coluna of ["novos", "transferidos", "em_atendimento", "aguardando"] as const) {
     quadro[coluna].sort(compararPrazo);
   }
   for (const coluna of ["concluidos", "cancelados"] as const) {
@@ -139,39 +148,58 @@ export function encerradoEm(c: Chamado): string {
   return c.concluidoEm ?? c.canceladoEm ?? c.atualizadoEm;
 }
 
-/**
- * Ordem da coluna "Novos" (mockup): primeiro os vencidos, depois o que foi transferido para mim
- * (é direcionado a mim), depois o resto (compararPrazo).
- */
-export function ordenarNovos(
-  chamados: readonly Chamado[],
-  euId: string,
-  agora: Date = new Date(),
-): Chamado[] {
-  const prioridade = (c: Chamado) => {
-    if (situacaoPrazo(c.prazoSla, agora) === "vencido") return 0;
-    if (c.status === "transferido" && c.responsavelId === euId) return 1;
-    return 2;
-  };
+/** Ordem da coluna "Novos" (mockup): primeiro os vencidos, depois o resto (compararPrazo). */
+export function ordenarNovos(chamados: readonly Chamado[], agora: Date = new Date()): Chamado[] {
+  const prioridade = (c: Chamado) => (situacaoPrazo(c.prazoSla, agora) === "vencido" ? 0 : 1);
   return [...chamados].sort((a, b) => prioridade(a) - prioridade(b) || compararPrazo(a, b));
 }
 
+/** Ordem da coluna "Transferidos": primeiro os transferidos PARA MIM (eu preciso iniciar). */
+export function ordenarTransferidos(chamados: readonly Chamado[], euId: string): Chamado[] {
+  const paraMim = (c: Chamado) => (c.responsavelId === euId ? 0 : 1);
+  return [...chamados].sort((a, b) => paraMim(a) - paraMim(b) || compararPrazo(a, b));
+}
+
 /**
- * Arrastar um cartão entre colunas vira uma ação da máquina de estados.
- * Novos → Em atendimento = assumir; Em atendimento → Aguardando = aguardar usuário;
- * Aguardando → Em atendimento = retomar; Em atendimento/Aguardando → Concluídos = concluir
- * (com confirmação); qualquer coluna aberta → Cancelados = cancelar (pede motivo).
+ * Cor do cartão (pedido do dono, 2026-10-07): uma cor só, a do que mais precisa de ação, nesta ordem:
+ * prazo vencido → mensagem nova → vence em menos de 1 h → sem prazo definido → em dia (sem cor).
+ */
+export type Urgencia = "vencido" | "mensagem_nova" | "vence_em_breve" | "sem_prazo" | "em_dia";
+
+export function urgenciaDoCartao(
+  chamado: Chamado,
+  naoLidas: number,
+  agora: Date = new Date(),
+): Urgencia {
+  const prazo = situacaoPrazo(chamado.prazoSla, agora);
+  if (prazo === "vencido") return "vencido";
+  if (naoLidas > 0) return "mensagem_nova";
+  if (prazo === "vence_em_breve") return "vence_em_breve";
+  if (prazo === "sem_prazo") return "sem_prazo";
+  return "em_dia";
+}
+
+/**
+ * Arrastar um cartão entre colunas vira uma ação da máquina de estados (a regra final é dela):
+ * Novos/Transferidos → Em atendimento = iniciar (Transferidos: só o técnico de destino);
+ * Em atendimento ↔ Aguardando = aguardar usuário / retomar;
+ * Em atendimento/Aguardando → Transferidos = transferir (pede técnico e motivo);
+ * Em atendimento/Aguardando/Transferidos → Novos = devolver à fila (pede motivo);
+ * Em atendimento/Aguardando → Concluídos = concluir (confirma); qualquer aberta → Cancelados = cancelar (motivo).
  * Outros movimentos não valem (null).
  */
 export function acaoDoArraste(
   de: ColunaQuadro,
   para: ColunaQuadro,
 ): Exclude<AcaoChamado, "resposta_solicitante"> | null {
-  if (de === "novos" && para === "em_atendimento") return "assumir";
+  const emTrabalho = de === "em_atendimento" || de === "aguardando";
+  if ((de === "novos" || de === "transferidos") && para === "em_atendimento") return "assumir";
+  if (emTrabalho && para === "transferidos") return "transferir";
+  if ((emTrabalho || de === "transferidos") && para === "novos") return "devolver_fila";
   if (de === "em_atendimento" && para === "aguardando") return "aguardar_usuario";
   if (de === "aguardando" && para === "em_atendimento") return "retomar";
   if ((de === "em_atendimento" || de === "aguardando") && para === "concluidos") return "concluir";
-  if ((de === "novos" || de === "em_atendimento" || de === "aguardando") && para === "cancelados") {
+  if (!["concluidos", "cancelados"].includes(de) && para === "cancelados") {
     return "cancelar";
   }
   return null;

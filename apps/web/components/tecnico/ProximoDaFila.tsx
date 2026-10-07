@@ -15,7 +15,7 @@ const TOM_PRAZO = {
   sem_prazo: "bg-superficie-2 text-texto-suave",
 } as const;
 
-/** Faixa "PRÓXIMO DA FILA" com "Pegar o próximo" (mockup, telas 6 e 8), numa linha só no computador. */
+/** Faixa "PRÓXIMO DA FILA" com "Iniciar o próximo" (mockup, telas 6 e 8), numa linha só no computador. */
 export function ProximoDaFila({
   chamado,
   solicitante,
@@ -65,7 +65,7 @@ export function ProximoDaFila({
         </Link>
       </div>
       <Botao onClick={aoPegar} carregando={pegando} className="min-h-10 shrink-0 md:px-5">
-        Pegar o próximo <ArrowRight aria-hidden="true" className="size-4" />
+        Iniciar o próximo <ArrowRight aria-hidden="true" className="size-4" />
       </Botao>
     </div>
   );

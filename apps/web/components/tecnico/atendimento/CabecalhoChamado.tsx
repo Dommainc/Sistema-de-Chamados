@@ -52,7 +52,7 @@ function Info({
 }
 
 /**
- * Ações do chamado no cabeçalho: a principal em destaque (Assumir ou Concluir), as do dia a dia ao lado
+ * Ações do chamado no cabeçalho: a principal em destaque (Iniciar ou Concluir), as do dia a dia ao lado
  * e as que encerram ou devolvem ("Devolver à fila", "Cancelar") no menu "Mais ações".
  */
 function AcoesCabecalho({
@@ -106,7 +106,7 @@ function AcoesCabecalho({
       aria-label="Ações"
       className="flex flex-wrap items-center gap-2 [&_button]:max-sm:min-h-10 [&_button]:max-sm:px-3 [&_button]:max-sm:text-sm"
     >
-      {tem("assumir") ? <Botao onClick={() => clicar("assumir")}>Assumir</Botao> : null}
+      {tem("assumir") ? <Botao onClick={() => clicar("assumir")}>Iniciar</Botao> : null}
       {tem("concluir") ? (
         <Botao
           variante="sucesso"

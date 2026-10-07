@@ -6,12 +6,11 @@ import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { BarraPrazo } from "@/components/ui/BarraPrazo";
 import { Botao } from "@/components/ui/Botao";
-import { NumeroTicket } from "@/components/ui/NumeroTicket";
+import { EtiquetaId } from "@/components/ui/EtiquetaId";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
-import { formatarAtualizacao, formatarNumeroChamado, tempoRelativo } from "@/lib/formato";
-import { situacaoPrazo } from "@/lib/prazo";
-import { ehNovo, encerradoEm, type ColunaQuadro } from "./quadro";
+import { formatarAtualizacao, tempoRelativo } from "@/lib/formato";
+import { ehNovo, encerradoEm, urgenciaDoCartao, type ColunaQuadro, type Urgencia } from "./quadro";
 
 export interface DadosCartao {
   chamado: Chamado;
@@ -34,6 +33,27 @@ export interface PropsArraste {
 }
 
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
+
+/** Uma cor por cartão: a do que mais precisa de ação (borda da esquerda + etiqueta do ID). */
+export const COR_URGENCIA: Record<Urgencia, { borda: string; etiqueta: string; rotulo: string }> = {
+  vencido: { borda: "border-l-perigo", etiqueta: "bg-perigo text-white", rotulo: "Prazo vencido" },
+  mensagem_nova: {
+    borda: "border-l-info",
+    etiqueta: "bg-info text-white",
+    rotulo: "Mensagem nova",
+  },
+  vence_em_breve: {
+    borda: "border-l-laranja",
+    etiqueta: "bg-laranja text-white",
+    rotulo: "Vence em menos de 1 h",
+  },
+  sem_prazo: {
+    borda: "border-l-alerta-borda",
+    etiqueta: "bg-alerta-suave text-alerta",
+    rotulo: "Sem prazo definido",
+  },
+  em_dia: { borda: "border-l-borda", etiqueta: "bg-superficie-2 text-texto-suave", rotulo: "" },
+};
 
 function NaoLidas({ total }: { total: number }) {
   if (total === 0) return null;
@@ -60,12 +80,12 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
       className="flex flex-col gap-1 rounded-xl border border-borda bg-superficie px-3 py-2.5 shadow-sm"
     >
+      <EtiquetaId numero={c.id} />
       <Link
         href={`/atendimento/${c.id}`}
         className="text-sm leading-snug font-semibold hover:underline"
       >
-        <span className="font-mono text-texto-suave">{formatarNumeroChamado(c.id)}</span>{" "}
-        <span>{c.titulo}</span>
+        {c.titulo}
       </Link>
       <p className={`text-xs font-semibold ${cancelado ? "text-apagado" : "text-sucesso"}`}>
         {cancelado ? "Cancelado" : "Concluído"} {formatarAtualizacao(encerradoEm(c), agora)}
@@ -82,7 +102,7 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
 
 /**
  * Cartão do quadro (mockup, tela 6): canhoto "Nº" colorido pelo PRAZO, selos, prazo com rótulo e, embaixo,
- * o que importa em cada coluna: Novos → Assumir; Em atendimento → com quem está;
+ * o que importa em cada coluna: Novos/Transferidos → Iniciar; Em atendimento → com quem está;
  * Aguardando → há quanto tempo espera o solicitante (pedido do dono, 2026-10-07: cartões "confundíveis").
  */
 export function CartaoChamado({
@@ -109,9 +129,10 @@ export function CartaoChamado({
     return <CartaoEncerrado dados={dados} agora={agora} />;
   }
 
-  const situacao = situacaoPrazo(c.prazoSla, agora);
+  const urgencia = urgenciaDoCartao(c, naoLidas, agora);
+  const cor = COR_URGENCIA[urgencia];
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
-  const podeAssumir = c.status === "pendente" || transferidoParaMim;
+  const podeIniciar = c.status === "pendente" || transferidoParaMim;
   const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
 
   return (
@@ -120,89 +141,102 @@ export function CartaoChamado({
       {...arraste?.atributos}
       {...arraste?.ouvintes}
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex cursor-grab touch-manipulation overflow-hidden rounded-2xl border bg-superficie shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${
+      className={`flex cursor-grab touch-manipulation flex-col gap-1.5 rounded-2xl border border-l-4 bg-superficie p-3 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${cor.borda} ${
         destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"
       } ${arraste?.arrastando ? "opacity-40" : ""} ${fantasma ? "rotate-1 cursor-grabbing shadow-xl" : ""}`}
     >
-      <NumeroTicket numero={c.id} situacao={situacao} />
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
-        {ehNovo(c, agora) || c.status === "transferido" ? (
-          <div className="flex flex-wrap gap-1">
-            {ehNovo(c, agora) ? (
-              <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
-                NOVO
-              </span>
-            ) : null}
-            {c.status === "transferido" ? (
-              <span className="rounded-full bg-roxo-suave px-2 py-0.5 text-[11px] font-semibold text-roxo">
-                {transferidoParaMim
-                  ? "Transferido para você"
-                  : `Transferido para ${primeiroNome(responsavel)}`}
-                {transferidoPor ? ` · por ${primeiroNome(transferidoPor)}` : ""}
-              </span>
-            ) : null}
-          </div>
+      <div className="flex flex-wrap items-center gap-1.5">
+        <EtiquetaId numero={c.id} tom={cor.etiqueta} />
+        {cor.rotulo ? (
+          <span
+            className={`text-[11px] font-semibold ${urgencia === "sem_prazo" ? "text-alerta" : "text-texto-suave"}`}
+          >
+            {cor.rotulo}
+          </span>
         ) : null}
-        <Link
-          href={`/atendimento/${c.id}`}
-          className="leading-snug font-semibold hover:underline"
-          draggable={false}
-        >
-          {c.titulo}
-        </Link>
-        <p className="truncate text-xs text-texto-suave">
-          {solicitante?.nome ?? "—"} · {assunto}
-        </p>
-
-        {coluna === "em_atendimento" && responsavel ? (
-          <p className="flex items-center gap-1.5 text-sm">
-            <Avatar
-              nome={responsavel.nome}
-              tamanho="pequeno"
-              tom={responsavel.id === euId ? "escuro" : "suave"}
-            />
-            <span>
-              Com <strong>{comQuem}</strong>
+      </div>
+      {ehNovo(c, agora) || c.status === "transferido" ? (
+        <div className="flex flex-wrap gap-1">
+          {ehNovo(c, agora) ? (
+            <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
+              NOVO
             </span>
-            <span className="ml-auto">
-              <NaoLidas total={naoLidas} />
+          ) : null}
+          {c.status === "transferido" ? (
+            <span className="rounded-full bg-roxo-suave px-2 py-0.5 text-[11px] font-semibold text-roxo">
+              {transferidoParaMim
+                ? "Transferido para você"
+                : `Transferido para ${primeiroNome(responsavel)}`}
+              {transferidoPor ? ` · por ${primeiroNome(transferidoPor)}` : ""}
             </span>
-          </p>
-        ) : null}
-        {coluna === "aguardando" ? (
-          <p className="flex items-center gap-1.5 text-sm text-alerta">
-            <Hourglass aria-hidden="true" className="size-4 shrink-0" />
-            <span className="min-w-0 leading-snug">
-              Esperando <strong>{primeiroNome(solicitante) || "o solicitante"}</strong>{" "}
-              {tempoRelativo(c.atualizadoEm, agora)}
-            </span>
-            <span className="ml-auto">
-              <NaoLidas total={naoLidas} />
-            </span>
-          </p>
-        ) : null}
-
-        <div className="mt-1 flex items-end gap-3">
-          <BarraPrazo
-            criadoEm={c.criadoEm}
-            prazo={c.prazoSla}
-            agora={agora}
-            comRotulo
-            acao={
-              coluna === "novos" && podeAssumir ? (
-                <Botao
-                  variante="escuro"
-                  className="min-h-10 shrink-0 px-3 text-sm"
-                  onClick={() => aoAssumir(c.id)}
-                >
-                  Assumir
-                </Botao>
-              ) : coluna === "novos" && naoLidas > 0 ? (
-                <NaoLidas total={naoLidas} />
-              ) : null
-            }
-          />
+          ) : null}
         </div>
+      ) : null}
+      <Link
+        href={`/atendimento/${c.id}`}
+        className="leading-snug font-semibold hover:underline"
+        draggable={false}
+      >
+        {c.titulo}
+      </Link>
+      <p className="truncate text-xs text-texto-suave">
+        {solicitante?.nome ?? "—"} · {assunto}
+      </p>
+
+      {coluna === "em_atendimento" && responsavel ? (
+        <p className="flex items-center gap-1.5 text-sm">
+          <Avatar
+            nome={responsavel.nome}
+            tamanho="pequeno"
+            tom={responsavel.id === euId ? "escuro" : "suave"}
+          />
+          <span>
+            Com <strong>{comQuem}</strong>
+          </span>
+          <span className="ml-auto">
+            <NaoLidas total={naoLidas} />
+          </span>
+        </p>
+      ) : null}
+      {coluna === "aguardando" ? (
+        <p className="flex items-center gap-1.5 text-sm text-alerta">
+          <Hourglass aria-hidden="true" className="size-4 shrink-0" />
+          <span className="min-w-0 leading-snug">
+            Esperando <strong>{primeiroNome(solicitante) || "o solicitante"}</strong>{" "}
+            {tempoRelativo(c.atualizadoEm, agora)}
+          </span>
+          <span className="ml-auto">
+            <NaoLidas total={naoLidas} />
+          </span>
+        </p>
+      ) : null}
+
+      {coluna === "transferidos" && !transferidoParaMim ? (
+        <p className="text-sm text-texto-suave">
+          Aguardando <strong className="text-texto">{primeiroNome(responsavel)}</strong> iniciar
+        </p>
+      ) : null}
+
+      {/* Prazo numa linha só e, embaixo, o botão na largura do cartão (6 colunas lado a lado). */}
+      <div className="mt-1 flex flex-col gap-2">
+        <BarraPrazo
+          criadoEm={c.criadoEm}
+          prazo={c.prazoSla}
+          agora={agora}
+          comRotulo
+          semBarra
+          acao={coluna === "novos" && naoLidas > 0 ? <NaoLidas total={naoLidas} /> : null}
+        />
+        {(coluna === "novos" || coluna === "transferidos") && podeIniciar ? (
+          <Botao
+            variante="escuro"
+            larguraTotal
+            className="min-h-10 text-sm"
+            onClick={() => aoAssumir(c.id)}
+          >
+            Iniciar
+          </Botao>
+        ) : null}
       </div>
     </article>
   );

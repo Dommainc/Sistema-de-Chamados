@@ -21,6 +21,7 @@ export function BarraPrazo({
   agora = new Date(),
   semTexto = false,
   comRotulo = false,
+  semBarra = false,
   acao,
 }: {
   criadoEm: string;
@@ -31,7 +32,9 @@ export function BarraPrazo({
   semTexto?: boolean;
   /** "Prazo: amanhã, 11:29" em vez de só "Amanhã, 11:29" (nos cartões, a data solta confundia). */
   comRotulo?: boolean;
-  /** Botão ao lado da barra (ex.: "Assumir"); o texto do prazo fica numa linha só, acima. */
+  /** Só o texto (cartões do quadro: a cor do cartão já diz a urgência — ver urgenciaDoCartao). */
+  semBarra?: boolean;
+  /** Botão ao lado da barra (ex.: "Iniciar"); o texto do prazo fica numa linha só, acima. */
   acao?: React.ReactNode;
 }) {
   const situacao = situacaoPrazo(prazo, agora);
@@ -53,6 +56,14 @@ export function BarraPrazo({
       />
     </span>
   );
+  if (semBarra) {
+    return (
+      <div className="flex min-w-0 flex-1 items-center justify-between gap-3">
+        <span className={`text-sm ${COR_TEXTO[situacao]}`}>{texto}</span>
+        {acao}
+      </div>
+    );
+  }
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1.5">
       {semTexto ? null : <span className={`text-sm ${COR_TEXTO[situacao]}`}>{texto}</span>}

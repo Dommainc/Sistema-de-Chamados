@@ -88,7 +88,7 @@ export function Balao({
   );
 }
 
-/** Evento do sistema ("Rafael assumiu o chamado"): texto pequeno e discreto, sem disputar com as mensagens. */
+/** Evento do sistema ("Rafael iniciou o atendimento"): texto pequeno e discreto, sem disputar com as mensagens. */
 function Evento({ texto, hora }: { texto: string; hora: string }) {
   return (
     <p className="mx-auto max-w-[90%] text-center text-xs text-texto-suave">

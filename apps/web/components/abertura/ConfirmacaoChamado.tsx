@@ -68,8 +68,8 @@ export function ConfirmacaoChamado({ id }: { id: number }) {
           <div className="flex gap-3 p-4">
             <Bell aria-hidden="true" className="mt-0.5 size-6 shrink-0 text-primaria" />
             <p>
-              Você vai receber avisos no <strong>Teams</strong> quando o técnico assumir ou
-              responder.
+              Você vai receber avisos no <strong>Teams</strong> quando o técnico iniciar o
+              atendimento ou responder.
             </p>
           </div>
         </div>
