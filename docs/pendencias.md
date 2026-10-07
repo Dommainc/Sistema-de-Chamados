@@ -21,6 +21,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 | P-033 | ⚪ | ambiente | O `uv` foi instalado com `pip install --user` e ficou fora do PATH: usar `python -m uv` ou adicionar `%APPDATA%\Python\Python314\Scripts` ao PATH. | Quando quiser |
 | P-035 | 🟡 | ambiente | Nos projetos da nuvem, **desligar o provedor de e-mail** no painel do Supabase (Authentication → Providers → Email): login só com conta Microsoft. O `config.toml` deixa ligado só para o ambiente local/CI (usuários de teste). | Ao criar os projetos (P-022) |
 | P-036 | ⚪ | ci | Ações do CI (`checkout@v4`, `setup-uv@v6`, `supabase/setup-cli@v1`) usam Node 20, descontinuado no GitHub: atualizar as versões quando saírem. | Quando quiser |
+| P-038 | ⚪ | api | Sem limite de requisições por usuário (rate limit) na API: na Vercel não há onde guardar a contagem sem serviço extra. Avaliar no go-live as regras de firewall da Vercel (WAF) para a API. | Go-live |
 
 ## Resolvidas
 

@@ -13,6 +13,7 @@ from app.config import obter_settings
 from app.db import banco
 from app.erros.handlers import registrar_handlers
 from app.routers import chamados, me, saude
+from app.seguranca import ProtecoesHttp
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 
@@ -34,7 +35,12 @@ def criar_app() -> FastAPI:
         description="Ações de negócio da Central de Chamados. Erros sempre no formato "
         "`{ erro: { codigo, mensagem, detalhe?, campos?, ref? } }` (docs/erros.md).",
         lifespan=ciclo_de_vida,
+        # Em produção a documentação interativa fica fechada (não expor o mapa das rotas).
+        docs_url=None if settings.ambiente == "prod" else "/docs",
+        redoc_url=None,
+        openapi_url=None if settings.ambiente == "prod" else "/openapi.json",
     )
+    app.add_middleware(ProtecoesHttp)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=[settings.web_origem],

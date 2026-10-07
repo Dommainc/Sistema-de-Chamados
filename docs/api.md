@@ -1,7 +1,7 @@
 # API da Central de Chamados (`apps/api`)
 
 FastAPI. Documentação interativa (gerada do código, sempre atualizada): **`/docs`** —
-local em <http://localhost:8000/docs>. Este arquivo é o resumo para quem vai integrar (a camada `real` do front).
+local em <http://localhost:8000/docs> (**fechada em produção**). Este arquivo é o resumo para quem vai integrar (a camada `real` do front).
 
 ## Regras gerais
 
@@ -46,7 +46,7 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |
 | `ANEXO_MUITO_GRANDE` / `ANEXO_TIPO_INVALIDO` | 422 | Arquivo acima de 10 MB ou tipo não aceito (vale o tamanho **real** do arquivo enviado) |
 | `UPLOAD_FALHOU` | 502 | Storage fora do ar; arquivo não chegou; upload de outra pessoa |
-| `ERRO_INESPERADO` | 500 | Qualquer outra coisa (com `ref`) |
+| `ERRO_INESPERADO` | 500 | Qualquer outra coisa (com `ref`). Corpo acima de 1 MB → mesmo código com **413** |
 
 ## Rotas
 

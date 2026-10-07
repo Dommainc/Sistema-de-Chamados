@@ -17,6 +17,19 @@ ligados no GitHub; o que vai para o navegador começa com `NEXT_PUBLIC_` e **nun
 | **CRON_SECRET** da Vercel | Cron → API (reprocessar notificações) | Admin da API | Vercel (api) | — | Vercel → Settings → Cron |
 | **Senha dos usuários de teste** (`teste123`) | Só ambiente **local** (`seed.dev.sql`) | Todos (não é segredo) | Repositório | — | Nunca existe em dev/prod na nuvem |
 
+## Proteções do site e da API
+
+| Onde | Proteção | Arquivo |
+|---|---|---|
+| Site (Next.js) | **CSP**: scripts, estilos, imagens e conexões só do próprio site, do Supabase (`https`/`wss`) e da API; ninguém abre a Central dentro de outro site (`frame-ancestors 'none'`) | `apps/web/next.config.ts` |
+| Site | `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` (sem câmera/microfone/localização pelo navegador), HSTS; sem `X-Powered-By` | `apps/web/next.config.ts` |
+| API (FastAPI) | CORS só para `WEB_ORIGEM`; mesmos cabeçalhos + `Cache-Control: no-store` | `apps/api/app/main.py`, `app/seguranca.py` |
+| API | Corpo de requisição até **1 MB** (arquivos vão direto ao Storage) → acima disso, 413 | `apps/api/app/seguranca.py` |
+| API | Documentação interativa (`/docs`, `/openapi.json`) **fechada em produção** | `apps/api/app/main.py` |
+
+Testes: `apps/api/tests/test_seguranca.py` e `apps/web/e2e/seguranca.spec.ts` (inclui "nenhuma tela bloqueada pela CSP").
+Se o site passar a carregar algo de outra origem (ex.: imagem externa), ajuste a CSP — senão o navegador bloqueia.
+
 ## Responsáveis e datas
 | Item | Responsável | Próxima troca / vencimento |
 |---|---|---|
