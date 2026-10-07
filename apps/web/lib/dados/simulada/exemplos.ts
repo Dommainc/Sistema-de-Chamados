@@ -47,15 +47,8 @@ const LINHAS_CATEGORIAS: LinhaCategoria[] = [
     2,
     20,
   ],
-  [
-    "E-mail / Outlook",
-    "E-mail / Outlook",
-    "mail",
-    "Problemas para enviar, receber ou configurar e-mail",
-    4,
-    30,
-  ],
-  ["Teams", "Teams", "message-square", "Chamadas, reuniões, chats e equipes", 4, 40],
+  // "E-mail / Outlook" e "Teams" unificados em "Microsoft" (pedido do dono, 2026-10-07).
+  ["Microsoft", "Microsoft", "grid-2x2", "E-mail, Outlook, Teams, Word, Excel e OneDrive", 4, 30],
   [
     "Computador ou notebook",
     "Computador ou notebook",
@@ -83,7 +76,7 @@ const LINHAS_CATEGORIAS: LinhaCategoria[] = [
   [
     "Sistemas da empresa",
     "Sistemas da empresa",
-    "layout-grid",
+    "app-window",
     "Erro ou dúvida em sistemas internos",
     8,
     80,
@@ -137,6 +130,16 @@ function categoria(nome: string): Categoria {
 type LinhaCampo = [string, string, string, TipoCampo, boolean, string[], string | null, number];
 
 const CAMPOS_ESPECIFICOS: LinhaCampo[] = [
+  [
+    "Microsoft",
+    "programa",
+    "Qual programa?",
+    "selecao",
+    true,
+    ["E-mail / Outlook", "Teams", "Word, Excel ou PowerPoint", "OneDrive", "Outro"],
+    null,
+    10,
+  ],
   [
     "Acesso, senha e bloqueio de conta",
     "acesso_a",
@@ -315,6 +318,8 @@ interface ChamadoExemplo {
   /** Minutos até o prazo; ausente = a TI ainda não definiu (docs/adr/0009). */
   prazoEm?: number;
   descricao: string;
+  /** Respostas extras do formulário (além da descrição). */
+  respostas?: Record<string, string>;
   motivoCancelamento?: string;
 }
 
@@ -457,7 +462,8 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
   {
     id: 41,
     titulo: "Outlook não sincroniza",
-    categoria: "E-mail / Outlook",
+    categoria: "Microsoft",
+    respostas: { programa: "E-mail / Outlook" },
     solicitante: ANA,
     responsavel: RAFAEL,
     status: "aguardando_usuario",
@@ -482,7 +488,8 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
   {
     id: 43,
     titulo: "Teams sem áudio nas chamadas",
-    categoria: "Teams",
+    categoria: "Microsoft",
+    respostas: { programa: "Teams" },
     solicitante: CARLA,
     responsavel: null,
     status: "pendente",
@@ -528,7 +535,7 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       responsavelId: e.responsavel,
       status: e.status,
       prioridade: "media",
-      respostasForm: { descricao: e.descricao },
+      respostasForm: { ...e.respostas, descricao: e.descricao },
       // Prazo futuro em horas úteis; vencidos e "vence em menos de 1 h" ficam exatos.
       prazoSla:
         e.prazoEm === undefined

@@ -35,7 +35,7 @@ erDiagram
 | `configuracoes` | Parâmetros: fuso, expediente (08–18), limites de anexo, texto da resposta do bot | `publico = true` → qualquer usuário logado lê; o resto só a TI |
 | `feriados` | Dias sem expediente (2026–2027 no seed: nacionais, RJ e Rio) | `ativo = false` em vez de apagar. **Cadastrar 2028 antes do fim de 2027** (P-008) |
 | `areas` | Áreas que atendem (Fase 1: só TI) | — |
-| `categorias` | Assuntos, `nome_curto` e `icone` do portal | 13 no seed. `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |
+| `categorias` | Assuntos, `nome_curto` e `icone` do portal | 12 no seed ("Microsoft" une E-mail/Outlook e Teams desde 2026-10-07). Depois do go-live, mudar categoria = **migration nova** (o seed só roda na instalação). `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |
 | `campos_form` | Campos do formulário dinâmico por categoria (texto, texto longo, número, data, seleção, múltipla, sim/não) | `chave` estável (as respostas são guardadas por ela) |
 
 ### Pessoas

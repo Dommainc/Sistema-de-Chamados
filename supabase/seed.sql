@@ -34,12 +34,12 @@ from public.areas a
 cross join (values
   ('Acesso, senha e bloqueio de conta', 'Acesso, senha e bloqueio', 'key-round',    'Não consigo entrar, esqueci a senha, conta bloqueada', 2, 10),
   ('Internet, rede ou VPN',             'Internet, rede ou VPN',    'wifi',         'Sem internet, Wi-Fi ou VPN fora do ar',                2, 20),
-  ('E-mail / Outlook',                  'E-mail / Outlook',         'mail',         'Problemas para enviar, receber ou configurar e-mail',  4, 30),
-  ('Teams',                             'Teams',                    'message-square', 'Chamadas, reuniões, chats e equipes',                4, 40),
+  -- "E-mail / Outlook" e "Teams" unificados em "Microsoft" (pedido do dono, 2026-10-07).
+  ('Microsoft',                         'Microsoft',                'grid-2x2',     'E-mail, Outlook, Teams, Word, Excel e OneDrive',       4, 30),
   ('Computador ou notebook',            'Computador ou notebook',   'laptop',       'Lento, travando, não liga ou com defeito',             8, 50),
   ('Impressora / scanner',              'Impressora / scanner',     'printer',      'Não imprime, papel preso, scanner',                    8, 60),
   ('Celular corporativo',               'Celular corporativo',      'smartphone',   'Configuração, defeito ou troca',                       8, 70),
-  ('Sistemas da empresa',               'Sistemas da empresa',      'layout-grid',  'Erro ou dúvida em sistemas internos',                  8, 80),
+  ('Sistemas da empresa',               'Sistemas da empresa',      'app-window',  'Erro ou dúvida em sistemas internos',                  8, 80),
   ('Instalação de software',            'Instalar programa',        'download',     'Instalar ou atualizar um programa',                   16, 90),
   ('Novo colaborador',                  'Novo colaborador',         'user-plus',    'Preparar acessos e equipamento para quem vai entrar', 24, 100),
   ('Desligamento',                      'Desligamento',             'user-minus',   'Bloquear acessos e recolher equipamento',              4, 110),
@@ -67,6 +67,9 @@ from public.categorias c
 join (values
   ('Acesso, senha e bloqueio de conta', 'acesso_a', 'Qual acesso?', 'selecao', true,
      '["Computador / conta Microsoft","E-mail","Sistemas da empresa","Wi-Fi","Outro"]', null, 10),
+
+  ('Microsoft', 'programa', 'Qual programa?', 'selecao', true,
+     '["E-mail / Outlook","Teams","Word, Excel ou PowerPoint","OneDrive","Outro"]', null, 10),
 
   ('Internet, rede ou VPN', 'alcance', 'Quem está sem conexão?', 'selecao', true,
      '["Só eu","Algumas pessoas do setor","O escritório / obra inteira"]', null, 10),

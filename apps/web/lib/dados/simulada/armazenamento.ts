@@ -16,7 +16,7 @@ import { gerarChamadosExemplo, gerarConversasExemplo, gerarHistoricoExemplo } fr
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 6;
+const VERSAO = 7; // 7: categoria Microsoft (une E-mail/Outlook e Teams)
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 

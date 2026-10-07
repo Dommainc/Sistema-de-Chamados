@@ -1,6 +1,8 @@
 import {
+  AppWindow,
   Download,
   Ellipsis,
+  Grid2x2,
   KeyRound,
   Laptop,
   LayoutGrid,
@@ -25,6 +27,8 @@ const ICONES: Record<string, LucideIcon> = {
   printer: Printer,
   smartphone: Smartphone,
   "layout-grid": LayoutGrid,
+  "grid-2x2": Grid2x2,
+  "app-window": AppWindow,
   download: Download,
   "user-plus": UserPlus,
   "user-minus": UserMinus,
