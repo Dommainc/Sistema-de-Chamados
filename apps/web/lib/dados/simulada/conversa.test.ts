@@ -175,13 +175,33 @@ describe("cancelar (só a TI — pedido do dono, 2026-10-07)", () => {
     });
   });
 
-  it("a TI só conversa com o solicitante depois de iniciar (o relato é livre)", async () => {
+  it("a TI não conversa nem anota no relato antes de iniciar (ADR 0012)", async () => {
     const ti = criarFonteSimulada(RAFAEL.id);
     await expect(
       ti.enviarMensagem({ chamadoId: 42, conteudo: "Oi, Ana", anexos: [] }),
     ).rejects.toMatchObject({ codigo: "CHAMADO_NAO_INICIADO" });
     await expect(
       ti.enviarMensagem({ chamadoId: 42, conteudo: "Anotação", interna: true, anexos: [] }),
-    ).resolves.toBeDefined();
+    ).rejects.toMatchObject({ codigo: "CHAMADO_NAO_INICIADO" });
+  });
+
+  it("prioridade: só TI, depois de iniciar, no histórico interno e sem aviso", async () => {
+    const ti = criarFonteSimulada(RAFAEL.id);
+    await expect(ti.definirPrioridade(42, "alta")).rejects.toMatchObject({
+      codigo: "CHAMADO_NAO_INICIADO",
+    });
+    await expect(criarFonteSimulada(ANA.id).definirPrioridade(41, "alta")).rejects.toMatchObject({
+      codigo: "SEM_PERMISSAO",
+    });
+    const avisosAntes = lerEstado().notificacoes.length;
+    expect((await ti.definirPrioridade(41, "alta")).prioridade).toBe("alta");
+    expect(lerEstado().historico.at(-1)).toMatchObject({
+      acao: "prioridade_alterada",
+      publico: false,
+      detalhe: { de: "media", para: "alta" },
+    });
+    expect(lerEstado().notificacoes).toHaveLength(avisosAntes);
+    const daAna = await criarFonteSimulada(ANA.id).listarHistorico(41);
+    expect(daAna.some((h) => h.acao === "prioridade_alterada")).toBe(false);
   });
 });

@@ -1,7 +1,7 @@
 "use client";
 
 import type { DraggableAttributes, DraggableSyntheticListeners } from "@dnd-kit/core";
-import { Hourglass, MessageSquare } from "lucide-react";
+import { Hourglass, MessageSquare, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { EtiquetaId } from "@/components/ui/EtiquetaId";
@@ -147,6 +147,11 @@ export function CartaoChamado({
     >
       <div className="flex flex-wrap items-center gap-1.5">
         <EtiquetaId numero={c.id} tom={TOM_ID} />
+        {c.prioridade === "alta" ? (
+          <span className="inline-flex items-center gap-1 rounded-md bg-perigo px-1.5 py-0.5 text-[11px] font-bold text-white">
+            <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta
+          </span>
+        ) : null}
         {ehNovo(c, agora) ? (
           <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
             NOVO

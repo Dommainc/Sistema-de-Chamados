@@ -144,7 +144,7 @@ export function montarQuadro(chamados: readonly Chamado[], agora: Date = new Dat
     quadro[coluna].push(c);
   }
   for (const coluna of ["novos", "transferidos", "em_atendimento", "aguardando"] as const) {
-    quadro[coluna].sort(compararPrazo);
+    quadro[coluna].sort((a, b) => pesoPrioridade(a) - pesoPrioridade(b) || compararPrazo(a, b));
   }
   for (const coluna of ["concluidos", "cancelados"] as const) {
     quadro[coluna].sort((a, b) => encerradoEm(b).localeCompare(encerradoEm(a)));
@@ -157,16 +157,27 @@ export function encerradoEm(c: Chamado): string {
   return c.concluidoEm ?? c.canceladoEm ?? c.atualizadoEm;
 }
 
-/** Ordem da coluna "Novos" (mockup): primeiro os vencidos, depois o resto (compararPrazo). */
+/** Prioridade alta sobe para o topo da coluna (pedido do dono, ADR 0012). */
+export function pesoPrioridade(c: Chamado): number {
+  return c.prioridade === "alta" || c.prioridade === "critica" ? 0 : 1;
+}
+
+/** Ordem da coluna "Novos": prioridade alta, depois os vencidos, depois o resto (compararPrazo). */
 export function ordenarNovos(chamados: readonly Chamado[], agora: Date = new Date()): Chamado[] {
-  const prioridade = (c: Chamado) => (situacaoPrazo(c.prazoSla, agora) === "vencido" ? 0 : 1);
-  return [...chamados].sort((a, b) => prioridade(a) - prioridade(b) || compararPrazo(a, b));
+  const vencido = (c: Chamado) => (situacaoPrazo(c.prazoSla, agora) === "vencido" ? 0 : 1);
+  return [...chamados].sort(
+    (a, b) =>
+      pesoPrioridade(a) - pesoPrioridade(b) || vencido(a) - vencido(b) || compararPrazo(a, b),
+  );
 }
 
 /** Ordem da coluna "Transferidos": primeiro os transferidos PARA MIM (eu preciso iniciar). */
 export function ordenarTransferidos(chamados: readonly Chamado[], euId: string): Chamado[] {
   const paraMim = (c: Chamado) => (c.responsavelId === euId ? 0 : 1);
-  return [...chamados].sort((a, b) => paraMim(a) - paraMim(b) || compararPrazo(a, b));
+  return [...chamados].sort(
+    (a, b) =>
+      paraMim(a) - paraMim(b) || pesoPrioridade(a) - pesoPrioridade(b) || compararPrazo(a, b),
+  );
 }
 
 /**

@@ -16,6 +16,15 @@ export const STATUS_ENCERRADOS: readonly StatusChamado[] = ["concluido", "cancel
 
 export type Prioridade = "baixa" | "media" | "alta" | "critica";
 
+/** Prioridades que a TI escolhe na Fase 1 (ADR 0012). "critica" existe no banco, sem uso. */
+export const PRIORIDADES_DA_TI = ["alta", "media", "baixa"] as const;
+export type PrioridadeDaTi = (typeof PRIORIDADES_DA_TI)[number];
+
+/** Pendente ou transferido: a TI só pode iniciar ou cancelar (ADR 0012). */
+export function naoIniciado(status: StatusChamado): boolean {
+  return status === "pendente" || status === "transferido";
+}
+
 export type TipoCampo =
   "texto" | "texto_longo" | "numero" | "data" | "selecao" | "multipla_selecao" | "sim_nao";
 

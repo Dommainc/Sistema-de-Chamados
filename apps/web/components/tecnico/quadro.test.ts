@@ -142,6 +142,14 @@ describe("ordem das colunas Novos e Transferidos", () => {
     expect(ordem).toEqual([3, 5, 1]);
   });
 
+  it("prioridade alta sobe para o topo, antes até dos vencidos", () => {
+    const ordem = ordenarNovos(
+      [chamado(3, "pendente", -10), { ...chamado(7, "pendente", 500), prioridade: "alta" }],
+      agora,
+    ).map((c) => c.id);
+    expect(ordem).toEqual([7, 3]);
+  });
+
   it("Transferidos: os que vieram para mim primeiro", () => {
     const ordem = ordenarTransferidos(
       [chamado(2, "transferido", 20, "outro"), chamado(4, "transferido", 900, "eu")],

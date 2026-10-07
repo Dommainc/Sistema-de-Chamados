@@ -41,7 +41,7 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `CHAMADO_NAO_ENCONTRADO` | 404 | Só para a TI. Para o solicitante, número inexistente também é `SEM_PERMISSAO` (não revela quais números existem) |
 | `TRANSICAO_INVALIDA` | 409 | Ação que não vale no status atual; chamado encerrado (nada muda depois de concluído/cancelado) |
 | `CANCELAMENTO_NAO_PERMITIDO` | 409 | Solicitante tentando cancelar (só a TI cancela — ADR 0011) |
-| `CHAMADO_NAO_INICIADO` | 409 | TI mandando mensagem ao solicitante com o chamado em `pendente`/`transferido` (nota interna pode) |
+| `CHAMADO_NAO_INICIADO` | 409 | Chamado em `pendente`/`transferido`: TI tentando conversar, anotar no relato, definir prazo ou prioridade (ADR 0012) |
 | `CAMPO_OBRIGATORIO` | 422 | Formulário incompleto; mensagem vazia; destino da transferência não é técnico ativo |
 | `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir, devolver ou alterar o prazo sem motivo |
 | `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |
@@ -105,6 +105,12 @@ aviso. Regras completas em [`docs/status.md`](status.md).
 
 O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no Relato técnico).
 
+### Prioridade (TI)
+
+`POST /chamados/{id}/prioridade` `{ "prioridade": "alta" | "media" | "baixa" }` → chamado atualizado (ADR 0012).
+Só TI, depois de iniciar (`CHAMADO_NAO_INICIADO`), não encerrado (`TRANSICAO_INVALIDA`). Histórico **interno**
+(`prioridade_alterada`); o solicitante não vê nem é avisado. Mesma prioridade → nada muda.
+
 ### Prazo (definido pela TI)
 
 `POST /chamados/{id}/prazo` → chamado atualizado ([ADR 0009](adr/0009-prazo-definido-pela-ti.md))
@@ -113,7 +119,7 @@ O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no 
 { "prazo": "2026-10-08T21:00:00Z", "motivo": "Aguardando a peça" }
 ```
 
-- Só **TI**; chamado não encerrado (`TRANSICAO_INVALIDA`); `prazo` com fuso, no futuro e até 1 ano (`PRAZO_INVALIDO`).
+- Só **TI**, depois de iniciar (`CHAMADO_NAO_INICIADO`); chamado não encerrado (`TRANSICAO_INVALIDA`); `prazo` com fuso, no futuro e até 1 ano (`PRAZO_INVALIDO`).
 - 1ª definição: `motivo` opcional. **Alterar** um prazo já definido: `motivo` obrigatório (`MOTIVO_OBRIGATORIO`).
 - Grava `historico` `prazo_definido` (público: o solicitante vê a nova data e o motivo) e avisa o solicitante.
 
@@ -126,7 +132,7 @@ O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no 
 ```
 
 - `interna: true` = anotação do **Relato técnico** (só TI; solicitante → `SEM_PERMISSAO`). Não gera aviso.
-- TI mandando mensagem **não interna** antes de iniciar (`pendente`/`transferido`) → `CHAMADO_NAO_INICIADO`.
+- TI mandando mensagem (conversa **ou** relato) antes de iniciar (`pendente`/`transferido`) → `CHAMADO_NAO_INICIADO`.
 - Automações por tempo (2 h úteis → `aguardando_usuario`; 24 h úteis → aviso no chat) rodam **no banco** (pg_cron), não na API — ADR 0011.
 - Resposta do solicitante com o chamado em `aguardando_usuario` → volta sozinho para `em_andamento` (histórico sem
   autor) e avisa o técnico responsável.

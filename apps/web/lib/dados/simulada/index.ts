@@ -29,6 +29,8 @@ import {
   type Notificacao,
   type Perfil,
   type TipoNotificacao,
+  naoIniciado,
+  type PrioridadeDaTi,
 } from "@/lib/dominio/tipos";
 import { ErroApp, mensagemErro } from "@/lib/erros/catalogo";
 import { compararPrazo } from "@/lib/prazo";
@@ -517,12 +519,8 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         });
       }
       if (dados.interna && perfil.papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
-      // A TI só conversa com o solicitante depois de iniciar o chamado (o Relato técnico é livre).
-      if (
-        perfil.papel === "ti" &&
-        !dados.interna &&
-        (chamado.status === "pendente" || chamado.status === "transferido")
-      ) {
+      // A TI só mexe no chamado depois de iniciar: nem conversa, nem relato (ADR 0011 e 0012).
+      if (perfil.papel === "ti" && naoIniciado(chamado.status)) {
         throw new ErroApp("CHAMADO_NAO_INICIADO");
       }
       const conteudo = dados.conteudo.trim();
@@ -619,6 +617,38 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return executar(chamadoId, acao, dados);
     },
 
+    async definirPrioridade(chamadoId: number, prioridade: PrioridadeDaTi) {
+      const perfil = eu();
+      const chamado = chamadoVisivel(chamadoId);
+      if (perfil.papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+      if (estaEncerrado(chamado.status)) {
+        const rotulo = rotuloStatus(chamado.status, "ti").texto;
+        throw new ErroApp("TRANSICAO_INVALIDA", { de: rotulo, para: rotulo });
+      }
+      if (naoIniciado(chamado.status)) throw new ErroApp("CHAMADO_NAO_INICIADO");
+      if (chamado.prioridade === prioridade) return { ...chamado };
+      const criadoEm = new Date().toISOString();
+      const atualizado: Chamado = { ...chamado, prioridade, atualizadoEm: criadoEm };
+      // Interno: o solicitante não vê nem é avisado.
+      gravarMudanca(
+        atualizado,
+        [
+          {
+            chamadoId,
+            autorId: perfil.id,
+            acao: "prioridade_alterada",
+            de: chamado.status,
+            para: chamado.status,
+            detalhe: { de: chamado.prioridade, para: prioridade },
+            publico: false,
+            criadoEm,
+          },
+        ],
+        [],
+      );
+      return { ...atualizado };
+    },
+
     async definirPrazo(chamadoId: number, prazo: string, motivo?: string) {
       const perfil = eu();
       const chamado = chamadoVisivel(chamadoId);
@@ -627,6 +657,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         const rotulo = rotuloStatus(chamado.status, "ti").texto;
         throw new ErroApp("TRANSICAO_INVALIDA", { de: rotulo, para: rotulo });
       }
+      if (naoIniciado(chamado.status)) throw new ErroApp("CHAMADO_NAO_INICIADO");
       const quando = new Date(prazo).getTime();
       const agora = Date.now();
       if (Number.isNaN(quando) || quando <= agora || quando > agora + PRAZO_MAXIMO_MS) {

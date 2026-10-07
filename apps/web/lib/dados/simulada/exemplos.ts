@@ -556,7 +556,8 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       solicitanteId: e.solicitante,
       responsavelId: e.responsavel,
       status: e.status,
-      prioridade: "media",
+      // Prioridade alta em dois exemplos (ADR 0012): #36 (novo, vencido) e #38 (em atendimento).
+      prioridade: e.id === 36 || e.id === 38 ? "alta" : "media",
       respostasForm: { ...e.respostas, descricao: e.descricao },
       // Prazo futuro em horas úteis; vencidos e "vence em menos de 1 h" ficam exatos.
       prazoSla:

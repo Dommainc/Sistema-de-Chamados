@@ -16,7 +16,7 @@ from pydantic import BaseModel, Field
 from app.auth import UsuarioAtual
 from app.dependencias import Fabrica, Storage
 from app.dominio.estados import AcaoChamado, DadosAcao
-from app.dominio.tipos import StatusChamado
+from app.dominio.tipos import Prioridade, StatusChamado
 from app.erros.catalogo import ErroApp
 from app.erros.respostas import RESPOSTAS_COM_LOGIN
 from app.repositorios.base import ChamadoLinha
@@ -51,6 +51,7 @@ class ChamadoSaida(BaseModel):
     id: int
     titulo: str
     status: StatusChamado
+    prioridade: str
     responsavel_id: str | None
     prazo_sla: datetime | None = Field(description="Definido pela TI; null = ainda sem prazo")
     criado_em: datetime
@@ -62,6 +63,7 @@ class ChamadoSaida(BaseModel):
             id=chamado.id,
             titulo=chamado.titulo,
             status=chamado.status,
+            prioridade=chamado.prioridade,
             responsavel_id=chamado.responsavel_id,
             prazo_sla=chamado.prazo_sla,
             criado_em=chamado.criado_em,
@@ -102,6 +104,10 @@ class UploadUrlEntrada(BaseModel):
 class UploadUrlSaida(BaseModel):
     upload_id: str
     url: str
+
+
+class PrioridadeEntrada(BaseModel):
+    prioridade: Prioridade = Field(description="alta · media · baixa")
 
 
 class PrazoEntrada(BaseModel):
@@ -216,6 +222,18 @@ async def cancelar(
     chamado_id: int, dados: MotivoEntrada, usuario: UsuarioAtual, fabrica: Fabrica
 ) -> ChamadoSaida:
     return await _acao(fabrica, usuario, chamado_id, "cancelar", DadosAcao(motivo=dados.motivo))
+
+
+@router.post(
+    "/chamados/{chamado_id}/prioridade", summary="Definir a prioridade (TI, depois de iniciar)"
+)
+async def definir_prioridade(
+    chamado_id: int, dados: PrioridadeEntrada, usuario: UsuarioAtual, fabrica: Fabrica
+) -> ChamadoSaida:
+    async with fabrica(usuario) as repo:
+        return ChamadoSaida.de(
+            await servicos.definir_prioridade(repo, chamado_id, dados.prioridade)
+        )
 
 
 @router.post("/chamados/{chamado_id}/prazo", summary="Definir ou alterar o prazo (TI)")

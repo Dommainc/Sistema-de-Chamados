@@ -49,3 +49,12 @@ ROTULOS: dict[Papel, dict[StatusChamado, str]] = {
 
 def esta_encerrado(status: StatusChamado) -> bool:
     return status in STATUS_ENCERRADOS
+
+
+#: Prioridade que a TI define (ADR 0012). "critica" existe no banco, mas não é usada na Fase 1.
+Prioridade = Literal["baixa", "media", "alta"]
+
+
+def nao_iniciado(status: StatusChamado) -> bool:
+    """Pendente ou transferido: a TI só pode iniciar ou cancelar (ADR 0012)."""
+    return status in ("pendente", "transferido")

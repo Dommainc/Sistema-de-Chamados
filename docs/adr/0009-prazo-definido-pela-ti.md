@@ -13,7 +13,7 @@ o problema é o técnico, e só ele define até quando prevê concluir.
 | Ponto | Regra |
 |---|---|
 | Quando nasce | **Sem prazo** (`chamados.prazo_sla = null`). Nada é calculado pela categoria |
-| Quem define | **Qualquer técnico ativo**, a qualquer momento, enquanto o chamado não estiver encerrado (inclusive antes de assumir). É **opcional** |
+| Quem define | **Qualquer técnico ativo**, enquanto o chamado não estiver encerrado. É **opcional**. *Desde o [ADR 0012](0012-prioridade-e-chamado-nao-iniciado.md): só depois de iniciar* |
 | Formato | **Data e hora** (fuso de São Paulo na tela; UTC no banco), sempre no futuro, até 1 ano |
 | Alterar | Permitido, **com motivo obrigatório**. A 1ª definição não pede motivo |
 | Registro | Cada definição grava `historico.acao = 'prazo_definido'` (`detalhe`: `prazo`, `prazo_anterior`, `motivo`), **público** |

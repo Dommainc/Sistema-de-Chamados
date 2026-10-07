@@ -81,8 +81,11 @@ junto com ele.
 
 ![Tela de atendimento](guia/img/computador-08-atendimento.png)
 
-- A aba **Conversa com …** é só para falar com o solicitante: tudo o que você escreve ali, ele recebe. Ela fica
-  **travada até você clicar em Iniciar** (o Relato técnico fica liberado).
+- **Antes de clicar em Iniciar**, você pode abrir o chamado e ver tudo, mas não pode conversar, anotar, definir prazo
+  nem prioridade — só **Iniciar** ou **Cancelar** (ex.: chamado duplicado).
+- A aba **Conversa com …** é só para falar com o solicitante: tudo o que você escreve ali, ele recebe.
+- **Prioridade** (no topo do chamado): **Alta** · **Média** · **Baixa**. Só a TI vê. A alta sobe para o topo da coluna
+  no quadro, com o aviso vermelho **⚠ Prioridade alta**.
 - Depois que você responde, se o solicitante ficar **2 horas úteis** sem responder, o chamado vai sozinho para
   **Aguardando usuário**; com **24 horas úteis**, a Central manda um lembrete automático para ele. Quem conclui é você.
 - A aba **Relato técnico** é o diário da TI (**o solicitante não vê**): anote o que foi verificado e o que foi

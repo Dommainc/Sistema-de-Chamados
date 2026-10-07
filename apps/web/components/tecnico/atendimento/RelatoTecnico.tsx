@@ -63,7 +63,14 @@ function Registro({ item }: { item: Extract<ItemRelato, { tipo: "registro" }> })
  * prints com Ctrl+V, e as transferências/devoluções com o motivo. Por baixo são as notas internas
  * (mensagens.interna = true): o solicitante nunca recebe nada daqui (RLS).
  */
-export function RelatoTecnico({ chamadoId }: { chamadoId: number }) {
+export function RelatoTecnico({
+  chamadoId,
+  bloqueio,
+}: {
+  chamadoId: number;
+  /** Texto no lugar do campo de anotar (ex.: chamado ainda não iniciado — ADR 0012). */
+  bloqueio?: string;
+}) {
   const fonte = useDados();
   const usuario = useUsuario();
   const { mostrarErro } = useToast();
@@ -199,6 +206,10 @@ export function RelatoTecnico({ chamadoId }: { chamadoId: number }) {
         {encerrado ? (
           <p className="border-t border-borda bg-superficie px-4 py-4 text-center text-texto-suave">
             Chamado encerrado: o relato fica só para consulta.
+          </p>
+        ) : bloqueio ? (
+          <p className="border-t border-borda bg-fundo px-4 py-4 text-center font-semibold text-texto-suave">
+            {bloqueio}
           </p>
         ) : (
           <CompositorMensagem

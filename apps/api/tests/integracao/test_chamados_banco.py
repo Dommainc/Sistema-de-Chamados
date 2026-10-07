@@ -74,6 +74,17 @@ def test_prazo_nasce_vazio_e_a_ti_define_e_altera(cliente, ana, rafael, outros):
     n = chamado["id"]
     amanha = (datetime.now(UTC) + timedelta(days=1)).replace(microsecond=0)
 
+    # Antes de iniciar, a TI não mexe no chamado (ADR 0012).
+    antes = cliente.post(f"/chamados/{n}/prazo", headers=rafael, json={"prazo": amanha.isoformat()})
+    assert antes.json()["erro"]["codigo"] == "CHAMADO_NAO_INICIADO"
+    assert cliente.post(f"/chamados/{n}/assumir", headers=rafael).status_code == 200
+
+    # Prioridade: só TI, histórico interno (a Ana não vê o evento).
+    alta = cliente.post(f"/chamados/{n}/prioridade", headers=rafael, json={"prioridade": "alta"})
+    assert alta.json()["prioridade"] == "alta", alta.text
+    assert ler("historico", f"chamado_id=eq.{n}&acao=eq.prioridade_alterada", ana) == []
+    assert len(ler("historico", f"chamado_id=eq.{n}&acao=eq.prioridade_alterada", rafael)) == 1
+
     definido = cliente.post(
         f"/chamados/{n}/prazo", headers=rafael, json={"prazo": amanha.isoformat()}
     )

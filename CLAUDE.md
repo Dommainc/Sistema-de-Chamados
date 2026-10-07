@@ -80,7 +80,8 @@ Não há confirmação, reabertura nem fechamento automático: se o problema vol
 **Prazo** (`docs/adr/0009`): o chamado nasce **sem prazo**; qualquer técnico define (data e hora) quando quiser e pode
 alterar **com motivo** (`POST /chamados/{id}/prazo`). O solicitante vê a previsão e o motivo. Nada é calculado pela categoria.
 **Só a TI cancela**: solicitante tentando → `CANCELAMENTO_NAO_PERMITIDO` (`docs/adr/0011`).
-A TI só conversa com o solicitante depois de **Iniciar** (`pendente`/`transferido` → `CHAMADO_NAO_INICIADO`; o Relato técnico é livre).
+**Chamado não iniciado** (`pendente`/`transferido`): a TI só **vê**, **inicia** ou **cancela** — conversa, Relato técnico, prazo e prioridade → `CHAMADO_NAO_INICIADO` (`docs/adr/0012`).
+**Prioridade** (Alta · Média · Baixa; nasce Média): só a TI, depois de iniciar; histórico interno; alta sobe no quadro com "⚠ Prioridade alta".
 24 h úteis sem resposta à mensagem da TI → **aviso automático** no chat (uma vez). Automações: `app.processar_inatividade()` (pg_cron, 5 min).
 Na interface, "assumir" aparece como **Iniciar** (a ação interna continua `assumir`).
 Toda transição grava `historico` + `notificacoes` (pendente) na mesma transação.

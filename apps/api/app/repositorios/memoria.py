@@ -134,6 +134,7 @@ class RepositorioMemoria:
             solicitante_id=solicitante_id,
             responsavel_id=None,
             status="pendente",
+            prioridade="media",
             prazo_sla=None,  # quem define é a TI (docs/adr/0009)
             criado_em=agora,
             atualizado_em=agora,
@@ -159,6 +160,13 @@ class RepositorioMemoria:
             concluido_em=agora if status == "concluido" else atual.concluido_em,
             cancelado_em=agora if status == "cancelado" else atual.cancelado_em,
             motivo_cancelamento=motivo_cancelamento or atual.motivo_cancelamento,
+        )
+        self._e.chamados[chamado_id] = novo
+        return novo
+
+    async def definir_prioridade(self, chamado_id: int, prioridade: str) -> ChamadoLinha:
+        novo = replace(
+            self._e.chamados[chamado_id], prioridade=prioridade, atualizado_em=self._e.agora()
         )
         self._e.chamados[chamado_id] = novo
         return novo

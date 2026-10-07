@@ -139,6 +139,7 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento ↔ Aguardando, Em atendimento/Aguardando
      → Transferidos (**transferir**: técnico + motivo), → Novos (**devolver**: motivo), → Concluídos (confirma) e
      → Cancelados (motivo).
+   - **Prioridade alta**: o cartão sobe para o topo da coluna e mostra o selo vermelho **"⚠ Prioridade alta"** (ADR 0012).
 7. **Atendimento** (`/atendimento/41`) — **reorganizada a pedido do dono (2026-10-07)**: antes a direita tinha 5 cartões
    empilhados, a descrição e o print se repetiam e as ações tinham tamanhos diferentes.
    - **Cabeçalho-resumo** (cartão no topo): "‹ Quadro", "#41 título" + selo de status e, à direita, as **ações**:
@@ -146,7 +147,9 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      **"⋯ Mais ações"** com Devolver à fila e Cancelar chamado (vermelho). Abaixo, quatro blocos: **SOLICITANTE**
      (avatar, nome, departamento, telefone e e-mail clicáveis), **RESPONSÁVEL** (+ "Aberto em"), **PRAZO** (colorido,
      link **Definir prazo** / **Alterar prazo** — a janela tem atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias
-     úteis, campo de data e hora e, ao alterar, o motivo) e **CATEGORIA**.
+     úteis, campo de data e hora e, ao alterar, o motivo), **PRIORIDADE** (botões Alta vermelho · Média amarelo ·
+     Baixa cinza; só TI) e **CATEGORIA**. **Não iniciado** (novo/transferido): faixa laranja "Chamado ainda não
+     iniciado…", prazo e prioridade travados, conversa e relato com "Inicie o chamado para…" — só Iniciar ou Cancelar.
    - Esquerda — conversa **ocupando a altura da tela** (só as mensagens rolam; o campo de escrever fica sempre à
      vista). Eventos do sistema em **texto pequeno e cinza** (sem pílula); só o separador de dia fica em pílula.
      Duas abas (**mudança do dono, 2026-10-06**, no lugar do seletor "Responder à Ana | Nota interna",

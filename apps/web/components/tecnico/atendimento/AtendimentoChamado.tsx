@@ -7,8 +7,11 @@ import { contarRelato } from "@/components/chamado/linhaDoTempo";
 import { TelaMensagem } from "@/components/comum/TelaMensagem";
 import { useChamadoDetalhado } from "@/components/comum/useChamadoDetalhado";
 import { Segmentado } from "@/components/ui/Segmentado";
-import { useConsulta, useUsuario } from "@/lib/dados/provedor";
+import { useToast } from "@/components/ui/Toast";
+import { useConsulta, useDados, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
+import { naoIniciado, type PrioridadeDaTi } from "@/lib/dominio/tipos";
+import { formatarNumeroChamado } from "@/lib/formato";
 import { useAcaoChamado } from "../useAcaoChamado";
 import { CabecalhoChamado } from "./CabecalhoChamado";
 import { CartaoHistorico, Secao } from "./Cartoes";
@@ -28,6 +31,8 @@ type Quadro = "conversa" | "relato";
  */
 export function AtendimentoChamado({ id }: { id: number }) {
   const usuario = useUsuario();
+  const fonte = useDados();
+  const { mostrar, mostrarErro } = useToast();
   const executar = useAcaoChamado();
   const { dados, erro, carregando } = useChamadoDetalhado(id);
   const [quadro, setQuadro] = useState<Quadro>("conversa");
@@ -70,6 +75,16 @@ export function AtendimentoChamado({ id }: { id: number }) {
   const { chamado, categoria, solicitante, responsavel } = dados;
   const primeiroNome = solicitante?.nome.split(" ")[0] ?? "solicitante";
 
+  async function mudarPrioridade(prioridade: PrioridadeDaTi) {
+    try {
+      await fonte.definirPrioridade(chamado.id, prioridade);
+      const nome = { alta: "Alta", media: "Média", baixa: "Baixa" }[prioridade];
+      mostrar(`Prioridade do chamado ${formatarNumeroChamado(chamado.id)}: ${nome}.`, "sucesso");
+    } catch (e) {
+      mostrarErro(e);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <CabecalhoChamado
@@ -82,6 +97,7 @@ export function AtendimentoChamado({ id }: { id: number }) {
         aoExecutar={(acao) => void executar(chamado.id, acao)}
         aoAbrirModal={setModal}
         aoDefinirPrazo={() => setModalPrazo(true)}
+        aoMudarPrioridade={(p) => void mudarPrioridade(p)}
       />
 
       {/* Celular: abas logo abaixo do cabeçalho. */}
@@ -134,13 +150,18 @@ export function AtendimentoChamado({ id }: { id: number }) {
               chamadoId={chamado.id}
               placeholder={`Escreva para ${primeiroNome}... (Ctrl+V cola prints)`}
               bloqueio={
-                chamado.status === "pendente" || chamado.status === "transferido"
+                naoIniciado(chamado.status)
                   ? `Inicie o chamado para conversar com ${primeiroNome}.`
                   : undefined
               }
             />
           ) : (
-            <RelatoTecnico chamadoId={chamado.id} />
+            <RelatoTecnico
+              chamadoId={chamado.id}
+              bloqueio={
+                naoIniciado(chamado.status) ? "Inicie o chamado para anotar no relato." : undefined
+              }
+            />
           )}
         </section>
 

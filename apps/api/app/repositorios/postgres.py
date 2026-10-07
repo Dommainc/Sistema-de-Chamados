@@ -30,6 +30,7 @@ from app.repositorios.base import (
 
 _COLUNAS_CHAMADO = """
     id, titulo, categoria_id, area_id, solicitante_id, responsavel_id, status::text as status,
+    prioridade::text as prioridade,
     prazo_sla, criado_em, atualizado_em, concluido_em, cancelado_em, motivo_cancelamento,
     respostas_form
 """
@@ -45,6 +46,7 @@ def _chamado(linha: asyncpg.Record) -> ChamadoLinha:
         solicitante_id=str(linha["solicitante_id"]),
         responsavel_id=str(linha["responsavel_id"]) if linha["responsavel_id"] else None,
         status=linha["status"],
+        prioridade=linha["prioridade"],
         prazo_sla=linha["prazo_sla"],
         criado_em=linha["criado_em"],
         atualizado_em=linha["atualizado_em"],
@@ -196,6 +198,18 @@ class RepositorioPostgres:
             status,
             responsavel_id,
             motivo_cancelamento,
+        )
+        return _chamado(linha)
+
+    async def definir_prioridade(self, chamado_id: int, prioridade: str) -> ChamadoLinha:
+        await self._t.como_api()
+        linha = await self._c.fetchrow(
+            f"""
+            update public.chamados set prioridade = $2::public.prioridade where id = $1
+            returning {_COLUNAS_CHAMADO}
+            """,
+            chamado_id,
+            prioridade,
         )
         return _chamado(linha)
 

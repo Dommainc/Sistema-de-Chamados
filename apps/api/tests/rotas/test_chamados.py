@@ -43,7 +43,7 @@ def test_abrir_com_campos_vazios_mostra_erro_por_campo(cliente, como, estado):
         "local",
         "descricao",
     ]
-    assert len(estado.chamados) == 5  # nada gravado
+    assert len(estado.chamados) == 6  # nada gravado
 
 
 def test_tecnico_tambem_abre_chamado(cliente, como, estado):
@@ -72,7 +72,7 @@ def test_chamado_nasce_sem_prazo(cliente, como):
 # ---------------------------------------------------------------------------------- prazo
 def test_tecnico_define_o_prazo_e_o_solicitante_e_avisado(cliente, como, estado):
     resposta = cliente.post(
-        "/chamados/42/prazo", headers=como(RAFAEL), json={"prazo": "2026-10-08T20:00:00Z"}
+        "/chamados/44/prazo", headers=como(RAFAEL), json={"prazo": "2026-10-08T20:00:00Z"}
     )
     assert resposta.status_code == 200
     assert resposta.json()["prazo_sla"] == "2026-10-08T20:00:00Z"
@@ -104,17 +104,17 @@ def test_alterar_o_prazo_exige_motivo_e_guarda_o_anterior(cliente, como, estado)
     ids=["passado", "mais-de-um-ano", "sem-fuso"],
 )
 def test_prazo_invalido(cliente, como, prazo):
-    resposta = cliente.post("/chamados/42/prazo", headers=como(RAFAEL), json={"prazo": prazo})
+    resposta = cliente.post("/chamados/44/prazo", headers=como(RAFAEL), json={"prazo": prazo})
     assert resposta.status_code == 422
     assert codigo(resposta) == "PRAZO_INVALIDO"
 
 
 def test_prazo_so_da_ti_e_nunca_em_encerrado(cliente, como, estado):
     corpo = {"prazo": "2026-10-08T20:00:00Z"}
-    assert codigo(cliente.post("/chamados/42/prazo", headers=como(ANA), json=corpo)) == (
+    assert codigo(cliente.post("/chamados/44/prazo", headers=como(ANA), json=corpo)) == (
         "SEM_PERMISSAO"
     )
-    assert estado.chamados[42].prazo_sla is None
+    assert estado.chamados[44].prazo_sla is None
     encerrado = cliente.post(
         "/chamados/35/prazo", headers=como(RAFAEL), json={**corpo, "motivo": "x"}
     )
@@ -309,14 +309,18 @@ def test_solicitante_nao_cancela_so_a_ti(cliente, como, estado):
     assert ti.json()["status"] == "cancelado"
 
 
-def test_ti_so_conversa_depois_de_iniciar(cliente, como, estado):
+def test_ti_so_mexe_depois_de_iniciar(cliente, como, estado):
     antes = cliente.post("/chamados/42/mensagens", headers=como(RAFAEL), json={"conteudo": "Oi"})
     assert antes.status_code == 409
     assert codigo(antes) == "CHAMADO_NAO_INICIADO"
     nota = cliente.post(
         "/chamados/42/mensagens", headers=como(RAFAEL), json={"conteudo": "nota", "interna": True}
     )
-    assert nota.status_code == 201  # o Relato técnico é livre
+    assert codigo(nota) == "CHAMADO_NAO_INICIADO"  # nem relato antes de iniciar (ADR 0012)
+    prazo = cliente.post(
+        "/chamados/42/prazo", headers=como(RAFAEL), json={"prazo": "2026-10-08T20:00:00Z"}
+    )
+    assert codigo(prazo) == "CHAMADO_NAO_INICIADO"
     cliente.post("/chamados/42/assumir", headers=como(RAFAEL))
     depois = cliente.post("/chamados/42/mensagens", headers=como(RAFAEL), json={"conteudo": "Oi"})
     assert depois.status_code == 201
@@ -384,3 +388,22 @@ def test_anexo_de_nota_interna_nao_abre_para_a_ana(cliente, como, estado, storag
     assert rafael.status_code == 200 and "expira=60" in rafael.json()["url"]
     invalido = cliente.get("/anexos/temporarios..segredo/url", headers=como(RAFAEL))
     assert codigo(invalido) == "SEM_PERMISSAO"
+
+
+# ------------------------------------------------------------------------------- prioridade
+def test_prioridade_so_ti_depois_de_iniciar_e_fica_no_historico_interno(cliente, como, estado):
+    url = "/chamados/{}/prioridade"
+    assert codigo(
+        cliente.post(url.format(42), headers=como(RAFAEL), json={"prioridade": "alta"})
+    ) == ("CHAMADO_NAO_INICIADO")
+    assert codigo(cliente.post(url.format(44), headers=como(ANA), json={"prioridade": "alta"})) == (
+        "SEM_PERMISSAO"
+    )
+    ok = cliente.post(url.format(44), headers=como(RAFAEL), json={"prioridade": "alta"})
+    assert ok.status_code == 200 and ok.json()["prioridade"] == "alta"
+    evento = estado.eventos[-1]
+    assert (evento.acao, evento.publico) == ("prioridade_alterada", False)
+    assert evento.detalhe == {"de": "media", "para": "alta"}
+    assert estado.notificacoes == []  # o solicitante não é avisado
+    invalida = cliente.post(url.format(44), headers=como(RAFAEL), json={"prioridade": "critica"})
+    assert codigo(invalida) == "CAMPO_OBRIGATORIO"

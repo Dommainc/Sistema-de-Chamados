@@ -25,7 +25,7 @@ from app.dominio.estados import (
     validar_acao,
 )
 from app.dominio.formulario import validar_formulario
-from app.dominio.tipos import ROTULOS, esta_encerrado
+from app.dominio.tipos import ROTULOS, Prioridade, esta_encerrado, nao_iniciado
 from app.erros.catalogo import ErroApp, ErroDeCampo, mensagem_erro
 from app.integracoes.storage import Armazenamento, InfoArquivo
 from app.repositorios.base import (
@@ -266,6 +266,8 @@ async def definir_prazo(
         raise ErroApp(
             "TRANSICAO_INVALIDA", {"de": rotulo, "para": rotulo}, detalhe="prazo de encerrado"
         )
+    if nao_iniciado(chamado.status):
+        raise ErroApp("CHAMADO_NAO_INICIADO")
     agora = await repo.agora()
     if prazo.tzinfo is None or not agora < prazo <= agora + PRAZO_MAXIMO:
         raise ErroApp("PRAZO_INVALIDO", detalhe=f"prazo {prazo.isoformat()}")
@@ -294,6 +296,43 @@ async def definir_prazo(
     return atualizado
 
 
+async def definir_prioridade(
+    repo: Repositorio, chamado_id: int, prioridade: Prioridade
+) -> ChamadoLinha:
+    """Prioridade (Alta, Média, Baixa) — só TI, depois de iniciar; só a TI vê (ADR 0012).
+
+    Grava no histórico interno (publico = False). Não avisa o solicitante.
+    """
+    eu = await _eu(repo)
+    chamado = await _chamado_visivel(repo, eu, chamado_id)
+    if eu.papel != "ti":
+        raise ErroApp("SEM_PERMISSAO", detalhe="só a TI define a prioridade")
+    if esta_encerrado(chamado.status):
+        rotulo = ROTULOS["ti"][chamado.status]
+        raise ErroApp(
+            "TRANSICAO_INVALIDA", {"de": rotulo, "para": rotulo}, detalhe="prioridade de encerrado"
+        )
+    if nao_iniciado(chamado.status):
+        raise ErroApp("CHAMADO_NAO_INICIADO")
+    if chamado.prioridade == prioridade:
+        return chamado
+    atualizado = await repo.definir_prioridade(chamado.id, prioridade)
+    await repo.inserir_eventos(
+        [
+            NovoEvento(
+                chamado.id,
+                eu.id,
+                "prioridade_alterada",
+                chamado.status,
+                chamado.status,
+                {"de": chamado.prioridade, "para": prioridade},
+                False,
+            )
+        ]
+    )
+    return atualizado
+
+
 async def enviar_mensagem(
     repo: Repositorio,
     storage: Armazenamento,
@@ -311,8 +350,8 @@ async def enviar_mensagem(
         )
     if interna and eu.papel != "ti":
         raise ErroApp("SEM_PERMISSAO", detalhe="nota interna é só da TI")
-    # A TI só conversa com o solicitante depois de iniciar o chamado (o Relato técnico é livre).
-    if eu.papel == "ti" and not interna and chamado.status in ("pendente", "transferido"):
+    # A TI só mexe no chamado depois de iniciar: nem conversa, nem relato (ADR 0011 e 0012).
+    if eu.papel == "ti" and nao_iniciado(chamado.status):
         raise ErroApp("CHAMADO_NAO_INICIADO")
     texto = conteudo.strip()
     if not texto and not uploads:

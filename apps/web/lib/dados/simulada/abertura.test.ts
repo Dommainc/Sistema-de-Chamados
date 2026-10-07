@@ -141,15 +141,19 @@ describe("criarChamado", () => {
 describe("definirPrazo (ADR 0009)", () => {
   const daqui = (horas: number) => new Date(Date.now() + horas * 3_600_000).toISOString();
 
+  /** Abre um chamado e a TI inicia (prazo só depois de iniciar — ADR 0012). */
   async function novoChamado() {
-    return (
-      await criarFonteSimulada(ANA.id).criarChamado({
-        categoriaId: INTERNET.id,
-        titulo: "Sem internet",
-        respostas: RESPOSTAS_OK,
-        anexos: [],
-      })
-    ).id;
+    const { id } = await criarFonteSimulada(ANA.id).criarChamado({
+      categoriaId: INTERNET.id,
+      titulo: "Sem internet",
+      respostas: RESPOSTAS_OK,
+      anexos: [],
+    });
+    await expect(criarFonteSimulada(RAFAEL.id).definirPrazo(id, daqui(5))).rejects.toMatchObject({
+      codigo: "CHAMADO_NAO_INICIADO",
+    });
+    await criarFonteSimulada(RAFAEL.id).executarAcao(id, "assumir");
+    return id;
   }
 
   it("TI define; alterar exige motivo; o solicitante é avisado e vê no histórico", async () => {

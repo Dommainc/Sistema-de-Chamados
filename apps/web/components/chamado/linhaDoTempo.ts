@@ -330,6 +330,11 @@ export function textoHistorico(
       }`;
     case "devolvido_fila":
       return `Devolvido à fila por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;
+    case "prioridade_alterada": {
+      const nome = (p?: string) =>
+        ({ alta: "Alta", media: "Média", baixa: "Baixa" })[p ?? ""] ?? p ?? "";
+      return `Prioridade alterada por ${autor}: ${nome(evento.detalhe.de)} → ${nome(evento.detalhe.para)}`;
+    }
     case "prazo_definido": {
       const prazo = evento.detalhe.prazo ? formatarDataHora(evento.detalhe.prazo) : "";
       return evento.detalhe.prazo_anterior

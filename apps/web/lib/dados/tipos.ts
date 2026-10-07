@@ -14,6 +14,7 @@ import type {
   OrigemAnexo,
   Papel,
   Perfil,
+  PrioridadeDaTi,
 } from "@/lib/dominio/tipos";
 
 /** O mínimo que a sessão sabe do usuário (o restante vem de obterMeuPerfil). */
@@ -169,6 +170,11 @@ export interface FonteDeDados {
    * Erros: SEM_PERMISSAO, TRANSICAO_INVALIDA, PRAZO_INVALIDO, MOTIVO_OBRIGATORIO.
    */
   definirPrazo(chamadoId: number, prazo: string, motivo?: string): Promise<Chamado>;
+  /**
+   * POST /chamados/{id}/prioridade (ADR 0012). Só TI, depois de iniciar; histórico interno, sem aviso.
+   * Erros: SEM_PERMISSAO, TRANSICAO_INVALIDA (encerrado), CHAMADO_NAO_INICIADO.
+   */
+  definirPrioridade(chamadoId: number, prioridade: PrioridadeDaTi): Promise<Chamado>;
   /** Primeiro da coluna Novos sem responsável: prazo mais próximo; sem prazo, o mais antigo. Só TI. */
   proximoDaFila(): Promise<Chamado | null>;
 

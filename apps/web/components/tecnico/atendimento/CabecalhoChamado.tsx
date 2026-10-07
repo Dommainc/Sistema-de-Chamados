@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, ChevronLeft, Mail, MoreHorizontal, Phone } from "lucide-react";
+import { CalendarClock, ChevronLeft, Lock, Mail, MoreHorizontal, Phone } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
@@ -8,7 +8,16 @@ import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { Botao } from "@/components/ui/Botao";
 import type { PerfilPublico, UsuarioSessao } from "@/lib/dados/tipos";
 import { acoesDisponiveis } from "@/lib/dominio/estados";
-import { estaEncerrado, type Categoria, type Chamado, type Perfil } from "@/lib/dominio/tipos";
+import {
+  estaEncerrado,
+  naoIniciado,
+  PRIORIDADES_DA_TI,
+  type Categoria,
+  type Chamado,
+  type Perfil,
+  type Prioridade,
+  type PrioridadeDaTi,
+} from "@/lib/dominio/tipos";
 import { formatarDataHora, formatarNumeroChamado } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
 import type { AcaoDeBotao } from "../useAcaoChamado";
@@ -128,7 +137,9 @@ function AcoesCabecalho({
           aria-label="Retomar atendimento"
           onClick={() => clicar("retomar")}
         >
-          Retomar<span className="max-sm:hidden"> atendimento</span>
+          <span>
+            Retomar<span className="max-sm:hidden"> atendimento</span>
+          </span>
         </Botao>
       ) : null}
       {tem("transferir") ? (
@@ -175,6 +186,47 @@ function AcoesCabecalho({
   );
 }
 
+const COR_PRIORIDADE: Record<PrioridadeDaTi, { ativa: string; rotulo: string }> = {
+  alta: { ativa: "border-perigo bg-perigo text-white", rotulo: "Alta" },
+  media: { ativa: "border-amarelo bg-amarelo text-white", rotulo: "Média" },
+  baixa: { ativa: "border-apagado bg-apagado text-white", rotulo: "Baixa" },
+};
+
+/** Alta (vermelho) · Média (amarelo) · Baixa (cinza) — só a TI vê (ADR 0012). */
+function SeletorPrioridade({
+  atual,
+  desabilitado,
+  aoMudar,
+}: {
+  atual: Prioridade;
+  desabilitado: boolean;
+  aoMudar: (prioridade: PrioridadeDaTi) => void;
+}) {
+  return (
+    <span className="flex gap-1" role="group" aria-label="Prioridade do chamado">
+      {PRIORIDADES_DA_TI.map((p) => {
+        const ativa = atual === p;
+        return (
+          <button
+            key={p}
+            type="button"
+            aria-pressed={ativa}
+            disabled={desabilitado}
+            onClick={() => aoMudar(p)}
+            className={`min-h-8 flex-1 rounded-lg border px-2 text-xs font-bold disabled:cursor-not-allowed ${
+              ativa
+                ? COR_PRIORIDADE[p].ativa
+                : "border-borda bg-superficie text-texto-suave hover:bg-fundo disabled:opacity-50"
+            }`}
+          >
+            {COR_PRIORIDADE[p].rotulo}
+          </button>
+        );
+      })}
+    </span>
+  );
+}
+
 /**
  * Cabeçalho-resumo da tela de atendimento (pedido do dono, 2026-10-07): número, título e status;
  * ações; e a faixa com solicitante (com contato), responsável, prazo (definir/alterar) e categoria.
@@ -190,6 +242,7 @@ export function CabecalhoChamado({
   aoExecutar,
   aoAbrirModal,
   aoDefinirPrazo,
+  aoMudarPrioridade,
 }: {
   chamado: Chamado;
   categoria: Categoria | null;
@@ -200,9 +253,12 @@ export function CabecalhoChamado({
   aoExecutar: (acao: AcaoDeBotao) => void;
   aoAbrirModal: (acao: AcaoComModal) => void;
   aoDefinirPrazo: () => void;
+  aoMudarPrioridade: (prioridade: PrioridadeDaTi) => void;
 }) {
   const situacao = situacaoPrazo(chamado.prazoSla, agora);
   const encerrado = estaEncerrado(chamado.status);
+  // Antes de iniciar: só ver, iniciar ou cancelar (ADR 0012).
+  const travado = encerrado || naoIniciado(chamado.status);
 
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-borda bg-superficie p-4 shadow-sm lg:p-5">
@@ -231,7 +287,15 @@ export function CabecalhoChamado({
       </div>
 
       {/* Celular: solicitante na linha toda; responsável, prazo e categoria em duas colunas. */}
-      <div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
+      {naoIniciado(chamado.status) ? (
+        <p className="flex items-center gap-2 rounded-xl bg-laranja-suave px-3 py-2.5 text-sm font-semibold text-texto">
+          <Lock aria-hidden="true" className="size-4 shrink-0 text-laranja" />
+          Chamado ainda não iniciado: você pode ver tudo, mas para conversar, anotar, definir prazo
+          ou prioridade, clique em Iniciar.
+        </p>
+      ) : null}
+
+      <div className="grid grid-cols-2 gap-2 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
         <Info titulo="Solicitante" regiao destaque>
           {solicitante ? (
             <>
@@ -281,7 +345,7 @@ export function CabecalhoChamado({
           <span className={`font-semibold ${COR_PRAZO[situacao]}`}>
             {textoPrazo(chamado.prazoSla, agora)}
           </span>
-          {encerrado ? null : (
+          {travado ? null : (
             <button
               type="button"
               onClick={aoDefinirPrazo}
@@ -291,6 +355,14 @@ export function CabecalhoChamado({
               {chamado.prazoSla ? "Alterar prazo" : "Definir prazo"}
             </button>
           )}
+        </Info>
+
+        <Info titulo="Prioridade" regiao>
+          <SeletorPrioridade
+            atual={chamado.prioridade}
+            desabilitado={travado}
+            aoMudar={aoMudarPrioridade}
+          />
         </Info>
 
         <Info titulo="Categoria" destaque>

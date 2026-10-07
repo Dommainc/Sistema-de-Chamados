@@ -44,6 +44,8 @@ class ChamadoLinha:
     solicitante_id: str
     responsavel_id: str | None
     status: StatusChamado
+    #: Definida pela TI (ADR 0012); nasce "media".
+    prioridade: str
     #: Definido por um técnico (docs/adr/0009); None = ainda sem prazo.
     prazo_sla: datetime | None
     criado_em: datetime
@@ -151,6 +153,8 @@ class Repositorio(Protocol):
     ) -> ChamadoLinha: ...
 
     async def definir_prazo(self, chamado_id: int, prazo: datetime) -> ChamadoLinha: ...
+
+    async def definir_prioridade(self, chamado_id: int, prioridade: str) -> ChamadoLinha: ...
 
     async def inserir_mensagem(
         self, chamado_id: int, autor_id: str, conteudo: str, interna: bool

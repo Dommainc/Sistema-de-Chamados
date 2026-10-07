@@ -43,6 +43,7 @@ def _chamado(
         solicitante_id=solicitante,
         responsavel_id=responsavel,
         status=status,
+        prioridade="media",
         prazo_sla=criado + timedelta(hours=8) if com_prazo else None,
         criado_em=criado,
         atualizado_em=criado,
@@ -77,6 +78,7 @@ def estado() -> EstadoMemoria:
         39: _chamado(39, BRUNO, "transferido", RAFAEL),
         41: _chamado(41, ANA, "aguardando_usuario", RAFAEL),
         42: _chamado(42, ANA, "pendente", com_prazo=False),
+        44: _chamado(44, ANA, "em_andamento", RAFAEL, com_prazo=False),
     }
     e.mensagens = [
         MensagemMemoria(1, 41, RAFAEL, "Caixa cheia", True, e.relogio - timedelta(minutes=20)),

@@ -153,10 +153,42 @@ describe("AtendimentoChamado", () => {
     expect(within(relato).getByText(/Thiago cuida de e-mail/)).toBeInTheDocument();
   });
 
-  it("Definir prazo: chamado novo sem prazo; atalho + confirmar grava e mostra no histórico", async () => {
+  it("não iniciado: tudo travado (prazo, prioridade, chat, relato) até clicar em Iniciar", async () => {
     renderizar(RAFAEL, 34);
+    expect(await screen.findByText(/Chamado ainda não iniciado/)).toBeInTheDocument();
+    const prazo = screen.getByRole("region", { name: "Prazo" });
+    expect(within(prazo).queryByRole("button", { name: "Definir prazo" })).not.toBeInTheDocument();
+    const prioridade = screen.getByRole("region", { name: "Prioridade" });
+    expect(within(prioridade).getByRole("button", { name: "Alta" })).toBeDisabled();
+    expect(
+      await screen.findByText("Inicie o chamado para conversar com Diego."),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Mensagem" })).not.toBeInTheDocument();
+  });
+
+  it("prioridade: Alta grava, avisa com toast e marca o botão", async () => {
+    renderizar(); // #41, em atendimento
+    const prioridade = await screen.findByRole("region", { name: "Prioridade" });
+    fireEvent.click(within(prioridade).getByRole("button", { name: "Alta" }));
+    await waitFor(() => expect(chamado(41).prioridade).toBe("alta"));
+    expect(await screen.findByText("Prioridade do chamado #41: Alta.")).toBeInTheDocument();
+    expect(within(prioridade).getByRole("button", { name: "Alta" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  it("Definir prazo: depois de iniciar, atalho + confirmar grava e mostra no histórico", async () => {
+    renderizar(RAFAEL, 34);
+    fireEvent.click(
+      within(await screen.findByRole("region", { name: "Ações" })).getByRole("button", {
+        name: "Iniciar",
+      }),
+    );
+    await waitFor(() => expect(chamado(34).status).toBe("em_andamento"));
     const prazo = await screen.findByRole("region", { name: "Prazo" });
     expect(within(prazo).getByText("Sem prazo")).toBeInTheDocument();
+    await within(prazo).findByRole("button", { name: "Definir prazo" });
     fireEvent.click(within(prazo).getByRole("button", { name: "Definir prazo" }));
     const modal = await screen.findByRole("dialog", { name: "Definir prazo", hidden: true });
     fireEvent.click(within(modal).getByRole("button", { name: "Amanhã 18h", hidden: true }));
