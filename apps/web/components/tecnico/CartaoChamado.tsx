@@ -4,13 +4,13 @@ import type { DraggableAttributes, DraggableSyntheticListeners } from "@dnd-kit/
 import { Hourglass, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { BarraPrazo } from "@/components/ui/BarraPrazo";
-import { Botao } from "@/components/ui/Botao";
 import { EtiquetaId } from "@/components/ui/EtiquetaId";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
 import { formatarAtualizacao, tempoRelativo } from "@/lib/formato";
-import { ehNovo, encerradoEm, urgenciaDoCartao, type ColunaQuadro, type Urgencia } from "./quadro";
+import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
+import { COR_PRAZO, COR_STATUS } from "./cores";
+import { ehNovo, encerradoEm, type ColunaQuadro } from "./quadro";
 
 export interface DadosCartao {
   chamado: Chamado;
@@ -34,26 +34,8 @@ export interface PropsArraste {
 
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
-/** Uma cor por cartão: a do que mais precisa de ação (borda da esquerda + etiqueta do ID). */
-export const COR_URGENCIA: Record<Urgencia, { borda: string; etiqueta: string; rotulo: string }> = {
-  vencido: { borda: "border-l-perigo", etiqueta: "bg-perigo text-white", rotulo: "Prazo vencido" },
-  mensagem_nova: {
-    borda: "border-l-info",
-    etiqueta: "bg-info text-white",
-    rotulo: "Mensagem nova",
-  },
-  vence_em_breve: {
-    borda: "border-l-laranja",
-    etiqueta: "bg-laranja text-white",
-    rotulo: "Vence em menos de 1 h",
-  },
-  sem_prazo: {
-    borda: "border-l-alerta-borda",
-    etiqueta: "bg-alerta-suave text-alerta",
-    rotulo: "Sem prazo definido",
-  },
-  em_dia: { borda: "border-l-borda", etiqueta: "bg-superficie-2 text-texto-suave", rotulo: "" },
-};
+/** Etiqueta "ID 36" na cor própria (verde-água), igual em todos os cartões. */
+const TOM_ID = "bg-id-suave text-id";
 
 function NaoLidas({ total }: { total: number }) {
   if (total === 0) return null;
@@ -68,6 +50,23 @@ function NaoLidas({ total }: { total: number }) {
   );
 }
 
+/** Retângulo do prazo: só ele leva a cor do prazo (vencido vermelho, sem prazo amarelo...). */
+function SeloPrazo({ prazo, agora }: { prazo: string | null; agora: Date }) {
+  const situacao = situacaoPrazo(prazo, agora);
+  const texto = textoPrazo(prazo, agora);
+  const rotulo =
+    situacao === "no_prazo"
+      ? `Prazo: ${texto.charAt(0).toLocaleLowerCase("pt-BR")}${texto.slice(1)}`
+      : texto;
+  return (
+    <span
+      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${COR_PRAZO[situacao]}`}
+    >
+      {rotulo}
+    </span>
+  );
+}
+
 /**
  * Cartão compacto das colunas Concluídos e Cancelados (estreitas, só leitura):
  * número, título e quando/por quê encerrou.
@@ -75,15 +74,16 @@ function NaoLidas({ total }: { total: number }) {
 function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) {
   const { chamado: c, coluna, responsavel } = dados;
   const cancelado = coluna === "cancelados";
+  const cor = COR_STATUS[coluna];
   return (
     <article
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className="flex flex-col gap-1 rounded-xl border border-borda bg-superficie px-3 py-2.5 shadow-sm"
+      className={`flex flex-col gap-1 rounded-xl border border-l-[6px] border-borda px-3 py-2.5 shadow-sm ${cor.faixa} ${cor.fundo}`}
     >
-      <EtiquetaId numero={c.id} />
+      <EtiquetaId numero={c.id} tom={TOM_ID} />
       <Link
         href={`/atendimento/${c.id}`}
-        className="text-sm leading-snug font-semibold hover:underline"
+        className="text-sm leading-snug font-bold hover:underline"
       >
         {c.titulo}
       </Link>
@@ -101,9 +101,10 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
 }
 
 /**
- * Cartão do quadro (mockup, tela 6): canhoto "Nº" colorido pelo PRAZO, selos, prazo com rótulo e, embaixo,
- * o que importa em cada coluna: Novos/Transferidos → Iniciar; Em atendimento → com quem está;
- * Aguardando → há quanto tempo espera o solicitante (pedido do dono, 2026-10-07: cartões "confundíveis").
+ * Cartão do quadro (pedidos do dono, 2026-10-07): a COR é a do STATUS (faixa grossa + fundo clarinho, muda
+ * junto com o status); etiqueta "ID" verde-água; o PRAZO num retângulo próprio (vencido vermelho, sem prazo
+ * amarelo); título em destaque; "Iniciar" pequeno. Em atendimento → com quem está; Aguardando → há quanto
+ * tempo o solicitante não responde.
  */
 export function CartaoChamado({
   dados,
@@ -129,8 +130,7 @@ export function CartaoChamado({
     return <CartaoEncerrado dados={dados} agora={agora} />;
   }
 
-  const urgencia = urgenciaDoCartao(c, naoLidas, agora);
-  const cor = COR_URGENCIA[urgencia];
+  const cor = COR_STATUS[coluna];
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
   const podeIniciar = c.status === "pendente" || transferidoParaMim;
   const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
@@ -141,46 +141,37 @@ export function CartaoChamado({
       {...arraste?.atributos}
       {...arraste?.ouvintes}
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex cursor-grab touch-manipulation flex-col gap-1.5 rounded-2xl border border-l-4 bg-superficie p-3 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${cor.borda} ${
+      className={`flex cursor-grab touch-manipulation flex-col gap-1.5 rounded-2xl border border-l-[6px] p-3 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${cor.faixa} ${cor.fundo} ${
         destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"
       } ${arraste?.arrastando ? "opacity-40" : ""} ${fantasma ? "rotate-1 cursor-grabbing shadow-xl" : ""}`}
     >
       <div className="flex flex-wrap items-center gap-1.5">
-        <EtiquetaId numero={c.id} tom={cor.etiqueta} />
-        {cor.rotulo ? (
-          <span
-            className={`text-[11px] font-semibold ${urgencia === "sem_prazo" ? "text-alerta" : "text-texto-suave"}`}
-          >
-            {cor.rotulo}
+        <EtiquetaId numero={c.id} tom={TOM_ID} />
+        {ehNovo(c, agora) ? (
+          <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
+            NOVO
+          </span>
+        ) : null}
+        {c.status === "transferido" ? (
+          <span className="rounded-full bg-roxo-suave px-2 py-0.5 text-[11px] font-semibold text-roxo">
+            {transferidoParaMim
+              ? "Transferido para você"
+              : `Transferido para ${primeiroNome(responsavel)}`}
+            {transferidoPor ? ` · por ${primeiroNome(transferidoPor)}` : ""}
           </span>
         ) : null}
       </div>
-      {ehNovo(c, agora) || c.status === "transferido" ? (
-        <div className="flex flex-wrap gap-1">
-          {ehNovo(c, agora) ? (
-            <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
-              NOVO
-            </span>
-          ) : null}
-          {c.status === "transferido" ? (
-            <span className="rounded-full bg-roxo-suave px-2 py-0.5 text-[11px] font-semibold text-roxo">
-              {transferidoParaMim
-                ? "Transferido para você"
-                : `Transferido para ${primeiroNome(responsavel)}`}
-              {transferidoPor ? ` · por ${primeiroNome(transferidoPor)}` : ""}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
+
       <Link
         href={`/atendimento/${c.id}`}
-        className="leading-snug font-semibold hover:underline"
+        className="text-[15px] leading-snug font-bold hover:underline"
         draggable={false}
       >
         {c.titulo}
       </Link>
-      <p className="truncate text-xs text-texto-suave">
-        {solicitante?.nome ?? "—"} · {assunto}
+      <p className="truncate text-sm text-texto">
+        <span className="font-medium">{solicitante?.nome ?? "—"}</span>
+        <span className="text-texto-suave"> · {assunto}</span>
       </p>
 
       {coluna === "em_atendimento" && responsavel ? (
@@ -193,49 +184,34 @@ export function CartaoChamado({
           <span>
             Com <strong>{comQuem}</strong>
           </span>
-          <span className="ml-auto">
-            <NaoLidas total={naoLidas} />
-          </span>
         </p>
       ) : null}
       {coluna === "aguardando" ? (
-        <p className="flex items-center gap-1.5 text-sm text-alerta">
+        <p className="flex items-center gap-1.5 text-sm text-royal">
           <Hourglass aria-hidden="true" className="size-4 shrink-0" />
           <span className="min-w-0 leading-snug">
             Esperando <strong>{primeiroNome(solicitante) || "o solicitante"}</strong>{" "}
             {tempoRelativo(c.atualizadoEm, agora)}
           </span>
-          <span className="ml-auto">
-            <NaoLidas total={naoLidas} />
-          </span>
         </p>
       ) : null}
-
       {coluna === "transferidos" && !transferidoParaMim ? (
         <p className="text-sm text-texto-suave">
           Aguardando <strong className="text-texto">{primeiroNome(responsavel)}</strong> iniciar
         </p>
       ) : null}
 
-      {/* Prazo numa linha só e, embaixo, o botão na largura do cartão (6 colunas lado a lado). */}
-      <div className="mt-1 flex flex-col gap-2">
-        <BarraPrazo
-          criadoEm={c.criadoEm}
-          prazo={c.prazoSla}
-          agora={agora}
-          comRotulo
-          semBarra
-          acao={coluna === "novos" && naoLidas > 0 ? <NaoLidas total={naoLidas} /> : null}
-        />
+      <div className="mt-0.5 flex flex-wrap items-center gap-2">
+        <SeloPrazo prazo={c.prazoSla} agora={agora} />
+        <NaoLidas total={naoLidas} />
         {(coluna === "novos" || coluna === "transferidos") && podeIniciar ? (
-          <Botao
-            variante="escuro"
-            larguraTotal
-            className="min-h-10 text-sm"
+          <button
+            type="button"
             onClick={() => aoAssumir(c.id)}
+            className="ml-auto inline-flex h-8 items-center rounded-lg bg-barra px-3 text-xs font-bold text-sobre-barra hover:bg-barra-2"
           >
             Iniciar
-          </Botao>
+          </button>
         ) : null}
       </div>
     </article>

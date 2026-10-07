@@ -169,7 +169,11 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
 
       {/* Computador: filtros sempre visíveis. Celular: atrás do botão "Filtros". */}
       <div className="hidden flex-wrap items-center justify-between gap-3 lg:flex">
-        <FiltrosQuadro filtros={filtros} categorias={dados.categorias} />
+        <FiltrosQuadro
+          filtros={filtros}
+          categorias={dados.categorias}
+          tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
+        />
         <Legenda />
       </div>
 
@@ -187,7 +191,11 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         </div>
         {filtrosAbertos ? (
           <div className="flex flex-col gap-3 rounded-2xl border border-borda bg-superficie p-4">
-            <FiltrosQuadro filtros={filtros} categorias={dados.categorias} />
+            <FiltrosQuadro
+              filtros={filtros}
+              categorias={dados.categorias}
+              tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
+            />
             <Legenda />
           </div>
         ) : null}
@@ -258,9 +266,14 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       >
         {/* Três colunas de trabalho largas; Concluídos e Cancelados estreitas (pedido do dono, 2026-10-07). */}
         <div
-          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(4,minmax(13rem,1fr))_repeat(2,minmax(10.5rem,0.7fr))] xl:px-0`}
+          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:snap-none xl:px-0 ${
+            // Filtro de status: uma coluna só, mais larga.
+            filtros.coluna
+              ? "xl:grid xl:grid-cols-[minmax(0,28rem)]"
+              : "xl:grid xl:grid-cols-[repeat(4,minmax(13rem,1fr))_repeat(2,minmax(10.5rem,0.7fr))]"
+          }`}
         >
-          {COLUNAS.map((c) => (
+          {COLUNAS.filter((c) => filtros.coluna === null || c.id === filtros.coluna).map((c) => (
             <ColunaQuadro
               key={c.id}
               id={c.id}

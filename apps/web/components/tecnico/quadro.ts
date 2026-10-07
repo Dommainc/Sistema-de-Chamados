@@ -73,6 +73,8 @@ export interface FiltrosQuadro {
   responsavel: FiltroResponsavel;
   categoriaId: number | null;
   prazo: FiltroPrazo;
+  /** Filtro "Status": só esta coluna (null = todas). */
+  coluna: ColunaQuadro | null;
   /** Texto da busca da barra (parte do título); vazio = sem busca. */
   busca: string;
 }
@@ -94,6 +96,13 @@ export function filtrarChamados(
   return chamados.filter((c) => {
     if (filtros.responsavel === "meus" && c.responsavelId !== euId) return false;
     if (filtros.responsavel === "sem_responsavel" && c.responsavelId !== null) return false;
+    if (
+      !["todos", "meus", "sem_responsavel"].includes(filtros.responsavel) &&
+      c.responsavelId !== filtros.responsavel
+    ) {
+      return false;
+    }
+    if (filtros.coluna !== null && colunaDoStatus(c.status) !== filtros.coluna) return false;
     if (filtros.categoriaId !== null && c.categoriaId !== filtros.categoriaId) return false;
     // Prazo não se aplica a encerrados.
     if (
@@ -158,25 +167,6 @@ export function ordenarNovos(chamados: readonly Chamado[], agora: Date = new Dat
 export function ordenarTransferidos(chamados: readonly Chamado[], euId: string): Chamado[] {
   const paraMim = (c: Chamado) => (c.responsavelId === euId ? 0 : 1);
   return [...chamados].sort((a, b) => paraMim(a) - paraMim(b) || compararPrazo(a, b));
-}
-
-/**
- * Cor do cartão (pedido do dono, 2026-10-07): uma cor só, a do que mais precisa de ação, nesta ordem:
- * prazo vencido → mensagem nova → vence em menos de 1 h → sem prazo definido → em dia (sem cor).
- */
-export type Urgencia = "vencido" | "mensagem_nova" | "vence_em_breve" | "sem_prazo" | "em_dia";
-
-export function urgenciaDoCartao(
-  chamado: Chamado,
-  naoLidas: number,
-  agora: Date = new Date(),
-): Urgencia {
-  const prazo = situacaoPrazo(chamado.prazoSla, agora);
-  if (prazo === "vencido") return "vencido";
-  if (naoLidas > 0) return "mensagem_nova";
-  if (prazo === "vence_em_breve") return "vence_em_breve";
-  if (prazo === "sem_prazo") return "sem_prazo";
-  return "em_dia";
 }
 
 /**

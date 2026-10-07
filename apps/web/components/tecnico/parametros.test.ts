@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { destinoBusca, lerCategoria, lerFiltro, lerPrazo } from "./parametros";
+import { destinoBusca, lerCategoria, lerFiltro, lerPrazo, lerStatus } from "./parametros";
 
 describe("destinoBusca", () => {
   it("número abre o chamado direto (com ou sem #)", () => {
@@ -25,5 +25,11 @@ describe("parâmetros da URL", () => {
     expect(lerCategoria("abc")).toBeNull();
     expect(lerFiltro(null)).toBe("todos");
     expect(lerFiltro("sem_responsavel")).toBe("sem_responsavel");
+    expect(lerFiltro("CCCCCCCC-0000-0000-0000-000000000003")).toBe(
+      "cccccccc-0000-0000-0000-000000000003",
+    );
+    expect(lerFiltro("'; drop")).toBe("todos");
+    expect(lerStatus("aguardando")).toBe("aguardando");
+    expect(lerStatus("qualquer")).toBeNull();
   });
 });

@@ -121,23 +121,19 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 6. **Quadro** (`/atendimento`)
    **Revisão do dono (2026-10-07)** — cartões estavam "confundíveis": a data solta não dizia que era prazo, todos os
    cartões eram iguais em qualquer coluna e o responsável era só uma bolinha "RL". Mudou:
-   **Segunda revisão (2026-10-07):** "Nº" virou **etiqueta "ID 36"** pequena no canto superior esquerdo; **"Assumir"
-   virou "Iniciar"** em toda a interface (por dentro a ação continua `assumir`); **uma cor por cartão** = o que mais
-   precisa de ação; nova coluna **Transferidos**.
+   **Terceira revisão (2026-10-07)** — a cor do cartão passou a ser a do **STATUS**; o prazo só colore o retângulo dele.
    - Faixa "PRÓXIMO DA FILA" **numa linha só**: selo de prazo, "#36 título · solicitante, departamento", **"Iniciar o próximo →"**.
-   - Filtros: Todos · Só os meus · Sem responsável | Todas as categorias | Qualquer prazo.
-     Legenda: **"Cor do cartão = o que precisa de atenção:"** Prazo vencido · Mensagem nova · Vence em menos de 1h ·
-     Sem prazo · Em dia.
-   - **Seis colunas**, cada uma numa **raia com fundo próprio**, bolinha de cor da coluna (não é urgência) e contador:
-     **Novos** ("Arraste para iniciar"; seções "PRAZO VENCIDO" e "NA FILA"; "Ver mais 3"), **Transferidos** (os
-     transferidos para mim primeiro; "Aguardando Thiago iniciar" nos dos outros), **Em atendimento**, **Aguardando
-     usuário** — e, estreitas, **Concluídos** e **Cancelados** (últimos 7 dias). Abaixo de ~1280 px, rolagem lateral.
-   - Cartão aberto: **etiqueta "ID 36"** + rótulo da urgência; **borda esquerda e etiqueta na cor da urgência**, uma só,
-     nesta ordem: 🔴 prazo vencido · 🔵 mensagem nova · 🟠 vence em menos de 1 h · 🟡 sem prazo definido · sem cor = em
-     dia (`urgenciaDoCartao`). Depois selos ("NOVO", "Transferido para você · por Thiago"), título, "solicitante ·
-     categoria", o que importa na coluna (Em atendimento → "Com **Rafael**"; Aguardando → "⌛ Esperando **Ana** há 2h"),
-     o prazo **com rótulo** numa linha ("Prazo: hoje, 14:00" · "Venceu há 3 h" · "Sem prazo") e, em Novos/Transferidos,
-     o botão **Iniciar** na largura do cartão.
+   - **Filtros** (na URL): **Status** (só a coluna escolhida) · **Pessoa atendendo** (Qualquer pessoa · Eu · Ninguém ainda ·
+     cada técnico) · Categoria · Prazo. **Legenda**: cores de status e os retângulos de prazo.
+   - **Seis colunas** em raias com fundo próprio; a bolinha do título tem a cor do status: **Novos** (laranja) ·
+     **Transferidos** (roxo) · **Em atendimento** (amarelo forte) · **Aguardando usuário** (azul royal) · e, estreitas,
+     **Concluídos** (verde) · **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
+   - **Cartão**: faixa grossa à esquerda + fundo clarinho na **cor do status** (muda junto com o status; tokens `laranja`,
+     `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** sempre **verde-água** (`id`, cor exclusiva);
+     selos ("NOVO", "Transferido para você · por Thiago"); **título em destaque**; "solicitante · categoria"; o que importa
+     na coluna (Em atendimento → "Com **Rafael**"; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
+     (🔴 "Venceu há 3 h" · 🟠 "Vence em 49 min" · 🟡 "Sem prazo" · neutro "Prazo: amanhã, 14:00"); 💬 mensagens novas;
+     botão **Iniciar** pequeno à direita (Novos e Transferidos para mim).
    - Cartão encerrado (Concluídos/Cancelados): "ID 30", título, "Concluído seg, 05/10 · Thiago" ou
      "Cancelado sáb, 03/10" + o motivo. Só leitura.
    - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento ↔ Aguardando, Em atendimento/Aguardando

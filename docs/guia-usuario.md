@@ -54,8 +54,9 @@ assim que você responder, o atendimento volta a andar.
 
 Ao entrar, você vê o **quadro** com seis colunas lado a lado: **Novos**, **Transferidos**, **Em atendimento**,
 **Aguardando usuário** e, mais estreitas, **Concluídos** e **Cancelados** (os dos últimos 7 dias). Em tela menor,
-deslize para o lado ou use os botões das colunas. A **cor do cartão** mostra **o que precisa de atenção**; a coluna
-mostra o **status**.
+deslize para o lado ou use os botões das colunas. A **cor do cartão** é a do **status** (laranja = novo, roxo =
+transferido, amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, cinza = cancelado) e muda
+junto com ele.
 
 ![Quadro da TI](guia/img/computador-07-quadro.png)
 
@@ -64,13 +65,14 @@ mostra o **status**.
   outra coluna
   (no celular: **segure o cartão** um instante e arraste; na borda da tela, ela rola sozinha) —
   arrastar para **Concluídos** conclui o chamado (pede confirmação) e para **Cancelados** cancela (pede o motivo).
-- **Cores do cartão** (uma só, a mais importante): vermelho = prazo vencido · azul = mensagem nova · laranja = vence
-  em menos de 1 hora · amarelo = sem prazo definido · sem cor = em dia.
+- **Prazo** no retângulo do cartão: vermelho = vencido · laranja = vence em menos de 1 hora · amarelo = sem prazo
+  definido · branco = em dia. O 💬 com número mostra mensagens novas.
+- **Filtros:** Status (mostra só aquela coluna), Pessoa atendendo (você, ninguém ainda ou um técnico), categoria e
+  prazo. O link da página guarda os filtros.
 - **Transferidos:** os chamados passados de um técnico para outro ficam nesta coluna até o técnico de destino clicar
   em **Iniciar**. Arraste para cá para transferir (pede o técnico e o motivo).
 - **O prazo é você quem define:** na tela do chamado, bloco **Prazo** no topo → **Definir prazo** (data e hora, com atalhos).
   Para mudar depois, **Alterar prazo** pede o motivo. O solicitante vê a previsão e o motivo.
-- **Filtros:** Todos / Só os meus / Sem responsável, categoria e prazo. O link da página guarda os filtros.
 - **Busca:** digite o número (ex.: `42`) para abrir o chamado direto, ou parte do título.
 - **Busca por texto** (ex.: `impressora`) deixa no quadro só os chamados com essa palavra no título.
 - Os chamados concluídos e cancelados ficam em **Ver encerrados**, no fim do quadro.

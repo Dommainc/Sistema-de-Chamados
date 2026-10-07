@@ -22,7 +22,13 @@ vi.mock("next/navigation", () => ({
 }));
 
 const RAFAEL = USUARIOS_SIMULADOS[2];
-const TODOS: FiltrosQuadro = { responsavel: "todos", categoriaId: null, prazo: "todos", busca: "" };
+const TODOS: FiltrosQuadro = {
+  responsavel: "todos",
+  categoriaId: null,
+  prazo: "todos",
+  coluna: null,
+  busca: "",
+};
 
 function renderizar(filtros: FiltrosQuadro = TODOS) {
   return render(

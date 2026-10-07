@@ -17,7 +17,7 @@
   --cor-texto: #1a1c20;
   --cor-texto-suave: #5e626a;
 
-  /* Área técnica: barra superior e botão "Assumir" */
+  /* Área técnica: barra superior e botão "Iniciar" */
   --cor-barra: #16181c;
   --cor-barra-2: #2a2d33;
   --cor-sobre-barra: #f5f5f4;
@@ -38,6 +38,16 @@
   --cor-roxo-suave: #eee8fa;
   --cor-apagado: #5c6573;
   --cor-apagado-suave: #ebe8e2;
+
+  /* Cores de status no quadro (pedido do dono, 2026-10-07): Novos laranja · Transferidos roxo ·
+     Em atendimento amarelo forte · Aguardando azul royal · Concluídos verde · Cancelados cinza. */
+  --cor-amarelo: #c99700;
+  --cor-amarelo-suave: #fff6d6;
+  --cor-royal: #2148c0;
+  --cor-royal-suave: #e6ecfc;
+  /* Etiqueta "ID": verde-água, cor que não é usada em mais nada. */
+  --cor-id: #0f6b66;
+  --cor-id-suave: #d9f2ef;
 }
 
 @theme inline {
@@ -70,6 +80,12 @@
   --color-roxo-suave: var(--cor-roxo-suave);
   --color-apagado: var(--cor-apagado);
   --color-apagado-suave: var(--cor-apagado-suave);
+  --color-amarelo: var(--cor-amarelo);
+  --color-amarelo-suave: var(--cor-amarelo-suave);
+  --color-royal: var(--cor-royal);
+  --color-royal-suave: var(--cor-royal-suave);
+  --color-id: var(--cor-id);
+  --color-id-suave: var(--cor-id-suave);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
 }

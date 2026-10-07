@@ -4,20 +4,11 @@ import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
 import { situacaoPrazo } from "@/lib/prazo";
 import type { DadosArraste } from "./arraste";
+import { COR_STATUS } from "./cores";
 import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import type { ColunaQuadro as IdColuna } from "./quadro";
 
 const LIMITE_INICIAL = 6;
-
-/** Cor que identifica a coluna (bolinha do título). Não tem relação com prazo. */
-const COR_COLUNA: Record<IdColuna, string> = {
-  novos: "bg-info",
-  transferidos: "bg-roxo",
-  em_atendimento: "bg-primaria",
-  aguardando: "bg-alerta",
-  concluidos: "bg-sucesso",
-  cancelados: "bg-apagado",
-};
 
 type PropsCartao = {
   dados: DadosCartao;
@@ -139,7 +130,10 @@ export function ColunaQuadro({
     >
       <header className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 px-1 pt-0.5">
         <h2 className="flex items-center gap-2 text-base leading-tight font-bold">
-          <span aria-hidden="true" className={`size-2.5 shrink-0 rounded-full ${COR_COLUNA[id]}`} />
+          <span
+            aria-hidden="true"
+            className={`size-2.5 shrink-0 rounded-full ${COR_STATUS[id].bolinha}`}
+          />
           {titulo}
           <span className="rounded-full bg-superficie px-2 text-sm font-semibold text-texto-suave">
             {cartoes.length}

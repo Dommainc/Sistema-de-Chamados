@@ -8,7 +8,6 @@ import {
   montarQuadro,
   ordenarNovos,
   ordenarTransferidos,
-  urgenciaDoCartao,
   type FiltrosQuadro,
 } from "./quadro";
 
@@ -40,7 +39,13 @@ function chamado(
   };
 }
 
-const TODOS: FiltrosQuadro = { responsavel: "todos", categoriaId: null, prazo: "todos", busca: "" };
+const TODOS: FiltrosQuadro = {
+  responsavel: "todos",
+  categoriaId: null,
+  prazo: "todos",
+  coluna: null,
+  busca: "",
+};
 
 describe("colunas", () => {
   it("pendente e transferido vão para Novos; concluído e cancelado têm coluna própria", () => {
@@ -143,18 +148,6 @@ describe("ordem das colunas Novos e Transferidos", () => {
       "eu",
     ).map((c) => c.id);
     expect(ordem).toEqual([4, 2]);
-  });
-});
-
-describe("cor do cartão (o que mais precisa de ação)", () => {
-  it("vencido > mensagem nova > vence em menos de 1 h > sem prazo > em dia", () => {
-    expect(urgenciaDoCartao(chamado(1, "em_andamento", -5), 3, agora)).toBe("vencido");
-    expect(urgenciaDoCartao(chamado(1, "em_andamento", 30), 1, agora)).toBe("mensagem_nova");
-    expect(urgenciaDoCartao(chamado(1, "em_andamento", 30), 0, agora)).toBe("vence_em_breve");
-    expect(urgenciaDoCartao({ ...chamado(1, "pendente", 30), prazoSla: null }, 0, agora)).toBe(
-      "sem_prazo",
-    );
-    expect(urgenciaDoCartao(chamado(1, "em_andamento", 500), 0, agora)).toBe("em_dia");
   });
 });
 
