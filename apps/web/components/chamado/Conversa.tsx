@@ -88,14 +88,30 @@ export function Balao({
   );
 }
 
+/** Evento do sistema ("Rafael assumiu o chamado"): texto pequeno e discreto, sem disputar com as mensagens. */
+function Evento({ texto, hora }: { texto: string; hora: string }) {
+  return (
+    <p className="mx-auto max-w-[90%] text-center text-xs text-texto-suave">
+      {texto} <span className="whitespace-nowrap opacity-70">· {hora}</span>
+    </p>
+  );
+}
+
 export function Conversa({ itens }: { itens: ItemConversa[] }) {
   return (
     <ol className="flex flex-col" aria-label="Conversa do chamado">
       {itens.map((item) => {
-        if (item.tipo === "dia" || item.tipo === "evento") {
+        if (item.tipo === "dia") {
           return (
             <li key={item.chave} className="my-3">
-              <Pilula>{item.tipo === "dia" ? item.texto : `${item.texto} · ${item.hora}`}</Pilula>
+              <Pilula>{item.texto}</Pilula>
+            </li>
+          );
+        }
+        if (item.tipo === "evento") {
+          return (
+            <li key={item.chave} className="my-2">
+              <Evento texto={item.texto} hora={item.hora} />
             </li>
           );
         }

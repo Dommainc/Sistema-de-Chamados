@@ -12,7 +12,7 @@ import type {
   Papel,
   StatusChamado,
 } from "@/lib/dominio/tipos";
-import { formatarDataHora, formatarHora } from "@/lib/formato";
+import { formatarDataHora, formatarDiaHora, formatarHora } from "@/lib/formato";
 import { rotuloStatus } from "@/lib/status";
 
 export type ItemConversa =
@@ -92,8 +92,8 @@ export function textoEvento(
       return `${autor} devolveu o chamado para a fila`;
     case "prazo_definido": {
       // ADR 0009: o solicitante vê a previsão e, se mudou, o motivo.
-      const prazo = evento.detalhe.prazo ? formatarDataHora(evento.detalhe.prazo) : "";
-      const motivo = evento.detalhe.motivo ? `: ${evento.detalhe.motivo}` : "";
+      const prazo = evento.detalhe.prazo ? formatarDiaHora(evento.detalhe.prazo) : "";
+      const motivo = evento.detalhe.motivo ? ` (${evento.detalhe.motivo})` : "";
       if (evento.detalhe.prazo_anterior) {
         return papel === "solicitante"
           ? `Previsão de conclusão alterada para ${prazo}${motivo}`
@@ -101,7 +101,7 @@ export function textoEvento(
       }
       return papel === "solicitante"
         ? `Previsão de conclusão: ${prazo}`
-        : `${autor} definiu o prazo: ${prazo}`;
+        : `${autor} definiu o prazo para ${prazo}`;
     }
     case "concluido":
       return "Chamado concluído";

@@ -1,23 +1,17 @@
 "use client";
 
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useState } from "react";
 import { ChatChamado } from "@/components/chamado/ChatChamado";
 import { DetalhesPedido } from "@/components/chamado/DetalhesPedido";
 import { contarRelato } from "@/components/chamado/linhaDoTempo";
 import { TelaMensagem } from "@/components/comum/TelaMensagem";
 import { useChamadoDetalhado } from "@/components/comum/useChamadoDetalhado";
-import { BadgeStatus } from "@/components/ui/BadgeStatus";
-import { NumeroTicket } from "@/components/ui/NumeroTicket";
 import { Segmentado } from "@/components/ui/Segmentado";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
-import { estaEncerrado } from "@/lib/dominio/tipos";
-import { formatarNumeroChamado } from "@/lib/formato";
-import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
 import { useAcaoChamado } from "../useAcaoChamado";
-import { CartaoHistorico, CartaoPrazo, CartaoSolicitante, PainelAcoes, Secao } from "./Cartoes";
+import { CabecalhoChamado } from "./CabecalhoChamado";
+import { CartaoHistorico, Secao } from "./Cartoes";
 import { ModalAcao, type AcaoComModal } from "./ModalAcao";
 import { ModalPrazo } from "./ModalPrazo";
 import { RelatoTecnico } from "./RelatoTecnico";
@@ -26,8 +20,11 @@ type Aba = "conversa" | "detalhes" | "historico";
 type Quadro = "conversa" | "relato";
 
 /**
- * /atendimento/[id] (mockup, telas 7 e 9): à esquerda, abas "Conversa com a Ana" e "Relato técnico"
- * (notas só da TI, separadas da conversa — pedido do dono, 2026-10-06); à direita, ações e dados.
+ * /atendimento/[id] — reorganizada a pedido do dono (2026-10-07):
+ * - topo: cabeçalho-resumo com ações, solicitante (contato), responsável, prazo e categoria;
+ * - esquerda: "Conversa com a Ana" / "Relato técnico", ocupando a altura da tela;
+ * - direita: só o que não está na conversa (respostas do pedido) e o histórico, recolhido.
+ * No celular, abas Conversa · Detalhes · Histórico abaixo do cabeçalho.
  */
 export function AtendimentoChamado({ id }: { id: number }) {
   const usuario = useUsuario();
@@ -72,53 +69,23 @@ export function AtendimentoChamado({ id }: { id: number }) {
 
   const { chamado, categoria, solicitante, responsavel } = dados;
   const primeiroNome = solicitante?.nome.split(" ")[0] ?? "solicitante";
-  const agora = new Date();
-  const acoesProps = {
-    chamado,
-    usuario,
-    aoExecutar: (acao: Parameters<typeof executar>[1]) => void executar(chamado.id, acao),
-    aoAbrirModal: setModal,
-  };
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Cabeçalho: faixa escura no celular (mockup, tela 9), simples no computador (tela 7). */}
-      <header className="-mx-4 -mt-6 flex flex-col gap-3 bg-barra px-4 pt-3 pb-4 text-sobre-barra lg:mx-0 lg:mt-0 lg:bg-transparent lg:p-0 lg:text-texto">
-        <Link
-          href="/atendimento"
-          className="inline-flex min-h-11 items-center gap-1 self-start text-sm font-semibold lg:text-primaria"
-        >
-          <ChevronLeft aria-hidden="true" className="size-5 lg:hidden" />
-          <span className="hidden lg:inline">←</span> Voltar para o quadro
-        </Link>
-        <div className="flex items-center gap-3">
-          <NumeroTicket
-            numero={chamado.id}
-            situacao={situacaoPrazo(chamado.prazoSla, agora)}
-            className="h-14 rounded-xl lg:hidden"
-          />
-          <div className="flex min-w-0 flex-col gap-1">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="hidden font-mono text-2xl font-semibold text-texto-suave lg:inline">
-                {formatarNumeroChamado(chamado.id)}
-              </span>
-              <h1 className="text-xl font-bold lg:text-2xl">{chamado.titulo}</h1>
-            </div>
-            <div className="flex flex-wrap items-center gap-2 text-sm">
-              <BadgeStatus status={chamado.status} papel="ti" tamanho="pequeno" />
-              <span className="text-sobre-barra-suave lg:hidden">
-                {chamado.prazoSla
-                  ? `Prazo ${textoPrazo(chamado.prazoSla, agora).toLowerCase()}`
-                  : "Sem prazo"}
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <CabecalhoChamado
+        chamado={chamado}
+        categoria={categoria}
+        solicitante={extras?.solicitante}
+        responsavel={responsavel}
+        usuario={usuario}
+        agora={new Date()}
+        aoExecutar={(acao) => void executar(chamado.id, acao)}
+        aoAbrirModal={setModal}
+        aoDefinirPrazo={() => setModalPrazo(true)}
+      />
 
-      {/* Celular: ações e abas logo abaixo do cabeçalho. */}
-      <div className="flex flex-col gap-3 lg:hidden">
-        <PainelAcoes {...acoesProps} compacto />
+      {/* Celular: abas logo abaixo do cabeçalho. */}
+      <div className="lg:hidden">
         <Segmentado
           rotuloAcessivel="Partes do chamado"
           larguraTotal
@@ -132,10 +99,11 @@ export function AtendimentoChamado({ id }: { id: number }) {
         />
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        {/* Altura fixa da tela: só as mensagens rolam; o campo de escrever fica sempre à vista. */}
         <section
           aria-label="Conversa e relato técnico"
-          className={`min-h-[36rem] flex-col overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm ${aba === "conversa" ? "flex" : "hidden lg:flex"}`}
+          className={`h-[72dvh] min-h-[28rem] flex-col overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm lg:h-[calc(100dvh-19rem)] lg:min-h-[34rem] ${aba === "conversa" ? "flex" : "hidden lg:flex"}`}
         >
           <div className="border-b border-borda px-3 py-3">
             <Segmentado
@@ -172,25 +140,18 @@ export function AtendimentoChamado({ id }: { id: number }) {
         </section>
 
         <aside className={`flex-col gap-4 ${aba === "conversa" ? "hidden lg:flex" : "flex"}`}>
-          <Secao titulo="Ações" className="hidden lg:flex">
-            <PainelAcoes {...acoesProps} />
-          </Secao>
-          <div className={`flex-col gap-4 ${aba === "historico" ? "hidden lg:flex" : "flex"}`}>
-            <CartaoPrazo
-              chamado={chamado}
-              categoria={categoria}
-              responsavel={responsavel}
-              euId={usuario.id}
-              aoDefinirPrazo={estaEncerrado(chamado.status) ? undefined : () => setModalPrazo(true)}
-            />
-            <CartaoSolicitante perfil={extras?.solicitante} />
+          <div className={aba === "historico" ? "hidden lg:block" : ""}>
             <Secao titulo="Pedido">
-              <DetalhesPedido chamado={chamado} />
+              <DetalhesPedido chamado={chamado} resumo />
             </Secao>
           </div>
           {extras ? (
             <div className={aba === "detalhes" ? "hidden lg:block" : ""}>
-              <CartaoHistorico historico={extras.historico} perfis={extras.perfis} />
+              <CartaoHistorico
+                historico={extras.historico}
+                perfis={extras.perfis}
+                abertoNoInicio={aba === "historico"}
+              />
             </div>
           ) : null}
         </aside>

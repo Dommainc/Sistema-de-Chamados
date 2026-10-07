@@ -36,7 +36,11 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const [colunaCelular, setColunaCelular] = useState<IdColuna>("novos");
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [destacados, setDestacados] = useState<ReadonlySet<number>>(new Set());
-  const [concluindo, setConcluindo] = useState<number | null>(null);
+  // Arrastar para Concluídos/Cancelados abre a janela da ação (confirmação ou motivo).
+  const [encerrando, setEncerrando] = useState<{
+    id: number;
+    acao: "concluir" | "cancelar";
+  } | null>(null);
   const conhecidos = useRef<Set<number> | null>(null);
 
   const consultar = useCallback(async (f: FonteDeDados) => {
@@ -120,8 +124,9 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       mostrar(mensagemErro("TRANSICAO_INVALIDA", { de: titulo(de), para: titulo(para) }), "erro");
       return;
     }
-    // Concluir encerra o chamado de vez: pede confirmação, como o botão da tela de atendimento.
-    if (acao === "concluir") setConcluindo(chamadoId);
+    // Concluir e cancelar encerram o chamado de vez: abrem a mesma janela da tela de atendimento
+    // (concluir pede confirmação; cancelar pede o motivo).
+    if (acao === "concluir" || acao === "cancelar") setEncerrando({ id: chamadoId, acao });
     else void executar(chamadoId, acao);
   }
 
@@ -209,30 +214,34 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       ) : null}
 
       {/* Sempre kanban: colunas lado a lado. Abaixo de ~1280 px, desliza-se para o lado entre elas. */}
-      <div className="-mx-4 flex snap-x snap-mandatory items-start gap-4 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-4 xl:gap-4 xl:overflow-visible xl:px-0 xl:pb-0">
+      {/* Três colunas de trabalho largas; Concluídos e Cancelados estreitas (pedido do dono, 2026-10-07). */}
+      <div className="-mx-4 flex snap-x snap-mandatory items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(3,minmax(0,1fr))_repeat(2,minmax(0,0.68fr))] xl:overflow-visible xl:px-0 xl:pb-0">
         {COLUNAS.map((c) => (
           <ColunaQuadro
             key={c.id}
             id={c.id}
             titulo={c.titulo}
             apoio={c.apoio}
+            encerrada={c.encerrada}
             cartoes={cartoes(c.id)}
             euId={usuario.id}
             agora={agora}
             destacados={destacados}
             aoAssumir={assumir}
             aoSoltar={soltar}
-            className="w-[85vw] max-w-[21rem] shrink-0 snap-start xl:w-auto xl:max-w-none"
+            className={`shrink-0 snap-start xl:w-auto xl:max-w-none ${
+              c.encerrada ? "w-[70vw] max-w-[16rem]" : "w-[85vw] max-w-[21rem]"
+            }`}
           />
         ))}
       </div>
 
       <ModalAcao
-        acao={concluindo === null ? null : "concluir"}
-        chamadoId={concluindo ?? 0}
+        acao={encerrando?.acao ?? null}
+        chamadoId={encerrando?.id ?? 0}
         responsavelId={null}
         tecnicos={[]}
-        aoFechar={() => setConcluindo(null)}
+        aoFechar={() => setEncerrando(null)}
       />
 
       <p className="text-center">

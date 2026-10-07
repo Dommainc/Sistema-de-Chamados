@@ -64,6 +64,12 @@ export function formatarDataHora(iso: string): string {
   return `${p.dia}/${p.mes}/${p.ano} ${p.hora}:${p.minuto}`;
 }
 
+/** "08/10 às 18:00" (data absoluta curta, para textos que ficam no histórico). */
+export function formatarDiaHora(iso: string): string {
+  const p = partes(new Date(iso));
+  return `${p.dia}/${p.mes} às ${p.hora}:${p.minuto}`;
+}
+
 /** "11:30" */
 export function formatarHora(iso: string): string {
   const p = partes(new Date(iso));

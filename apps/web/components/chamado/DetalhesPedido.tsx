@@ -17,8 +17,18 @@ function formatarResposta(valor: ValorResposta): string {
   return String(valor);
 }
 
-/** "Ver detalhes do pedido": respostas do formulário, arquivos da abertura e quando foi aberto. */
-export function DetalhesPedido({ chamado }: { chamado: Chamado }) {
+/**
+ * "Ver detalhes do pedido": respostas do formulário, arquivos da abertura e quando foi aberto.
+ * `resumo` (tela da TI): só as respostas que NÃO estão na conversa — a descrição e os arquivos já são a
+ * 1ª mensagem do chat, e assunto/abertura estão no cabeçalho.
+ */
+export function DetalhesPedido({
+  chamado,
+  resumo = false,
+}: {
+  chamado: Chamado;
+  resumo?: boolean;
+}) {
   const consultar = useCallback(
     async (f: FonteDeDados) => {
       const [campos, categorias, anexos] = await Promise.all([
@@ -38,6 +48,28 @@ export function DetalhesPedido({ chamado }: { chamado: Chamado }) {
   if (!dados) return null;
 
   const respostas = dados.campos.filter((c) => chamado.respostasForm[c.chave] !== undefined);
+  if (resumo) {
+    const extras = respostas.filter((c) => c.chave !== "descricao");
+    if (extras.length === 0) {
+      return (
+        <p className="text-sm text-texto-suave">
+          O pedido é só a descrição, que está na primeira mensagem da conversa.
+        </p>
+      );
+    }
+    return (
+      <dl className="flex flex-col gap-3 text-sm">
+        {extras.map((c) => (
+          <div key={c.id}>
+            <dt className="text-texto-suave">{c.label}</dt>
+            <dd className="font-semibold whitespace-pre-line">
+              {formatarResposta(chamado.respostasForm[c.chave])}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-fundo p-4 text-sm">
       <dl className="flex flex-col gap-3">

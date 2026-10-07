@@ -69,6 +69,7 @@ export function RelatoTecnico({ chamadoId }: { chamadoId: number }) {
   const { mostrarErro } = useToast();
   const [pendentes, setPendentes] = useState<Pendente[]>([]);
   const fim = useRef<HTMLDivElement>(null);
+  const rolagem = useRef<HTMLDivElement>(null);
 
   const consultar = useCallback(
     async (f: FonteDeDados) => {
@@ -87,7 +88,9 @@ export function RelatoTecnico({ chamadoId }: { chamadoId: number }) {
   const itens = dados ? montarRelato({ ...dados, euId: usuario.id }) : [];
 
   useEffect(() => {
-    fim.current?.scrollIntoView?.({ block: "end" });
+    const area = rolagem.current;
+    if (area && area.scrollHeight > area.clientHeight) area.scrollTop = area.scrollHeight;
+    else fim.current?.scrollIntoView?.({ block: "end" });
   }, [itens.length, pendentes.length]);
 
   const tentarEnviar = useCallback(
@@ -140,13 +143,13 @@ export function RelatoTecnico({ chamadoId }: { chamadoId: number }) {
   const encerrado = estaEncerrado(dados.chamado.status);
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <p className="mx-4 mt-3 flex items-center gap-2 rounded-xl bg-alerta-suave px-3 py-2 text-sm text-alerta">
         <Lock aria-hidden="true" className="size-4 shrink-0" />
         Só a TI vê o relato técnico. O solicitante não recebe nada daqui.
       </p>
 
-      <div className="flex-1 px-4 py-4">
+      <div ref={rolagem} className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         {itens.length === 0 && pendentes.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-10 text-center text-texto-suave">
             <NotebookPen aria-hidden="true" className="size-8" />

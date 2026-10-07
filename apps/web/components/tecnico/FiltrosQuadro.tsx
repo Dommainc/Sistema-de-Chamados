@@ -34,9 +34,14 @@ export function comParametro(
   return texto ? `${caminho}?${texto}` : caminho;
 }
 
+/** Explica que a COR DO NÚMERO do cartão é o prazo (não o status — o status é a coluna). */
 export function Legenda() {
   return (
-    <ul className="flex items-center gap-4 text-xs text-texto-suave" aria-label="Legenda de prazo">
+    <ul
+      className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-texto-suave"
+      aria-label="Legenda de prazo"
+    >
+      <li className="font-semibold text-texto">Cor do número = prazo:</li>
       <li className="flex items-center gap-1.5">
         <span className="size-2.5 rounded-sm bg-perigo" /> Vencido
       </li>

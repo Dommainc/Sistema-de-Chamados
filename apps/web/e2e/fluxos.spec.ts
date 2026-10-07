@@ -89,6 +89,7 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   await expect(page.getByText("Chamado #42 concluído.")).toBeVisible();
 
   const historico = page.getByRole("region", { name: "Histórico" });
+  await historico.locator("summary").click(); // recolhido por padrão
   await expect(historico.getByText("Assumido por Rafael Lima")).toBeVisible();
   await expect(
     historico.getByText(
@@ -128,6 +129,8 @@ test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à 
   await context.clearCookies();
   await entrar(rafael, "Rafael Lima");
   await rafael.goto("/atendimento/41");
+  // Só depois de a conversa do Rafael carregar (senão a mensagem da Ana pode chegar antes da assinatura).
+  await expect(rafael.getByText(/Consegue abrir o Outlook pelo navegador/)).toBeVisible();
 
   await ana.getByRole("textbox", { name: "Mensagem" }).fill("No navegador aparecem sim!");
   await ana.getByRole("button", { name: "Enviar mensagem" }).click();
@@ -160,7 +163,7 @@ test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à 
   await modal.getByRole("button", { name: "Alterar prazo" }).click();
   await expect(rafael.getByText(/Prazo do chamado #41/)).toBeVisible();
   await expect(
-    ana.getByText(/Previsão de conclusão alterada para .*: Licença em compra/),
+    ana.getByText(/Previsão de conclusão alterada para .*\(Licença em compra\)/),
   ).toBeVisible();
 });
 

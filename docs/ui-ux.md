@@ -119,17 +119,34 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
 avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 
 6. **Quadro** (`/atendimento`)
-   - Faixa "PRÓXIMO DA FILA": "#36 título · solicitante, departamento", selo de prazo, botão **"Pegar o próximo →"**.
-   - Filtros: Todos · Só os meus · Sem responsável | Todas as categorias | Qualquer prazo. Legenda: Vencido · Vence em menos de 1h · No prazo · Sem prazo.
-   - Colunas com contador e barra colorida pela proporção de prazos:
-     **Novos** ("Arraste para assumir"; seções "PRAZO VENCIDO · 2" e "NA FILA · 6"; "Ver mais 3"),
-     **Em atendimento** ("TI cuidando"), **Aguardando usuário** ("Bola com o solicitante"). "Ver encerrados" ao final.
-   - Cartão: canhoto "Nº 36" (cor pelo prazo: vermelho, laranja-claro, verde-claro), selos opcionais ("NOVO",
-     "Transferido para você · por Thiago"), título, "solicitante · categoria (nome curto)", prazo + barra, botão escuro
-     **Assumir** (nos novos) ou avatar do responsável e contador de mensagens (nos demais).
-7. **Atendimento** (`/atendimento/41`)
-   - "← Voltar para o quadro", "#41 título" + selo de status.
-   - Esquerda — duas abas (**mudança do dono, 2026-10-06**, no lugar do seletor "Responder à Ana | Nota interna",
+   **Revisão do dono (2026-10-07)** — cartões estavam "confundíveis": a data solta não dizia que era prazo, todos os
+   cartões eram iguais em qualquer coluna e o responsável era só uma bolinha "RL". Mudou:
+   - Faixa "PRÓXIMO DA FILA" **numa linha só**: selo de prazo, "#36 título · solicitante, departamento", **"Pegar o próximo →"**.
+   - Filtros: Todos · Só os meus · Sem responsável | Todas as categorias | Qualquer prazo.
+     Legenda: **"Cor do número = prazo:"** Vencido · Vence em menos de 1h · No prazo · Sem prazo.
+   - **Cinco colunas**, cada uma numa **raia com fundo próprio**, bolinha de cor da coluna (não é prazo) e contador:
+     **Novos** ("Arraste para assumir"; seções "PRAZO VENCIDO" e "NA FILA"; "Ver mais 3"), **Em atendimento**,
+     **Aguardando usuário** — largas — e **Concluídos** e **Cancelados** (últimos 7 dias) — **estreitas**.
+     Saiu a barra de proporção de prazos do topo da coluna (era mais uma cor de prazo).
+   - Cartão aberto: canhoto "Nº 36" (cor = prazo), selos ("NOVO", "Transferido para você · por Thiago"), título,
+     "solicitante · categoria"; depois **o que importa na coluna**: Em atendimento → "Com **Rafael**" (avatar + nome);
+     Aguardando → "⌛ Esperando **Ana** há 2h"; e o prazo **com rótulo** ("Prazo: hoje, 14:00" · "Venceu há 3 h" ·
+     "Sem prazo") numa linha, com a barra e o botão **Assumir** (Novos) embaixo.
+   - Cartão encerrado (Concluídos/Cancelados): uma linha "#30 título", "Concluído seg, 05/10 · Thiago" ou
+     "Cancelado sáb, 03/10" + o motivo. Só leitura.
+   - Arrastar: Novos → Em atendimento (assumir), Em atendimento ↔ Aguardando, → Concluídos (confirma) e
+     **→ Cancelados (pede o motivo)**.
+7. **Atendimento** (`/atendimento/41`) — **reorganizada a pedido do dono (2026-10-07)**: antes a direita tinha 5 cartões
+   empilhados, a descrição e o print se repetiam e as ações tinham tamanhos diferentes.
+   - **Cabeçalho-resumo** (cartão no topo): "‹ Quadro", "#41 título" + selo de status e, à direita, as **ações**:
+     a principal em destaque (Assumir ou **Marcar como concluído**), Aguardar/Retomar e Transferir em contorno, e
+     **"⋯ Mais ações"** com Devolver à fila e Cancelar chamado (vermelho). Abaixo, quatro blocos: **SOLICITANTE**
+     (avatar, nome, departamento, telefone e e-mail clicáveis), **RESPONSÁVEL** (+ "Aberto em"), **PRAZO** (colorido,
+     link **Definir prazo** / **Alterar prazo** — a janela tem atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias
+     úteis, campo de data e hora e, ao alterar, o motivo) e **CATEGORIA**.
+   - Esquerda — conversa **ocupando a altura da tela** (só as mensagens rolam; o campo de escrever fica sempre à
+     vista). Eventos do sistema em **texto pequeno e cinza** (sem pílula); só o separador de dia fica em pílula.
+     Duas abas (**mudança do dono, 2026-10-06**, no lugar do seletor "Responder à Ana | Nota interna",
      para os analistas não confundirem resposta com anotação):
      - **Conversa com a Ana** — só a conversa com o solicitante: eventos do sistema em pílula, respostas do técnico
        em bolha azul à direita; campo "Escreva para a Ana... (Ctrl+V cola prints)", clipe, Enviar.
@@ -138,18 +155,16 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
        Ctrl+V; transferências e devoluções à fila com o motivo. Campo "Anote o que foi verificado ou feito...",
        botão "Adicionar ao relato". Encerrado → só consulta. Por baixo continuam sendo as notas internas
        (`mensagens.interna`), protegidas pelo RLS.
-   - Direita — cartões: **AÇÕES** (Marcar como concluído · Transferir · Retomar atendimento · Cancelar chamado em link vermelho),
-     **PRAZO** (previsão + barra, botão **Definir prazo** / **Alterar prazo**, responsável, categoria — a janela tem
-     atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias úteis, campo de data e hora e, ao alterar, o motivo), **SOLICITANTE** (nome, departamento, telefone, e-mail),
-     **PEDIDO** (descrição + anexos), **HISTÓRICO** (lista com horário).
+   - Direita (estreita): **PEDIDO** só com as respostas que não estão na conversa (ex.: "Quem está sem conexão",
+     "Onde você está"; a descrição e os arquivos já são a 1ª mensagem) e **HISTÓRICO (n)** recolhido (clique abre).
    - **Implementação:** em "Novos", os vencidos vêm primeiro, depois os "Transferido para você", depois o resto
      (com prazo pelo mais próximo; sem prazo pelo mais antigo — `compararPrazo`);
      arrastar só com mouse (P-029); o quadro é a visão padrão de `/atendimento`.
 8. **Quadro no celular** — *implementação (2026-10-06):* as colunas ficam sempre lado a lado (kanban) e desliza-se para o lado;
    as pílulas viram atalho para pular até a coluna. Vale para qualquer tela abaixo de ~1024 px (janela estreita, zoom).
    Mockup original:: "Próximo da fila" + "Pegar o próximo"; colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
-9. **Atendimento no celular**: cabeçalho escuro com "‹ Quadro" e "⋯", canhoto Nº, título, status, prazo;
-   botões Concluir · Transferir · Retomar; abas **Conversa · Detalhes · Histórico**; cartão do solicitante com botão de e-mail.
+9. **Atendimento no celular** (*2026-10-07*): o mesmo cabeçalho-resumo, compacto — botões **Concluir · Retomar ·
+   Transferir · ⋯**; solicitante na linha toda e prazo/responsável lado a lado; abas **Conversa · Detalhes · Histórico**.
 
 ## Fora do mockup (manter simples, no mesmo estilo)
 Login, primeiro acesso, sem acesso, 404, erro inesperado, modais (transferir, cancelar, concluir), "Ver encerrados".

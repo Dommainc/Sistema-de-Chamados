@@ -314,16 +314,16 @@ describe("prazo definido pela TI (ADR 0009)", () => {
 
   it("o solicitante vê a previsão e, se mudou, o motivo", () => {
     expect(textoEvento(definido, nome, ANA, "solicitante")).toBe(
-      "Previsão de conclusão: 08/10/2026 18:00",
+      "Previsão de conclusão: 08/10 às 18:00",
     );
     expect(textoEvento(alterado, nome, ANA, "solicitante")).toBe(
-      "Previsão de conclusão alterada para 09/10/2026 18:00: Aguardando a peça",
+      "Previsão de conclusão alterada para 09/10 às 18:00 (Aguardando a peça)",
     );
   });
 
   it("a TI vê quem definiu ou alterou", () => {
     expect(textoEvento(definido, nome, RAFAEL, "ti")).toBe(
-      "Você definiu o prazo: 08/10/2026 18:00",
+      "Você definiu o prazo para 08/10 às 18:00",
     );
     expect(textoHistorico(alterado, nome)).toBe(
       "Prazo alterado por Rafael Lima para 09/10/2026 18:00 — Aguardando a peça",

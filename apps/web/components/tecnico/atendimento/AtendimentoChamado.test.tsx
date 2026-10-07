@@ -60,16 +60,17 @@ describe("AtendimentoChamado", () => {
     renderizar();
     await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
     const acoes = painelAcoes();
-    for (const nome of [
-      "Marcar como concluído",
-      "Transferir",
-      "Retomar atendimento",
-      "Devolver à fila",
-      "Cancelar chamado",
-    ]) {
+    for (const nome of ["Marcar como concluído", "Transferir", "Retomar atendimento"]) {
       expect(within(acoes).getByRole("button", { name: nome })).toBeInTheDocument();
     }
     expect(within(acoes).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
+    // Devolver e cancelar ficam no menu "Mais ações".
+    expect(
+      within(acoes).queryByRole("button", { name: "Cancelar chamado" }),
+    ).not.toBeInTheDocument();
+    fireEvent.click(within(acoes).getByRole("button", { name: "Mais ações" }));
+    expect(within(acoes).getByRole("button", { name: "Devolver à fila" })).toBeInTheDocument();
+    expect(within(acoes).getByRole("button", { name: "Cancelar chamado" })).toBeInTheDocument();
   });
 
   it("Relato técnico: aba própria com as notas e o contador; anotar grava como interna", async () => {
@@ -186,9 +187,12 @@ describe("AtendimentoChamado", () => {
   it("transferido para outro técnico: quem não é o destino só devolve ou cancela", async () => {
     renderizar(THIAGO, 39); // #39 foi transferido para o Rafael
     await screen.findByRole("region", { name: "Ações" });
-    const nomes = within(painelAcoes())
-      .getAllByRole("button")
-      .map((b) => b.textContent);
-    expect(nomes).toEqual(["Devolver à fila", "Cancelar chamado"]);
+    const nomes = () =>
+      within(painelAcoes())
+        .getAllByRole("button")
+        .map((b) => b.getAttribute("aria-label") ?? b.textContent);
+    expect(nomes()).toEqual(["Mais ações"]);
+    fireEvent.click(within(painelAcoes()).getByRole("button", { name: "Mais ações" }));
+    expect(nomes()).toEqual(["Mais ações", "Devolver à fila", "Cancelar chamado"]);
   });
 });

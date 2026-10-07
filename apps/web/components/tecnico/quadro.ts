@@ -1,24 +1,48 @@
 // Regras puras do quadro da área técnica (mockup, tela 6; adaptado ao ADR 0005).
-// Quatro colunas: Novos · Em atendimento · Aguardando usuário · Concluídos (pedido do dono, 2026-10-06).
+// Cinco colunas: Novos · Em atendimento · Aguardando usuário · Concluídos · Cancelados
+// (pedidos do dono, 2026-10-06 e 2026-10-07). As duas últimas são estreitas e só mostram os últimos 7 dias.
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
 import type { Chamado, StatusChamado } from "@/lib/dominio/tipos";
 import { compararPrazo, situacaoPrazo, type SituacaoPrazo } from "@/lib/prazo";
 import type { FiltroResponsavel } from "./parametros";
 
-export type ColunaQuadro = "novos" | "em_atendimento" | "aguardando" | "concluidos";
+export type ColunaQuadro = "novos" | "em_atendimento" | "aguardando" | "concluidos" | "cancelados";
 
-/** "Concluídos" mostra só os dos últimos dias (os demais ficam em "Ver encerrados"). */
+/** "Concluídos" e "Cancelados" mostram só os dos últimos dias (os demais ficam em "Ver encerrados"). */
 export const DIAS_CONCLUIDOS = 7;
 
-export const COLUNAS: readonly { id: ColunaQuadro; titulo: string; apoio: string }[] = [
-  { id: "novos", titulo: "Novos", apoio: "Arraste para assumir" },
-  { id: "em_atendimento", titulo: "Em atendimento", apoio: "TI cuidando" },
-  { id: "aguardando", titulo: "Aguardando usuário", apoio: "Bola com o solicitante" },
-  { id: "concluidos", titulo: "Concluídos", apoio: `Últimos ${DIAS_CONCLUIDOS} dias` },
+export interface DefinicaoColuna {
+  id: ColunaQuadro;
+  titulo: string;
+  apoio: string;
+  /** Coluna de encerrados: estreita, cartões de uma linha, só leitura. */
+  encerrada: boolean;
+}
+
+export const COLUNAS: readonly DefinicaoColuna[] = [
+  { id: "novos", titulo: "Novos", apoio: "Arraste para assumir", encerrada: false },
+  { id: "em_atendimento", titulo: "Em atendimento", apoio: "TI cuidando", encerrada: false },
+  {
+    id: "aguardando",
+    titulo: "Aguardando usuário",
+    apoio: "Bola com o solicitante",
+    encerrada: false,
+  },
+  {
+    id: "concluidos",
+    titulo: "Concluídos",
+    apoio: `Últimos ${DIAS_CONCLUIDOS} dias`,
+    encerrada: true,
+  },
+  {
+    id: "cancelados",
+    titulo: "Cancelados",
+    apoio: `Últimos ${DIAS_CONCLUIDOS} dias`,
+    encerrada: true,
+  },
 ];
 
-/** Cancelados não aparecem no quadro ("Ver encerrados"). */
 export function colunaDoStatus(status: StatusChamado): ColunaQuadro | null {
   switch (status) {
     case "pendente":
@@ -30,8 +54,8 @@ export function colunaDoStatus(status: StatusChamado): ColunaQuadro | null {
       return "aguardando";
     case "concluido":
       return "concluidos";
-    default:
-      return null;
+    case "cancelado":
+      return "cancelados";
   }
 }
 
@@ -63,10 +87,11 @@ export function filtrarChamados(
     if (filtros.responsavel === "meus" && c.responsavelId !== euId) return false;
     if (filtros.responsavel === "sem_responsavel" && c.responsavelId !== null) return false;
     if (filtros.categoriaId !== null && c.categoriaId !== filtros.categoriaId) return false;
-    // Prazo não se aplica a concluídos.
+    // Prazo não se aplica a encerrados.
     if (
       filtros.prazo !== "todos" &&
       c.status !== "concluido" &&
+      c.status !== "cancelado" &&
       situacaoPrazo(c.prazoSla, agora) !== filtros.prazo
     ) {
       return false;
@@ -81,26 +106,37 @@ export type Quadro = Record<ColunaQuadro, Chamado[]>;
 
 /**
  * Separa por coluna. Abertos: prazo mais próximo primeiro.
- * Concluídos: só os dos últimos DIAS_CONCLUIDOS dias, mais recentes primeiro.
+ * Concluídos e Cancelados: só os dos últimos DIAS_CONCLUIDOS dias, mais recentes primeiro.
  */
 export function montarQuadro(chamados: readonly Chamado[], agora: Date = new Date()): Quadro {
-  const quadro: Quadro = { novos: [], em_atendimento: [], aguardando: [], concluidos: [] };
+  const quadro: Quadro = {
+    novos: [],
+    em_atendimento: [],
+    aguardando: [],
+    concluidos: [],
+    cancelados: [],
+  };
   const limite = agora.getTime() - DIAS_CONCLUIDOS * 86_400_000;
   for (const c of chamados) {
     const coluna = colunaDoStatus(c.status);
     if (!coluna) continue;
-    if (coluna === "concluidos" && new Date(c.concluidoEm ?? c.atualizadoEm).getTime() < limite) {
-      continue;
+    if (coluna === "concluidos" || coluna === "cancelados") {
+      if (new Date(encerradoEm(c)).getTime() < limite) continue;
     }
     quadro[coluna].push(c);
   }
   for (const coluna of ["novos", "em_atendimento", "aguardando"] as const) {
     quadro[coluna].sort(compararPrazo);
   }
-  quadro.concluidos.sort((a, b) =>
-    (b.concluidoEm ?? b.atualizadoEm).localeCompare(a.concluidoEm ?? a.atualizadoEm),
-  );
+  for (const coluna of ["concluidos", "cancelados"] as const) {
+    quadro[coluna].sort((a, b) => encerradoEm(b).localeCompare(encerradoEm(a)));
+  }
   return quadro;
+}
+
+/** Quando o chamado foi concluído ou cancelado. */
+export function encerradoEm(c: Chamado): string {
+  return c.concluidoEm ?? c.canceladoEm ?? c.atualizadoEm;
 }
 
 /**
@@ -120,26 +156,12 @@ export function ordenarNovos(
   return [...chamados].sort((a, b) => prioridade(a) - prioridade(b) || compararPrazo(a, b));
 }
 
-/** Quantos estão vencidos, vencendo em menos de 1 h, no prazo e sem prazo (barrinha do topo da coluna). */
-export function proporcaoPrazos(
-  chamados: readonly Chamado[],
-  agora: Date = new Date(),
-): Record<SituacaoPrazo, number> {
-  const contagem: Record<SituacaoPrazo, number> = {
-    vencido: 0,
-    vence_em_breve: 0,
-    no_prazo: 0,
-    sem_prazo: 0,
-  };
-  for (const c of chamados) contagem[situacaoPrazo(c.prazoSla, agora)]++;
-  return contagem;
-}
-
 /**
  * Arrastar um cartão entre colunas vira uma ação da máquina de estados.
  * Novos → Em atendimento = assumir; Em atendimento → Aguardando = aguardar usuário;
  * Aguardando → Em atendimento = retomar; Em atendimento/Aguardando → Concluídos = concluir
- * (com confirmação). Outros movimentos não valem (null).
+ * (com confirmação); qualquer coluna aberta → Cancelados = cancelar (pede motivo).
+ * Outros movimentos não valem (null).
  */
 export function acaoDoArraste(
   de: ColunaQuadro,
@@ -149,6 +171,9 @@ export function acaoDoArraste(
   if (de === "em_atendimento" && para === "aguardando") return "aguardar_usuario";
   if (de === "aguardando" && para === "em_atendimento") return "retomar";
   if ((de === "em_atendimento" || de === "aguardando") && para === "concluidos") return "concluir";
+  if ((de === "novos" || de === "em_atendimento" || de === "aguardando") && para === "cancelados") {
+    return "cancelar";
+  }
   return null;
 }
 

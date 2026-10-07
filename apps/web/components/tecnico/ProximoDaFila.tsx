@@ -15,7 +15,7 @@ const TOM_PRAZO = {
   sem_prazo: "bg-superficie-2 text-texto-suave",
 } as const;
 
-/** Faixa "PRÓXIMO DA FILA" com "Pegar o próximo" (mockup, telas 6 e 8). */
+/** Faixa "PRÓXIMO DA FILA" com "Pegar o próximo" (mockup, telas 6 e 8), numa linha só no computador. */
 export function ProximoDaFila({
   chamado,
   solicitante,
@@ -38,9 +38,9 @@ export function ProximoDaFila({
   }
   const situacao = situacaoPrazo(chamado.prazoSla, agora);
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-borda bg-superficie px-5 py-4 shadow-sm md:flex-row md:items-center md:justify-between">
-      <div className="flex min-w-0 flex-col gap-1">
-        <div className="flex items-center justify-between gap-3 md:justify-start">
+    <div className="flex flex-col gap-2 rounded-2xl border border-borda bg-superficie px-4 py-3 shadow-sm md:flex-row md:items-center md:gap-4">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 md:flex-row md:items-center md:gap-3">
+        <div className="flex shrink-0 items-center justify-between gap-3 md:justify-start">
           <p className="text-xs font-bold tracking-wider text-texto-suave uppercase">
             Próximo da fila
           </p>
@@ -64,7 +64,7 @@ export function ProximoDaFila({
           ) : null}
         </Link>
       </div>
-      <Botao onClick={aoPegar} carregando={pegando} className="shrink-0 md:px-6">
+      <Botao onClick={aoPegar} carregando={pegando} className="min-h-10 shrink-0 md:px-5">
         Pegar o próximo <ArrowRight aria-hidden="true" className="size-4" />
       </Botao>
     </div>

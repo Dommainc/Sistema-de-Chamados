@@ -64,14 +64,42 @@ describe("QuadroAtendimento", () => {
     expect(within(cartao(42)).getByText("NOVO")).toBeInTheDocument();
   });
 
-  it("coluna Concluídos mostra os concluídos recentes, sem botão Assumir", async () => {
+  it("colunas Concluídos e Cancelados mostram os encerrados recentes, sem botão Assumir", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");
     const concluidos = coluna("Concluídos");
     expect(within(concluidos).getByText("Notebook muito lento")).toBeInTheDocument();
     expect(within(concluidos).getByText("Impressora do RH com papel preso")).toBeInTheDocument();
     expect(within(concluidos).queryByRole("button", { name: "Assumir" })).not.toBeInTheDocument();
-    expect(screen.queryByText("Headset novo para reuniões")).not.toBeInTheDocument(); // cancelado
+    const cancelados = coluna("Cancelados");
+    expect(within(cancelados).getByText("Headset novo para reuniões")).toBeInTheDocument();
+    expect(within(cancelados).getByText(/Achei um headset sobrando/)).toBeInTheDocument();
+  });
+
+  it("arrastar para Cancelados pede o motivo e cancela", async () => {
+    renderizar();
+    await screen.findByText("Próximo da fila");
+    fireEvent.drop(coluna("Cancelados"), {
+      dataTransfer: {
+        types: [TIPO_ARRASTE],
+        getData: () => JSON.stringify({ id: 40, coluna: "novos" }),
+      },
+    });
+    const modal = await screen.findByRole("dialog", { hidden: true });
+    const cancelar = () =>
+      fireEvent.click(
+        within(modal).getByRole("button", { name: "Cancelar chamado", hidden: true }),
+      );
+    cancelar();
+    expect(await within(modal).findByText("Informe o motivo para continuar.")).toBeInTheDocument();
+    expect(lerEstado().chamados.find((c) => c.id === 40)?.status).toBe("pendente");
+    fireEvent.change(within(modal).getByRole("textbox", { hidden: true }), {
+      target: { value: "Senha resetada por telefone" },
+    });
+    cancelar();
+    await waitFor(() =>
+      expect(lerEstado().chamados.find((c) => c.id === 40)?.status).toBe("cancelado"),
+    );
   });
 
   it("arrastar para Concluídos pede confirmação e conclui", async () => {

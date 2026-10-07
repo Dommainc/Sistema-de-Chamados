@@ -47,6 +47,7 @@ export function ChatChamado({
   const online = useOnline();
   const [pendentes, setPendentes] = useState<Pendente[]>([]);
   const fim = useRef<HTMLDivElement>(null);
+  const rolagem = useRef<HTMLDivElement>(null);
 
   const consultar = useCallback(
     async (f: FonteDeDados) => {
@@ -71,9 +72,12 @@ export function ChatChamado({
     if (dados) fonte.marcarComoLido(chamadoId).catch(() => undefined);
   }, [chamadoId, dados, fonte, totalMensagens]);
 
-  // Mantém a última mensagem visível.
+  // Mantém a última mensagem visível. Com altura fixa (tela da TI), rola só a área das mensagens;
+  // senão (portal do solicitante), rola a página.
   useEffect(() => {
-    fim.current?.scrollIntoView?.({ block: "end" });
+    const area = rolagem.current;
+    if (area && area.scrollHeight > area.clientHeight) area.scrollTop = area.scrollHeight;
+    else fim.current?.scrollIntoView?.({ block: "end" });
   }, [itens.length, pendentes.length]);
 
   const tentarEnviar = useCallback(
@@ -126,7 +130,7 @@ export function ChatChamado({
   const novoPedido = comReferente(caminhosAbertura(usuario.papel).inicio, dados.chamado.id);
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       {!online ? (
         <Aviso
           tom="perigo"
@@ -136,7 +140,7 @@ export function ChatChamado({
         />
       ) : null}
 
-      <div className="flex-1 px-4 py-4">
+      <div ref={rolagem} className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
         <Conversa itens={itens} />
         {pendentes.length > 0 ? (
           <ol className="mt-3 flex flex-col gap-3" aria-label="Mensagens sendo enviadas">

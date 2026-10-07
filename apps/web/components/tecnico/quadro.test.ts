@@ -7,7 +7,6 @@ import {
   filtrarChamados,
   montarQuadro,
   ordenarNovos,
-  proporcaoPrazos,
   type FiltrosQuadro,
 } from "./quadro";
 
@@ -42,13 +41,13 @@ function chamado(
 const TODOS: FiltrosQuadro = { responsavel: "todos", categoriaId: null, prazo: "todos", busca: "" };
 
 describe("colunas", () => {
-  it("pendente e transferido vão para Novos; concluído vai para Concluídos; cancelado fica fora", () => {
+  it("pendente e transferido vão para Novos; concluído e cancelado têm coluna própria", () => {
     expect(colunaDoStatus("pendente")).toBe("novos");
     expect(colunaDoStatus("transferido")).toBe("novos");
     expect(colunaDoStatus("em_andamento")).toBe("em_atendimento");
     expect(colunaDoStatus("aguardando_usuario")).toBe("aguardando");
     expect(colunaDoStatus("concluido")).toBe("concluidos");
-    expect(colunaDoStatus("cancelado")).toBeNull();
+    expect(colunaDoStatus("cancelado")).toBe("cancelados");
   });
 
   it("monta as colunas com o prazo mais próximo primeiro", () => {
@@ -60,7 +59,8 @@ describe("colunas", () => {
         { ...chamado(4, "concluido", 10, "tec"), concluidoEm: daqui(-60) },
         { ...chamado(5, "concluido", 10, "tec"), concluidoEm: daqui(-10) },
         { ...chamado(6, "concluido", 10, "tec"), concluidoEm: daqui(-8 * 24 * 60) },
-        chamado(7, "cancelado", 10, "tec"),
+        { ...chamado(7, "cancelado", 10, "tec"), canceladoEm: daqui(-5) },
+        { ...chamado(8, "cancelado", 10, "tec"), canceladoEm: daqui(-9 * 24 * 60) },
       ],
       agora,
     );
@@ -69,6 +69,7 @@ describe("colunas", () => {
     expect(quadro.aguardando).toEqual([]);
     // Concluídos: só os dos últimos 7 dias, mais recente primeiro.
     expect(quadro.concluidos.map((c) => c.id)).toEqual([5, 4]);
+    expect(quadro.cancelados.map((c) => c.id)).toEqual([7]);
   });
 });
 
@@ -141,17 +142,6 @@ describe("ordem da coluna Novos", () => {
   });
 });
 
-describe("proporção de prazos", () => {
-  it("conta vencidos, vencendo em menos de 1 h e no prazo", () => {
-    expect(
-      proporcaoPrazos(
-        [chamado(1, "pendente", -5), chamado(2, "pendente", 50), chamado(3, "pendente", 500)],
-        agora,
-      ),
-    ).toEqual({ vencido: 1, vence_em_breve: 1, no_prazo: 1, sem_prazo: 0 });
-  });
-});
-
 describe("arrastar entre colunas", () => {
   it("só os movimentos da máquina de estados valem", () => {
     expect(acaoDoArraste("novos", "em_atendimento")).toBe("assumir");
@@ -164,6 +154,10 @@ describe("arrastar entre colunas", () => {
     expect(acaoDoArraste("aguardando", "concluidos")).toBe("concluir");
     expect(acaoDoArraste("novos", "concluidos")).toBeNull();
     expect(acaoDoArraste("concluidos", "em_atendimento")).toBeNull();
+    expect(acaoDoArraste("novos", "cancelados")).toBe("cancelar");
+    expect(acaoDoArraste("aguardando", "cancelados")).toBe("cancelar");
+    expect(acaoDoArraste("cancelados", "novos")).toBeNull();
+    expect(acaoDoArraste("concluidos", "cancelados")).toBeNull();
   });
 });
 

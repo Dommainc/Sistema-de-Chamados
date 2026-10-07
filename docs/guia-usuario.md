@@ -50,16 +50,17 @@ assim que você responder, o atendimento volta a andar.
 
 ### O quadro
 
-Ao entrar, você vê o **quadro** com quatro colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando usuário**
-e **Concluídos** (os dos últimos 7 dias). Em tela menor, deslize para o lado ou use os botões das colunas.
+Ao entrar, você vê o **quadro** com cinco colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando usuário**
+e, mais estreitas, **Concluídos** e **Cancelados** (os dos últimos 7 dias). Em tela menor, deslize para o lado ou use
+os botões das colunas. A **cor do número** do cartão mostra o **prazo**; a coluna mostra o **status**.
 
 ![Quadro da TI](guia/img/computador-07-quadro.png)
 
 - **Pegar o próximo:** assume o chamado mais urgente da fila e abre direto nele.
 - **Assumir:** botão em cada cartão novo. Você também pode **arrastar** o cartão para outra coluna —
-  arrastar para **Concluídos** conclui o chamado (pede confirmação).
+  arrastar para **Concluídos** conclui o chamado (pede confirmação) e para **Cancelados** cancela (pede o motivo).
 - **Cores do prazo:** vermelho = vencido · laranja = vence em menos de 1 hora · verde = no prazo · cinza = sem prazo.
-- **O prazo é você quem define:** na tela do chamado, cartão **Prazo** → **Definir prazo** (data e hora, com atalhos).
+- **O prazo é você quem define:** na tela do chamado, bloco **Prazo** no topo → **Definir prazo** (data e hora, com atalhos).
   Para mudar depois, **Alterar prazo** pede o motivo. O solicitante vê a previsão e o motivo.
 - **Filtros:** Todos / Só os meus / Sem responsável, categoria e prazo. O link da página guarda os filtros.
 - **Busca:** digite o número (ex.: `42`) para abrir o chamado direto, ou parte do título.
@@ -77,14 +78,15 @@ e **Concluídos** (os dos últimos 7 dias). Em tela menor, deslize para o lado o
 
 ![Relato técnico](guia/img/computador-08b-relato-tecnico.png)
 
-- **Ações** mostra só o que dá para fazer agora:
+- No **topo** ficam o solicitante (com telefone e e-mail), o responsável, o prazo e a categoria, e as **ações** —
+  só as que dá para fazer agora (Devolver à fila e Cancelar ficam em **⋯**):
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
   - **Aguardar usuário / Retomar atendimento** — quando você precisa de uma resposta;
   - **Transferir** — para outro técnico, com motivo (ele precisa assumir);
   - **Devolver à fila** — volta para Novos, sem responsável, com motivo;
   - **Cancelar chamado** — com motivo.
-- Ao lado ficam o **prazo**, o **contato do solicitante**, o **pedido** com os arquivos e o **histórico**
-  completo (inclusive transferências e o motivo de cada uma).
+- Ao lado da conversa ficam as respostas do **pedido** e o **histórico** completo (clique para abrir),
+  inclusive transferências e o motivo de cada uma.
 
 ---
 
