@@ -29,6 +29,7 @@ Detalhe por etapa: [fases/STATUS.md](fases/STATUS.md) · Pendências e decisões
 | [segredos.md](segredos.md) | Inventário de chaves e senhas (sem valores) |
 | [ui-ux.md](ui-ux.md) | Especificação visual (mockup oficial) |
 | [guia-usuario.md](guia-usuario.md) | Guia de 1 página para quem usa |
+| [fases/revisao-fase1.md](fases/revisao-fase1.md) | **O que está pronto e o que falta para ir ao ar** (pré-revisão da Fase 1) |
 | [go-live.md](go-live.md) | Roteiro para colocar no ar (dia da assinatura do Supabase) |
 | [runbooks/](runbooks/) | Passo a passo para operação (backup, troca de chave, bot parado) |
 | [adr/](adr/) | Decisões de arquitetura |

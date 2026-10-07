@@ -17,6 +17,18 @@ import { FormularioChamado } from "./FormularioChamado";
 import { limparRascunho } from "./rascunho";
 
 const navegacao = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
+// Liga/desliga uma falha ao guardar o arquivo (simula o Storage fora do ar → UPLOAD_FALHOU).
+const armazenamento = vi.hoisted(() => ({ falhar: false }));
+vi.mock("@/lib/dados/simulada/arquivos", async (original) => {
+  const real = await original<typeof import("@/lib/dados/simulada/arquivos")>();
+  return {
+    ...real,
+    guardarArquivo: (...args: Parameters<typeof real.guardarArquivo>) =>
+      armazenamento.falhar
+        ? Promise.reject(new Error("storage fora do ar"))
+        : real.guardarArquivo(...args),
+  };
+});
 vi.mock("next/navigation", () => ({
   useRouter: () => navegacao,
   usePathname: () => "/abrir/2",
@@ -43,6 +55,7 @@ beforeEach(() => {
   _reiniciarParaTestes();
   gravarEstado(estadoInicial());
   navegacao.replace.mockReset();
+  armazenamento.falhar = false;
   globalThis.URL.createObjectURL = vi.fn(() => "blob:previa");
   globalThis.URL.revokeObjectURL = vi.fn();
 });
@@ -120,6 +133,36 @@ describe("FormularioChamado", () => {
       },
     });
     expect(await screen.findByText(/^print-\d{8}-\d{6}\.png$/)).toBeInTheDocument();
+  });
+
+  it("falha ao enviar o arquivo mostra UPLOAD_FALHOU e não abre o chamado", async () => {
+    armazenamento.falhar = true;
+    renderizar();
+    const total = lerEstado().chamados.length;
+    fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
+      target: { value: "Sem internet" },
+    });
+    fireEvent.click(screen.getByRole("radio", { name: "Só eu" }));
+    fireEvent.change(screen.getByLabelText(/Onde você está/), { target: { value: "Obra" } });
+    const descricao = screen.getByLabelText(/Descreva o que está acontecendo/);
+    fireEvent.change(descricao, { target: { value: "Roteador piscando" } });
+    const imagem = new File(["png"], "image.png", { type: "image/png" });
+    fireEvent.paste(descricao, {
+      clipboardData: {
+        items: [{ kind: "file", type: "image/png", getAsFile: () => imagem }],
+        files: [imagem],
+      },
+    });
+    await screen.findByText(/^print-\d{8}-\d{6}\.png$/);
+    fireEvent.click(screen.getAllByRole("button", { name: "Enviar pedido" })[0]);
+
+    expect(
+      await screen.findByText(
+        "Não conseguimos enviar o arquivo. Verifique sua conexão e tente novamente.",
+      ),
+    ).toBeInTheDocument();
+    expect(lerEstado().chamados).toHaveLength(total);
+    expect(navegacao.replace).not.toHaveBeenCalled();
   });
 
   it("colar texto no campo não cria anexo", async () => {

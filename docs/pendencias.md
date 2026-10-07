@@ -11,7 +11,6 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Gravidade | Tipo | Descrição | Onde resolver |
 |---|---|---|---|---|
-| P-015 | ⚪ | ambiente | `[auth.external.azure] enabled = true` no `config.toml` lê variáveis que ainda não existem; conferir se o `supabase start` local funciona sem elas. | Início da 1A-2 |
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🟡 | ambiente | **Supabase praticamente aprovado pela diretoria — falta só a assinatura** (atualizado em 2026-10-06). Depois: criar projetos `dev` e `prod` em `sa-east-1` (ADR 0001) e rodar as migrations (P-023). | Assinatura da diretoria |
@@ -27,6 +26,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Data | Como foi resolvido |
 |---|---|---|
+| P-015 | 2026-10-07 | O `supabase start` do job `banco` do CI roda com o provider Azure ligado usando valores falsos em `AZURE_*` (ver `.github/workflows/ci.yml`). Local, basta exportar as mesmas variáveis. |
 | P-029 | 2026-10-07 | Decisão do dono: arrastar com o dedo. `@dnd-kit/core` com mouse, toque (segurar ~0,25 s) e teclado, rolagem automática na borda (ADR 0010). Testes: teclado (unitário) e mouse/toque (E2E). |
 | P-026 | 2026-10-07 | Obsoleta: não existe mais previsão automática antes de enviar — o prazo é definido pela TI (ADR 0009). Rota `GET /categorias/{id}/previsao` removida. |
 | P-010 | 2026-10-07 | Obsoleta: o prazo não depende mais da categoria (ADR 0009). Trocar a categoria não mexe no prazo. |

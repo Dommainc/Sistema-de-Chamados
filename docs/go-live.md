@@ -15,6 +15,7 @@ anote data e responsável. Nada aqui foi executado ainda (aguarda P-022).
 - [ ] Projetos `central-chamados-dev` e `central-chamados-prod`, região **South America (São Paulo) — sa-east-1**
   ([ADR 0001](adr/0001-supabase-sa-east-1.md)). Senha do banco forte, guardada no cofre da TI.
 - [ ] Conferir em Settings → General que a região é `sa-east-1`.
+- [ ] `prod` no **plano Pro** (backups diários; avaliar PITR — escopo, seção 10).
 - [ ] Conferir que a versão do Postgres é a mesma do `supabase/config.toml` (`major_version = 17`).
 
 ## 2. Rodar as migrations
@@ -95,6 +96,7 @@ Variáveis (Settings → Environment Variables), conforme `apps/api/.env.example
 - [ ] Link universal `/chamados/<número>` abre a tela certa para cada um.
 - [ ] Tabela `notificacoes` tem os avisos como `pendente` (o bot do Teams entra na 1E — por último).
 - [ ] Backup: conferir em Database → Backups que os backups diários estão ativos ([runbooks/restaurar-backup.md](runbooks/restaurar-backup.md)).
+- [ ] **Restauração testada antes do go-live** (escopo, seção 10): seguir o "Teste periódico" do runbook — restaurar o backup do `dev` num projeto temporário e abrir a Central contra ele.
 
 Depois do `prod` no ar: atualizar `docs/fases/STATUS.md` (registro de mudanças) e fechar P-022, P-032 e P-035 em
 `docs/pendencias.md`.
