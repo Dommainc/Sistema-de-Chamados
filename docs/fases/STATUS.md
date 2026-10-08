@@ -2,7 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
-| 2026-10-07 | **Demonstração na Vercel** para o chefe testar: projeto com Root Directory `apps/web`, branch de produção trocado para `producao` e `main` publicado como Preview (dados simulados; a trava do ADR 0006 continua valendo para produção). Passo de volta registrado no `go-live.md` §8. |
+| 2026-10-07 | **Demonstração na Vercel** para o chefe testar: projeto com Root Directory `apps/web`, branch **`demo`** publicado como Preview (`git push origin main:demo` para atualizar) (dados simulados; a trava do ADR 0006 continua valendo para produção). Passo de volta registrado no `go-live.md` §8. |
 | 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migrations 0015–0017 validadas no CI (job `banco`, Supabase local no runner) |
 | 1A-3 Entrega 1 — Base do front e perfis | ✅ Concluída | Dados simulados (ADR 0006); Next 16, 42 testes; lint, typecheck e build verdes |
 | 1A-4 (parte) CI do front | ✅ Concluída | `.github/workflows/ci.yml` (formatação, lint, tipos, testes, build), PR template, `.editorconfig` |
