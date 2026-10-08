@@ -19,6 +19,16 @@ import type {
   RespostaPronta,
 } from "@/lib/dominio/tipos";
 
+/**
+ * Dados brutos do Dashboard (ADR 0013): chamados abertos agora ou que mexeram no período, o histórico
+ * deles e o expediente (para contar horas úteis). O cálculo fica em lib/metricas.ts.
+ */
+export interface DadosMetricas {
+  chamados: Chamado[];
+  historico: EventoHistorico[];
+  expediente: { inicio: string; fim: string; feriados: string[] };
+}
+
 /** Sistema da empresa (opção do campo "Qual sistema?") com a cor guardada no banco. */
 export interface OpcaoSistema {
   nome: string;
@@ -128,6 +138,11 @@ export interface FonteDeDados {
   listarCamposForm(categoriaId: number): Promise<CampoForm[]>;
   /** Opções do campo "Qual sistema?" com as cores (campos_form.cores), na ordem do formulário. */
   listarSistemas(): Promise<OpcaoSistema[]>;
+  /**
+   * Dashboard (só TI — RLS): chamados abertos agora + os que foram abertos, concluídos ou cancelados
+   * entre `inicio` (inclusive) e `fim` (exclusivo), com o histórico deles. Solicitante: SEM_PERMISSAO.
+   */
+  listarDadosMetricas(inicio: string, fim: string): Promise<DadosMetricas>;
   /** Respostas prontas do chat (tabela respostas_prontas). Só a TI recebe; solicitante: lista vazia (RLS). */
   listarRespostasProntas(): Promise<RespostaPronta[]>;
 

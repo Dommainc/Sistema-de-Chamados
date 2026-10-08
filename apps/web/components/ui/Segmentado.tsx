@@ -44,7 +44,7 @@ export function Segmentado<T extends string>({
     >
       {opcoes.map((o) => {
         const selecionado = o.valor === valor;
-        const classe = `inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold transition-colors ${larguraTotal ? "flex-1" : ""} ${selecionado ? ativo : inativo}`;
+        const classe = `inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold whitespace-nowrap transition-colors ${larguraTotal ? "flex-1" : ""} ${selecionado ? ativo : inativo}`;
         return o.href ? (
           <Link
             key={o.valor}

@@ -16,7 +16,7 @@ import type {
   StatusChamado,
   TipoCampo,
 } from "@/lib/dominio/tipos";
-import { adicionarHorasUteis } from "@/lib/dominio/horario-util";
+import { adicionarHorasUteis, horasUteisEntre } from "@/lib/dominio/horario-util";
 import { EXPEDIENTE_SIMULADO } from "./feriados";
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
@@ -802,7 +802,7 @@ export function gerarConversasExemplo(agora: Date): {
     },
     {
       chamadoId: 32,
-      autorId: BRUNO,
+      autorId: RAFAEL, // só a TI cancela (ADR 0011): o Bruno pediu pelo chat
       acao: "cancelado",
       de: "pendente",
       para: "cancelado",
@@ -841,4 +841,188 @@ export function gerarConversasExemplo(agora: Date): {
     eventos: eventos.map(({ ha, ...e }) => ({ ...e, criadoEm: em(ha) })),
     leituras,
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Histórico antigo para o Dashboard (ADR 0013): #1 a #29, já encerrados, entre 9 e 60 dias atrás
+// (fora das colunas Concluídos/Cancelados do quadro, que mostram só 7 dias). Gerado sempre igual
+// (sem aleatoriedade de verdade) a partir de "agora". Solicitantes: só os perfis de exemplo, para
+// não mudar "Meus chamados" da Ana e do Bruno.
+
+const ANTIGOS: [string, string, Record<string, string | string[]>?][] = [
+  ["Solicitações de acesso e Permissões", "Liberar acesso ao Sienge", { sistema: "Sienge" }],
+  ["Microsoft", "Outlook pedindo senha toda hora", { programa: "E-mail / Outlook" }],
+  ["Impressora / scanner", "Scanner não envia para a pasta"],
+  ["Solicitações de acesso e Permissões", "Permissão no CVCRM", { sistema: "CVCRM" }],
+  ["Computador ou notebook", "Notebook não liga"],
+  [
+    "Internet / Infraestrutura",
+    "Wi-Fi caindo na obra",
+    { item: "Internet / Wi-Fi", local: "Obra Barra" },
+  ],
+  ["Microsoft", "Redefinir senha da rede", { programa: "Redefinição de senha" }],
+  ["Instalação de software", "Instalar o Revit"],
+  ["Solicitações de acesso e Permissões", "Acesso ao Construpoint", { sistema: "Construpoint" }],
+  ["Compra ou solicitação de equipamento", "Monitor extra", { item: ["Monitor"] }],
+  ["Celular corporativo", "Configurar e-mail no celular"],
+  ["Solicitações de acesso e Permissões", "Assinar no Docusign", { sistema: "Docusign" }],
+  ["Microsoft", "Teams sem câmera", { programa: "Teams" }],
+  ["Impressora / scanner", "Impressora do financeiro offline"],
+  ["Internet / Infraestrutura", "VPN não conecta", { item: "VPN", local: "Home office" }],
+  ["Solicitações de acesso e Permissões", "Usuário bloqueado no Sienge", { sistema: "Sienge" }],
+  ["Computador ou notebook", "Computador muito lento"],
+  ["Outros", "Dúvida sobre backup"],
+  ["Solicitações de acesso e Permissões", "Perfil no Prevision", { sistema: "Prevision" }],
+  ["Microsoft", "OneDrive não sincroniza", { programa: "OneDrive" }],
+  [
+    "Internet / Infraestrutura",
+    "Câmera da portaria sem imagem",
+    { item: "Câmeras", local: "Portaria" },
+  ],
+  ["Solicitações de acesso e Permissões", "Acesso ao Metadados", { sistema: "Metadados" }],
+  [
+    "Compra ou solicitação de equipamento",
+    "Kit para home office",
+    { item: ["Kit Mouse Teclado", "Suporte Notebook"] },
+  ],
+  ["Microsoft", "Excel travando", { programa: "Word, Excel ou PowerPoint" }],
+  [
+    "Solicitações de acesso e Permissões",
+    "Liberar pasta no Construmanager",
+    { sistema: "Construmanager" },
+  ],
+  ["Impressora / scanner", "Papel preso na impressora"],
+  ["Computador ou notebook", "Tela piscando"],
+  ["Solicitações de acesso e Permissões", "Acesso ao CVCRM para estagiário", { sistema: "CVCRM" }],
+  [
+    "Internet / Infraestrutura",
+    "Ponto de rede sem sinal",
+    { item: "Cabeamento / ponto de rede", local: "Sala 3" },
+  ],
+];
+const CANCELADOS_ANTIGOS: Record<number, string> = {
+  9: "Aberto em duplicidade.",
+  18: "Resolvido pelo próprio usuário.",
+  27: "Pedido feito por engano.",
+};
+
+export function gerarAntigosExemplo(agora: Date): {
+  chamados: Chamado[];
+  eventos: Omit<EventoHistorico, "id">[];
+} {
+  const SOLICITANTES = [CARLA, JOAO, MARINA, LUCAS, DIEGO, PAULA];
+  const uteis = (inicio: Date, horas: number) =>
+    adicionarHorasUteis(inicio, horas, EXPEDIENTE_SIMULADO);
+  const chamados: Chamado[] = [];
+  const eventos: Omit<EventoHistorico, "id">[] = [];
+  const evento = (
+    chamadoId: number,
+    autorId: string | null,
+    acao: string,
+    de: string | null,
+    para: string | null,
+    criadoEm: Date,
+    detalhe: Record<string, string> = {},
+    publico = true,
+  ) =>
+    eventos.push({
+      chamadoId,
+      autorId,
+      acao,
+      de,
+      para,
+      detalhe,
+      publico,
+      criadoEm: criadoEm.toISOString(),
+    });
+
+  ANTIGOS.forEach(([nomeCategoria, titulo, respostas], i) => {
+    const id = i + 1;
+    // Abertura entre 60 e 9 dias atrás, num horário de expediente.
+    const diasAtras = 60 - Math.floor((i * 51) / ANTIGOS.length);
+    const criado = uteis(new Date(agora.getTime() - diasAtras * 86_400_000), 0.5 + ((i * 7) % 9));
+    const solicitante = SOLICITANTES[i % SOLICITANTES.length];
+    const tecnico = i % 3 === 0 ? THIAGO : RAFAEL;
+    const base = {
+      id,
+      titulo,
+      categoriaId: categoria(nomeCategoria).id,
+      solicitanteId: solicitante,
+      prioridade: (i % 7 === 0 ? "alta" : "media") as Chamado["prioridade"],
+      respostasForm: { ...respostas, descricao: titulo },
+      criadoEm: criado.toISOString(),
+    };
+    evento(id, solicitante, "criado", null, "pendente", criado);
+
+    const motivo = CANCELADOS_ANTIGOS[id];
+    if (motivo) {
+      const cancelado = uteis(criado, 1);
+      evento(id, tecnico, "cancelado", "pendente", "cancelado", cancelado, { motivo });
+      chamados.push({
+        ...base,
+        responsavelId: null,
+        status: "cancelado",
+        prazoSla: null,
+        atualizadoEm: cancelado.toISOString(),
+        concluidoEm: null,
+        canceladoEm: cancelado.toISOString(),
+        motivoCancelamento: motivo,
+      });
+      return;
+    }
+
+    // Iniciado de 15 min a 4 h úteis depois; concluído de 2 a 26 h úteis depois de iniciar.
+    const iniciado = uteis(criado, 0.25 + ((i * 5) % 16) / 4);
+    const quemIniciou = i % 6 === 2 ? (tecnico === RAFAEL ? THIAGO : RAFAEL) : tecnico;
+    evento(id, quemIniciou, "assumido", "pendente", "em_andamento", iniciado);
+    let momento = iniciado;
+    if (quemIniciou !== tecnico) {
+      momento = uteis(momento, 1);
+      evento(
+        id,
+        quemIniciou,
+        "transferido",
+        "em_andamento",
+        "transferido",
+        momento,
+        { para_responsavel_id: tecnico, motivo: "Assunto do outro técnico." },
+        false,
+      );
+      momento = uteis(momento, 0.5);
+      evento(id, tecnico, "assumido", "transferido", "em_andamento", momento);
+    }
+    const horasTrabalho = 2 + ((i * 11) % 25);
+    const prazo = i % 4 === 3 ? null : uteis(iniciado, horasTrabalho + (i % 5 === 0 ? -1.5 : 4));
+    if (prazo)
+      evento(id, tecnico, "prazo_definido", "em_andamento", "em_andamento", uteis(iniciado, 0.1), {
+        prazo: prazo.toISOString(),
+      });
+    if (i % 3 === 1) {
+      // Passou por "Aguardando usuário" (1 a 5 h úteis).
+      const aguardou = uteis(momento, 1);
+      evento(id, null, "status_alterado", "em_andamento", "aguardando_usuario", aguardou);
+      momento = uteis(aguardou, 1 + (i % 5));
+      evento(id, solicitante, "status_alterado", "aguardando_usuario", "em_andamento", momento);
+    }
+    const concluido = uteis(
+      iniciado,
+      Math.max(horasTrabalho, horasUteisDesde(iniciado, momento) + 1),
+    );
+    evento(id, tecnico, "concluido", "em_andamento", "concluido", concluido);
+    chamados.push({
+      ...base,
+      responsavelId: tecnico,
+      status: "concluido",
+      prazoSla: prazo?.toISOString() ?? null,
+      atualizadoEm: concluido.toISOString(),
+      concluidoEm: concluido.toISOString(),
+      canceladoEm: null,
+      motivoCancelamento: null,
+    });
+  });
+  return { chamados, eventos };
+}
+
+function horasUteisDesde(inicio: Date, fim: Date): number {
+  return horasUteisEntre(inicio, fim, EXPEDIENTE_SIMULADO);
 }

@@ -212,11 +212,17 @@ describe("consultas do quadro e dos encerrados (views da migration 0020)", () =>
 
     const fonte = criarFonteSimulada(RAFAEL.id);
     const primeira = await fonte.listarEncerrados(1);
-    const segunda = await fonte.listarEncerrados(2);
     expect(primeira.itens).toHaveLength(20);
-    expect(primeira.total).toBe(segunda.total);
-    expect(primeira.itens.length + segunda.itens.length).toBe(primeira.total);
-    const datas = [...primeira.itens, ...segunda.itens].map((c) => c.concluidoEm ?? c.canceladoEm!);
+    // Percorre todas as páginas (o histórico de exemplo do Dashboard também é encerrado).
+    const todos = [...primeira.itens];
+    for (let pagina = 2; todos.length < primeira.total; pagina++) {
+      const proxima = await fonte.listarEncerrados(pagina);
+      expect(proxima.total).toBe(primeira.total);
+      expect(proxima.itens.length).toBeGreaterThan(0);
+      todos.push(...proxima.itens);
+    }
+    expect(todos).toHaveLength(primeira.total);
+    const datas = todos.map((c) => c.concluidoEm ?? c.canceladoEm!);
     expect(datas).toEqual([...datas].sort().reverse());
   });
 });

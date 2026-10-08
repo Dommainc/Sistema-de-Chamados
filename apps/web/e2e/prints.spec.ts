@@ -71,4 +71,9 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await page.goto("/atendimento/encerrados");
   await expect(page.getByRole("heading", { name: /Chamados encerrados/ })).toBeVisible();
   await print(page, "09-encerrados", p);
+
+  await page.getByRole("link", { name: "Dashboard" }).click();
+  await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
+  await expect(page.getByText("Abertos agora")).toBeVisible();
+  await print(page, "10-dashboard", p);
 });

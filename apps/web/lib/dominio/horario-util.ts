@@ -58,3 +58,24 @@ export function adicionarHorasUteis(inicio: Date, horas: number, config: Expedie
   }
   throw new Error("adicionarHorasUteis: sem dias úteis em 10 anos (verifique feriados/expediente)");
 }
+
+/**
+ * Horas úteis entre dois instantes (Dashboard — ADR 0013). Ex.: sexta 17:00 → segunda 09:00 = 2 h.
+ * `fim` antes de `inicio` = 0.
+ */
+export function horasUteisEntre(inicio: Date, fim: Date, config: ExpedienteConfig): number {
+  const abreMin = minutos(config.inicio);
+  const fechaMin = minutos(config.fim);
+  const a = paraLocal(inicio.getTime());
+  const b = paraLocal(fim.getTime());
+  if (b <= a) return 0;
+
+  let total = 0;
+  for (let dia = inicioDoDia(a); dia <= b; dia += DIA_MS) {
+    if (!ehDiaUtil(dia, config.feriados)) continue;
+    const de = Math.max(a, dia + abreMin * 60_000);
+    const ate = Math.min(b, dia + fechaMin * 60_000);
+    if (ate > de) total += ate - de;
+  }
+  return total / 3_600_000;
+}

@@ -83,6 +83,17 @@ describe("dados de exemplo", () => {
     expect(await criarFonteSimulada(ANA.id).listarRespostasProntas()).toEqual([]);
   });
 
+  it("histórico antigo do Dashboard: #1–#29 encerrados, fora das colunas de 7 dias do quadro", async () => {
+    const todos = await criarFonteSimulada(TECNICO.id).listarChamados({ escopo: "todos" });
+    const antigos = todos.filter((c) => c.id < 30);
+    expect(antigos).toHaveLength(29);
+    const limite = Date.now() - 8 * 86_400_000;
+    for (const c of antigos) {
+      expect(["concluido", "cancelado"]).toContain(c.status);
+      expect(new Date(c.concluidoEm ?? c.canceladoEm!).getTime()).toBeLessThan(limite);
+    }
+  });
+
   it("chamados com responsável seguem as regras do banco (ADR 0005)", async () => {
     const todos = await criarFonteSimulada(TECNICO.id).listarChamados({ escopo: "todos" });
     for (const c of todos) {

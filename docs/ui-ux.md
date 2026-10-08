@@ -185,6 +185,16 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    Mockup original:: "Próximo da fila" + "Pegar o próximo"; colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
 9. **Atendimento no celular** (*2026-10-07*): o mesmo cabeçalho-resumo, compacto — botões **Concluir · Retomar ·
    Transferir · ⋯**; solicitante na linha toda e prazo/responsável lado a lado; abas **Conversa · Detalhes · Histórico**.
+10. **Dashboard** (`/atendimento/dashboard`, *2026-10-08 — ADR 0013*): botão **"📊 Dashboard"** na barra escura, ao lado da
+    busca (no celular, ao lado da busca na segunda linha; destacado quando a página está aberta). Título "Dashboard",
+    "De 09/09/2026 a 08/10/2026 · tempos em horas úteis", seletor **7 dias · 30 dias · Este mês · Mês passado ·
+    Escolher datas** (padrão 30 dias; no celular rola de lado). Quatro seções:
+    - **Resumo**: 7 cartões — Abertos agora · Vencidos agora (vermelho se > 0) · Abertos no período · Concluídos no
+      período · Tempo médio até iniciar · Tempo médio até concluir · Concluídos no prazo (% e "7 de 9 com prazo").
+    - **Volume**: barras de "Chamados abertos por dia" e três rankings com barra (por categoria, sistema, departamento).
+    - **Equipe**: tabela por técnico — concluídos, em atendimento agora, tempo médio até concluir, transferiu, recebeu.
+    - **Prazo e espera**: % no prazo por categoria (barra verde sobre vermelho-claro), concluídos sem prazo, em
+      atendimento sem prazo (âmbar se > 0), tempo médio aguardando o usuário e os últimos cancelamentos com motivo.
 
 ## Fora do mockup (manter simples, no mesmo estilo)
 Login, primeiro acesso, sem acesso, 404, erro inesperado, modais (transferir, cancelar, concluir), "Ver encerrados".

@@ -12,11 +12,16 @@ import type {
   Perfil,
 } from "@/lib/dominio/tipos";
 import { apagarTodosOsArquivos } from "./arquivos";
-import { gerarChamadosExemplo, gerarConversasExemplo, gerarHistoricoExemplo } from "./exemplos";
+import {
+  gerarAntigosExemplo,
+  gerarChamadosExemplo,
+  gerarConversasExemplo,
+  gerarHistoricoExemplo,
+} from "./exemplos";
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 10; // 9: prioridade (ADR 0012) · 10: categorias unificadas (acessos, internet/infra)
+const VERSAO = 11; // 10: categorias unificadas · 11: histórico antigo #1–#29 para o Dashboard (ADR 0013)
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 
@@ -32,9 +37,11 @@ export interface EstadoSimulado {
 }
 
 export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
-  const chamados = gerarChamadosExemplo(agora);
+  const atuais = gerarChamadosExemplo(agora);
+  const antigos = gerarAntigosExemplo(agora);
+  const chamados = [...antigos.chamados, ...atuais];
   const conversas = gerarConversasExemplo(agora);
-  const historico = [...gerarHistoricoExemplo(chamados), ...conversas.eventos]
+  const historico = [...gerarHistoricoExemplo(atuais), ...antigos.eventos, ...conversas.eventos]
     .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm))
     .map((e, i) => ({ ...e, id: i + 1 }));
   return {

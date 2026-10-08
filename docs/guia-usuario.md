@@ -104,6 +104,20 @@ junto com ele.
 - Ao lado da conversa ficam as respostas do **pedido** e o **histórico** completo (clique para abrir),
   inclusive transferências e o motivo de cada uma.
 
+### Dashboard
+
+![Dashboard](guia/img/computador-10-dashboard.png)
+
+- Botão **Dashboard** no topo, ao lado da busca. Mostra os números da equipe no período escolhido
+  (7 dias, 30 dias, este mês, mês passado ou datas à sua escolha).
+- **Resumo**: quantos chamados estão abertos e vencidos agora, quantos entraram e saíram no período, os tempos
+  médios até iniciar e até concluir e quantos foram concluídos dentro do prazo.
+- **Volume**: chamados por dia e os assuntos, sistemas e departamentos que mais pedem ajuda.
+- **Equipe**: o que cada técnico concluiu, quantos tem em atendimento e as transferências.
+- **Prazo e espera**: prazo cumprido por categoria, chamados sem prazo, quanto tempo esperamos os usuários e os
+  últimos cancelamentos.
+- Todos os tempos contam **horas úteis** (seg–sex, 8h–18h, sem feriados).
+
 ---
 
 Dúvidas ou sugestões sobre a Central? Abra um chamado em **Outros pedidos para a TI**. 🙂

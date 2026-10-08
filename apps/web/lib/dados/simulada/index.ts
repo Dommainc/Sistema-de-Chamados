@@ -38,6 +38,7 @@ import { CHAVE_SISTEMA } from "@/lib/sistemas";
 import { rotuloStatus } from "@/lib/status";
 import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from "./armazenamento";
 import { guardarArquivo, lerArquivo } from "./arquivos";
+import { EXPEDIENTE_SIMULADO } from "./feriados";
 import { processarInatividade } from "./inatividade";
 import { CAMPOS_FORM, CATEGORIAS, RESPOSTAS_PRONTAS } from "./exemplos";
 
@@ -361,6 +362,27 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       eu();
       const campo = CAMPOS_FORM.find((c) => c.chave === CHAVE_SISTEMA);
       return (campo?.opcoes ?? []).map((nome) => ({ nome, cor: campo?.cores[nome] ?? null }));
+    },
+
+    async listarDadosMetricas(inicio: string, fim: string) {
+      if (eu().papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+      const { chamados, historico } = lerEstado();
+      const relevantes = chamados.filter((c) => {
+        if (c.criadoEm >= fim) return false;
+        if (!estaEncerrado(c.status)) return true;
+        const encerrado = c.concluidoEm ?? c.canceladoEm ?? c.atualizadoEm;
+        return encerrado >= inicio || c.criadoEm >= inicio;
+      });
+      const ids = new Set(relevantes.map((c) => c.id));
+      return {
+        chamados: relevantes.map((c) => ({ ...c })),
+        historico: historico.filter((h) => ids.has(h.chamadoId)).map((h) => ({ ...h })),
+        expediente: {
+          inicio: EXPEDIENTE_SIMULADO.inicio,
+          fim: EXPEDIENTE_SIMULADO.fim,
+          feriados: [...EXPEDIENTE_SIMULADO.feriados],
+        },
+      };
     },
 
     async listarRespostasProntas() {
