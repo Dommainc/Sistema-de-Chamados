@@ -206,12 +206,7 @@ function FormularioCarregado({
           <SeletorAnexos arquivos={arquivos} aoAdicionar={adicionar} aoRemover={remover} />
 
           {/* Envio no fim do formulário, abaixo do último campo (ajuste do Renato, 2026-10-08). */}
-          <Botao
-            type="submit"
-            carregando={enviando}
-            larguraTotal
-            className="min-h-13 text-lg"
-          >
+          <Botao type="submit" carregando={enviando} larguraTotal className="min-h-13 text-lg">
             Enviar chamado
           </Botao>
         </div>
