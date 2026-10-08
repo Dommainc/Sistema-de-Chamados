@@ -79,6 +79,9 @@ Variáveis (Settings → Environment Variables), conforme `apps/api/.env.example
 - [ ] `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` (**anon**, nunca a service_role) · `NEXT_PUBLIC_API_URL`
 - [ ] `NEXT_PUBLIC_LOGIN_DEV` **vazio ou ausente** (o botão de login de teste nunca existe em produção)
 - [ ] Conferir: a faixa "Modo de demonstração" **não** aparece.
+- [ ] **Demonstração (desde 2026-10-07):** o projeto da Vercel tem Root Directory `apps/web` e o branch de produção
+  foi trocado para `producao` (vazio), para o `main` sair como **Preview** com dados simulados. No go-live: configurar
+  as variáveis acima, voltar o branch de produção para `main` e religar a *Vercel Authentication* se tiver sido desligada.
 
 ## 9. Migrations automáticas (`.github/workflows/migrations.yml`)
 - [ ] GitHub → Settings → Environments: criar `dev` e `prod` (este com **revisor obrigatório**).
