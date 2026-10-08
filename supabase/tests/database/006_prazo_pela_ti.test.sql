@@ -12,7 +12,7 @@ insert into auth.users (id, email, raw_user_meta_data) values
 create temp table fx (id bigint);
 with c as (
   insert into public.chamados (titulo, categoria_id, solicitante_id, prazo_sla)
-  values ('Nasce sem prazo', (select id from public.categorias where nome = 'Internet / Infraestrutura'),
+  values ('Nasce sem prazo', (select id from public.categorias where nome = 'Infraestrutura'),
           'd6000001-0000-0000-0000-000000000001', now() + interval '1 hour')
   returning id
 ) insert into fx select id from c;

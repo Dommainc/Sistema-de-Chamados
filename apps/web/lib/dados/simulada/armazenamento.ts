@@ -21,7 +21,7 @@ import {
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 11; // 10: categorias unificadas · 11: histórico antigo #1–#29 para o Dashboard (ADR 0013)
+const VERSAO = 12; // 11: histórico do Dashboard · 12: 4 categorias (Infraestrutura) — reorganização do dono
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 

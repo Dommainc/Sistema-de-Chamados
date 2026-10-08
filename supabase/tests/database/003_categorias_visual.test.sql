@@ -15,8 +15,8 @@ select is(
 );
 
 select is(
-  (select nome_curto from public.categorias where nome = 'Instalação de software'),
-  'Instalar programa', 'Nome curto do mockup ("Instalar programa")'
+  (select nome_curto from public.categorias where nome = 'Outros'),
+  'Outros pedidos para a TI', 'Nome curto do mockup ("Outros pedidos para a TI")'
 );
 
 select throws_ok(
@@ -39,9 +39,9 @@ select is(
 
 select is(
   (select f.opcoes from public.campos_form f join public.categorias c on c.id = f.categoria_id
-    where c.nome = 'Internet / Infraestrutura' and f.chave = 'item'),
-  '["Internet / Wi-Fi","VPN","Câmeras","Cabeamento / ponto de rede"]'::jsonb,
-  'Internet / Infraestrutura pergunta "O que é?" (internet, VPN, câmeras e cabeamento)'
+    where c.nome = 'Infraestrutura' and f.chave = 'item'),
+  '["Notebook","Impressora / Scanner","Celular Corporativo","Internet","Câmeras"]'::jsonb,
+  'Infraestrutura pergunta "O que é?" (notebook, impressora, celular, internet e câmeras — dono, 2026-10-08)'
 );
 select is(
   (select f.opcoes from public.campos_form f join public.categorias c on c.id = f.categoria_id
@@ -51,8 +51,8 @@ select is(
 );
 select is(
   (select count(*) from public.categorias
-    where nome in ('Acesso, senha e bloqueio de conta', 'Sistemas da empresa', 'Internet, rede ou VPN', 'Infraestrutura')),
-  0::bigint, 'Categorias antigas foram unificadas'
+    where nome not in ('Solicitações de acesso e Permissões', 'Infraestrutura', 'Microsoft', 'Outros')),
+  0::bigint, 'Só os 4 assuntos da reorganização do dono (2026-10-08)'
 );
 
 select * from finish();

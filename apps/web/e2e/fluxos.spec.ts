@@ -12,7 +12,7 @@ test("Ana abre um chamado colando um print e recebe o número (previsão vem da 
   page,
 }) => {
   await entrar(page, "Ana Souza");
-  await page.getByRole("link", { name: "Internet / Infraestrutura" }).click();
+  await page.getByRole("link", { name: "Infraestrutura" }).click();
   await expect(page.getByRole("heading", { name: "Conte o que está acontecendo" })).toBeVisible();
 
   await preencherInternet(page, "Sem internet na obra Recreio");

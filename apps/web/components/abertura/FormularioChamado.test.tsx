@@ -36,7 +36,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const ANA = USUARIOS_SIMULADOS[0];
-const INTERNET = CATEGORIAS.find((c) => c.nome === "Internet / Infraestrutura")!;
+const INTERNET = CATEGORIAS.find((c) => c.nome === "Infraestrutura")!;
 
 function renderizar(referente: number | null = null) {
   return render(
@@ -65,9 +65,7 @@ describe("FormularioChamado", () => {
     renderizar();
     expect(await screen.findByText("Conte o que está acontecendo")).toBeInTheDocument();
     expect(screen.getByLabelText(/Resumo do problema/)).toBeInTheDocument();
-    expect(
-      screen.getByRole("radio", { name: "O escritório ou a obra inteira" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Celular Corporativo" })).toBeInTheDocument();
     expect(await screen.findByText("Aguardando análise da TI")).toBeInTheDocument();
     // Um botão só, no fim do formulário (ajuste do Renato).
     expect(screen.getAllByRole("button", { name: "Enviar chamado" })).toHaveLength(1);
@@ -90,8 +88,7 @@ describe("FormularioChamado", () => {
     fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
       target: { value: "Sem internet na obra Recreio" },
     });
-    fireEvent.click(screen.getByRole("radio", { name: "Internet / Wi-Fi" }));
-    fireEvent.click(screen.getByRole("radio", { name: "Só eu" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Internet" }));
     fireEvent.change(screen.getByLabelText(/Onde fica/), {
       target: { value: "Obra Recreio" },
     });
@@ -143,8 +140,7 @@ describe("FormularioChamado", () => {
     fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
       target: { value: "Sem internet" },
     });
-    fireEvent.click(screen.getByRole("radio", { name: "Internet / Wi-Fi" }));
-    fireEvent.click(screen.getByRole("radio", { name: "Só eu" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Internet" }));
     fireEvent.change(screen.getByLabelText(/Onde fica/), { target: { value: "Obra" } });
     const descricao = screen.getByLabelText(/Descreva o que está acontecendo/);
     fireEvent.change(descricao, { target: { value: "Roteador piscando" } });

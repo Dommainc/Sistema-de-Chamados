@@ -20,10 +20,10 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await print(page, "01-login", p);
 
   await entrar(page, "Ana Souza");
-  await expect(page.getByRole("link", { name: "Internet / Infraestrutura" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Infraestrutura" })).toBeVisible();
   await print(page, "02-abrir-passo1", p);
 
-  await page.getByRole("link", { name: "Internet / Infraestrutura" }).click();
+  await page.getByRole("link", { name: "Infraestrutura" }).click();
   await preencherInternet(page, "Sem internet na obra Recreio");
   await colarImagem(page, "textarea");
   await expect(page.getByText(/^print-\d{8}-\d{6}\.png$/)).toBeVisible();

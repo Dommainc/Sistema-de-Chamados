@@ -1,4 +1,4 @@
-// Rascunho do "Abrir chamado": "Voltar" e "Trocar assunto" mantêm o que já foi digitado.
+// Rascunho do "Abrir chamado": "Voltar" mantém o que já foi digitado.
 // Textos ficam no sessionStorage (sobrevivem a recarregar a aba); arquivos ficam em memória
 // (sobrevivem à navegação dentro do sistema, não a recarregar).
 

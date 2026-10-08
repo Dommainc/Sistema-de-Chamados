@@ -32,20 +32,13 @@ insert into public.categorias (area_id, nome, nome_curto, icone, descricao, sla_
 select a.id, c.nome, c.nome_curto, c.icone, c.descricao, c.sla, c.ordem
 from public.areas a
 cross join (values
-  -- Unificações do dono (2026-10-07): "Acesso, senha e bloqueio" + "Sistemas da empresa" e
-  -- "Internet, rede ou VPN" + "Infraestrutura".
+  -- Reorganização do dono (2026-10-08): 4 assuntos. "Infraestrutura" junta internet, câmeras, notebook,
+  -- impressora e celular; saíram Instalar programa, Novo colaborador, Desligamento e Pedir equipamento.
   ('Solicitações de acesso e Permissões', 'Solicitações de acesso e Permissões', 'key-round', 'Novo acesso, permissão ou desbloqueio nos sistemas da empresa', 2, 10),
-  ('Internet / Infraestrutura',           'Internet / Infraestrutura',  'wifi',         'Internet, Wi-Fi, VPN, câmeras e pontos de rede',       2, 20),
+  ('Infraestrutura',                      'Infraestrutura',            'wifi',       'Notebook, impressora, celular, internet e câmeras',    4, 20),
   -- "E-mail / Outlook" e "Teams" unificados em "Microsoft" (pedido do dono, 2026-10-07).
-  ('Microsoft',                         'Microsoft',                'grid-2x2',     'E-mail, Outlook, Teams, Word, Excel e OneDrive',       4, 30),
-  ('Computador ou notebook',            'Computador ou notebook',   'laptop',       'Lento, travando, não liga ou com defeito',             8, 50),
-  ('Impressora / scanner',              'Impressora / scanner',     'printer',      'Não imprime, papel preso, scanner',                    8, 60),
-  ('Celular corporativo',               'Celular corporativo',      'smartphone',   'Configuração, defeito ou troca',                       8, 70),
-  ('Instalação de software',            'Instalar programa',        'download',     'Instalar ou atualizar um programa',                   16, 90),
-  ('Novo colaborador',                  'Novo colaborador',         'user-plus',    'Preparar acessos e equipamento para quem vai entrar', 24, 100),
-  ('Desligamento',                      'Desligamento',             'user-minus',   'Bloquear acessos e recolher equipamento',              4, 110),
-  ('Compra ou solicitação de equipamento', 'Pedir equipamento',     'package',      'Pedir mouse, monitor, headset, notebook...',          40, 120),
-  ('Outros',                            'Outros pedidos para a TI', 'ellipsis',     'Qualquer outro pedido para a TI',                     16, 900)
+  ('Microsoft',                           'Microsoft',                 'grid-2x2',   'E-mail, Outlook, Teams, Word, Excel e OneDrive',       4, 30),
+  ('Outros',                              'Outros pedidos para a TI',  'ellipsis',   'Qualquer outro pedido para a TI',                     16, 900)
 ) as c(nome, nome_curto, icone, descricao, sla, ordem)
 where a.nome = 'TI'
 on conflict (area_id, nome) do nothing;
@@ -54,12 +47,11 @@ on conflict (area_id, nome) do nothing;
 -- Campos do formulário
 -- -----------------------------------------------------------------------------
 
--- Campo "descrição" obrigatório em todas, exceto as que têm formulário próprio.
+-- Campo "descrição" obrigatório em todas.
 insert into public.campos_form (categoria_id, chave, label, tipo, obrigatorio, ajuda, ordem)
 select c.id, 'descricao', 'Descreva o que está acontecendo', 'texto_longo', true,
        'Conte o que aconteceu e, se puder, cole um print da tela (Ctrl+V).', 100
 from public.categorias c
-where c.nome not in ('Novo colaborador', 'Desligamento')
 on conflict (categoria_id, chave) do nothing;
 
 insert into public.campos_form (categoria_id, chave, label, tipo, obrigatorio, opcoes, ajuda, ordem)
@@ -72,40 +64,10 @@ join (values
   ('Microsoft', 'programa', 'Qual programa?', 'selecao', true,
      '["E-mail / Outlook","Teams","Word, Excel ou PowerPoint","OneDrive","Redefinição de senha","Outro"]', null, 10),
 
-  ('Internet / Infraestrutura', 'item', 'O que é?', 'selecao', true,
-     '["Internet / Wi-Fi","VPN","Câmeras","Cabeamento / ponto de rede"]', null, 5),
-  ('Internet / Infraestrutura', 'alcance', 'Quem é afetado?', 'selecao', false,
-     '["Só eu","Algumas pessoas do setor","O escritório / obra inteira"]', null, 10),
-  ('Internet / Infraestrutura', 'local', 'Onde fica?', 'texto', true,
-     '[]', 'Ex.: escritório central, obra X, portaria, home office', 20),
-
-  ('Computador ou notebook', 'patrimonio', 'Número de patrimônio', 'texto', false,
-     '[]', 'Etiqueta colada no equipamento, se houver', 10),
-
-  ('Impressora / scanner', 'local', 'Onde fica a impressora?', 'texto', true,
-     '[]', 'Ex.: 3º andar, sala do financeiro', 10),
-
-  ('Instalação de software', 'software', 'Qual programa?', 'texto', true, '[]', null, 10),
-  ('Instalação de software', 'justificativa', 'Para que você precisa dele?', 'texto_longo', true, '[]', null, 20),
-
-  -- Itens de equipamento (pedido do dono, 2026-10-08): marcar vários; iguais em "Novo colaborador".
-  ('Compra ou solicitação de equipamento', 'item', 'O que você precisa?', 'multipla_selecao', true,
-     '["Notebook","Fone de Ouvido","Capa para Notebook","Monitor","Kit Mouse Teclado","Suporte Notebook","Outro"]', 'Pode marcar mais de um. Se for "Outro", explique abaixo.', 10),
-  ('Compra ou solicitação de equipamento', 'justificativa', 'Por que precisa?', 'texto_longo', true, '[]', null, 20),
-
-  ('Novo colaborador', 'nome_colaborador', 'Nome completo de quem vai entrar', 'texto', true, '[]', null, 10),
-  ('Novo colaborador', 'data_inicio', 'Data de início', 'data', true, '[]', null, 20),
-  ('Novo colaborador', 'cargo', 'Cargo', 'texto', true, '[]', null, 30),
-  ('Novo colaborador', 'departamento', 'Departamento', 'texto', true, '[]', null, 40),
-  ('Novo colaborador', 'equipamento', 'Quais equipamentos vai precisar?', 'multipla_selecao', true,
-     '["Notebook","Fone de Ouvido","Capa para Notebook","Monitor","Kit Mouse Teclado","Suporte Notebook","Não precisa de equipamento"]', 'Pode marcar mais de um.', 50),
-  ('Novo colaborador', 'observacoes', 'Observações', 'texto_longo', false,
-     '[]', 'Sistemas específicos, pastas compartilhadas, celular...', 60),
-
-  ('Desligamento', 'nome_colaborador', 'Nome completo de quem está saindo', 'texto', true, '[]', null, 10),
-  ('Desligamento', 'data_desligamento', 'Último dia de trabalho', 'data', true, '[]', null, 20),
-  ('Desligamento', 'observacoes', 'Observações', 'texto_longo', false,
-     '[]', 'Ex.: redirecionar e-mails para o gestor', 30)
+  ('Infraestrutura', 'item', 'O que é?', 'selecao', true,
+     '["Notebook","Impressora / Scanner","Celular Corporativo","Internet","Câmeras"]', null, 10),
+  ('Infraestrutura', 'local', 'Onde fica?', 'texto', true,
+     '[]', 'Ex.: escritório central, obra X, portaria, home office', 20)
 ) as f(categoria, chave, label, tipo, obrigatorio, opcoes, ajuda, ordem)
   on f.categoria = c.nome
 on conflict (categoria_id, chave) do nothing;

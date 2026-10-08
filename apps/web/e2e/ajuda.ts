@@ -49,11 +49,10 @@ export async function colarImagem(page: Page, seletor: string): Promise<void> {
     });
 }
 
-/** Preenche o formulário de "Internet / Infraestrutura" (categoria 2 nos exemplos). */
+/** Preenche o formulário de "Infraestrutura" (categoria 2 nos exemplos) como falta de internet. */
 export async function preencherInternet(page: Page, resumo: string): Promise<void> {
   await page.getByLabel(/Resumo do problema/).fill(resumo);
-  await page.getByRole("radio", { name: "Internet / Wi-Fi" }).check();
-  await page.getByRole("radio", { name: "Só eu" }).check();
+  await page.getByRole("radio", { name: "Internet", exact: true }).check();
   await page.getByLabel(/Onde fica/).fill("Obra Recreio");
   await page
     .getByLabel(/Descreva o que está acontecendo/)

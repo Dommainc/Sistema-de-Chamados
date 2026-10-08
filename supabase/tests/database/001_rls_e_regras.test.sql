@@ -67,7 +67,7 @@ create temp table fx (nome text primary key, id bigint);
 with c as (
   insert into public.chamados (titulo, categoria_id, solicitante_id)
   values ('Sem internet',
-          (select id from public.categorias where nome = 'Internet / Infraestrutura'),
+          (select id from public.categorias where nome = 'Infraestrutura'),
           'a0000001-0000-0000-0000-000000000001')
   returning id
 ) insert into fx select 'chamado_a', id from c;
@@ -75,7 +75,7 @@ with c as (
 with c as (
   insert into public.chamados (titulo, categoria_id, solicitante_id)
   values ('Impressora travada',
-          (select id from public.categorias where nome = 'Impressora / scanner'),
+          (select id from public.categorias where nome = 'Infraestrutura'),
           'b0000002-0000-0000-0000-000000000002')
   returning id
 ) insert into fx select 'chamado_b', id from c;

@@ -21,53 +21,32 @@ describe("dados de exemplo", () => {
     }
   });
 
-  it("têm as 11 categorias do seed com campo descrição (menos Novo colaborador e Desligamento)", () => {
-    expect(CATEGORIAS).toHaveLength(11); // unificações do dono: Microsoft, acessos, internet/infra
+  it("têm os 4 assuntos do seed, todos com campo descrição (reorganização do dono, 2026-10-08)", () => {
+    expect(CATEGORIAS.map((c) => c.nomeCurto)).toEqual([
+      "Solicitações de acesso e Permissões",
+      "Infraestrutura",
+      "Microsoft",
+      "Outros pedidos para a TI",
+    ]);
     const comDescricao = new Set(
       CAMPOS_FORM.filter((c) => c.chave === "descricao").map((c) => c.categoriaId),
     );
-    expect(comDescricao.size).toBe(9);
+    expect(comDescricao.size).toBe(4);
   });
 
-  it("equipamentos: marcar vários, mesma lista em Novo colaborador e Pedir equipamento", () => {
-    const itens = [
+  it('Infraestrutura pergunta "O que é?" e "Onde fica?"', () => {
+    const infra = CATEGORIAS.find((c) => c.nome === "Infraestrutura")!;
+    const campos = CAMPOS_FORM.filter((c) => c.categoriaId === infra.id && c.chave !== "descricao");
+    expect(campos.map((c) => [c.chave, c.label])).toEqual([
+      ["item", "O que é?"],
+      ["local", "Onde fica?"],
+    ]);
+    expect(campos[0].opcoes).toEqual([
       "Notebook",
-      "Fone de Ouvido",
-      "Capa para Notebook",
-      "Monitor",
-      "Kit Mouse Teclado",
-      "Suporte Notebook",
-    ];
-    const campo = (categoria: string, chave: string) =>
-      CAMPOS_FORM.find(
-        (c) =>
-          c.chave === chave && c.categoriaId === CATEGORIAS.find((k) => k.nome === categoria)?.id,
-      );
-    const novo = campo("Novo colaborador", "equipamento");
-    const pedir = campo("Compra ou solicitação de equipamento", "item");
-    expect(novo).toMatchObject({
-      tipo: "multipla_selecao",
-      opcoes: [...itens, "Não precisa de equipamento"],
-    });
-    expect(pedir).toMatchObject({ tipo: "multipla_selecao", opcoes: [...itens, "Outro"] });
-  });
-
-  it("pedir equipamento com vários itens marcados", async () => {
-    const categoria = CATEGORIAS.find((k) => k.nome === "Compra ou solicitação de equipamento")!;
-    const fonte = criarFonteSimulada(ANA.id);
-    const { id } = await fonte.criarChamado({
-      categoriaId: categoria.id,
-      titulo: "Kit para home office",
-      respostas: {
-        item: ["Monitor", "Kit Mouse Teclado"],
-        justificativa: "Vou trabalhar de casa às sextas.",
-        descricao: "Preciso montar a mesa em casa.",
-      },
-      anexos: [],
-    });
-    expect((await fonte.obterChamado(id)).respostasForm.item).toEqual([
-      "Monitor",
-      "Kit Mouse Teclado",
+      "Impressora / Scanner",
+      "Celular Corporativo",
+      "Internet",
+      "Câmeras",
     ]);
   });
 

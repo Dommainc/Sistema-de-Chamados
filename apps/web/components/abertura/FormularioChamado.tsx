@@ -164,16 +164,11 @@ function FormularioCarregado({
 
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 md:px-8 lg:grid lg:grid-cols-[minmax(0,44rem)_20rem] lg:justify-between lg:gap-10">
         <div className="flex flex-col gap-6">
-          <div className="flex flex-wrap items-center gap-3">
+          {/* Sem "Trocar assunto": o "Voltar" lá em cima já leva à escolha (pedido do dono, 2026-10-08). */}
+          <div>
             <span className="rounded-lg bg-primaria-suave px-3 py-1 text-sm font-semibold text-primaria">
               {categoria.nomeCurto}
             </span>
-            <Link
-              href={voltar}
-              className="text-sm font-semibold text-primaria underline underline-offset-2"
-            >
-              Trocar assunto
-            </Link>
           </div>
           <h1 className="text-2xl font-bold">Conte o que está acontecendo</h1>
 

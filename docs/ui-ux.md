@@ -86,10 +86,11 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
    - Aviso âmbar no topo se houver chamado aguardando resposta: ícone de balão, "O técnico está esperando sua resposta",
      "Chamado #41 · título", link "Responder".
    - "Passo 1 de 3", título "Com o que você precisa de ajuda?", apoio "Escolha o assunto." (sem "Na dúvida, use Outros" (ajuste do Renato, 2026-10-08))
-   - Busca "Buscar assunto (ex.: senha, impressora)" filtrando as categorias.
-   - Grade de 2 colunas: ícone + **nome curto** da categoria. "Outros pedidos para a TI" ocupa a linha inteira, no fim.
+   - **Sem busca de assunto** (pedido do dono, 2026-10-08): são só 4 assuntos.
+   - Grade (3 colunas no computador, 1 no celular): ícone + **nome curto** — Solicitações de acesso e Permissões ·
+     Infraestrutura · Microsoft; "Outros pedidos para a TI" ocupa a linha inteira, no fim.
 2. **Passo 2 de 3**
-   - Topo: "‹ Voltar" e "Passo 2 de 3". Selo com a categoria + link "Trocar assunto".
+   - Topo: "‹ Voltar" e "Passo 2 de 3". Selo com a categoria (sem "Trocar assunto": o Voltar já faz isso — dono, 2026-10-08).
    - Título "Conte o que está acontecendo". "Resumo do problema *" com ajuda abaixo ("Uma frase curta. Ex.: …").
    - Campos dinâmicos: `selecao` vira **cartões de opção (rádio)**; texto e texto longo como campos normais.
    - "Fotos e arquivos (opcional)": área tracejada com câmera, "Tirar foto ou anexar arquivo",
