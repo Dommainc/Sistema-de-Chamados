@@ -49,13 +49,17 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   context,
 }) => {
   await entrar(page, "Rafael Lima");
+  // Sem "Iniciar" no cartão (pedido do dono, 2026-10-08): abre o chamado e inicia lá dentro.
+  await expect(
+    page.getByRole("article", { name: /^Chamado 42:/ }).getByRole("button", { name: "Iniciar" }),
+  ).toHaveCount(0);
+  await page.goto("/atendimento/42");
   await page
-    .getByRole("article", { name: /^Chamado 42:/ })
+    .getByRole("region", { name: "Ações" })
     .getByRole("button", { name: "Iniciar" })
     .click();
   await expect(page.getByText("Você iniciou o chamado #42.")).toBeVisible();
 
-  await page.goto("/atendimento/42");
   const mensagem = page.getByRole("textbox", { name: "Mensagem" });
   await mensagem.fill("Oi, Ana! Já estou olhando o roteador.");
   await page.getByRole("button", { name: "Enviar mensagem" }).click();
@@ -113,8 +117,10 @@ test("só a TI cancela; antes de iniciar, a TI não conversa com o solicitante",
   await expect(page.getByText("Inicie o chamado para conversar com Ana.")).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Mensagem" })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Mais ações" }).click();
-  await page.getByRole("button", { name: "Cancelar chamado" }).click();
+  await page
+    .getByRole("region", { name: "Ações" })
+    .getByRole("button", { name: "Cancelar chamado" })
+    .click();
   const modal = page.getByRole("dialog");
   await modal.getByRole("textbox").fill("A internet voltou sozinha.");
   await modal.getByRole("button", { name: "Cancelar chamado" }).click();

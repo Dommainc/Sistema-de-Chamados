@@ -117,7 +117,6 @@ export function CartaoChamado({
   euId,
   agora,
   destacado,
-  aoAssumir,
   arraste,
   fantasma = false,
 }: {
@@ -125,7 +124,6 @@ export function CartaoChamado({
   euId: string;
   agora: Date;
   destacado: boolean;
-  aoAssumir: (chamadoId: number) => void;
   /** Ausente = cartão parado (ex.: o "fantasma" que acompanha o arraste). */
   arraste?: PropsArraste;
   /** Cópia que segue o dedo/mouse enquanto arrasta. */
@@ -141,7 +139,6 @@ export function CartaoChamado({
   const sistema = dados.sistema?.nome === SEM_SISTEMA ? null : dados.sistema;
   const corSistema = classesDaCor(sistema?.cor);
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
-  const podeIniciar = c.status === "pendente" || transferidoParaMim;
   const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
 
   return (
@@ -160,7 +157,18 @@ export function CartaoChamado({
           <span className="inline-flex items-center gap-1 rounded-md bg-perigo px-1.5 py-0.5 text-[11px] font-bold text-white">
             <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta
           </span>
-        ) : null}
+        ) : (
+          // Média e baixa também aparecem (pedido do dono, 2026-10-08), mais discretas que a alta.
+          <span
+            className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
+              c.prioridade === "baixa"
+                ? "bg-apagado-suave text-apagado"
+                : "bg-amarelo-suave text-texto"
+            }`}
+          >
+            {c.prioridade === "baixa" ? "Prioridade baixa" : "Prioridade média"}
+          </span>
+        )}
         {coluna === "novos" && ehNovo(c, agora) ? (
           <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
             NOVO
@@ -190,15 +198,14 @@ export function CartaoChamado({
       </p>
 
       {coluna === "em_atendimento" && responsavel ? (
-        <p className="flex items-center gap-1.5 text-sm">
+        // Só a bolinha com as iniciais (pedido do dono, 2026-10-08); o nome fica no "title" e para leitores de tela.
+        <p className="flex items-center" title={`Com ${responsavel.nome}`}>
           <Avatar
             nome={responsavel.nome}
             tamanho="pequeno"
             tom={responsavel.id === euId ? "escuro" : "suave"}
           />
-          <span>
-            Com <strong>{comQuem}</strong>
-          </span>
+          <span className="sr-only">Com {comQuem}</span>
         </p>
       ) : null}
       {coluna === "aguardando" ? (
@@ -227,15 +234,6 @@ export function CartaoChamado({
           </span>
         ) : null}
         <NaoLidas total={naoLidas} />
-        {(coluna === "novos" || coluna === "transferidos") && podeIniciar ? (
-          <button
-            type="button"
-            onClick={() => aoAssumir(c.id)}
-            className="ml-auto inline-flex h-8 items-center rounded-lg bg-barra px-3 text-xs font-bold text-sobre-barra hover:bg-barra-2"
-          >
-            Iniciar
-          </button>
-        ) : null}
       </div>
     </article>
   );

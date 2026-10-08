@@ -11,10 +11,7 @@ export type AcaoDeBotao = Exclude<AcaoChamado, "resposta_solicitante">;
 
 const SUCESSO: Record<AcaoDeBotao, (numero: string) => string> = {
   assumir: (n) => `Você iniciou o chamado ${n}.`,
-  aguardar_usuario: (n) => `Chamado ${n} aguardando o usuário.`,
-  retomar: (n) => `Atendimento do chamado ${n} retomado.`,
   transferir: (n) => `Chamado ${n} transferido.`,
-  devolver_fila: (n) => `Chamado ${n} devolvido para a fila.`,
   concluir: (n) => `Chamado ${n} concluído.`,
   cancelar: (n) => `Chamado ${n} cancelado.`,
 };

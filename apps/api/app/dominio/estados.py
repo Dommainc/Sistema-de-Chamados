@@ -1,4 +1,7 @@
-"""Máquina de estados do chamado — FONTE ÚNICA (CLAUDE.md, docs/adr/0005, docs/status.md).
+"""Máquina de estados do chamado — FONTE ÚNICA (CLAUDE.md, docs/adr/0005 e 0014, docs/status.md).
+
+ADR 0014: sem aguardar usuário, retomar e devolver à fila. Aguardando usuário é só automático
+(app.processar_inatividade, 2 h úteis) e volta sozinho quando o solicitante responde.
 
 Espelho em TypeScript: apps/web/lib/dominio/estados.ts (modo simulado e botões do front).
 Qualquer mudança aqui precisa ser feita lá também — os testes dos dois lados cobrem os mesmos casos.
@@ -14,33 +17,24 @@ from app.erros.catalogo import ErroApp
 
 AcaoChamado = Literal[
     "assumir",
-    "aguardar_usuario",
-    "retomar",
     "resposta_solicitante",
     "transferir",
-    "devolver_fila",
     "concluir",
     "cancelar",
 ]
 
 TODAS_AS_ACOES: tuple[AcaoChamado, ...] = (
     "assumir",
-    "aguardar_usuario",
-    "retomar",
     "resposta_solicitante",
     "transferir",
-    "devolver_fila",
     "concluir",
     "cancelar",
 )
 
 DESTINO: dict[AcaoChamado, StatusChamado] = {
     "assumir": "em_andamento",
-    "aguardar_usuario": "aguardando_usuario",
-    "retomar": "em_andamento",
     "resposta_solicitante": "em_andamento",
     "transferir": "transferido",
-    "devolver_fila": "pendente",
     "concluir": "concluido",
     "cancelar": "cancelado",
 }
@@ -48,11 +42,8 @@ DESTINO: dict[AcaoChamado, StatusChamado] = {
 #: De quais status cada ação parte.
 ORIGENS: dict[AcaoChamado, frozenset[StatusChamado]] = {
     "assumir": frozenset({"pendente", "transferido"}),
-    "aguardar_usuario": frozenset({"em_andamento"}),
-    "retomar": frozenset({"aguardando_usuario"}),
     "resposta_solicitante": frozenset({"aguardando_usuario"}),
     "transferir": frozenset({"em_andamento", "aguardando_usuario"}),
-    "devolver_fila": frozenset({"em_andamento", "aguardando_usuario", "transferido"}),
     "concluir": frozenset({"em_andamento", "aguardando_usuario"}),
     "cancelar": frozenset({"pendente", "em_andamento", "aguardando_usuario", "transferido"}),
 }
@@ -125,7 +116,7 @@ def validar_acao(
         raise _transicao_invalida(de, para, ator.papel)
 
     if acao == "assumir":
-        # Transferido: só o técnico de destino assume direto (os outros devolvem à fila).
+        # Transferido: só o técnico de destino assume (os outros podem cancelar).
         if de == "transferido" and chamado.responsavel_id != ator.id:
             raise ErroApp("SEM_PERMISSAO")
         return ResultadoTransicao(para, ator.id)
@@ -138,10 +129,6 @@ def validar_acao(
             raise _transicao_invalida(de, para, ator.papel)
         _exigir_motivo(dados)
         return ResultadoTransicao(para, destino)
-
-    if acao == "devolver_fila":
-        _exigir_motivo(dados)
-        return ResultadoTransicao(para, None)
 
     if acao == "cancelar":
         _exigir_motivo(dados)

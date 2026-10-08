@@ -3,7 +3,6 @@
 import { DndContext, DragOverlay, useSensor, useSensors } from "@dnd-kit/core";
 import { ListFilter } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
@@ -25,7 +24,6 @@ import {
 import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import { ColunaQuadro } from "./ColunaQuadro";
 import { FiltrosQuadro, Legenda } from "./FiltrosQuadro";
-import { ProximoDaFila } from "./ProximoDaFila";
 import {
   acaoDoArraste,
   COLUNAS,
@@ -50,10 +48,8 @@ const ROLAGEM_AUTOMATICA = { threshold: { x: 0.1, y: 0.12 }, acceleration: 4 };
 /** Quadro da área técnica (mockup, telas 6 e 8). */
 export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const usuario = useUsuario();
-  const router = useRouter();
   const executar = useAcaoChamado();
   const { mostrar } = useToast();
-  const [pegando, setPegando] = useState(false);
   const [colunaCelular, setColunaCelular] = useState<IdColuna>("novos");
   const [filtrosAbertos, setFiltrosAbertos] = useState(false);
   const [destacados, setDestacados] = useState<ReadonlySet<number>>(new Set());
@@ -71,11 +67,10 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
 
   const consultar = useCallback(async (f: FonteDeDados) => {
     // Uma consulta para os cartões (view chamados_quadro: já traz "quem transferiu" e "não lidas").
-    const [chamados, categorias, perfis, proximo, sistemas] = await Promise.all([
+    const [chamados, categorias, perfis, sistemas] = await Promise.all([
       f.listarQuadro(),
       f.listarCategorias(),
       f.listarPerfisPublicos(),
-      f.proximoDaFila(),
       f.listarSistemas(),
     ]);
     return {
@@ -83,7 +78,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       categorias,
       sistemas,
       perfis,
-      proximo,
       extras: new Map(chamados.map((c) => [c.id, c])),
     };
   }, []);
@@ -137,18 +131,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       };
     });
 
-  async function assumir(chamadoId: number) {
-    await executar(chamadoId, "assumir");
-  }
-
-  async function pegarProximo() {
-    if (!dados?.proximo) return;
-    setPegando(true);
-    const assumido = await executar(dados.proximo.id, "assumir");
-    setPegando(false);
-    if (assumido) router.push(`/atendimento/${assumido.id}`);
-  }
-
   function soltar(chamadoId: number, de: IdColuna, para: IdColuna) {
     const acao = acaoDoArraste(de, para);
     if (!acao) {
@@ -156,7 +138,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       mostrar(mensagemErro("TRANSICAO_INVALIDA", { de: titulo(de), para: titulo(para) }), "erro");
       return;
     }
-    const comModal: readonly string[] = ["concluir", "cancelar", "transferir", "devolver_fila"];
+    const comModal: readonly string[] = ["concluir", "cancelar", "transferir"];
     if (comModal.includes(acao)) setComJanela({ id: chamadoId, acao: acao as AcaoComModal });
     else void executar(chamadoId, acao);
   }
@@ -168,14 +150,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <ProximoDaFila
-        chamado={dados.proximo}
-        solicitante={dados.proximo ? perfil.get(dados.proximo.solicitanteId) : undefined}
-        agora={agora}
-        pegando={pegando}
-        aoPegar={pegarProximo}
-      />
-
       {/* Computador: filtros sempre visíveis. Celular: atrás do botão "Filtros". */}
       <div className="hidden flex-wrap items-center justify-between gap-3 lg:flex">
         <FiltrosQuadro
@@ -275,13 +249,13 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
           }
         }}
       >
-        {/* Três colunas de trabalho largas; Concluídos e Cancelados estreitas (pedido do dono, 2026-10-07). */}
+        {/* Seis colunas da mesma largura (pedido do dono, 2026-10-08). */}
         <div
           className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:snap-none xl:px-0 ${
             // Filtro de status: uma coluna só, mais larga.
             filtros.coluna
               ? "xl:grid xl:grid-cols-[minmax(0,28rem)]"
-              : "xl:grid xl:grid-cols-[repeat(4,minmax(13rem,1fr))_repeat(2,minmax(10.5rem,0.7fr))]"
+              : "xl:grid xl:grid-cols-[repeat(6,minmax(11.5rem,1fr))]"
           }`}
         >
           {COLUNAS.filter((c) => filtros.coluna === null || c.id === filtros.coluna).map((c) => (
@@ -295,10 +269,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
               euId={usuario.id}
               agora={agora}
               destacados={destacados}
-              aoAssumir={assumir}
-              className={`shrink-0 snap-start xl:w-auto xl:max-w-none ${
-                c.encerrada ? "w-[70vw] max-w-[16rem]" : "w-[85vw] max-w-[21rem]"
-              }`}
+              className="w-[85vw] max-w-[21rem] shrink-0 snap-start xl:w-auto xl:max-w-none"
             />
           ))}
         </div>
@@ -312,7 +283,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
                 euId={usuario.id}
                 agora={agora}
                 destacado={false}
-                aoAssumir={() => undefined}
                 fantasma
               />
             </div>

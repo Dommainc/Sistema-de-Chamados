@@ -1,6 +1,6 @@
 // Regras puras do quadro da área técnica (mockup, tela 6; adaptado ao ADR 0005).
-// Seis colunas: Novos · Transferidos · Em atendimento · Aguardando usuário · Concluídos · Cancelados
-// (pedidos do dono, 2026-10-06 e 2026-10-07). As duas últimas são estreitas e só mostram os últimos 7 dias.
+// Seis colunas, todas da mesma largura: Novos · Em atendimento · Aguardando usuário · Concluídos ·
+// Transferidos · Cancelados (pedidos do dono, 2026-10-06 a 2026-10-08). Concluídos e Cancelados: últimos 7 dias.
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
 import { CHAVE_SISTEMA } from "@/lib/sistemas";
@@ -24,17 +24,11 @@ export interface DefinicaoColuna {
 
 export const COLUNAS: readonly DefinicaoColuna[] = [
   { id: "novos", titulo: "Novos", apoio: "Arraste para iniciar", encerrada: false },
-  {
-    id: "transferidos",
-    titulo: "Transferidos",
-    apoio: "O técnico de destino inicia",
-    encerrada: false,
-  },
   { id: "em_atendimento", titulo: "Em atendimento", apoio: "TI cuidando", encerrada: false },
   {
     id: "aguardando",
     titulo: "Aguardando usuário",
-    apoio: "Bola com o solicitante",
+    apoio: "Vai para cá sozinho após 2 h úteis sem resposta do solicitante",
     encerrada: false,
   },
   {
@@ -42,6 +36,13 @@ export const COLUNAS: readonly DefinicaoColuna[] = [
     titulo: "Concluídos",
     apoio: `Últimos ${DIAS_CONCLUIDOS} dias`,
     encerrada: true,
+  },
+  // Transferidos entre Concluídos e Cancelados (pedido do dono, 2026-10-08).
+  {
+    id: "transferidos",
+    titulo: "Transferidos",
+    apoio: "O técnico de destino inicia",
+    encerrada: false,
   },
   {
     id: "cancelados",
@@ -188,9 +189,9 @@ export function ordenarTransferidos(chamados: readonly Chamado[], euId: string):
 /**
  * Arrastar um cartão entre colunas vira uma ação da máquina de estados (a regra final é dela):
  * Novos/Transferidos → Em atendimento = iniciar (Transferidos: só o técnico de destino);
- * Em atendimento ↔ Aguardando = aguardar usuário / retomar;
+ * (Aguardando usuário é só automático — ADR 0014: arrastar para lá, de lá para Em atendimento ou para
+ * Novos não vale.)
  * Em atendimento/Aguardando → Transferidos = transferir (pede técnico e motivo);
- * Em atendimento/Aguardando/Transferidos → Novos = devolver à fila (pede motivo);
  * Em atendimento/Aguardando → Concluídos = concluir (confirma); qualquer aberta → Cancelados = cancelar (motivo).
  * Outros movimentos não valem (null).
  */
@@ -201,9 +202,6 @@ export function acaoDoArraste(
   const emTrabalho = de === "em_atendimento" || de === "aguardando";
   if ((de === "novos" || de === "transferidos") && para === "em_atendimento") return "assumir";
   if (emTrabalho && para === "transferidos") return "transferir";
-  if ((emTrabalho || de === "transferidos") && para === "novos") return "devolver_fila";
-  if (de === "em_atendimento" && para === "aguardando") return "aguardar_usuario";
-  if (de === "aguardando" && para === "em_atendimento") return "retomar";
   if ((de === "em_atendimento" || de === "aguardando") && para === "concluidos") return "concluir";
   if (!["concluidos", "cancelados"].includes(de) && para === "cancelados") {
     return "cancelar";

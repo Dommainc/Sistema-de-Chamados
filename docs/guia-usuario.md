@@ -52,19 +52,21 @@ assim que você responder, o atendimento volta a andar.
 
 ### O quadro
 
-Ao entrar, você vê o **quadro** com seis colunas lado a lado: **Novos**, **Transferidos**, **Em atendimento**,
-**Aguardando usuário** e, mais estreitas, **Concluídos** e **Cancelados** (os dos últimos 7 dias). Em tela menor,
-deslize para o lado ou use os botões das colunas. A **cor do cartão** é a do **status** (laranja = novo, roxo =
-transferido, amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, cinza = cancelado) e muda
-junto com ele.
+Ao entrar, você vê o **quadro** com seis colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando usuário**,
+**Concluídos**, **Transferidos** e **Cancelados** (concluídos e cancelados: só os dos últimos 7 dias). Em tela menor,
+deslize para o lado ou use os botões das colunas. A **faixa colorida do cartão** é a do **status** (laranja = novo,
+amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo = transferido, cinza = cancelado).
 
 ![Quadro da TI](guia/img/computador-07-quadro.png)
 
-- **Iniciar o próximo:** inicia o chamado mais urgente da fila e abre direto nele.
-- **Iniciar:** botão em cada cartão novo (e nos transferidos para você). Você também pode **arrastar** o cartão para
-  outra coluna
+- **Iniciar:** abra o chamado e clique em **Iniciar**, ou **arraste** o cartão de Novos para Em atendimento. Você também
+  pode **arrastar** o cartão para outra coluna
   (no celular: **segure o cartão** um instante e arraste; na borda da tela, ela rola sozinha) —
   arrastar para **Concluídos** conclui o chamado (pede confirmação) e para **Cancelados** cancela (pede o motivo).
+- **Aguardando usuário** é automático: o chamado vai sozinho para lá depois de **2 horas úteis** sem resposta do
+  solicitante e volta para Em atendimento quando ele responder.
+- **Prioridade** no topo do cartão: Alta (vermelho, sobe para o topo da coluna) · Média (amarelo) · Baixa (cinza).
+  Em Em atendimento, a bolinha mostra as iniciais de quem está atendendo.
 - **Prazo** no retângulo do cartão: vermelho = vencido · laranja = vence em menos de 1 hora · amarelo = sem prazo
   definido · branco = em dia. O 💬 com número mostra mensagens novas.
 - **Filtros:** Status (mostra só aquela coluna), Pessoa atendendo (você, ninguém ainda ou um técnico), categoria e
@@ -89,17 +91,15 @@ junto com ele.
 - Depois que você responde, se o solicitante ficar **2 horas úteis** sem responder, o chamado vai sozinho para
   **Aguardando usuário**; com **24 horas úteis**, a Central manda um lembrete automático para ele. Quem conclui é você.
 - A aba **Relato técnico** é o diário da TI (**o solicitante não vê**): anote o que foi verificado e o que foi
-  feito, cole prints com Ctrl+V. As transferências e devoluções à fila aparecem ali com o motivo. As anotações
+  feito, cole prints com Ctrl+V. As transferências aparecem ali com o motivo. As anotações
   não podem ser editadas nem apagadas.
 
 ![Relato técnico](guia/img/computador-08b-relato-tecnico.png)
 
 - No **topo** ficam o solicitante (com e-mail e o botão **"Falar no Teams"**), o responsável, o prazo e a categoria, e as **ações** —
-  só as que dá para fazer agora (Devolver à fila e Cancelar ficam em **⋯**):
+  só as que dá para fazer agora:
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
-  - **Aguardar usuário / Retomar atendimento** — quando você precisa de uma resposta;
   - **Transferir** — para outro técnico, com motivo (ele precisa iniciar);
-  - **Devolver à fila** — volta para Novos, sem responsável, com motivo;
   - **Cancelar chamado** — com motivo.
 - Ao lado da conversa ficam as respostas do **pedido** e o **histórico** completo (clique para abrir),
   inclusive transferências e o motivo de cada uma.

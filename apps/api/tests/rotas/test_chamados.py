@@ -221,11 +221,11 @@ def test_transferir_exige_motivo_e_tecnico_e_registra_a_transferencia(cliente, c
     assert {n.destinatario_id for n in estado.notificacoes} == {ANA, THIAGO}
 
 
-def test_devolver_a_fila_limpa_o_responsavel(cliente, como):
-    resposta = cliente.post(
-        "/chamados/39/devolver", headers=como(THIAGO), json={"motivo": "Rafael de férias"}
-    )
-    assert resposta.json()["status"] == "pendente" and resposta.json()["responsavel_id"] is None
+@pytest.mark.parametrize("rota", ["aguardar", "retomar", "devolver"])
+def test_sem_aguardar_retomar_nem_devolver(cliente, como, rota):
+    """ADR 0014: as rotas saíram (aguardando usuário só é automático)."""
+    resposta = cliente.post(f"/chamados/41/{rota}", headers=como(RAFAEL), json={"motivo": "x"})
+    assert resposta.status_code in (404, 405)
 
 
 def test_concluir_mesmo_aguardando_e_depois_nao_aceita_mais_nada(cliente, como):
@@ -233,7 +233,10 @@ def test_concluir_mesmo_aguardando_e_depois_nao_aceita_mais_nada(cliente, como):
         cliente.post("/chamados/41/concluir", headers=como(RAFAEL)).json()["status"] == "concluido"
     )
     assert (
-        codigo(cliente.post("/chamados/41/retomar", headers=como(RAFAEL))) == "TRANSICAO_INVALIDA"
+        codigo(
+            cliente.post("/chamados/41/cancelar", headers=como(RAFAEL), json={"motivo": "teste"})
+        )
+        == "TRANSICAO_INVALIDA"
     )
     mensagem = cliente.post(
         "/chamados/41/mensagens", headers=como(ANA), json={"conteudo": "voltou"}
@@ -244,9 +247,7 @@ def test_concluir_mesmo_aguardando_e_depois_nao_aceita_mais_nada(cliente, como):
 def test_acoes_disponiveis(cliente, como):
     assert cliente.get("/chamados/42/acoes", headers=como(ANA)).json() == {"acoes": []}
     assert set(cliente.get("/chamados/41/acoes", headers=como(RAFAEL)).json()["acoes"]) == {
-        "retomar",
         "transferir",
-        "devolver_fila",
         "concluir",
         "cancelar",
     }
@@ -257,11 +258,8 @@ def test_acoes_disponiveis(cliente, como):
     ("rota", "corpo"),
     [
         ("assumir", None),
-        ("aguardar", None),
-        ("retomar", None),
         ("concluir", None),
         ("transferir", {"destino_id": THIAGO, "motivo": "tentativa"}),
-        ("devolver", {"motivo": "tentativa"}),
     ],
 )
 def test_solicitante_nao_faz_acoes_da_ti_nem_no_proprio_chamado(cliente, como, estado, rota, corpo):

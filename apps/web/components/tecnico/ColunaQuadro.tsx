@@ -15,7 +15,6 @@ type PropsCartao = {
   euId: string;
   agora: Date;
   destacado: boolean;
-  aoAssumir: (id: number) => void;
 };
 
 /** Cartão das colunas abertas, arrastável (mouse, dedo e teclado — ver arraste.ts). */
@@ -49,7 +48,6 @@ function ListaCartoes({
   euId: string;
   agora: Date;
   destacados: ReadonlySet<number>;
-  aoAssumir: (id: number) => void;
 }) {
   return (
     <ul className="flex flex-col gap-2.5">
@@ -59,7 +57,6 @@ function ListaCartoes({
           euId: props.euId,
           agora: props.agora,
           destacado: props.destacados.has(d.chamado.id),
-          aoAssumir: props.aoAssumir,
         };
         const encerrado = d.coluna === "concluidos" || d.coluna === "cancelados";
         return (
@@ -86,7 +83,6 @@ export function ColunaQuadro({
   euId,
   agora,
   destacados,
-  aoAssumir,
   className = "",
 }: {
   id: IdColuna;
@@ -97,7 +93,6 @@ export function ColunaQuadro({
   euId: string;
   agora: Date;
   destacados: ReadonlySet<number>;
-  aoAssumir: (id: number) => void;
   className?: string;
 }) {
   const [verTodos, setVerTodos] = useState(false);
@@ -106,7 +101,7 @@ export function ColunaQuadro({
 
   const visiveis = verTodos ? cartoes : cartoes.slice(0, LIMITE_INICIAL);
   const escondidos = cartoes.length - visiveis.length;
-  const props = { euId, agora, destacados, aoAssumir };
+  const props = { euId, agora, destacados };
 
   // Em "Novos": seções "PRAZO VENCIDO" e "NA FILA" (mockup).
   const vencidos = visiveis.filter((c) => situacaoPrazo(c.chamado.prazoSla, agora) === "vencido");

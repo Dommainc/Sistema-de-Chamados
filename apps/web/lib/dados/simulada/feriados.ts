@@ -35,6 +35,6 @@ export const FERIADOS_SIMULADOS: ReadonlySet<string> = new Set([
 
 export const EXPEDIENTE_SIMULADO = {
   inicio: "08:00",
-  fim: "18:00",
+  fim: "20:00", // expediente 8h–20h (pedido do dono, 2026-10-08)
   feriados: FERIADOS_SIMULADOS,
 } as const;

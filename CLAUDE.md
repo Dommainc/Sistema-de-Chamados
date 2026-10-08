@@ -57,7 +57,7 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
 Link universal `/chamados/42` (usado no Teams) redireciona para `/meus-chamados/42` (solicitante) ou `/atendimento/42` (TI).
 Busca por `42` na fila abre direto.
 
-### Máquina de estados (fonte única: `apps/api/app/dominio/estados.py`; decisão em `docs/adr/0005`)
+### Máquina de estados (fonte única: `apps/api/app/dominio/estados.py`; decisão em `docs/adr/0005` e `0014`)
 
 6 status: `pendente`, `em_andamento`, `aguardando_usuario`, `transferido`, `concluido`, `cancelado`.
 Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
@@ -66,16 +66,16 @@ Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
 |---|---|---|---|
 | pendente | em_andamento | TI (assumir) | responsável = quem assumiu |
 | pendente | cancelado | TI | motivo |
-| em_andamento | aguardando_usuario | TI | — |
-| em_andamento | aguardando_usuario | **automático**: 2 h úteis sem resposta à mensagem da TI | — |
-| aguardando_usuario | em_andamento | solicitante responde no chat (automático) ou TI | — |
+| em_andamento | aguardando_usuario | **só automático**: 2 h úteis sem resposta à mensagem da TI | — |
+| aguardando_usuario | em_andamento | solicitante responde no chat (automático) | — |
 | em_andamento, aguardando_usuario | transferido | TI | destino técnico + motivo |
-| em_andamento, aguardando_usuario, transferido | pendente | TI (devolver à fila) | motivo; limpa o responsável |
 | transferido | em_andamento | técnico de destino (assumir) | — |
 | em_andamento, aguardando_usuario | concluido | TI | — (inclusive sem resposta do solicitante) |
 | em_andamento, aguardando_usuario, transferido | cancelado | TI | motivo |
 | concluido, cancelado | — | ninguém | terminal, somente leitura |
 
+Sem "aguardar usuário", "retomar" e "devolver à fila" (`docs/adr/0014`): a TI só **inicia**, **conclui**, **transfere** ou **cancela**.
+Expediente das horas úteis: **seg–sex, 8h–20h** (`configuracoes`).
 Não há confirmação, reabertura nem fechamento automático: se o problema voltar, o solicitante abre um novo chamado.
 **Prazo** (`docs/adr/0009`): o chamado nasce **sem prazo**; qualquer técnico define (data e hora) quando quiser e pode
 alterar **com motivo** (`POST /chamados/{id}/prazo`). O solicitante vê a previsão e o motivo. Nada é calculado pela categoria.

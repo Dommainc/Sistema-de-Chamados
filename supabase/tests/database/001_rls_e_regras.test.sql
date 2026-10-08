@@ -112,13 +112,13 @@ select is(
 );
 
 select is(
-  app.adicionar_horas_uteis('2026-10-02 17:00-03', 2),
+  app.adicionar_horas_uteis('2026-10-02 19:00-03', 2),
   '2026-10-05 09:00-03'::timestamptz,
-  'Sexta 17h + 2h úteis = segunda 9h'
+  'Sexta 19h + 2h úteis = segunda 9h (expediente 8h–20h)'
 );
 
 select is(
-  app.adicionar_horas_uteis('2026-10-09 17:00-03', 2),
+  app.adicionar_horas_uteis('2026-10-09 19:00-03', 2),
   '2026-10-13 09:00-03'::timestamptz,
   'Feriado (12/10) é pulado no prazo'
 );

@@ -70,29 +70,16 @@ describe("transferir e devolver", () => {
       }),
     ).rejects.toMatchObject({ codigo: "CAMPO_OBRIGATORIO" });
   });
-
-  it("devolver à fila limpa o responsável e exige motivo", async () => {
-    const fonte = criarFonteSimulada(THIAGO.id);
-    await expect(fonte.executarAcao(41, "devolver_fila")).rejects.toMatchObject({
-      codigo: "MOTIVO_OBRIGATORIO",
-    });
-    const chamado = await fonte.executarAcao(41, "devolver_fila", { motivo: "Rafael de férias" });
-    expect(chamado).toMatchObject({ status: "pendente", responsavelId: null });
-    expect(ultimoEvento(41)).toMatchObject({ acao: "devolvido_fila", publico: false });
-  });
 });
 
 describe("status e encerramento", () => {
-  it("aguardar usuário, retomar e concluir mesmo sem resposta do solicitante", async () => {
+  it("concluir direto de aguardando usuário, mesmo sem resposta do solicitante", async () => {
     const fonte = criarFonteSimulada(RAFAEL.id);
-    expect((await fonte.executarAcao(38, "aguardar_usuario")).status).toBe("aguardando_usuario");
-    expect((await fonte.executarAcao(38, "retomar")).status).toBe("em_andamento");
-    await fonte.executarAcao(38, "aguardar_usuario");
-    const concluido = await fonte.executarAcao(38, "concluir");
+    const concluido = await fonte.executarAcao(41, "concluir");
     expect(concluido.status).toBe("concluido");
     expect(concluido.concluidoEm).not.toBeNull();
     expect(
-      notificacoesDe(38).every((n) => n.tipo === "status_alterado" && n.destinatarioId === ANA.id),
+      notificacoesDe(41).every((n) => n.tipo === "status_alterado" && n.destinatarioId === ANA.id),
     ).toBe(true);
   });
 
@@ -104,23 +91,16 @@ describe("status e encerramento", () => {
   });
 
   it("concluído não aceita mais ações → TRANSICAO_INVALIDA", async () => {
-    await expect(criarFonteSimulada(RAFAEL.id).executarAcao(35, "retomar")).rejects.toMatchObject({
-      codigo: "TRANSICAO_INVALIDA",
-    });
+    await expect(
+      criarFonteSimulada(RAFAEL.id).executarAcao(35, "cancelar", { motivo: "teste" }),
+    ).rejects.toMatchObject({ codigo: "TRANSICAO_INVALIDA" });
   });
 });
 
 describe("solicitante não faz ações da TI", () => {
   it("todas as ações da TI → SEM_PERMISSAO para a Ana, até no próprio chamado", async () => {
     const fonte = criarFonteSimulada(ANA.id);
-    const acoes: AcaoChamado[] = [
-      "assumir",
-      "aguardar_usuario",
-      "retomar",
-      "transferir",
-      "devolver_fila",
-      "concluir",
-    ];
+    const acoes: AcaoChamado[] = ["assumir", "transferir", "concluir"];
     for (const acao of acoes) {
       await expect(
         fonte.executarAcao(41, acao, { motivo: "tentativa", destinoId: RAFAEL.id }),

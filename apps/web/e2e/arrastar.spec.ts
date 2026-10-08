@@ -21,10 +21,10 @@ test.describe("computador (mouse)", () => {
     test.skip(info.project.name !== "computador", "Teste do mouse.");
   });
 
-  test("arrastar de Em atendimento para Aguardando usuário muda o status", async ({ page }) => {
+  test("arrastar de Novos para Em atendimento inicia o chamado", async ({ page }) => {
     await entrar(page, "Rafael Lima");
-    const inicio = await pontoDoNumero(cartao(page, 38));
-    const destino = await coluna(page, "Aguardando usuário").boundingBox();
+    const inicio = await pontoDoNumero(cartao(page, 42));
+    const destino = await coluna(page, "Em atendimento").boundingBox();
     if (!destino) throw new Error("coluna sem posição");
 
     await page.mouse.move(inicio.x, inicio.y);
@@ -32,8 +32,9 @@ test.describe("computador (mouse)", () => {
     await page.mouse.move(destino.x + destino.width / 2, destino.y + 120, { steps: 12 });
     await page.mouse.up();
 
+    await expect(page.getByText("Você iniciou o chamado #42.")).toBeVisible();
     await expect(
-      coluna(page, "Aguardando usuário").getByText("Instalar AutoCAD no notebook"),
+      coluna(page, "Em atendimento").getByText("Sem internet na obra Recreio"),
     ).toBeVisible();
   });
 

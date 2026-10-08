@@ -9,7 +9,7 @@
 insert into public.configuracoes (chave, valor, descricao, publico) values
   ('fuso_horario',               '"America/Sao_Paulo"', 'Fuso usado nos prazos', true),
   ('expediente_inicio',          '"08:00"',             'Início do expediente (prazos em horas úteis)', true),
-  ('expediente_fim',             '"18:00"',             'Fim do expediente', true),
+  ('expediente_fim',             '"20:00"',             'Fim do expediente (8h–20h, pedido do dono, 2026-10-08)', true),
   ('sla_alerta_percentual',      '80',                  'Percentual do prazo que dispara alerta (Fase 2)', false),
   ('anexo_tamanho_max_mb',       '10',                  'Tamanho máximo por arquivo (manter igual ao bucket)', true),
   ('anexo_tipos_permitidos',
@@ -26,7 +26,7 @@ on conflict (chave) do nothing;
 insert into public.areas (nome) values ('TI') on conflict (nome) do nothing;
 
 -- -----------------------------------------------------------------------------
--- Categorias (SLA em horas úteis; expediente 08–18, seg–sex)
+-- Categorias (SLA em horas úteis; expediente 08–20, seg–sex)
 -- -----------------------------------------------------------------------------
 insert into public.categorias (area_id, nome, nome_curto, icone, descricao, sla_horas, ordem)
 select a.id, c.nome, c.nome_curto, c.icone, c.descricao, c.sla, c.ordem
@@ -92,7 +92,16 @@ insert into public.respostas_prontas (titulo, texto, ordem) values
   ('Pedir print',        '{nome}, consegue me mandar um print da tela com o erro? Pode colar aqui com Ctrl+V.', 30),
   ('Testar agora',       'Pronto, {nome}! Fiz o ajuste. Pode testar e me avisar se está tudo certo?', 40),
   ('Em análise',         '{nome}, já estou vendo o seu chamado e te dou um retorno em breve.', 50),
-  ('Aguardando terceiro', '{nome}, dependemos do fornecedor para seguir. Assim que tiver novidade, te aviso por aqui.', 60)
+  ('Aguardando terceiro', '{nome}, dependemos do fornecedor para seguir. Assim que tiver novidade, te aviso por aqui.', 60),
+  -- +8 (pedido do dono, 2026-10-08)
+  ('Mais detalhes', '{nome}, pode me contar um pouco mais? Desde quando acontece e se aparece alguma mensagem de erro?', 70),
+  ('Acesso liberado', '{nome}, seu acesso foi liberado. Pode entrar e me avisar se aparecer algum erro?', 80),
+  ('Senha redefinida', '{nome}, redefini sua senha. Na primeira entrada, o sistema vai pedir para você criar uma nova.', 90),
+  ('Vou passar aí', '{nome}, vou passar aí para ver de perto. Qual o melhor horário para você hoje?', 100),
+  ('Aprovação do gestor', '{nome}, esse pedido precisa da aprovação do seu gestor. Pode pedir para ele confirmar aqui no chamado?', 110),
+  ('Passando para colega', '{nome}, vou passar seu chamado para um colega que cuida desse assunto. Ele continua o atendimento por aqui.', 120),
+  ('Confirmar se resolveu', '{nome}, conseguimos resolver? Se estiver tudo certo, vou concluir o chamado.', 130),
+  ('Concluindo sem retorno', '{nome}, como não tivemos retorno, vou concluir o chamado. Se o problema voltar, é só abrir um novo.', 140)
 on conflict (titulo) do nothing;
 
 -- -----------------------------------------------------------------------------

@@ -4,7 +4,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { OpcaoSistema, PerfilPublico } from "@/lib/dados/tipos";
 import type { Categoria } from "@/lib/dominio/tipos";
 import { classesDaCor } from "@/lib/sistemas";
-import { COR_PRAZO, COR_STATUS } from "./cores";
+import { COR_PRAZO } from "./cores";
 import { COLUNAS, type FiltroPrazo, type FiltrosQuadro as Filtros } from "./quadro";
 
 const PRAZOS: { valor: FiltroPrazo; rotulo: string }[] = [
@@ -29,19 +29,10 @@ export function comParametro(
   return texto ? `${caminho}?${texto}` : caminho;
 }
 
-/** Legenda: a cor do cartão é o STATUS; o retângulo do prazo mostra a situação do prazo. */
+/** Legenda do retângulo do prazo (a de cor do status saiu — pedido do dono, 2026-10-08). */
 export function Legenda() {
   return (
     <div className="flex flex-col gap-1.5 text-xs text-texto-suave">
-      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1" aria-label="Cores de status">
-        <li className="font-semibold text-texto">Cor do cartão = status:</li>
-        {COLUNAS.map((c) => (
-          <li key={c.id} className="flex items-center gap-1.5">
-            <span className={`size-2.5 rounded-full ${COR_STATUS[c.id].bolinha}`} />
-            {c.titulo}
-          </li>
-        ))}
-      </ul>
       <ul className="flex flex-wrap items-center gap-x-3 gap-y-1" aria-label="Cores do prazo">
         <li className="font-semibold text-texto">Prazo:</li>
         <li className={`rounded px-1.5 py-0.5 font-semibold ${COR_PRAZO.vencido}`}>Vencido</li>

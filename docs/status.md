@@ -8,15 +8,12 @@ Seis status ([ADR 0005](adr/0005-status-simplificados.md)). A tabela de transiç
 stateDiagram-v2
   [*] --> pendente: abrir
   pendente --> em_andamento: TI assume
-  pendente --> cancelado: solicitante ou TI (motivo)
-  em_andamento --> aguardando_usuario: TI aguarda resposta
-  aguardando_usuario --> em_andamento: solicitante responde (automático) ou TI retoma
+  pendente --> cancelado: TI (motivo)
+  em_andamento --> aguardando_usuario: automático (2 h úteis sem resposta)
+  aguardando_usuario --> em_andamento: solicitante responde (automático)
   em_andamento --> transferido: TI transfere (técnico + motivo)
   aguardando_usuario --> transferido: TI transfere (técnico + motivo)
   transferido --> em_andamento: técnico de destino assume
-  em_andamento --> pendente: devolver à fila (motivo)
-  aguardando_usuario --> pendente: devolver à fila (motivo)
-  transferido --> pendente: devolver à fila (motivo)
   em_andamento --> concluido: TI conclui
   aguardando_usuario --> concluido: TI conclui (mesmo sem resposta)
   em_andamento --> cancelado: TI (motivo)
@@ -41,9 +38,9 @@ stateDiagram-v2
 - **Concluído e cancelado são finais**: somente leitura, sem reabertura. Se o problema voltar, o solicitante abre
   um novo pedido (a tela oferece "Abrir novo pedido" já citando o número anterior).
 - **Sem fechamento automático** e sem confirmação do solicitante.
-- **Solicitante só cancela em "Recebido"**; depois disso: `CANCELAMENTO_NAO_PERMITIDO`.
-- **Devolver à fila limpa o responsável.** Transferido só é assumido direto pelo técnico de destino;
-  qualquer técnico pode devolvê-lo à fila.
+- **Só a TI cancela** ([ADR 0011](adr/0011-regras-de-atendimento-e-automacoes.md)); o solicitante recebe `CANCELAMENTO_NAO_PERMITIDO`.
+- **Sem aguardar, retomar e devolver à fila** ([ADR 0014](adr/0014-sem-aguardar-retomar-e-devolver.md)):
+  aguardando usuário é só automático. Transferido só é iniciado pelo técnico de destino; os outros só cancelam.
 - **Toda transição grava histórico + notificação pendente** na mesma transação.
 - Regras no banco (valem até se a API falhar): `pendente` sem responsável; `em_andamento`, `aguardando_usuario`
   e `transferido` exigem responsável; `concluido` exige data; `cancelado` exige motivo; encerrado não muda (`CC001`).

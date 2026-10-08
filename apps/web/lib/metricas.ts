@@ -1,6 +1,6 @@
 // Métricas do Dashboard da TI (ADR 0013). Cálculo puro, igual para a versão simulada e a real:
 // recebe os chamados e o histórico que a TI já pode ler (RLS) e devolve os números da tela.
-// Tempos em HORAS ÚTEIS (seg–sex, 08–18, sem feriados), como as automações.
+// Tempos em HORAS ÚTEIS (seg–sex, 08–20, sem feriados), como as automações.
 
 import type { Categoria, Chamado, EventoHistorico } from "@/lib/dominio/tipos";
 import { horasUteisEntre, type ExpedienteConfig } from "@/lib/dominio/horario-util";

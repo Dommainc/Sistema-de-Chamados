@@ -123,7 +123,6 @@ def test_ciclo_completo_com_historico_e_notificacoes(cliente, ana, bruno, rafael
     transferido = post(rafael, "transferir", {"destino_id": THIAGO, "motivo": "e-mail"}).json()
     assert transferido["responsavel_id"] == THIAGO
     post(thiago, "assumir")
-    post(thiago, "aguardar")
     post(thiago, "mensagens", {"conteudo": "Nota só da TI", "interna": True})
     post(ana, "mensagens", {"conteudo": "Testei, funcionou"})
     post(ana, "lido")
@@ -137,7 +136,7 @@ def test_ciclo_completo_com_historico_e_notificacoes(cliente, ana, bruno, rafael
     assert len(ler("mensagens", f"chamado_id=eq.{n}", rafael)) == 2
     assert ler("chamados", f"id=eq.{n}", bruno) == []
 
-    # A resposta da Ana devolveu para "em atendimento" sozinha (evento sem autor).
+    # Histórico completo; "aguardando usuário" só entra pela automação do banco (ADR 0014).
     acoes = [h["acao"] for h in ler("historico", f"chamado_id=eq.{n}&order=id", rafael)]
     assert acoes[0] == "criado" and "transferido" in acoes and acoes[-1] == "concluido"
     assert len(ler("transferencias", f"chamado_id=eq.{n}", rafael)) == 1

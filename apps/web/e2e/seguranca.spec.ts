@@ -29,7 +29,7 @@ test("nenhuma tela é bloqueada pela política de conteúdo (CSP)", async ({ pag
   await page.goto("/meus-chamados/41");
   await expect(page.getByText(/Consegue abrir o Outlook/)).toBeVisible();
   await trocarPara(context, page, "Rafael Lima");
-  await expect(page.getByText("Próximo da fila")).toBeVisible();
+  await expect(page.getByRole("region", { name: /^Novos:/ })).toBeVisible();
   await page.goto("/atendimento/41");
   await expect(page.getByRole("region", { name: "Ações" })).toBeVisible();
 

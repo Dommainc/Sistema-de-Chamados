@@ -55,9 +55,9 @@ describe("automações por tempo (modo de demonstração)", () => {
     expect(novo.mensagens).toHaveLength(1); // ainda não é hora do aviso
   });
 
-  it("horas úteis: mensagem às 17h de sexta só vence às 9h de segunda", () => {
-    const sexta17h = "2026-10-09T20:00:00Z";
-    const estado = cenario([daTi(sexta17h)]);
+  it("horas úteis (8h–20h): mensagem às 19h de sexta só vence às 9h do próximo dia útil", () => {
+    const sexta19h = "2026-10-09T22:00:00Z";
+    const estado = cenario([daTi(sexta19h)]);
     expect(processarInatividade(estado, new Date("2026-10-10T15:00:00Z"))).toBeNull(); // sábado
     expect(processarInatividade(estado, new Date("2026-10-13T12:05:00Z"))?.chamados[0].status).toBe(
       "aguardando_usuario",

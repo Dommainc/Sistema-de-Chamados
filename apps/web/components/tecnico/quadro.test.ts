@@ -175,14 +175,15 @@ describe("ordem das colunas Novos e Transferidos", () => {
 describe("arrastar entre colunas", () => {
   it("só os movimentos da máquina de estados valem", () => {
     expect(acaoDoArraste("novos", "em_atendimento")).toBe("assumir");
-    expect(acaoDoArraste("em_atendimento", "aguardando")).toBe("aguardar_usuario");
-    expect(acaoDoArraste("aguardando", "em_atendimento")).toBe("retomar");
+    // ADR 0014: aguardando usuário é só automático; devolver à fila saiu.
+    expect(acaoDoArraste("em_atendimento", "aguardando")).toBeNull();
+    expect(acaoDoArraste("aguardando", "em_atendimento")).toBeNull();
     expect(acaoDoArraste("novos", "aguardando")).toBeNull();
     expect(acaoDoArraste("transferidos", "em_atendimento")).toBe("assumir");
     expect(acaoDoArraste("em_atendimento", "transferidos")).toBe("transferir");
-    expect(acaoDoArraste("transferidos", "novos")).toBe("devolver_fila");
+    expect(acaoDoArraste("transferidos", "novos")).toBeNull();
     expect(acaoDoArraste("novos", "transferidos")).toBeNull();
-    expect(acaoDoArraste("em_atendimento", "novos")).toBe("devolver_fila");
+    expect(acaoDoArraste("em_atendimento", "novos")).toBeNull();
     expect(acaoDoArraste("novos", "novos")).toBeNull();
     expect(acaoDoArraste("em_atendimento", "concluidos")).toBe("concluir");
     expect(acaoDoArraste("aguardando", "concluidos")).toBe("concluir");

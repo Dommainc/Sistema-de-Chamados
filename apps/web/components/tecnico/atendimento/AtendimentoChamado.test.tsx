@@ -60,21 +60,13 @@ describe("AtendimentoChamado", () => {
     expect(within(historico).getByText("Em atendimento → Aguardando usuário")).toBeInTheDocument();
   });
 
-  it("em 'Aguardando usuário' as ações são: concluir, transferir, retomar, devolver, cancelar", async () => {
+  it("em 'Aguardando usuário' as ações são só: concluir, transferir e cancelar (ADR 0014)", async () => {
     renderizar();
     await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
-    const acoes = painelAcoes();
-    for (const nome of ["Marcar como concluído", "Transferir", "Retomar atendimento"]) {
-      expect(within(acoes).getByRole("button", { name: nome })).toBeInTheDocument();
-    }
-    expect(within(acoes).queryByRole("button", { name: "Iniciar" })).not.toBeInTheDocument();
-    // Devolver e cancelar ficam no menu "Mais ações".
-    expect(
-      within(acoes).queryByRole("button", { name: "Cancelar chamado" }),
-    ).not.toBeInTheDocument();
-    fireEvent.click(within(acoes).getByRole("button", { name: "Mais ações" }));
-    expect(within(acoes).getByRole("button", { name: "Devolver à fila" })).toBeInTheDocument();
-    expect(within(acoes).getByRole("button", { name: "Cancelar chamado" })).toBeInTheDocument();
+    const nomes = within(painelAcoes())
+      .getAllByRole("button")
+      .map((b) => b.getAttribute("aria-label") ?? b.textContent);
+    expect(nomes).toEqual(["Marcar como concluído", "Transferir", "Cancelar chamado"]);
   });
 
   it("Relato técnico: aba própria com as notas e o contador; anotar grava como interna", async () => {
@@ -220,15 +212,13 @@ describe("AtendimentoChamado", () => {
     await waitFor(() => expect(chamado(41).prazoSla).not.toBe(anterior));
   });
 
-  it("transferido para outro técnico: quem não é o destino só devolve ou cancela", async () => {
+  it("transferido para outro técnico: quem não é o destino só cancela", async () => {
     renderizar(THIAGO, 39); // #39 foi transferido para o Rafael
     await screen.findByRole("region", { name: "Ações" });
     const nomes = () =>
       within(painelAcoes())
         .getAllByRole("button")
         .map((b) => b.getAttribute("aria-label") ?? b.textContent);
-    expect(nomes()).toEqual(["Mais ações"]);
-    fireEvent.click(within(painelAcoes()).getByRole("button", { name: "Mais ações" }));
-    expect(nomes()).toEqual(["Mais ações", "Devolver à fila", "Cancelar chamado"]);
+    expect(nomes()).toEqual(["Cancelar chamado"]);
   });
 });

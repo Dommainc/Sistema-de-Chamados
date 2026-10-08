@@ -11,7 +11,7 @@ import { ErroApp } from "@/lib/erros/catalogo";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { textoSucesso } from "../useAcaoChamado";
 
-export type AcaoComModal = "concluir" | "transferir" | "devolver_fila" | "cancelar";
+export type AcaoComModal = "concluir" | "transferir" | "cancelar";
 
 const CONFIG: Record<
   AcaoComModal,
@@ -38,14 +38,6 @@ const CONFIG: Record<
     variante: "primario",
     motivo: "Por que está transferindo?",
   },
-  devolver_fila: {
-    titulo: "Devolver à fila",
-    texto: (n) =>
-      `O chamado ${n} volta para Novos, sem responsável, para qualquer técnico iniciar.`,
-    botao: "Devolver à fila",
-    variante: "primario",
-    motivo: "Por que está devolvendo?",
-  },
   cancelar: {
     titulo: "Cancelar chamado",
     texto: (n) => `O chamado ${n} será encerrado e não poderá ser reaberto.`,
@@ -55,7 +47,7 @@ const CONFIG: Record<
   },
 };
 
-/** Modais das ações da TI (transferir, devolver, cancelar com motivo; concluir só confirma). */
+/** Modais das ações da TI (transferir e cancelar com motivo; concluir só confirma). */
 export function ModalAcao({
   acao,
   chamadoId,

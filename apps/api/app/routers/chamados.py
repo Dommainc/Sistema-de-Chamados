@@ -180,16 +180,6 @@ async def assumir(chamado_id: int, usuario: UsuarioAtual, fabrica: Fabrica) -> C
     return await _acao(fabrica, usuario, chamado_id, "assumir")
 
 
-@router.post("/chamados/{chamado_id}/aguardar", summary="Aguardar resposta do usuário (TI)")
-async def aguardar(chamado_id: int, usuario: UsuarioAtual, fabrica: Fabrica) -> ChamadoSaida:
-    return await _acao(fabrica, usuario, chamado_id, "aguardar_usuario")
-
-
-@router.post("/chamados/{chamado_id}/retomar", summary="Retomar atendimento (TI)")
-async def retomar(chamado_id: int, usuario: UsuarioAtual, fabrica: Fabrica) -> ChamadoSaida:
-    return await _acao(fabrica, usuario, chamado_id, "retomar")
-
-
 @router.post("/chamados/{chamado_id}/concluir", summary="Concluir (TI) — final, sem reabertura")
 async def concluir(chamado_id: int, usuario: UsuarioAtual, fabrica: Fabrica) -> ChamadoSaida:
     return await _acao(fabrica, usuario, chamado_id, "concluir")
@@ -205,15 +195,6 @@ async def transferir(
         chamado_id,
         "transferir",
         DadosAcao(motivo=dados.motivo, destino_id=dados.destino_id),
-    )
-
-
-@router.post("/chamados/{chamado_id}/devolver", summary="Devolver à fila, sem responsável (TI)")
-async def devolver(
-    chamado_id: int, dados: MotivoEntrada, usuario: UsuarioAtual, fabrica: Fabrica
-) -> ChamadoSaida:
-    return await _acao(
-        fabrica, usuario, chamado_id, "devolver_fila", DadosAcao(motivo=dados.motivo)
     )
 
 

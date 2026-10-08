@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import type { CodigoErro } from "@/lib/erros/catalogo";
 import {
+  TODAS_AS_ACOES,
   acoesDisponiveis,
   validarAcao,
   type AcaoChamado,
@@ -46,21 +47,18 @@ describe("tabela de transições (CLAUDE.md)", () => {
     );
   });
 
-  it("em_andamento → aguardando_usuario: TI", () => {
-    expect(validarAcao(chamado("em_andamento", TEC.id), "aguardar_usuario", TEC).para).toBe(
-      "aguardando_usuario",
-    );
+  it("sem aguardar usuário, retomar e devolver à fila (ADR 0014)", () => {
+    for (const acao of ["aguardar_usuario", "retomar", "devolver_fila"]) {
+      expect(TODAS_AS_ACOES as readonly string[]).not.toContain(acao);
+    }
   });
 
-  it("aguardando_usuario → em_andamento: solicitante responde (automático) ou TI retoma", () => {
+  it("aguardando_usuario → em_andamento: só quando o solicitante responde (automático)", () => {
     expect(validarAcao(chamado("aguardando_usuario", TEC.id), "resposta_solicitante", SOL)).toEqual(
       {
         para: "em_andamento",
         responsavelId: TEC.id,
       },
-    );
-    expect(validarAcao(chamado("aguardando_usuario", TEC.id), "retomar", TEC).para).toBe(
-      "em_andamento",
     );
   });
 
@@ -69,15 +67,6 @@ describe("tabela de transições (CLAUDE.md)", () => {
       expect(
         validarAcao(chamado(de, TEC.id), "transferir", TEC, { ...MOTIVO, destinoId: TEC2.id }),
       ).toEqual({ para: "transferido", responsavelId: TEC2.id });
-    }
-  });
-
-  it("em_andamento/aguardando/transferido → pendente: devolver à fila limpa o responsável", () => {
-    for (const de of ["em_andamento", "aguardando_usuario", "transferido"] as const) {
-      expect(validarAcao(chamado(de, TEC.id), "devolver_fila", TEC2, MOTIVO)).toEqual({
-        para: "pendente",
-        responsavelId: null,
-      });
     }
   });
 
@@ -113,7 +102,7 @@ describe("tabela de transições (CLAUDE.md)", () => {
 });
 
 describe("regras de exigência", () => {
-  it("cancelar, transferir e devolver sem motivo → MOTIVO_OBRIGATORIO", () => {
+  it("cancelar e transferir sem motivo → MOTIVO_OBRIGATORIO", () => {
     expect(
       codigoDoErro(() => validarAcao(chamado("pendente"), "cancelar", TEC, { motivo: " " })),
     ).toBe("MOTIVO_OBRIGATORIO");
@@ -121,9 +110,6 @@ describe("regras de exigência", () => {
       codigoDoErro(() =>
         validarAcao(chamado("em_andamento", TEC.id), "transferir", TEC, { destinoId: TEC2.id }),
       ),
-    ).toBe("MOTIVO_OBRIGATORIO");
-    expect(
-      codigoDoErro(() => validarAcao(chamado("em_andamento", TEC.id), "devolver_fila", TEC)),
     ).toBe("MOTIVO_OBRIGATORIO");
   });
 
@@ -150,14 +136,7 @@ describe("regras de exigência", () => {
   });
 
   it("solicitante não faz ações da TI → SEM_PERMISSAO", () => {
-    for (const acao of [
-      "assumir",
-      "aguardar_usuario",
-      "retomar",
-      "transferir",
-      "devolver_fila",
-      "concluir",
-    ] as AcaoChamado[]) {
+    for (const acao of ["assumir", "transferir", "concluir"] as AcaoChamado[]) {
       expect(
         codigoDoErro(() => validarAcao(chamado("em_andamento", TEC.id), acao, SOL, MOTIVO)),
       ).toBe("SEM_PERMISSAO");
@@ -177,11 +156,9 @@ describe("regras de exigência", () => {
 
   it("mensagem de transição inválida usa os rótulos do perfil", () => {
     try {
-      validarAcao(chamado("concluido", TEC.id), "aguardar_usuario", TEC);
+      validarAcao(chamado("concluido", TEC.id), "transferir", TEC, MOTIVO);
     } catch (e) {
-      expect((e as Error).message).toBe(
-        "Não é possível mudar de Concluído para Aguardando usuário.",
-      );
+      expect((e as Error).message).toBe("Não é possível mudar de Concluído para Transferido.");
     }
   });
 });
@@ -193,15 +170,13 @@ describe("acoesDisponiveis", () => {
     }
   });
 
-  it("TI em aguardando_usuario: retomar, transferir, devolver, concluir, cancelar", () => {
+  it("TI em aguardando_usuario: transferir, concluir, cancelar", () => {
     expect(acoesDisponiveis(chamado("aguardando_usuario", TEC.id), TEC).sort()).toEqual(
-      ["cancelar", "concluir", "devolver_fila", "retomar", "transferir"].sort(),
+      ["cancelar", "concluir", "transferir"].sort(),
     );
   });
 
-  it("TI que não é o destino de um transferido: só devolver ou cancelar", () => {
-    expect(acoesDisponiveis(chamado("transferido", TEC2.id), TEC).sort()).toEqual(
-      ["cancelar", "devolver_fila"].sort(),
-    );
+  it("TI que não é o destino de um transferido: só cancelar", () => {
+    expect(acoesDisponiveis(chamado("transferido", TEC2.id), TEC)).toEqual(["cancelar"]);
   });
 });

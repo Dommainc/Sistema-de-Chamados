@@ -164,6 +164,38 @@ export const RESPOSTAS_PRONTAS: readonly RespostaPronta[] = [
     "Aguardando terceiro",
     "{nome}, dependemos do fornecedor para seguir. Assim que tiver novidade, te aviso por aqui.",
   ],
+  [
+    "Mais detalhes",
+    "{nome}, pode me contar um pouco mais? Desde quando acontece e se aparece alguma mensagem de erro?",
+  ],
+  [
+    "Acesso liberado",
+    "{nome}, seu acesso foi liberado. Pode entrar e me avisar se aparecer algum erro?",
+  ],
+  [
+    "Senha redefinida",
+    "{nome}, redefini sua senha. Na primeira entrada, o sistema vai pedir para você criar uma nova.",
+  ],
+  [
+    "Vou passar aí",
+    "{nome}, vou passar aí para ver de perto. Qual o melhor horário para você hoje?",
+  ],
+  [
+    "Aprovação do gestor",
+    "{nome}, esse pedido precisa da aprovação do seu gestor. Pode pedir para ele confirmar aqui no chamado?",
+  ],
+  [
+    "Passando para colega",
+    "{nome}, vou passar seu chamado para um colega que cuida desse assunto. Ele continua o atendimento por aqui.",
+  ],
+  [
+    "Confirmar se resolveu",
+    "{nome}, conseguimos resolver? Se estiver tudo certo, vou concluir o chamado.",
+  ],
+  [
+    "Concluindo sem retorno",
+    "{nome}, como não tivemos retorno, vou concluir o chamado. Se o problema voltar, é só abrir um novo.",
+  ],
 ].map(([titulo, texto], i) => ({ id: i + 1, titulo, texto, ordem: (i + 1) * 10 }));
 
 export const CAMPOS_FORM: readonly CampoForm[] = [

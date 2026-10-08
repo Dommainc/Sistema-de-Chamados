@@ -32,7 +32,7 @@ erDiagram
 ### Configuração
 | Tabela | O que guarda | Pontos importantes |
 |---|---|---|
-| `configuracoes` | Parâmetros: fuso, expediente (08–18), limites de anexo, texto da resposta do bot | `publico = true` → qualquer usuário logado lê; o resto só a TI |
+| `configuracoes` | Parâmetros: fuso, expediente (08–20), limites de anexo, texto da resposta do bot | `publico = true` → qualquer usuário logado lê; o resto só a TI |
 | `feriados` | Dias sem expediente (2026–2027 no seed: nacionais, RJ e Rio) | `ativo = false` em vez de apagar. **Cadastrar 2028 antes do fim de 2027** (P-008) |
 | `areas` | Áreas que atendem (Fase 1: só TI) | — |
 | `categorias` | Assuntos, `nome_curto` e `icone` do portal | **4 no seed** (reorganização do dono, 2026-10-08): "Solicitações de acesso e Permissões" (com "Qual sistema?"), "Infraestrutura" ("O que é?": Notebook · Impressora / Scanner · Celular Corporativo · Internet · Câmeras; "Onde fica?"), "Microsoft" e "Outros". Saíram Instalar programa, Novo colaborador, Desligamento, Pedir equipamento e as categorias de computador, impressora e celular (viraram opções de Infraestrutura). Depois do go-live, mudar categoria = **migration nova** (o seed só roda na instalação). `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |

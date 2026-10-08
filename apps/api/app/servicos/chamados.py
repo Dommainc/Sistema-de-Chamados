@@ -43,11 +43,8 @@ from app.repositorios.base import (
 #: Evento do histórico gravado por cada ação (publico=False: só a TI vê).
 EVENTO_DA_ACAO: dict[AcaoChamado, tuple[str, bool]] = {
     "assumir": ("assumido", True),
-    "aguardar_usuario": ("status_alterado", True),
-    "retomar": ("status_alterado", True),
     "resposta_solicitante": ("status_alterado", True),
     "transferir": ("transferido", False),
-    "devolver_fila": ("devolvido_fila", False),
     "concluir": ("concluido", True),
     "cancelar": ("cancelado", True),
 }
@@ -219,7 +216,7 @@ async def executar_acao(
             )
         ]
     )
-    if acao in ("transferir", "devolver_fila") and motivo:
+    if acao == "transferir" and motivo:
         await repo.inserir_transferencia(
             NovaTransferencia(
                 chamado.id,

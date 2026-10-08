@@ -104,10 +104,7 @@ const EVENTO_DA_ACAO: Record<
   { acao: string; publico: boolean }
 > = {
   assumir: { acao: "assumido", publico: true },
-  aguardar_usuario: { acao: "status_alterado", publico: true },
-  retomar: { acao: "status_alterado", publico: true },
   transferir: { acao: "transferido", publico: false },
-  devolver_fila: { acao: "devolvido_fila", publico: false },
   concluir: { acao: "concluido", publico: true },
   cancelar: { acao: "cancelado", publico: true },
 };

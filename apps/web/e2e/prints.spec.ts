@@ -48,7 +48,7 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await print(page, "06-chamado-solicitante", p);
 
   await trocarPara(context, page, "Rafael Lima");
-  await expect(page.getByText("Próximo da fila")).toBeVisible();
+  await expect(page.getByRole("region", { name: /^Novos:/ })).toBeVisible();
   await print(page, "07-quadro", p);
 
   await page.goto("/atendimento?sistema=Construmanager");

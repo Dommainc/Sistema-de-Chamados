@@ -126,26 +126,27 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    **Revisão do dono (2026-10-07)** — cartões estavam "confundíveis": a data solta não dizia que era prazo, todos os
    cartões eram iguais em qualquer coluna e o responsável era só uma bolinha "RL". Mudou:
    **Terceira revisão (2026-10-07)** — a cor do cartão passou a ser a do **STATUS**; o prazo só colore o retângulo dele.
-   - Faixa "PRÓXIMO DA FILA" **numa linha só**: selo de prazo, "#36 título · solicitante, departamento", **"Iniciar o próximo →"**.
+   **Revisão de 2026-10-08** (ADR 0014): sem faixa "Próximo da fila", sem legenda de cor do status, sem "Iniciar" no
+   cartão, colunas na ordem abaixo e **todas da mesma largura**.
    - **Filtros** (na URL): **Status** (só a coluna escolhida) · **Pessoa atendendo** (Qualquer pessoa · Eu · Ninguém ainda ·
      cada técnico) · Categoria · **Sistema** ("Qualquer sistema" + os sistemas de "Qual sistema?"; o escolhido mostra o
-     quadradinho da cor) · Prazo. **Legenda**: cores de status e os retângulos de prazo.
-   - **Seis colunas** em raias com fundo próprio; a bolinha do título tem a cor do status: **Novos** (laranja) ·
-     **Transferidos** (roxo) · **Em atendimento** (amarelo forte) · **Aguardando usuário** (azul royal) · e, estreitas,
-     **Concluídos** (verde) · **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
+     quadradinho da cor) · Prazo. **Legenda**: só a dos retângulos de prazo.
+   - **Seis colunas** da mesma largura, em raias com fundo próprio; a bolinha do título tem a cor do status:
+     **Novos** (laranja) · **Em atendimento** (amarelo forte) · **Aguardando usuário** (azul royal; apoio "Vai para cá
+     sozinho após 2 h úteis sem resposta do solicitante") · **Concluídos** (verde) · **Transferidos** (roxo) ·
+     **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
    - **Cartão**: faixa grossa à esquerda (fundo branco) na **cor do status** (muda junto com o status; tokens `laranja`,
      `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** sempre **verde-água** (`id`, cor exclusiva);
-     em cima **só** "⚠ Prioridade alta" (quando marcada), "NOVO" (só em Novos, nas primeiras 24 h depois de aberto) e
+     em cima a **prioridade** ("⚠ Prioridade alta" vermelho · "Prioridade média" amarelo · "Prioridade baixa" cinza), "NOVO" (só em Novos, nas primeiras 24 h depois de aberto) e
      "Transferido para você · por Thiago"; **título em destaque**; "solicitante · categoria"; o que importa
-     na coluna (Em atendimento → "Com **Rafael**"; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
+     na coluna (Em atendimento → **só a bolinha com as iniciais** "RL", o nome no passar do mouse; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
      (🔴 "Venceu há 3 h" · 🟠 "Vence em 49 min" · 🟡 "Sem prazo" · neutro "Prazo: amanhã, 14:00"); ao lado do prazo, **■ sistema** (Sienge, CVCRM...; "Não se aplica" não
-     aparece no cartão); 💬 mensagens novas;
-     botão **Iniciar** pequeno à direita (Novos e Transferidos para mim).
+     aparece no cartão); 💬 mensagens novas. **Sem botão Iniciar** (inicia-se dentro do chamado ou arrastando).
    - Cartão encerrado (Concluídos/Cancelados): "ID 30", título, "Concluído seg, 05/10 · Thiago" ou
      "Cancelado sáb, 03/10" + o motivo. Só leitura.
-   - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento ↔ Aguardando, Em atendimento/Aguardando
-     → Transferidos (**transferir**: técnico + motivo), → Novos (**devolver**: motivo), → Concluídos (confirma) e
-     → Cancelados (motivo).
+   - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento/Aguardando → Transferidos
+     (**transferir**: técnico + motivo), → Concluídos (confirma) e → Cancelados (motivo). Para Aguardando usuário e de
+     volta para Novos **não vale** (ADR 0014).
    - **Sistema** (categoria de acessos): selo com o nome na cor do sistema (Sienge vermelho · CVCRM verde claro ·
      Construpoint vermelho claro · Construmanager vermelho escuro · Docusign azul escuro · Prevision roxo · Metadados azul
      claro · Não se aplica cinza; tokens `sis-*`, `lib/sistemas.ts`). Só na área da TI: o formulário não tem cores (ajuste do Renato, 2026-10-08).
@@ -154,8 +155,8 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 7. **Atendimento** (`/atendimento/41`) — **reorganizada a pedido do dono (2026-10-07)**: antes a direita tinha 5 cartões
    empilhados, a descrição e o print se repetiam e as ações tinham tamanhos diferentes.
    - **Cabeçalho-resumo** (cartão no topo): "‹ Quadro", "#41 título" + selo de status e, à direita, as **ações**:
-     a principal em destaque (**Iniciar** ou **Marcar como concluído**), Aguardar/Retomar e Transferir em contorno, e
-     **"⋯ Mais ações"** com Devolver à fila e Cancelar chamado (vermelho). Abaixo, quatro blocos: **SOLICITANTE**
+     **Iniciar**, ou **Marcar como concluído** (verde) · **Transferir** (contorno) · **Cancelar chamado** (texto
+     vermelho), todas à vista — sem "⋯ Mais ações" (ADR 0014). Abaixo, quatro blocos: **SOLICITANTE**
      (avatar, nome, departamento, e-mail e **"Falar no Teams"**), **RESPONSÁVEL** (+ "Aberto em"), **PRAZO** (colorido,
      link **Definir prazo** / **Alterar prazo** — a janela tem atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias
      úteis, campo de data e hora e, ao alterar, o motivo), **PRIORIDADE** (botões Alta vermelho · Média amarelo ·
@@ -183,9 +184,9 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      rola sozinha, devagar; o quadro é a visão padrão de `/atendimento`.
 8. **Quadro no celular** — *implementação (2026-10-06):* as colunas ficam sempre lado a lado (kanban) e desliza-se para o lado;
    as pílulas viram atalho para pular até a coluna. Vale para qualquer tela abaixo de ~1024 px (janela estreita, zoom).
-   Mockup original:: "Próximo da fila" + "Pegar o próximo"; colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
-9. **Atendimento no celular** (*2026-10-07*): o mesmo cabeçalho-resumo, compacto — botões **Concluir · Retomar ·
-   Transferir · ⋯**; solicitante na linha toda e prazo/responsável lado a lado; abas **Conversa · Detalhes · Histórico**.
+   Mockup original: "Próximo da fila" + "Pegar o próximo" (saiu em 2026-10-08); colunas viram pílulas roláveis (Novos 8 · Em atendimento 3 · Aguardando 2) + "Filtros".
+9. **Atendimento no celular** (*2026-10-07*): o mesmo cabeçalho-resumo, compacto — botões **Concluir · Transferir ·
+   Cancelar chamado**; solicitante na linha toda e prazo/responsável lado a lado; abas **Conversa · Detalhes · Histórico**.
 10. **Dashboard** (`/atendimento/dashboard`, *2026-10-08 — ADR 0013*): botão **"📊 Dashboard"** na barra escura, ao lado da
     busca (no celular, ao lado da busca na segunda linha; destacado quando a página está aberta). Título "Dashboard",
     "De 09/09/2026 a 08/10/2026 · tempos em horas úteis", seletor **7 dias · 30 dias · Este mês · Mês passado ·

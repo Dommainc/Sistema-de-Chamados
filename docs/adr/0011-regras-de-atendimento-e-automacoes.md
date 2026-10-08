@@ -10,7 +10,7 @@ Pedidos do dono depois de ver o sistema funcionando:
 3. Quando o solicitante responde, o chamado volta para "Em andamento"; quando a TI responde e o solicitante fica
    **2 horas** sem responder, o chamado vai sozinho para "Aguardando usuário".
 4. **24 horas** depois da mensagem da TI sem resposta, o sistema manda um **aviso automático** no chat.
-5. Os tempos contam em **horas úteis** (seg–sex, 8h–18h, sem feriados).
+5. Os tempos contam em **horas úteis** (seg–sex, 8h–20h desde 2026-10-08 — ADR 0014, sem feriados).
 
 ## Decisão
 

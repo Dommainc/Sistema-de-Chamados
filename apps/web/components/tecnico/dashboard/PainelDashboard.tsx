@@ -215,7 +215,7 @@ export function PainelDashboard({ chave, de, ate }: { chave?: string; de?: strin
         f.listarPerfisPublicos(),
         f.listarCategorias(),
       ]);
-      return calcularMetricas({
+      const metricas = calcularMetricas({
         chamados: dados.chamados,
         historico: dados.historico,
         perfis,
@@ -224,18 +224,25 @@ export function PainelDashboard({ chave, de, ate }: { chave?: string; de?: strin
         agora: new Date(),
         expediente: { ...dados.expediente, feriados: new Set(dados.expediente.feriados) },
       });
+      return { metricas, expediente: dados.expediente };
     },
     [inicio, fim],
   );
-  const { dados: m, erro, carregando } = useConsulta(consultar);
+  const { dados, erro, carregando } = useConsulta(consultar);
+  const m = dados?.metricas;
+  // "08:00" → "8h": o expediente vem da configuração (hoje 8h–20h), não fica escrito na tela.
+  const hora = (hhmm: string) => `${Number(hhmm.slice(0, 2))}h`;
+  const expediente = dados
+    ? `${hora(dados.expediente.inicio)}–${hora(dados.expediente.fim)}`
+    : null;
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <p className="text-texto-suave">
-          De {ddmmaaaa(periodo.de)} a {ddmmaaaa(periodo.ate)} · tempos em horas úteis (seg–sex,
-          8h–18h)
+          De {ddmmaaaa(periodo.de)} a {ddmmaaaa(periodo.ate)} · tempos em horas úteis
+          {expediente ? ` (seg–sex, ${expediente})` : ""}
         </p>
       </div>
       <SeletorPeriodo key={`${periodo.chave}-${periodo.de}-${periodo.ate}`} periodo={periodo} />

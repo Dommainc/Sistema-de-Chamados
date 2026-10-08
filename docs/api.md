@@ -43,7 +43,7 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `CANCELAMENTO_NAO_PERMITIDO` | 409 | Solicitante tentando cancelar (só a TI cancela — ADR 0011) |
 | `CHAMADO_NAO_INICIADO` | 409 | Chamado em `pendente`/`transferido`: TI tentando conversar, anotar no relato, definir prazo ou prioridade (ADR 0012) |
 | `CAMPO_OBRIGATORIO` | 422 | Formulário incompleto; mensagem vazia; destino da transferência não é técnico ativo |
-| `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir, devolver ou alterar o prazo sem motivo |
+| `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir ou alterar o prazo sem motivo |
 | `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |
 | `ANEXO_MUITO_GRANDE` / `ANEXO_TIPO_INVALIDO` | 422 | Arquivo acima de 10 MB ou tipo não aceito (vale o tamanho **real** do arquivo enviado) |
 | `UPLOAD_FALHOU` | 502 | Storage fora do ar; arquivo não chegou; upload de outra pessoa |
@@ -96,14 +96,12 @@ aviso. Regras completas em [`docs/status.md`](status.md).
 |---|---|---|---|
 | `GET /chamados/{id}/acoes` | quem vê o chamado | — | `{"acoes": ["assumir", ...]}` — os botões que o front deve mostrar |
 | `POST /chamados/{id}/assumir` | TI | — | `em_andamento`, responsável = eu |
-| `POST /chamados/{id}/aguardar` | TI | — | `aguardando_usuario` |
-| `POST /chamados/{id}/retomar` | TI | — | `em_andamento` |
 | `POST /chamados/{id}/concluir` | TI | — | `concluido` (final; mesmo sem resposta do solicitante) |
 | `POST /chamados/{id}/transferir` | TI | `{"destino_id": "<uuid>", "motivo": "..."}` | `transferido`; o destino precisa assumir |
-| `POST /chamados/{id}/devolver` | TI | `{"motivo": "..."}` | `pendente`, sem responsável |
 | `POST /chamados/{id}/cancelar` | TI (solicitante → `CANCELAMENTO_NAO_PERMITIDO`) | `{"motivo": "..."}` | `cancelado` |
 
-O motivo de transferir/devolver vai para o histórico **só da TI** (aparece no Relato técnico).
+O motivo da transferência vai para o histórico **só da TI** (aparece no Relato técnico). Sem rotas de aguardar,
+retomar e devolver à fila ([ADR 0014](adr/0014-sem-aguardar-retomar-e-devolver.md)): aguardando usuário é só automático.
 
 ### Prioridade (TI)
 

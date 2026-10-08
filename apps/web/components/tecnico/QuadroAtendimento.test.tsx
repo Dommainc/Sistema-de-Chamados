@@ -60,7 +60,11 @@ afterEach(() => {
 // O jsdom não calcula layout: cada coluna ganha uma posição (lado a lado, 300 px) e cada cartão fica
 // dentro da sua coluna — o suficiente para o dnd-kit saber sobre qual coluna o cartão está.
 // O "fantasma" (DragOverlay, fora das colunas) começa onde estava o cartão arrastado.
-const ORDEM = ["novos", "transferidos", "em_atendimento", "aguardando", "concluidos", "cancelados"];
+// Ordem das colunas (pedido do dono, 2026-10-08): Transferidos entre Concluídos e Cancelados.
+const ORDEM = ["novos", "em_atendimento", "aguardando", "concluidos", "transferidos", "cancelados"];
+
+/** Espera o quadro carregar (a coluna Novos aparece). */
+const carregado = () => screen.findByRole("region", { name: /^Novos:/ });
 let colunaDeOrigem: number | null = null;
 function simularLayout() {
   colunaDeOrigem = null;
@@ -99,7 +103,7 @@ async function arrastarComTeclado(numero: number, colunasParaDireita: number) {
 describe("QuadroAtendimento", () => {
   it("monta Novos, Em atendimento e Aguardando usuário com os exemplos", async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
+    await carregado();
     expect(within(coluna("Novos")).getByText(/^Prazo vencido · \d+$/)).toBeInTheDocument();
     expect(
       within(coluna("Novos")).getByText("Impressora do 3º andar não imprime"),
@@ -116,16 +120,45 @@ describe("QuadroAtendimento", () => {
     expect(within(cartao(42)).getByText("NOVO")).toBeInTheDocument();
   });
 
+  it("sem Próximo da fila, sem legenda de cor do status e sem Iniciar no cartão", async () => {
+    renderizar();
+    await carregado();
+    expect(screen.queryByText("Próximo da fila")).not.toBeInTheDocument();
+    expect(screen.queryByRole("list", { name: "Cores de status" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("list", { name: "Cores do prazo" }).length).toBeGreaterThan(0);
+    expect(within(cartao(42)).queryByRole("button", { name: "Iniciar" })).not.toBeInTheDocument();
+    expect(
+      screen.getAllByRole("region").map((r) => r.getAttribute("aria-label")?.split(":")[0]),
+    ).toEqual([
+      "Novos",
+      "Em atendimento",
+      "Aguardando usuário",
+      "Concluídos",
+      "Transferidos",
+      "Cancelados",
+    ]);
+  });
+
+  it("cartão mostra a prioridade (alta, média ou baixa) e, em atendimento, só as iniciais", async () => {
+    renderizar();
+    await carregado();
+    expect(within(cartao(36)).getByText(/Prioridade alta/)).toBeInTheDocument();
+    expect(within(cartao(42)).getByText("Prioridade média")).toBeInTheDocument();
+    const emAtendimento = cartao(38);
+    expect(within(emAtendimento).getByText("RL")).toBeInTheDocument();
+    expect(within(emAtendimento).getByText("Com você")).toHaveClass("sr-only");
+  });
+
   it('sistema fica no rodapé do cartão; "Não se aplica" não aparece', async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
+    await carregado();
     expect(within(cartao(40)).getByText("Construmanager")).toBeInTheDocument();
     expect(within(cartao(31)).queryByText("Não se aplica")).not.toBeInTheDocument();
   });
 
   it("filtro por sistema: só os chamados daquele sistema", async () => {
     renderizar({ ...TODOS, sistema: "Construmanager" });
-    await screen.findByText("Próximo da fila");
+    await carregado();
     expect(cartao(40)).toBeInTheDocument();
     expect(screen.queryByRole("article", { name: /^Chamado 31:/ })).not.toBeInTheDocument();
     expect(screen.queryByRole("article", { name: /^Chamado 36:/ })).not.toBeInTheDocument();
@@ -136,7 +169,7 @@ describe("QuadroAtendimento", () => {
 
   it("colunas Concluídos e Cancelados mostram os encerrados recentes, sem botão Iniciar", async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
+    await carregado();
     const concluidos = coluna("Concluídos");
     expect(within(concluidos).getByText("Notebook muito lento")).toBeInTheDocument();
     expect(within(concluidos).getByText("Impressora do RH com papel preso")).toBeInTheDocument();
@@ -148,7 +181,7 @@ describe("QuadroAtendimento", () => {
 
   it("arrastar para Cancelados pede o motivo e cancela", async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
+    await carregado();
     await arrastarComTeclado(40, 5); // → Cancelados
     const modal = await screen.findByRole("dialog", { hidden: true });
     const cancelar = () =>
@@ -169,7 +202,7 @@ describe("QuadroAtendimento", () => {
 
   it("arrastar para Concluídos pede confirmação e conclui", async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
+    await carregado();
     await arrastarComTeclado(38, 2); // → Concluídos
     const modal = await screen.findByRole("dialog", { hidden: true });
     expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("em_andamento");
@@ -184,10 +217,10 @@ describe("QuadroAtendimento", () => {
     expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("concluido");
   });
 
-  it("Iniciar no cartão leva o chamado para Em atendimento", async () => {
+  it("arrastar de Novos para Em atendimento inicia o chamado", async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
-    fireEvent.click(within(cartao(42)).getByRole("button", { name: "Iniciar" }));
+    await carregado();
+    await arrastarComTeclado(42, 1); // → Em atendimento
     await waitFor(() =>
       expect(
         within(coluna("Em atendimento")).getByText("Sem internet na obra Recreio"),
@@ -197,28 +230,20 @@ describe("QuadroAtendimento", () => {
     expect(await screen.findByText("Você iniciou o chamado #42.")).toBeInTheDocument();
   });
 
-  it("Iniciar o próximo inicia o mais urgente e abre o atendimento", async () => {
+  it("aguardando usuário é só automático: arrastar para lá não vale (ADR 0014)", async () => {
     renderizar();
-    fireEvent.click(await screen.findByRole("button", { name: /Iniciar o próximo/ }));
-    await waitFor(() => expect(navegacao.push).toHaveBeenCalledWith("/atendimento/36"));
-    expect(lerEstado().chamados.find((c) => c.id === 36)?.status).toBe("em_andamento");
-  });
-
-  it("arrastar de Em atendimento para Aguardando usuário muda o status", async () => {
-    renderizar();
-    await screen.findByText("Próximo da fila");
+    await carregado();
     await arrastarComTeclado(38, 1); // → Aguardando usuário
-    await waitFor(() =>
-      expect(
-        within(coluna("Aguardando usuário")).getByText("Instalar AutoCAD no notebook"),
-      ).toBeInTheDocument(),
-    );
+    expect(
+      await screen.findByText("Não é possível mudar de Em atendimento para Aguardando usuário."),
+    ).toBeInTheDocument();
+    expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("em_andamento");
   });
 
   it("movimento que não vale avisa e não muda nada", async () => {
     renderizar();
-    await screen.findByText("Próximo da fila");
-    await arrastarComTeclado(42, 3); // → Aguardando usuário
+    await carregado();
+    await arrastarComTeclado(42, 2); // → Aguardando usuário
     expect(
       await screen.findByText("Não é possível mudar de Novos para Aguardando usuário."),
     ).toBeInTheDocument();
@@ -227,7 +252,7 @@ describe("QuadroAtendimento", () => {
 
   it("filtro 'Só os meus' mostra só o que é do técnico", async () => {
     renderizar({ ...TODOS, responsavel: "meus" });
-    await screen.findByText("Próximo da fila");
+    await carregado();
     expect(screen.queryByText("VPN não conecta em casa")).not.toBeInTheDocument(); // do Thiago
     expect(screen.getByText("Instalar AutoCAD no notebook")).toBeInTheDocument();
   });

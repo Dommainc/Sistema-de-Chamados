@@ -1,4 +1,5 @@
-// Máquina de estados do chamado — espelho em TypeScript da tabela do CLAUDE.md (ADR 0005).
+// Máquina de estados do chamado — espelho em TypeScript da tabela do CLAUDE.md (ADR 0005 e 0014).
+// ADR 0014: sem aguardar usuário, retomar e devolver à fila (aguardando usuário é só automático).
 // Na versão real a fonte da verdade é a API (apps/api/app/dominio/estados.py e GET /chamados/{id}/acoes);
 // aqui ela serve à versão simulada e para decidir quais botões mostrar.
 
@@ -7,14 +8,7 @@ import { ErroApp } from "@/lib/erros/catalogo";
 import { estaEncerrado, type Chamado, type Papel, type StatusChamado } from "./tipos";
 
 export type AcaoChamado =
-  | "assumir"
-  | "aguardar_usuario"
-  | "retomar"
-  | "resposta_solicitante"
-  | "transferir"
-  | "devolver_fila"
-  | "concluir"
-  | "cancelar";
+  "assumir" | "resposta_solicitante" | "transferir" | "concluir" | "cancelar";
 
 export interface Ator {
   id: string;
@@ -36,11 +30,8 @@ type ChamadoParaTransicao = Pick<Chamado, "status" | "responsavelId" | "solicita
 
 const DESTINO: Record<AcaoChamado, StatusChamado> = {
   assumir: "em_andamento",
-  aguardar_usuario: "aguardando_usuario",
-  retomar: "em_andamento",
   resposta_solicitante: "em_andamento",
   transferir: "transferido",
-  devolver_fila: "pendente",
   concluir: "concluido",
   cancelar: "cancelado",
 };
@@ -48,11 +39,8 @@ const DESTINO: Record<AcaoChamado, StatusChamado> = {
 /** De quais status cada ação parte. */
 const ORIGENS: Record<AcaoChamado, readonly StatusChamado[]> = {
   assumir: ["pendente", "transferido"],
-  aguardar_usuario: ["em_andamento"],
-  retomar: ["aguardando_usuario"],
   resposta_solicitante: ["aguardando_usuario"],
   transferir: ["em_andamento", "aguardando_usuario"],
-  devolver_fila: ["em_andamento", "aguardando_usuario", "transferido"],
   concluir: ["em_andamento", "aguardando_usuario"],
   cancelar: ["pendente", "em_andamento", "aguardando_usuario", "transferido"],
 };
@@ -101,7 +89,7 @@ export function validarAcao(
 
   switch (acao) {
     case "assumir":
-      // Transferido: só o técnico de destino assume direto (os outros devolvem à fila).
+      // Transferido: só o técnico de destino assume (os outros podem cancelar).
       if (de === "transferido" && chamado.responsavelId !== ator.id) {
         throw new ErroApp("SEM_PERMISSAO");
       }
@@ -114,10 +102,6 @@ export function validarAcao(
       exigirMotivo(dados);
       return { para, responsavelId: destino };
     }
-
-    case "devolver_fila":
-      exigirMotivo(dados);
-      return { para, responsavelId: null };
 
     case "cancelar":
       exigirMotivo(dados);

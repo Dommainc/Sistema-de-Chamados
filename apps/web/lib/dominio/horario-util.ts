@@ -1,5 +1,5 @@
 // Prazo em horas úteis — espelho de app.adicionar_horas_uteis (migration 0002).
-// Expediente seg–sex, 08:00–18:00 (configuracoes), sem feriados ativos.
+// Expediente seg–sex, 08:00–20:00 (configuracoes), sem feriados ativos.
 // America/Sao_Paulo não tem horário de verão desde 2019: usamos o deslocamento fixo de -3 h.
 
 const DESLOCAMENTO_SP_MS = -3 * 3_600_000;
@@ -8,7 +8,7 @@ const DIA_MS = 86_400_000;
 export interface ExpedienteConfig {
   /** "08:00" */
   inicio: string;
-  /** "18:00" */
+  /** "20:00" */
   fim: string;
   /** Datas "AAAA-MM-DD" de feriados ativos. */
   feriados: ReadonlySet<string>;

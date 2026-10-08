@@ -37,3 +37,9 @@ chamar a Central e responder com o card devolvido. Não alterar o comportamento 
 - Abrir, assumir, transferir, mensagem e mudança de status geram card (no mock: registro do payload).
 - Bot fora do ar: a ação na Central funciona normalmente; notificação termina `falhou` após 3 tentativas com o erro registrado.
 - Responder ao bot gera a resposta automática com o link do último chamado e um registro no log.
+
+## Aviso de "Aguardando usuário" (dono, 2026-10-08 — ADR 0014)
+Aguardando usuário agora é **só automático** (2 h úteis sem resposta à mensagem da TI). Quando o bot enviar a
+notificação `status_alterado` com `para = aguardando_usuario` e evento sem autor (`autor_id` nulo, detalhe
+`motivo = sem_resposta_2h_uteis`), a mensagem ao solicitante precisa explicar o porquê, por exemplo:
+"O chamado #41 está esperando sua resposta há 2 horas. Responda no chat da Central para continuarmos."

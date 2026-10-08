@@ -8,6 +8,7 @@ from collections.abc import Callable
 import pytest
 
 from app.dominio.estados import (
+    TODAS_AS_ACOES,
     Ator,
     ChamadoParaTransicao,
     DadosAcao,
@@ -51,17 +52,15 @@ def test_so_a_ti_cancela_e_o_solicitante_recebe_a_orientacao():
     )
 
 
-def test_em_andamento_para_aguardando_usuario():
-    r = validar_acao(chamado("em_andamento", TEC.id), "aguardar_usuario", TEC)
-    assert r.para == "aguardando_usuario"
-
-
-def test_aguardando_volta_para_em_andamento_por_resposta_ou_ti():
+def test_aguardando_volta_para_em_andamento_quando_o_solicitante_responde():
+    """ADR 0014: aguardando é só automático e só a resposta do solicitante tira de lá."""
     r = validar_acao(chamado("aguardando_usuario", TEC.id), "resposta_solicitante", SOL)
     assert (r.para, r.responsavel_id) == ("em_andamento", TEC.id)
-    assert validar_acao(chamado("aguardando_usuario", TEC.id), "retomar", TEC).para == (
-        "em_andamento"
-    )
+
+
+def test_sem_aguardar_retomar_nem_devolver_a_fila():
+    """ADR 0014: as três ações saíram do sistema."""
+    assert not {"aguardar_usuario", "retomar", "devolver_fila"} & set(TODAS_AS_ACOES)
 
 
 @pytest.mark.parametrize("de", ["em_andamento", "aguardando_usuario"])
@@ -70,12 +69,6 @@ def test_transferir_com_destino_e_motivo(de):
         chamado(de, TEC.id), "transferir", TEC, DadosAcao(motivo="motivo ok", destino_id=TEC2.id)
     )
     assert (r.para, r.responsavel_id) == ("transferido", TEC2.id)
-
-
-@pytest.mark.parametrize("de", ["em_andamento", "aguardando_usuario", "transferido"])
-def test_devolver_a_fila_limpa_o_responsavel(de):
-    r = validar_acao(chamado(de, TEC.id), "devolver_fila", TEC2, MOTIVO)
-    assert (r.para, r.responsavel_id) == ("pendente", None)
 
 
 def test_transferido_so_o_destino_assume_direto():
@@ -115,10 +108,6 @@ def test_sem_motivo():
         codigo(lambda: validar_acao(chamado("em_andamento", TEC.id), "transferir", TEC, sem_motivo))
         == "MOTIVO_OBRIGATORIO"
     )
-    assert (
-        codigo(lambda: validar_acao(chamado("em_andamento", TEC.id), "devolver_fila", TEC))
-        == "MOTIVO_OBRIGATORIO"
-    )
 
 
 def test_transferir_sem_destino_ou_para_o_mesmo_responsavel():
@@ -141,7 +130,7 @@ def test_solicitante_cancelando_depois_do_inicio(de):
 
 @pytest.mark.parametrize(
     "acao",
-    ["assumir", "aguardar_usuario", "retomar", "transferir", "devolver_fila", "concluir"],
+    ["assumir", "transferir", "concluir"],
 )
 def test_solicitante_nao_faz_acoes_da_ti(acao):
     dados = DadosAcao(motivo="motivo ok", destino_id=TEC2.id)
@@ -162,8 +151,8 @@ def test_outro_solicitante_nao_cancela_nem_responde():
 
 def test_mensagem_de_transicao_invalida_usa_rotulos_do_perfil():
     with pytest.raises(ErroApp) as erro:
-        validar_acao(chamado("concluido", TEC.id), "aguardar_usuario", TEC)
-    assert erro.value.mensagem == "Não é possível mudar de Concluído para Aguardando usuário."
+        validar_acao(chamado("concluido", TEC.id), "transferir", TEC, MOTIVO)
+    assert erro.value.mensagem == "Não é possível mudar de Concluído para Transferido."
 
 
 # ----------------------------------------------------------------------------- acoes_disponiveis
@@ -174,12 +163,9 @@ def test_solicitante_nao_tem_botoes_de_acao():
 
 def test_ti_em_aguardando_usuario():
     assert sorted(acoes_disponiveis(chamado("aguardando_usuario", TEC.id), TEC)) == sorted(
-        ["retomar", "transferir", "devolver_fila", "concluir", "cancelar"]
+        ["transferir", "concluir", "cancelar"]
     )
 
 
 def test_ti_que_nao_e_destino_de_um_transferido():
-    assert sorted(acoes_disponiveis(chamado("transferido", TEC2.id), TEC)) == [
-        "cancelar",
-        "devolver_fila",
-    ]
+    assert sorted(acoes_disponiveis(chamado("transferido", TEC2.id), TEC)) == ["cancelar"]

@@ -58,7 +58,7 @@ describe("dados de exemplo", () => {
   });
 
   it("respostas prontas: só a TI recebe (RLS)", async () => {
-    expect(await criarFonteSimulada(TECNICO.id).listarRespostasProntas()).toHaveLength(6);
+    expect(await criarFonteSimulada(TECNICO.id).listarRespostasProntas()).toHaveLength(14);
     expect(await criarFonteSimulada(ANA.id).listarRespostasProntas()).toEqual([]);
   });
 

@@ -1,16 +1,7 @@
 "use client";
 
-import {
-  CalendarClock,
-  ChevronLeft,
-  Lock,
-  Mail,
-  MessageCircle,
-  MoreHorizontal,
-} from "lucide-react";
-import { linkChatTeams } from "@/lib/teams";
+import { CalendarClock, ChevronLeft, Lock, Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { Botao } from "@/components/ui/Botao";
@@ -28,10 +19,11 @@ import {
 } from "@/lib/dominio/tipos";
 import { formatarDataHora, formatarNumeroChamado } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
+import { linkChatTeams } from "@/lib/teams";
 import type { AcaoDeBotao } from "../useAcaoChamado";
 import type { AcaoComModal } from "./ModalAcao";
 
-const COM_MODAL: readonly AcaoDeBotao[] = ["concluir", "transferir", "devolver_fila", "cancelar"];
+const COM_MODAL: readonly AcaoDeBotao[] = ["concluir", "transferir", "cancelar"];
 
 const COR_PRAZO = {
   vencido: "text-perigo",
@@ -69,8 +61,8 @@ function Info({
 }
 
 /**
- * Ações do chamado no cabeçalho: a principal em destaque (Iniciar ou Concluir), as do dia a dia ao lado
- * e as que encerram ou devolvem ("Devolver à fila", "Cancelar") no menu "Mais ações".
+ * Ações do chamado no cabeçalho (ADR 0014): Iniciar, ou Concluir · Transferir · Cancelar chamado, todas à
+ * vista. Sem "Aguardar usuário", "Retomar" e "Devolver à fila": aguardando usuário é só automático.
  */
 function AcoesCabecalho({
   chamado,
@@ -83,25 +75,6 @@ function AcoesCabecalho({
   aoExecutar: (acao: AcaoDeBotao) => void;
   aoAbrirModal: (acao: AcaoComModal) => void;
 }) {
-  const [menuAberto, setMenuAberto] = useState(false);
-  const menu = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!menuAberto) return;
-    const fechar = (e: MouseEvent | KeyboardEvent) => {
-      if (
-        e instanceof KeyboardEvent ? e.key === "Escape" : !menu.current?.contains(e.target as Node)
-      )
-        setMenuAberto(false);
-    };
-    document.addEventListener("mousedown", fechar);
-    document.addEventListener("keydown", fechar);
-    return () => {
-      document.removeEventListener("mousedown", fechar);
-      document.removeEventListener("keydown", fechar);
-    };
-  }, [menuAberto]);
-
   const acoes = acoesDisponiveis(chamado, usuario);
   if (acoes.length === 0) {
     return (
@@ -112,11 +85,9 @@ function AcoesCabecalho({
   }
   const tem = (acao: AcaoDeBotao) => acoes.includes(acao);
   const clicar = (acao: AcaoDeBotao) => {
-    setMenuAberto(false);
     if (COM_MODAL.includes(acao)) aoAbrirModal(acao as AcaoComModal);
     else aoExecutar(acao);
   };
-  const noMenu = (["devolver_fila", "cancelar"] as const).filter(tem);
 
   return (
     <section
@@ -134,61 +105,15 @@ function AcoesCabecalho({
           <span className="max-sm:hidden">Marcar como concluído</span>
         </Botao>
       ) : null}
-      {tem("aguardar_usuario") ? (
-        <Botao variante="contorno" onClick={() => clicar("aguardar_usuario")}>
-          Aguardar usuário
-        </Botao>
-      ) : null}
-      {tem("retomar") ? (
-        <Botao
-          variante="contorno"
-          aria-label="Retomar atendimento"
-          onClick={() => clicar("retomar")}
-        >
-          <span>
-            Retomar<span className="max-sm:hidden"> atendimento</span>
-          </span>
-        </Botao>
-      ) : null}
       {tem("transferir") ? (
         <Botao variante="contorno" onClick={() => clicar("transferir")}>
           Transferir
         </Botao>
       ) : null}
-      {noMenu.length > 0 ? (
-        <div ref={menu} className="relative">
-          <Botao
-            variante="contorno"
-            aria-label="Mais ações"
-            aria-expanded={menuAberto}
-            onClick={() => setMenuAberto((v) => !v)}
-            className="px-3"
-          >
-            <MoreHorizontal aria-hidden="true" className="size-5" />
-          </Botao>
-          {menuAberto ? (
-            <div className="absolute right-0 z-20 mt-2 flex w-56 flex-col rounded-xl border border-borda bg-superficie p-1 shadow-lg">
-              {noMenu.includes("devolver_fila") ? (
-                <button
-                  type="button"
-                  onClick={() => clicar("devolver_fila")}
-                  className="min-h-11 rounded-lg px-3 text-left font-semibold hover:bg-fundo"
-                >
-                  Devolver à fila
-                </button>
-              ) : null}
-              {noMenu.includes("cancelar") ? (
-                <button
-                  type="button"
-                  onClick={() => clicar("cancelar")}
-                  className="min-h-11 rounded-lg px-3 text-left font-semibold text-perigo hover:bg-perigo-suave"
-                >
-                  Cancelar chamado
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
+      {tem("cancelar") ? (
+        <Botao variante="perigo" onClick={() => clicar("cancelar")}>
+          Cancelar chamado
+        </Botao>
       ) : null}
     </section>
   );
