@@ -21,6 +21,12 @@ export function lerCategoria(valor: string | null | undefined): number | null {
   return valor && /^\d+$/.test(valor) ? Number(valor) : null;
 }
 
+/** Filtro "Sistema": o nome do sistema como está no formulário (ex.: "Sienge"); vazio = qualquer. */
+export function lerSistema(valor: string | null | undefined): string | null {
+  const limpo = valor?.trim() ?? "";
+  return limpo && limpo.length <= 60 ? limpo : null;
+}
+
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function lerFiltro(valor: string | null | undefined): FiltroResponsavel {

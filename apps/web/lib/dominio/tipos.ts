@@ -25,6 +25,19 @@ export function naoIniciado(status: StatusChamado): boolean {
   return status === "pendente" || status === "transferido";
 }
 
+/** Paleta fixa das cores de opção (campos_form.cores — migration 0022; tokens sis-* do globals.css). */
+export const CORES_PALETA = [
+  "vermelho",
+  "vermelho-claro",
+  "vermelho-escuro",
+  "verde-claro",
+  "azul-claro",
+  "azul-escuro",
+  "roxo",
+  "cinza",
+] as const;
+export type CorPaleta = (typeof CORES_PALETA)[number];
+
 export type TipoCampo =
   "texto" | "texto_longo" | "numero" | "data" | "selecao" | "multipla_selecao" | "sim_nao";
 
@@ -58,7 +71,17 @@ export interface CampoForm {
   tipo: TipoCampo;
   obrigatorio: boolean;
   opcoes: string[];
+  /** Cor de cada opção (ex.: sistemas da empresa); opção sem cor = sem marcador. */
+  cores: Partial<Record<string, CorPaleta>>;
   ajuda: string | null;
+  ordem: number;
+}
+
+/** Resposta pronta do chat (tabela respostas_prontas, só TI). "{nome}" = primeiro nome do solicitante. */
+export interface RespostaPronta {
+  id: number;
+  titulo: string;
+  texto: string;
   ordem: number;
 }
 

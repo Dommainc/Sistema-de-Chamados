@@ -51,9 +51,18 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await expect(page.getByText("Próximo da fila")).toBeVisible();
   await print(page, "07-quadro", p);
 
+  await page.goto("/atendimento?sistema=Construmanager");
+  await expect(page.getByRole("article", { name: /^Chamado 40:/ })).toBeVisible();
+  await print(page, "07b-quadro-filtro-sistema", p);
+
   await page.goto("/atendimento/41");
   await expect(page.getByText(/Consegue abrir o Outlook pelo navegador/)).toBeVisible();
   await print(page, "08-atendimento", p);
+
+  await page.getByRole("button", { name: "Respostas prontas" }).click();
+  await expect(page.getByRole("button", { name: /^Acesso remoto/ })).toBeVisible();
+  await print(page, "08c-respostas-prontas", p);
+  await page.keyboard.press("Escape");
 
   await page.getByRole("tab", { name: /Relato técnico/ }).click();
   await expect(page.getByText(/49,8 GB/)).toBeVisible();

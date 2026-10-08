@@ -29,6 +29,18 @@ describe("dados de exemplo", () => {
     expect(comDescricao.size).toBe(9);
   });
 
+  it("sistemas vêm com a cor do campo (campos_form.cores), todos com cor da paleta", async () => {
+    const sistemas = await criarFonteSimulada(ANA.id).listarSistemas();
+    expect(sistemas.map((s) => s.nome)).toContain("Sienge");
+    expect(sistemas.find((s) => s.nome === "Sienge")?.cor).toBe("vermelho");
+    expect(sistemas.every((s) => s.cor !== null)).toBe(true);
+  });
+
+  it("respostas prontas: só a TI recebe (RLS)", async () => {
+    expect(await criarFonteSimulada(TECNICO.id).listarRespostasProntas()).toHaveLength(6);
+    expect(await criarFonteSimulada(ANA.id).listarRespostasProntas()).toEqual([]);
+  });
+
   it("chamados com responsável seguem as regras do banco (ADR 0005)", async () => {
     const todos = await criarFonteSimulada(TECNICO.id).listarChamados({ escopo: "todos" });
     for (const c of todos) {

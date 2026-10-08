@@ -108,6 +108,29 @@ join (values
   on f.categoria = c.nome
 on conflict (categoria_id, chave) do nothing;
 
+-- Cor de cada sistema (paleta fixa — migration 0022). Sistema novo: opção em `opcoes` + cor aqui.
+update public.campos_form f
+   set cores = '{"Sienge":"vermelho","CVCRM":"verde-claro","Construpoint":"vermelho-claro",
+                 "Construmanager":"vermelho-escuro","Docusign":"azul-escuro","Prevision":"roxo",
+                 "Metadados":"azul-claro","Não se aplica":"cinza"}'
+  from public.categorias c
+ where c.id = f.categoria_id
+   and c.nome = 'Solicitações de acesso e Permissões'
+   and f.chave = 'sistema'
+   and f.cores = '{}'::jsonb;
+
+-- -----------------------------------------------------------------------------
+-- Respostas prontas do chat (só TI — migration 0023). {nome} = primeiro nome do solicitante.
+-- -----------------------------------------------------------------------------
+insert into public.respostas_prontas (titulo, texto, ordem) values
+  ('Reiniciar',          'Oi, {nome}! Pode reiniciar o computador e testar de novo? Me conta se resolveu.', 10),
+  ('Acesso remoto',      '{nome}, vou acessar seu computador remotamente agora. Pode deixar ele ligado e desbloqueado?', 20),
+  ('Pedir print',        '{nome}, consegue me mandar um print da tela com o erro? Pode colar aqui com Ctrl+V.', 30),
+  ('Testar agora',       'Pronto, {nome}! Fiz o ajuste. Pode testar e me avisar se está tudo certo?', 40),
+  ('Em análise',         '{nome}, já estou vendo o seu chamado e te dou um retorno em breve.', 50),
+  ('Aguardando terceiro', '{nome}, dependemos do fornecedor para seguir. Assim que tiver novidade, te aviso por aqui.', 60)
+on conflict (titulo) do nothing;
+
 -- -----------------------------------------------------------------------------
 -- Feriados 2026–2027 (nacionais, estado do RJ, município do Rio)
 -- Carnaval e Corpus Christi entram como ponto facultativo: desative (ativo=false)

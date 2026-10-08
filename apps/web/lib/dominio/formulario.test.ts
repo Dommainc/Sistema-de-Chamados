@@ -18,6 +18,7 @@ function campo(
     tipo,
     obrigatorio,
     opcoes,
+    cores: {},
     ajuda: null,
     ordem,
   };

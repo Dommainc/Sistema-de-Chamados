@@ -10,6 +10,7 @@ import { useConsulta, useDados, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { estaEncerrado } from "@/lib/dominio/tipos";
 import { ErroApp, mensagemErro } from "@/lib/erros/catalogo";
+import { preencherNome } from "@/lib/respostas-prontas";
 import { caminhosAbertura, comReferente } from "@/lib/rotas";
 import { useOnline } from "@/lib/useOnline";
 import { CompositorMensagem } from "./CompositorMensagem";
@@ -46,6 +47,7 @@ export function ChatChamado({
 }) {
   const fonte = useDados();
   const usuario = useUsuario();
+  const ti = usuario.papel === "ti";
   const { mostrarErro } = useToast();
   const online = useOnline();
   const [pendentes, setPendentes] = useState<Pendente[]>([]);
@@ -54,21 +56,29 @@ export function ChatChamado({
 
   const consultar = useCallback(
     async (f: FonteDeDados) => {
-      const [chamado, mensagens, historico, anexos, perfis] = await Promise.all([
+      const [chamado, mensagens, historico, anexos, perfis, prontas] = await Promise.all([
         f.obterChamado(chamadoId),
         f.listarMensagens(chamadoId),
         f.listarHistorico(chamadoId),
         f.listarAnexos(chamadoId),
         f.listarPerfisPublicos(),
+        // Respostas prontas: só a TI (o solicitante nem consulta).
+        ti ? f.listarRespostasProntas() : Promise.resolve([]),
       ]);
-      return { chamado, mensagens, historico, anexos, perfis };
+      return { chamado, mensagens, historico, anexos, perfis, prontas };
     },
-    [chamadoId],
+    [chamadoId, ti],
   );
   const { dados, erro } = useConsulta(consultar);
 
   const itens = dados ? montarConversa({ ...dados, euId: usuario.id, papel: usuario.papel }) : [];
   const totalMensagens = dados?.mensagens.length ?? 0;
+  const nomeSolicitante =
+    dados?.perfis.find((p) => p.id === dados.chamado.solicitanteId)?.nome.split(" ")[0] ?? "";
+  const respostasProntas = (dados?.prontas ?? []).map((r) => ({
+    titulo: r.titulo,
+    texto: preencherNome(r.texto, nomeSolicitante),
+  }));
 
   // Abrir o chamado (e receber mensagem com ele aberto) marca a conversa como lida.
   useEffect(() => {
@@ -187,7 +197,11 @@ export function ChatChamado({
             {bloqueio}
           </p>
         ) : (
-          <CompositorMensagem aoEnviar={enviar} placeholder={placeholder} />
+          <CompositorMensagem
+            aoEnviar={enviar}
+            placeholder={placeholder}
+            respostasProntas={respostasProntas}
+          />
         )}
       </div>
     </div>

@@ -36,7 +36,8 @@ erDiagram
 | `feriados` | Dias sem expediente (2026–2027 no seed: nacionais, RJ e Rio) | `ativo = false` em vez de apagar. **Cadastrar 2028 antes do fim de 2027** (P-008) |
 | `areas` | Áreas que atendem (Fase 1: só TI) | — |
 | `categorias` | Assuntos, `nome_curto` e `icone` do portal | 11 no seed (unificações do dono, 2026-10-07: "Microsoft" = E-mail/Outlook + Teams; "Solicitações de acesso e Permissões" = Acesso/senha + Sistemas da empresa, com "Qual sistema?"; "Internet / Infraestrutura" = Internet/VPN + Infraestrutura). Depois do go-live, mudar categoria = **migration nova** (o seed só roda na instalação). `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |
-| `campos_form` | Campos do formulário dinâmico por categoria (texto, texto longo, número, data, seleção, múltipla, sim/não) | `chave` estável (as respostas são guardadas por ela) |
+| `campos_form` | Campos do formulário dinâmico por categoria (texto, texto longo, número, data, seleção, múltipla, sim/não) | `chave` estável (as respostas são guardadas por ela). `cores` (0022): cor de cada opção, da **paleta fixa** (vermelho, vermelho-claro, vermelho-escuro, verde-claro, azul-claro, azul-escuro, roxo, cinza) — os sistemas de "Qual sistema?". **Sistema novo** = opção em `opcoes` + cor em `cores`, só SQL |
+| `respostas_prontas` | Respostas prontas do chat (0023): título, texto (`{nome}` = primeiro nome do solicitante), ordem, ativo | Lista única da TI, mantida por SQL. Só a TI lê; ninguém grava pela aplicação |
 
 ### Pessoas
 | Tabela | O que guarda | Pontos importantes |
@@ -79,6 +80,7 @@ RLS ligado em **todas** as tabelas; os acessos padrão do Supabase foram revogad
 | `chamado_leituras` | as próprias | as próprias | API |
 | `configuracoes` | as públicas | todas | API |
 | `categorias`, `campos_form`, `areas` | as ativas | todas | API |
+| `respostas_prontas` | — | as ativas | só SQL (migration) |
 | `feriados` | todos | todos | API |
 
 Travas que valem até para quem contornar a API (triggers): encerrado não muda (`CC001`), campos imutáveis
@@ -111,3 +113,5 @@ pública (migration 0015).
 | 0019 | `20261007120000_prazo_definido_pela_ti.sql` | Chamado nasce sem prazo; quem define é a TI (ADR 0009) |
 | 0020 | `20261007150000_views_quadro_e_encerrados.sql` | Views `chamados_quadro` e `chamados_encerrados` + índices (consultas leves com dados reais) |
 | 0021 | `20261008090000_automacoes_inatividade.sql` | Automações por tempo (`app.processar_inatividade`, pg_cron 5 min): 2 h úteis → aguardando usuário; 24 h úteis → aviso no chat. `mensagens.autor_id` nulo = mensagem do sistema (ADR 0011) |
+| 0022 | `20261008120000_cores_das_opcoes.sql` | `campos_form.cores`: cor de cada opção (paleta fixa, conferida por `app.cores_validas`) |
+| 0023 | `20261008130000_respostas_prontas.sql` | Tabela `respostas_prontas` (só a TI lê) |

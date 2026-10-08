@@ -65,6 +65,27 @@ describe("ChatChamado", () => {
     expect(screen.queryByText(/49,8 GB/)).not.toBeInTheDocument();
   });
 
+  it("TI: resposta pronta entra no campo com o nome do solicitante, sem enviar sozinha", async () => {
+    renderizar(RAFAEL);
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
+    fireEvent.click(screen.getByRole("button", { name: "Respostas prontas" }));
+    fireEvent.click(screen.getByRole("button", { name: /^Reiniciar/ }));
+    expect(screen.getByRole("textbox", { name: "Mensagem" })).toHaveValue(
+      "Oi, Ana! Pode reiniciar o computador e testar de novo? Me conta se resolveu.",
+    );
+    expect(screen.queryByRole("button", { name: /^Acesso remoto/ })).not.toBeInTheDocument();
+    // Nada foi enviado: o texto só existe no campo, não na conversa.
+    expect(
+      screen.queryAllByText(/Pode reiniciar o computador/).filter((e) => e.tagName !== "TEXTAREA"),
+    ).toHaveLength(0);
+  });
+
+  it("solicitante não tem respostas prontas", async () => {
+    renderizar();
+    await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
+    expect(screen.queryByRole("button", { name: "Respostas prontas" })).not.toBeInTheDocument();
+  });
+
   it("enviar mostra a mensagem na conversa", async () => {
     renderizar();
     await screen.findByText(/Consegue abrir o Outlook/);

@@ -34,11 +34,12 @@ import {
 } from "@/lib/dominio/tipos";
 import { ErroApp, mensagemErro } from "@/lib/erros/catalogo";
 import { compararPrazo } from "@/lib/prazo";
+import { CHAVE_SISTEMA } from "@/lib/sistemas";
 import { rotuloStatus } from "@/lib/status";
 import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from "./armazenamento";
 import { guardarArquivo, lerArquivo } from "./arquivos";
 import { processarInatividade } from "./inatividade";
-import { CAMPOS_FORM, CATEGORIAS } from "./exemplos";
+import { CAMPOS_FORM, CATEGORIAS, RESPOSTAS_PRONTAS } from "./exemplos";
 
 function categoriaAtiva(categoriaId: number): Categoria {
   const categoria = CATEGORIAS.find((c) => c.id === categoriaId);
@@ -354,6 +355,18 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return CAMPOS_FORM.filter((c) => c.categoriaId === categoriaId).sort(
         (a, b) => a.ordem - b.ordem,
       );
+    },
+
+    async listarSistemas() {
+      eu();
+      const campo = CAMPOS_FORM.find((c) => c.chave === CHAVE_SISTEMA);
+      return (campo?.opcoes ?? []).map((nome) => ({ nome, cor: campo?.cores[nome] ?? null }));
+    },
+
+    async listarRespostasProntas() {
+      // RLS: só a TI lê; para o solicitante a lista vem vazia.
+      if (eu().papel !== "ti") return [];
+      return [...RESPOSTAS_PRONTAS].sort((a, b) => a.ordem - b.ordem);
     },
 
     async criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado> {

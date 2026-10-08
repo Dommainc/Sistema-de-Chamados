@@ -124,7 +124,8 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    **Terceira revisão (2026-10-07)** — a cor do cartão passou a ser a do **STATUS**; o prazo só colore o retângulo dele.
    - Faixa "PRÓXIMO DA FILA" **numa linha só**: selo de prazo, "#36 título · solicitante, departamento", **"Iniciar o próximo →"**.
    - **Filtros** (na URL): **Status** (só a coluna escolhida) · **Pessoa atendendo** (Qualquer pessoa · Eu · Ninguém ainda ·
-     cada técnico) · Categoria · Prazo. **Legenda**: cores de status e os retângulos de prazo.
+     cada técnico) · Categoria · **Sistema** ("Qualquer sistema" + os sistemas de "Qual sistema?"; o escolhido mostra o
+     quadradinho da cor) · Prazo. **Legenda**: cores de status e os retângulos de prazo.
    - **Seis colunas** em raias com fundo próprio; a bolinha do título tem a cor do status: **Novos** (laranja) ·
      **Transferidos** (roxo) · **Em atendimento** (amarelo forte) · **Aguardando usuário** (azul royal) · e, estreitas,
      **Concluídos** (verde) · **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
@@ -162,6 +163,9 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      para os analistas não confundirem resposta com anotação):
      - **Conversa com a Ana** — só a conversa com o solicitante: eventos do sistema em pílula, respostas do técnico
        em bolha azul à direita; campo "Escreva para a Ana... (Ctrl+V cola prints)", clipe, Enviar.
+       Botão **Respostas prontas** (ícone de balão com linhas, ao lado do clipe — só a TI, só na conversa): abre a lista
+       (título + texto); escolher coloca o texto no campo, com `{nome}` trocado pelo primeiro nome do solicitante. A TI
+       revisa e envia — **nada sai sozinho**. A lista vem do banco (`respostas_prontas`).
      - **Relato técnico** (com contador) — diário só da TI: faixa âmbar "🔒 Só a TI vê o relato técnico";
        anotações em cartão com borda âmbar à esquerda, autor e data/hora (não se editam nem se apagam), prints com
        Ctrl+V; transferências e devoluções à fila com o motivo. Campo "Anote o que foi verificado ou feito...",

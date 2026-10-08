@@ -8,9 +8,11 @@ import type {
   CampoForm,
   Categoria,
   Chamado,
+  CorPaleta,
   EventoHistorico,
   Leitura,
   Mensagem,
+  RespostaPronta,
   StatusChamado,
   TipoCampo,
 } from "@/lib/dominio/tipos";
@@ -299,6 +301,37 @@ const CAMPOS_ESPECIFICOS: LinhaCampo[] = [
 
 const SEM_DESCRICAO = ["Novo colaborador", "Desligamento"];
 
+/** Cores dos sistemas (no banco: campos_form.cores do campo "sistema" — seed.sql). */
+const CORES_SISTEMAS: Record<string, CorPaleta> = {
+  Sienge: "vermelho",
+  CVCRM: "verde-claro",
+  Construpoint: "vermelho-claro",
+  Construmanager: "vermelho-escuro",
+  Docusign: "azul-escuro",
+  Prevision: "roxo",
+  Metadados: "azul-claro",
+  "Não se aplica": "cinza",
+};
+
+/** Respostas prontas do chat (cópia do seed.sql). */
+export const RESPOSTAS_PRONTAS: readonly RespostaPronta[] = [
+  ["Reiniciar", "Oi, {nome}! Pode reiniciar o computador e testar de novo? Me conta se resolveu."],
+  [
+    "Acesso remoto",
+    "{nome}, vou acessar seu computador remotamente agora. Pode deixar ele ligado e desbloqueado?",
+  ],
+  [
+    "Pedir print",
+    "{nome}, consegue me mandar um print da tela com o erro? Pode colar aqui com Ctrl+V.",
+  ],
+  ["Testar agora", "Pronto, {nome}! Fiz o ajuste. Pode testar e me avisar se está tudo certo?"],
+  ["Em análise", "{nome}, já estou vendo o seu chamado e te dou um retorno em breve."],
+  [
+    "Aguardando terceiro",
+    "{nome}, dependemos do fornecedor para seguir. Assim que tiver novidade, te aviso por aqui.",
+  ],
+].map(([titulo, texto], i) => ({ id: i + 1, titulo, texto, ordem: (i + 1) * 10 }));
+
 export const CAMPOS_FORM: readonly CampoForm[] = [
   ...CATEGORIAS.filter((c) => !SEM_DESCRICAO.includes(c.nome)).map((c): LinhaCampo => [
     c.nome,
@@ -319,6 +352,7 @@ export const CAMPOS_FORM: readonly CampoForm[] = [
   tipo,
   obrigatorio,
   opcoes,
+  cores: chave === "sistema" ? CORES_SISTEMAS : {},
   ajuda,
   ordem,
 }));

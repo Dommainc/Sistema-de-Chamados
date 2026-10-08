@@ -11,6 +11,7 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Gravidade | Tipo | Descrição | Onde resolver |
 |---|---|---|---|---|
+| P-040 | ⚪ | web | **Dashboard (Fase 2)** — pedido do dono, 2026-10-08: uma **aba "Dashboard"** na área técnica com os números: chamados por sistema, categoria e técnico; tempo médio até concluir; quantos venceram o prazo. Os dados já existem no banco; falta a tela (e, se precisar, uma view de resumo). | Fase 2 |
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |
 | P-022 | 🟡 | ambiente | **Supabase praticamente aprovado pela diretoria — falta só a assinatura** (atualizado em 2026-10-06). Depois: criar projetos `dev` e `prod` em `sa-east-1` (ADR 0001) e rodar as migrations (P-023). | Assinatura da diretoria |

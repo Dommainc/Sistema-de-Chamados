@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-08 | Melhorias da TI (pedido do dono): **filtro por sistema** no quadro (`?sistema=Sienge`); **respostas prontas** no chat (só TI; texto entra no campo com o nome do solicitante; migration 0023 `respostas_prontas`, pgTAP 010); **cor dos sistemas no banco** (`campos_form.cores` com paleta fixa — migration 0022, pgTAP 009; tokens `sis-*` agora têm nome de cor). Nova pendência P-040 (aba **Dashboard** na Fase 2). Prints 07b e 08c. |
 | 2026-10-07 | Cartão do quadro: o **sistema** (Sienge, CVCRM...) desceu para o rodapé, ao lado do prazo, como ■ + nome; "Não se aplica" não aparece no cartão. Em cima só ID, prioridade alta, NOVO e transferido. **NOVO** passa a valer nas **primeiras 24 h** depois de aberto (antes 15 min) e só na coluna Novos. |
 | 2026-10-07 | **Demonstração na Vercel** para o chefe testar: projeto com Root Directory `apps/web`, branch **`demo`** publicado como Preview (`git push origin main:demo` para atualizar) (dados simulados; a trava do ADR 0006 continua valendo para produção). Passo de volta registrado no `go-live.md` §8. |
 | 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migrations 0015–0017 validadas no CI (job `banco`, Supabase local no runner) |

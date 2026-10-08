@@ -5,11 +5,11 @@ import { Hourglass, MessageSquare, TriangleAlert } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { EtiquetaId } from "@/components/ui/EtiquetaId";
-import type { PerfilPublico } from "@/lib/dados/tipos";
+import type { OpcaoSistema, PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
 import { formatarAtualizacao, tempoRelativo } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
-import { CHAVE_SISTEMA, SEM_SISTEMA, corDoSistema } from "@/lib/sistemas";
+import { classesDaCor, SEM_SISTEMA } from "@/lib/sistemas";
 import { COR_PRAZO, COR_STATUS } from "./cores";
 import { ehNovo, encerradoEm, type ColunaQuadro } from "./quadro";
 
@@ -22,6 +22,8 @@ export interface DadosCartao {
   naoLidas: number;
   /** Quem transferiu (para o selo "Transferido para você · por Thiago"). */
   transferidoPor: PerfilPublico | undefined;
+  /** Resposta de "Qual sistema?" com a cor do banco (null = categoria sem sistema). */
+  sistema: OpcaoSistema | null;
 }
 
 /** O que o useDraggable (ColunaQuadro) entrega ao cartão para ele poder ser arrastado. */
@@ -133,9 +135,8 @@ export function CartaoChamado({
 
   const cor = COR_STATUS[coluna];
   // Sistema no rodapé, ao lado do prazo; "Não se aplica" não aparece no cartão (só dentro do chamado).
-  const nomeSistema = c.respostasForm[CHAVE_SISTEMA];
-  const corSistema = nomeSistema === SEM_SISTEMA ? null : corDoSistema(nomeSistema);
-  const sistema = corSistema ? { nome: String(nomeSistema), cor: corSistema } : null;
+  const sistema = dados.sistema?.nome === SEM_SISTEMA ? null : dados.sistema;
+  const corSistema = classesDaCor(sistema?.cor);
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
   const podeIniciar = c.status === "pendente" || transferidoParaMim;
   const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
@@ -216,7 +217,9 @@ export function CartaoChamado({
         <SeloPrazo prazo={c.prazoSla} agora={agora} />
         {sistema ? (
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-texto">
-            <span aria-hidden="true" className={`size-2.5 rounded-sm ${sistema.cor.fundo}`} />
+            {corSistema ? (
+              <span aria-hidden="true" className={`size-2.5 rounded-sm ${corSistema.fundo}`} />
+            ) : null}
             {sistema.nome}
           </span>
         ) : null}

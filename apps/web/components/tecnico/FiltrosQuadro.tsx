@@ -1,8 +1,9 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { PerfilPublico } from "@/lib/dados/tipos";
+import type { OpcaoSistema, PerfilPublico } from "@/lib/dados/tipos";
 import type { Categoria } from "@/lib/dominio/tipos";
+import { classesDaCor } from "@/lib/sistemas";
 import { COR_PRAZO, COR_STATUS } from "./cores";
 import { COLUNAS, type FiltroPrazo, type FiltrosQuadro as Filtros } from "./quadro";
 
@@ -57,14 +58,17 @@ export function Legenda() {
 const SELECT =
   "min-h-11 rounded-xl border border-borda bg-superficie px-3 text-sm font-semibold text-texto";
 
-/** Filtros do quadro: status, pessoa atendendo, categoria e prazo (todos na URL). */
+/** Filtros do quadro: status, pessoa atendendo, categoria, sistema e prazo (todos na URL). */
 export function FiltrosQuadro({
   filtros,
   categorias,
+  sistemas,
   tecnicos,
 }: {
   filtros: Filtros;
   categorias: Categoria[];
+  /** Sistemas da empresa (com a cor do banco), para "Sistema". */
+  sistemas: OpcaoSistema[];
   /** Técnicos da TI, para "Pessoa atendendo". */
   tecnicos: PerfilPublico[];
 }) {
@@ -74,6 +78,7 @@ export function FiltrosQuadro({
   const atuais = new URLSearchParams(parametros.toString());
   const trocar = (chave: string, valor: string | null) =>
     router.replace(comParametro(atuais, chave, valor, caminho));
+  const corSistema = classesDaCor(sistemas.find((s) => s.nome === filtros.sistema)?.cor);
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -118,6 +123,28 @@ export function FiltrosQuadro({
           </option>
         ))}
       </select>
+      <div className="relative flex items-center">
+        {/* Quadradinho da cor do sistema escolhido (o select nativo não mostra cor nas opções). */}
+        {corSistema ? (
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none absolute left-3 size-2.5 rounded-sm ${corSistema.fundo}`}
+          />
+        ) : null}
+        <select
+          aria-label="Filtrar por sistema"
+          className={`${SELECT} ${corSistema ? "pl-7" : ""}`}
+          value={filtros.sistema ?? ""}
+          onChange={(e) => trocar("sistema", e.target.value || null)}
+        >
+          <option value="">Qualquer sistema</option>
+          {sistemas.map((s) => (
+            <option key={s.nome} value={s.nome}>
+              {s.nome}
+            </option>
+          ))}
+        </select>
+      </div>
       <select
         aria-label="Filtrar por prazo"
         className={SELECT}

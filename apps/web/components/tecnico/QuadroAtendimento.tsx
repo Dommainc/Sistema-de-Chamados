@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { mensagemErro } from "@/lib/erros/catalogo";
+import { CHAVE_SISTEMA } from "@/lib/sistemas";
 import {
   AVISOS,
   colisao,
@@ -70,15 +71,17 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
 
   const consultar = useCallback(async (f: FonteDeDados) => {
     // Uma consulta para os cartões (view chamados_quadro: já traz "quem transferiu" e "não lidas").
-    const [chamados, categorias, perfis, proximo] = await Promise.all([
+    const [chamados, categorias, perfis, proximo, sistemas] = await Promise.all([
       f.listarQuadro(),
       f.listarCategorias(),
       f.listarPerfisPublicos(),
       f.proximoDaFila(),
+      f.listarSistemas(),
     ]);
     return {
       chamados,
       categorias,
+      sistemas,
       perfis,
       proximo,
       extras: new Map(chamados.map((c) => [c.id, c])),
@@ -111,12 +114,14 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const agora = new Date();
   const perfil = new Map(dados.perfis.map((p) => [p.id, p]));
   const categoria = new Map(dados.categorias.map((c) => [c.id, c]));
+  const corSistema = new Map(dados.sistemas.map((s) => [s.nome, s.cor]));
   const quadro = montarQuadro(filtrarChamados(dados.chamados, filtros, usuario.id, agora), agora);
   quadro.novos = ordenarNovos(quadro.novos, agora);
   quadro.transferidos = ordenarTransferidos(quadro.transferidos, usuario.id);
   const cartoes = (coluna: IdColuna): DadosCartao[] =>
     quadro[coluna].map((c) => {
       const autorTransferencia = dados.extras.get(c.id)?.transferidoPorId;
+      const sistema = c.respostasForm[CHAVE_SISTEMA];
       return {
         chamado: c,
         coluna,
@@ -125,6 +130,10 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         assunto: categoria.get(c.categoriaId)?.nomeCurto ?? "—",
         naoLidas: dados.extras.get(c.id)?.naoLidas ?? 0,
         transferidoPor: autorTransferencia ? perfil.get(autorTransferencia) : undefined,
+        sistema:
+          typeof sistema === "string"
+            ? { nome: sistema, cor: corSistema.get(sistema) ?? null }
+            : null,
       };
     });
 
@@ -172,6 +181,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         <FiltrosQuadro
           filtros={filtros}
           categorias={dados.categorias}
+          sistemas={dados.sistemas}
           tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
         />
         <Legenda />
@@ -194,6 +204,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
             <FiltrosQuadro
               filtros={filtros}
               categorias={dados.categorias}
+              sistemas={dados.sistemas}
               tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
             />
             <Legenda />

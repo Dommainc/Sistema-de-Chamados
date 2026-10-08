@@ -25,6 +25,7 @@ const RAFAEL = USUARIOS_SIMULADOS[2];
 const TODOS: FiltrosQuadro = {
   responsavel: "todos",
   categoriaId: null,
+  sistema: null,
   prazo: "todos",
   coluna: null,
   busca: "",
@@ -120,6 +121,17 @@ describe("QuadroAtendimento", () => {
     await screen.findByText("Próximo da fila");
     expect(within(cartao(40)).getByText("Construmanager")).toBeInTheDocument();
     expect(within(cartao(31)).queryByText("Não se aplica")).not.toBeInTheDocument();
+  });
+
+  it("filtro por sistema: só os chamados daquele sistema", async () => {
+    renderizar({ ...TODOS, sistema: "Construmanager" });
+    await screen.findByText("Próximo da fila");
+    expect(cartao(40)).toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: /^Chamado 31:/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("article", { name: /^Chamado 36:/ })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("combobox", { name: "Filtrar por sistema" })[0]).toHaveValue(
+      "Construmanager",
+    );
   });
 
   it("colunas Concluídos e Cancelados mostram os encerrados recentes, sem botão Iniciar", async () => {

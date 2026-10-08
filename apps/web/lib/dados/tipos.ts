@@ -8,6 +8,7 @@ import type {
   Anexo,
   CampoForm,
   Categoria,
+  CorPaleta,
   Chamado,
   EventoHistorico,
   Mensagem,
@@ -15,7 +16,14 @@ import type {
   Papel,
   Perfil,
   PrioridadeDaTi,
+  RespostaPronta,
 } from "@/lib/dominio/tipos";
+
+/** Sistema da empresa (opção do campo "Qual sistema?") com a cor guardada no banco. */
+export interface OpcaoSistema {
+  nome: string;
+  cor: CorPaleta | null;
+}
 
 /** O mínimo que a sessão sabe do usuário (o restante vem de obterMeuPerfil). */
 export interface UsuarioSessao {
@@ -118,6 +126,10 @@ export interface FonteDeDados {
 
   listarCategorias(): Promise<Categoria[]>;
   listarCamposForm(categoriaId: number): Promise<CampoForm[]>;
+  /** Opções do campo "Qual sistema?" com as cores (campos_form.cores), na ordem do formulário. */
+  listarSistemas(): Promise<OpcaoSistema[]>;
+  /** Respostas prontas do chat (tabela respostas_prontas). Só a TI recebe; solicitante: lista vazia (RLS). */
+  listarRespostasProntas(): Promise<RespostaPronta[]>;
 
   /**
    * Abre o chamado (POST /chamados). Erros: CAMPO_OBRIGATORIO (com `campos`),

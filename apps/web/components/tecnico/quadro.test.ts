@@ -42,6 +42,7 @@ function chamado(
 const TODOS: FiltrosQuadro = {
   responsavel: "todos",
   categoriaId: null,
+  sistema: null,
   prazo: "todos",
   coluna: null,
   busca: "",
@@ -112,6 +113,18 @@ describe("filtros", () => {
     expect(
       filtrarChamados(lista, { ...TODOS, prazo: "vence_em_breve" }, "eu", agora).map((c) => c.id),
     ).toEqual([2]);
+  });
+
+  it('por sistema (resposta de "Qual sistema?")', () => {
+    const comSistema = [
+      { ...chamado(1, "pendente", 60), respostasForm: { sistema: "Sienge" } },
+      { ...chamado(2, "pendente", 60), respostasForm: { sistema: "CVCRM" } },
+      chamado(3, "pendente", 60),
+    ];
+    expect(
+      filtrarChamados(comSistema, { ...TODOS, sistema: "Sienge" }, "eu", agora).map((c) => c.id),
+    ).toEqual([1]);
+    expect(filtrarChamados(comSistema, TODOS, "eu", agora)).toHaveLength(3);
   });
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { CHAVE_SISTEMA, corDoSistema } from "@/lib/sistemas";
+import { corDaOpcao } from "@/lib/sistemas";
 import { AreaTexto } from "@/components/ui/AreaTexto";
 import { Campo } from "@/components/ui/Campo";
 import { OpcaoCartao } from "@/components/ui/OpcaoCartao";
@@ -83,7 +83,7 @@ export function CampoDinamico({
               valor={o.valor}
               rotulo={o.rotulo}
               multipla={multipla}
-              marcador={campo.chave === CHAVE_SISTEMA ? corDoSistema(o.valor)?.fundo : undefined}
+              marcador={corDaOpcao(campo, o.valor)?.fundo}
               selecionado={marcados.includes(o.valor)}
               aoSelecionar={(v) =>
                 aoMudar(

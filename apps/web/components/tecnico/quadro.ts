@@ -3,6 +3,7 @@
 // (pedidos do dono, 2026-10-06 e 2026-10-07). As duas últimas são estreitas e só mostram os últimos 7 dias.
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
+import { CHAVE_SISTEMA } from "@/lib/sistemas";
 import type { Chamado, StatusChamado } from "@/lib/dominio/tipos";
 import { compararPrazo, situacaoPrazo, type SituacaoPrazo } from "@/lib/prazo";
 import type { FiltroResponsavel } from "./parametros";
@@ -72,6 +73,8 @@ export type FiltroPrazo = "todos" | SituacaoPrazo;
 export interface FiltrosQuadro {
   responsavel: FiltroResponsavel;
   categoriaId: number | null;
+  /** Filtro "Sistema": só os chamados com esta resposta em "Qual sistema?" (null = qualquer). */
+  sistema: string | null;
   prazo: FiltroPrazo;
   /** Filtro "Status": só esta coluna (null = todas). */
   coluna: ColunaQuadro | null;
@@ -104,6 +107,8 @@ export function filtrarChamados(
     }
     if (filtros.coluna !== null && colunaDoStatus(c.status) !== filtros.coluna) return false;
     if (filtros.categoriaId !== null && c.categoriaId !== filtros.categoriaId) return false;
+    if (filtros.sistema !== null && c.respostasForm[CHAVE_SISTEMA] !== filtros.sistema)
+      return false;
     // Prazo não se aplica a encerrados.
     if (
       filtros.prazo !== "todos" &&

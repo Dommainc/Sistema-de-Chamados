@@ -3,9 +3,9 @@
 import { useCallback } from "react";
 import { useConsulta } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
-import type { Chamado, ValorResposta } from "@/lib/dominio/tipos";
+import type { CampoForm, Chamado, ValorResposta } from "@/lib/dominio/tipos";
 import { formatarDataHora } from "@/lib/formato";
-import { CHAVE_SISTEMA, corDoSistema } from "@/lib/sistemas";
+import { corDaOpcao } from "@/lib/sistemas";
 import { AnexoMiniatura } from "./AnexoMiniatura";
 
 function formatarResposta(valor: ValorResposta): string {
@@ -18,9 +18,9 @@ function formatarResposta(valor: ValorResposta): string {
   return String(valor);
 }
 
-/** Resposta do formulário; o sistema (Sienge, CVCRM...) aparece como selo na cor dele. */
-function RespostaComCor({ chave, valor }: { chave: string; valor: ValorResposta }) {
-  const cor = chave === CHAVE_SISTEMA ? corDoSistema(valor) : null;
+/** Resposta do formulário; opção com cor (ex.: Sienge, CVCRM) aparece como selo na cor dela. */
+function RespostaComCor({ campo, valor }: { campo: CampoForm; valor: ValorResposta }) {
+  const cor = corDaOpcao(campo, valor);
   if (!cor) return <>{formatarResposta(valor)}</>;
   return (
     <span
@@ -77,7 +77,7 @@ export function DetalhesPedido({
           <div key={c.id}>
             <dt className="text-texto-suave">{c.label}</dt>
             <dd className="font-semibold whitespace-pre-line">
-              <RespostaComCor chave={c.chave} valor={chamado.respostasForm[c.chave]} />
+              <RespostaComCor campo={c} valor={chamado.respostasForm[c.chave]} />
             </dd>
           </div>
         ))}
