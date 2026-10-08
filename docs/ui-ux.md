@@ -136,10 +136,10 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      sozinho após 2 h úteis sem resposta do solicitante") · **Concluídos** (verde) · **Transferidos** (roxo) ·
      **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
    - **Cartão**: faixa grossa à esquerda (fundo branco) na **cor do status** (muda junto com o status; tokens `laranja`,
-     `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** sempre **verde-água** (`id`, cor exclusiva);
+     `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** sempre **verde-água cheio com texto branco** (`id`, cor exclusiva);
      em cima a **prioridade** ("⚠ Prioridade alta" vermelho · "Prioridade média" amarelo · "Prioridade baixa" cinza), "NOVO" (só em Novos, nas primeiras 24 h depois de aberto) e
      "Transferido para você · por Thiago"; **título em destaque**; "solicitante · categoria"; o que importa
-     na coluna (Em atendimento → **só a bolinha com as iniciais** "RL", o nome no passar do mouse; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
+     na coluna (Em atendimento e Aguardando → **bolinha com as iniciais** de quem atende, o nome no passar do mouse; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
      (🔴 "Venceu há 3 h" · 🟠 "Vence em 49 min" · 🟡 "Sem prazo" · neutro "Prazo: amanhã, 14:00"); ao lado do prazo, **■ sistema** (Sienge, CVCRM...; "Não se aplica" não
      aparece no cartão); 💬 mensagens novas. **Sem botão Iniciar** (inicia-se dentro do chamado ou arrastando).
    - Cartão encerrado (Concluídos/Cancelados): "ID 30", título, "Concluído seg, 05/10 · Thiago" ou

@@ -147,6 +147,8 @@ describe("QuadroAtendimento", () => {
     const emAtendimento = cartao(38);
     expect(within(emAtendimento).getByText("RL")).toBeInTheDocument();
     expect(within(emAtendimento).getByText("Com você")).toHaveClass("sr-only");
+    // Em Aguardando usuário a bolinha de quem atende também aparece (pedido do dono, 2026-10-08).
+    expect(within(cartao(41)).getByText("RL")).toBeInTheDocument();
   });
 
   it('sistema fica no rodapé do cartão; "Não se aplica" não aparece', async () => {

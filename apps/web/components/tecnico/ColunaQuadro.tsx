@@ -50,7 +50,7 @@ function ListaCartoes({
   destacados: ReadonlySet<number>;
 }) {
   return (
-    <ul className="flex flex-col gap-2.5">
+    <ul className="flex flex-col gap-3.5">
       {cartoes.map((d) => {
         const cartao = {
           dados: d,
@@ -115,7 +115,7 @@ export function ColunaQuadro({
       id={`coluna-${id}`}
       ref={setNodeRef}
       aria-label={`${titulo}: ${cartoes.length}`}
-      className={`flex flex-col gap-3 rounded-2xl border p-2.5 transition-colors ${
+      className={`flex flex-col gap-3.5 rounded-2xl border p-3 transition-colors ${
         vindoDeOutra
           ? "border-primaria bg-primaria-suave ring-2 ring-primaria"
           : encerrada

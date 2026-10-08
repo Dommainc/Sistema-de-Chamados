@@ -38,7 +38,7 @@ export interface PropsArraste {
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
 /** Etiqueta "ID 36" na cor própria (verde-água), igual em todos os cartões. */
-const TOM_ID = "bg-id-suave text-id";
+const TOM_ID = "bg-id text-white"; // cheia: a clarinha ficava apagada (pedido do dono, 2026-10-08)
 
 function NaoLidas({ total }: { total: number }) {
   if (total === 0) return null;
@@ -81,7 +81,7 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
   return (
     <article
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex flex-col gap-1 rounded-xl border border-l-[6px] border-borda px-3 py-2.5 shadow-sm ${cor.faixa} ${cor.fundo}`}
+      className={`flex flex-col gap-1.5 rounded-xl border border-l-[6px] border-borda px-4 py-3 shadow-sm ${cor.faixa} ${cor.fundo}`}
     >
       {/* Num bloco próprio: solta na coluna flex, a etiqueta esticava até o fim do cartão. */}
       <div>
@@ -147,7 +147,7 @@ export function CartaoChamado({
       {...arraste?.atributos}
       {...arraste?.ouvintes}
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex cursor-grab touch-manipulation flex-col gap-1.5 rounded-2xl border border-l-[6px] p-3 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${cor.faixa} ${cor.fundo} ${
+      className={`flex cursor-grab touch-manipulation flex-col gap-2.5 rounded-2xl border border-l-[6px] p-4 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${cor.faixa} ${cor.fundo} ${
         destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"
       } ${arraste?.arrastando ? "opacity-40" : ""} ${fantasma ? "rotate-1 cursor-grabbing shadow-xl" : ""}`}
     >
@@ -197,7 +197,8 @@ export function CartaoChamado({
         <span className="text-texto-suave"> · {assunto}</span>
       </p>
 
-      {coluna === "em_atendimento" && responsavel ? (
+      {/* Bolinha de quem atende: em Em atendimento e também em Aguardando usuário (pedido do dono). */}
+      {(coluna === "em_atendimento" || coluna === "aguardando") && responsavel ? (
         // Só a bolinha com as iniciais (pedido do dono, 2026-10-08); o nome fica no "title" e para leitores de tela.
         <p className="flex items-center" title={`Com ${responsavel.nome}`}>
           <Avatar
