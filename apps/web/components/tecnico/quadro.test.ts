@@ -183,8 +183,9 @@ describe("arrastar entre colunas", () => {
 });
 
 describe("selo NOVO", () => {
-  it("aberto há menos de 15 minutos", () => {
+  it("nas primeiras 24 horas depois de aberto", () => {
     expect(ehNovo({ ...chamado(1, "pendente", 60), criadoEm: daqui(-3) }, agora)).toBe(true);
-    expect(ehNovo({ ...chamado(1, "pendente", 60), criadoEm: daqui(-20) }, agora)).toBe(false);
+    expect(ehNovo({ ...chamado(1, "pendente", 60), criadoEm: daqui(-23 * 60) }, agora)).toBe(true);
+    expect(ehNovo({ ...chamado(1, "pendente", 60), criadoEm: daqui(-25 * 60) }, agora)).toBe(false);
   });
 });

@@ -5,6 +5,9 @@
 /** Chave do campo do formulário que guarda o sistema. */
 export const CHAVE_SISTEMA = "sistema";
 
+/** Opção "nenhum sistema": tem cor no formulário, mas não aparece no cartão do quadro. */
+export const SEM_SISTEMA = "Não se aplica";
+
 const CORES: Record<string, { fundo: string; texto: string }> = {
   Sienge: { fundo: "bg-sis-sienge", texto: "text-white" },
   CVCRM: { fundo: "bg-sis-cvcrm", texto: "text-texto" },
@@ -13,7 +16,7 @@ const CORES: Record<string, { fundo: string; texto: string }> = {
   Docusign: { fundo: "bg-sis-docusign", texto: "text-white" },
   Prevision: { fundo: "bg-sis-prevision", texto: "text-white" },
   Metadados: { fundo: "bg-sis-metadados", texto: "text-texto" },
-  "Não se aplica": { fundo: "bg-sis-nenhum", texto: "text-white" },
+  [SEM_SISTEMA]: { fundo: "bg-sis-nenhum", texto: "text-white" },
 };
 
 /** Cor de um sistema; null se o valor não for um dos sistemas conhecidos. */

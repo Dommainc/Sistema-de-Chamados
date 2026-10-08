@@ -9,7 +9,7 @@ import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
 import { formatarAtualizacao, tempoRelativo } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
-import { CHAVE_SISTEMA, corDoSistema } from "@/lib/sistemas";
+import { CHAVE_SISTEMA, SEM_SISTEMA, corDoSistema } from "@/lib/sistemas";
 import { COR_PRAZO, COR_STATUS } from "./cores";
 import { ehNovo, encerradoEm, type ColunaQuadro } from "./quadro";
 
@@ -102,8 +102,8 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
 }
 
 /**
- * Cartão do quadro (pedidos do dono, 2026-10-07): a COR é a do STATUS (faixa grossa + fundo clarinho, muda
- * junto com o status); etiqueta "ID" verde-água; o PRAZO num retângulo próprio (vencido vermelho, sem prazo
+ * Cartão do quadro (pedidos do dono, 2026-10-07): a COR é a do STATUS (faixa grossa + fundo branco, muda
+ * junto com o status); em cima só ID, prioridade alta, NOVO e transferido; o sistema fica no rodapé; etiqueta "ID" verde-água; o PRAZO num retângulo próprio (vencido vermelho, sem prazo
  * amarelo); título em destaque; "Iniciar" pequeno. Em atendimento → com quem está; Aguardando → há quanto
  * tempo o solicitante não responde.
  */
@@ -132,10 +132,10 @@ export function CartaoChamado({
   }
 
   const cor = COR_STATUS[coluna];
-  const corSistema = corDoSistema(c.respostasForm[CHAVE_SISTEMA]);
-  const sistema = corSistema
-    ? { nome: String(c.respostasForm[CHAVE_SISTEMA]), cor: corSistema }
-    : null;
+  // Sistema no rodapé, ao lado do prazo; "Não se aplica" não aparece no cartão (só dentro do chamado).
+  const nomeSistema = c.respostasForm[CHAVE_SISTEMA];
+  const corSistema = nomeSistema === SEM_SISTEMA ? null : corDoSistema(nomeSistema);
+  const sistema = corSistema ? { nome: String(nomeSistema), cor: corSistema } : null;
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
   const podeIniciar = c.status === "pendente" || transferidoParaMim;
   const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
@@ -157,14 +157,7 @@ export function CartaoChamado({
             <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta
           </span>
         ) : null}
-        {sistema ? (
-          <span
-            className={`rounded-md px-1.5 py-0.5 text-[11px] font-bold ${sistema.cor.fundo} ${sistema.cor.texto}`}
-          >
-            {sistema.nome}
-          </span>
-        ) : null}
-        {ehNovo(c, agora) ? (
+        {coluna === "novos" && ehNovo(c, agora) ? (
           <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
             NOVO
           </span>
@@ -221,6 +214,12 @@ export function CartaoChamado({
 
       <div className="mt-0.5 flex flex-wrap items-center gap-2">
         <SeloPrazo prazo={c.prazoSla} agora={agora} />
+        {sistema ? (
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-texto">
+            <span aria-hidden="true" className={`size-2.5 rounded-sm ${sistema.cor.fundo}`} />
+            {sistema.nome}
+          </span>
+        ) : null}
         <NaoLidas total={naoLidas} />
         {(coluna === "novos" || coluna === "transferidos") && podeIniciar ? (
           <button

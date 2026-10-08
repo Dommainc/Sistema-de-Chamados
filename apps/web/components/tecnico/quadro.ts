@@ -206,8 +206,8 @@ export function acaoDoArraste(
   return null;
 }
 
-/** Selo "NOVO": aberto há menos de 15 minutos. */
-export const MINUTOS_NOVO = 15;
+/** Selo "NOVO": nas primeiras 24 horas depois de aberto (pedido do dono, 2026-10-07). */
+export const MINUTOS_NOVO = 24 * 60;
 
 export function ehNovo(chamado: Chamado, agora: Date = new Date()): boolean {
   return agora.getTime() - new Date(chamado.criadoEm).getTime() < MINUTOS_NOVO * 60_000;

@@ -115,6 +115,13 @@ describe("QuadroAtendimento", () => {
     expect(within(cartao(42)).getByText("NOVO")).toBeInTheDocument();
   });
 
+  it('sistema fica no rodapé do cartão; "Não se aplica" não aparece', async () => {
+    renderizar();
+    await screen.findByText("Próximo da fila");
+    expect(within(cartao(40)).getByText("Construmanager")).toBeInTheDocument();
+    expect(within(cartao(31)).queryByText("Não se aplica")).not.toBeInTheDocument();
+  });
+
   it("colunas Concluídos e Cancelados mostram os encerrados recentes, sem botão Iniciar", async () => {
     renderizar();
     await screen.findByText("Próximo da fila");

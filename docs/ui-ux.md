@@ -128,11 +128,13 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    - **Seis colunas** em raias com fundo próprio; a bolinha do título tem a cor do status: **Novos** (laranja) ·
      **Transferidos** (roxo) · **Em atendimento** (amarelo forte) · **Aguardando usuário** (azul royal) · e, estreitas,
      **Concluídos** (verde) · **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
-   - **Cartão**: faixa grossa à esquerda + fundo clarinho na **cor do status** (muda junto com o status; tokens `laranja`,
+   - **Cartão**: faixa grossa à esquerda (fundo branco) na **cor do status** (muda junto com o status; tokens `laranja`,
      `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** sempre **verde-água** (`id`, cor exclusiva);
-     selos ("NOVO", "Transferido para você · por Thiago"); **título em destaque**; "solicitante · categoria"; o que importa
+     em cima **só** "⚠ Prioridade alta" (quando marcada), "NOVO" (só em Novos, nas primeiras 24 h depois de aberto) e
+     "Transferido para você · por Thiago"; **título em destaque**; "solicitante · categoria"; o que importa
      na coluna (Em atendimento → "Com **Rafael**"; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
-     (🔴 "Venceu há 3 h" · 🟠 "Vence em 49 min" · 🟡 "Sem prazo" · neutro "Prazo: amanhã, 14:00"); 💬 mensagens novas;
+     (🔴 "Venceu há 3 h" · 🟠 "Vence em 49 min" · 🟡 "Sem prazo" · neutro "Prazo: amanhã, 14:00"); ao lado do prazo, **■ sistema** (Sienge, CVCRM...; "Não se aplica" não
+     aparece no cartão); 💬 mensagens novas;
      botão **Iniciar** pequeno à direita (Novos e Transferidos para mim).
    - Cartão encerrado (Concluídos/Cancelados): "ID 30", título, "Concluído seg, 05/10 · Thiago" ou
      "Cancelado sáb, 03/10" + o motivo. Só leitura.
