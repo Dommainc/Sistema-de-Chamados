@@ -88,15 +88,17 @@ join (values
   ('Instalação de software', 'software', 'Qual programa?', 'texto', true, '[]', null, 10),
   ('Instalação de software', 'justificativa', 'Para que você precisa dele?', 'texto_longo', true, '[]', null, 20),
 
-  ('Compra ou solicitação de equipamento', 'item', 'O que você precisa?', 'texto', true, '[]', null, 10),
+  -- Itens de equipamento (pedido do dono, 2026-10-08): marcar vários; iguais em "Novo colaborador".
+  ('Compra ou solicitação de equipamento', 'item', 'O que você precisa?', 'multipla_selecao', true,
+     '["Notebook","Fone de Ouvido","Capa para Notebook","Monitor","Kit Mouse Teclado","Suporte Notebook","Outro"]', 'Pode marcar mais de um. Se for "Outro", explique abaixo.', 10),
   ('Compra ou solicitação de equipamento', 'justificativa', 'Por que precisa?', 'texto_longo', true, '[]', null, 20),
 
   ('Novo colaborador', 'nome_colaborador', 'Nome completo de quem vai entrar', 'texto', true, '[]', null, 10),
   ('Novo colaborador', 'data_inicio', 'Data de início', 'data', true, '[]', null, 20),
   ('Novo colaborador', 'cargo', 'Cargo', 'texto', true, '[]', null, 30),
   ('Novo colaborador', 'departamento', 'Departamento', 'texto', true, '[]', null, 40),
-  ('Novo colaborador', 'equipamento', 'Precisa de equipamento?', 'selecao', true,
-     '["Notebook","Desktop","Não precisa"]', null, 50),
+  ('Novo colaborador', 'equipamento', 'Quais equipamentos vai precisar?', 'multipla_selecao', true,
+     '["Notebook","Fone de Ouvido","Capa para Notebook","Monitor","Kit Mouse Teclado","Suporte Notebook","Não precisa de equipamento"]', 'Pode marcar mais de um.', 50),
   ('Novo colaborador', 'observacoes', 'Observações', 'texto_longo', false,
      '[]', 'Sistemas específicos, pastas compartilhadas, celular...', 60),
 

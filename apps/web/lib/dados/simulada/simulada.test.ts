@@ -29,6 +29,48 @@ describe("dados de exemplo", () => {
     expect(comDescricao.size).toBe(9);
   });
 
+  it("equipamentos: marcar vários, mesma lista em Novo colaborador e Pedir equipamento", () => {
+    const itens = [
+      "Notebook",
+      "Fone de Ouvido",
+      "Capa para Notebook",
+      "Monitor",
+      "Kit Mouse Teclado",
+      "Suporte Notebook",
+    ];
+    const campo = (categoria: string, chave: string) =>
+      CAMPOS_FORM.find(
+        (c) =>
+          c.chave === chave && c.categoriaId === CATEGORIAS.find((k) => k.nome === categoria)?.id,
+      );
+    const novo = campo("Novo colaborador", "equipamento");
+    const pedir = campo("Compra ou solicitação de equipamento", "item");
+    expect(novo).toMatchObject({
+      tipo: "multipla_selecao",
+      opcoes: [...itens, "Não precisa de equipamento"],
+    });
+    expect(pedir).toMatchObject({ tipo: "multipla_selecao", opcoes: [...itens, "Outro"] });
+  });
+
+  it("pedir equipamento com vários itens marcados", async () => {
+    const categoria = CATEGORIAS.find((k) => k.nome === "Compra ou solicitação de equipamento")!;
+    const fonte = criarFonteSimulada(ANA.id);
+    const { id } = await fonte.criarChamado({
+      categoriaId: categoria.id,
+      titulo: "Kit para home office",
+      respostas: {
+        item: ["Monitor", "Kit Mouse Teclado"],
+        justificativa: "Vou trabalhar de casa às sextas.",
+        descricao: "Preciso montar a mesa em casa.",
+      },
+      anexos: [],
+    });
+    expect((await fonte.obterChamado(id)).respostasForm.item).toEqual([
+      "Monitor",
+      "Kit Mouse Teclado",
+    ]);
+  });
+
   it("sistemas vêm com a cor do campo (campos_form.cores), todos com cor da paleta", async () => {
     const sistemas = await criarFonteSimulada(ANA.id).listarSistemas();
     expect(sistemas.map((s) => s.nome)).toContain("Sienge");

@@ -227,10 +227,18 @@ const CAMPOS_ESPECIFICOS: LinhaCampo[] = [
     "Compra ou solicitação de equipamento",
     "item",
     "O que você precisa?",
-    "texto",
+    "multipla_selecao",
     true,
-    [],
-    null,
+    [
+      "Notebook",
+      "Fone de Ouvido",
+      "Capa para Notebook",
+      "Monitor",
+      "Kit Mouse Teclado",
+      "Suporte Notebook",
+      "Outro",
+    ],
+    'Pode marcar mais de um. Se for "Outro", explique abaixo.',
     10,
   ],
   [
@@ -259,11 +267,19 @@ const CAMPOS_ESPECIFICOS: LinhaCampo[] = [
   [
     "Novo colaborador",
     "equipamento",
-    "Precisa de equipamento?",
-    "selecao",
+    "Quais equipamentos vai precisar?",
+    "multipla_selecao",
     true,
-    ["Notebook", "Desktop", "Não precisa"],
-    null,
+    [
+      "Notebook",
+      "Fone de Ouvido",
+      "Capa para Notebook",
+      "Monitor",
+      "Kit Mouse Teclado",
+      "Suporte Notebook",
+      "Não precisa de equipamento",
+    ],
+    "Pode marcar mais de um.",
     50,
   ],
   [
@@ -373,7 +389,7 @@ interface ChamadoExemplo {
   prazoEm?: number;
   descricao: string;
   /** Respostas extras do formulário (além da descrição). */
-  respostas?: Record<string, string>;
+  respostas?: Record<string, string | string[]>;
   motivoCancelamento?: string;
 }
 
@@ -417,6 +433,7 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
     abertoHa: 4 * DIA,
     atualizadoHa: 4 * DIA - 30,
     prazoEm: -1 * DIA,
+    respostas: { item: ["Fone de Ouvido"] },
     descricao: "O meu quebrou.",
     motivoCancelamento: "Achei um headset sobrando no setor.",
   },
@@ -569,6 +586,7 @@ const CHAMADOS_EXEMPLO: ChamadoExemplo[] = [
     abertoHa: 1 * DIA,
     atualizadoHa: 5 * H,
     prazoEm: 7 * DIA,
+    respostas: { item: ["Monitor"] },
     descricao: "Um monitor de 27 polegadas para revisar projetos.",
   },
   {
