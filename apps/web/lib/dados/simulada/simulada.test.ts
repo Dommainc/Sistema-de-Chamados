@@ -135,6 +135,8 @@ describe("contadores e avisos de mudança", () => {
 
   it("avisa quem está ouvindo quando os dados mudam", async () => {
     const fonte = criarFonteSimulada(ANA.id);
+    // Antes de ouvir: aplica as automações por tempo (dependem do relógio de verdade e mudariam os dados).
+    await fonte.obterMeuPerfil();
     let avisos = 0;
     const cancelar = fonte.aoMudar(() => avisos++);
     await fonte.atualizarMeuPerfil({ departamento: "Obras", telefone: null });
