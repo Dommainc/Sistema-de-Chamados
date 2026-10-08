@@ -67,7 +67,9 @@ export function ChamadosEncerrados() {
                   className="flex h-full overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm hover:shadow-md"
                 >
                   <span className="flex min-w-0 flex-1 flex-col gap-1.5 p-3">
-                    <EtiquetaId numero={c.id} />
+                    <span>
+                      <EtiquetaId numero={c.id} />
+                    </span>
                     <span className="leading-snug font-semibold">{c.titulo}</span>
                     <span className="truncate text-xs text-texto-suave">
                       {dados.perfil.get(c.solicitanteId)?.nome ?? "—"} ·{" "}

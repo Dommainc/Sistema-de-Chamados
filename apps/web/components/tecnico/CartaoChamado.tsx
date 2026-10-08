@@ -83,7 +83,10 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
       className={`flex flex-col gap-1 rounded-xl border border-l-[6px] border-borda px-3 py-2.5 shadow-sm ${cor.faixa} ${cor.fundo}`}
     >
-      <EtiquetaId numero={c.id} tom={TOM_ID} />
+      {/* Num bloco próprio: solta na coluna flex, a etiqueta esticava até o fim do cartão. */}
+      <div>
+        <EtiquetaId numero={c.id} tom={TOM_ID} />
+      </div>
       <Link
         href={`/atendimento/${c.id}`}
         className="text-sm leading-snug font-bold hover:underline"
