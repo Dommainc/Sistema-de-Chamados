@@ -46,7 +46,7 @@
   --cor-royal: #2148c0;
   --cor-royal-suave: #e6ecfc;
   /* Etiqueta "ID": verde-água, cor que não é usada em mais nada. */
-  --cor-id: #0f6b66;
+  --cor-id: #343a40; /* grafite: etiqueta do ID (o verde-água confundia com Concluído) */
   --cor-id-suave: #d9f2ef;
   /* Fundo dos cartões de "Novos": laranja de verdade (o laranja-suave transparente parecia amarelo). */
   --cor-laranja-cartao: #ffe0c2;

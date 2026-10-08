@@ -7,7 +7,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { EtiquetaId } from "@/components/ui/EtiquetaId";
 import type { OpcaoSistema, PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
-import { formatarAtualizacao, tempoRelativo } from "@/lib/formato";
+import { formatarDiaHora, tempoRelativo } from "@/lib/formato";
 import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
 import { classesDaCor, SEM_SISTEMA } from "@/lib/sistemas";
 import { COR_PRAZO, COR_STATUS } from "./cores";
@@ -38,7 +38,7 @@ export interface PropsArraste {
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
 /** Etiqueta "ID 36" na cor própria (verde-água), igual em todos os cartões. */
-const TOM_ID = "bg-id text-white"; // cheia: a clarinha ficava apagada (pedido do dono, 2026-10-08)
+const TOM_ID = "bg-id text-white"; // grafite cheio: não lembra nenhuma cor de status (dono, 2026-10-08)
 
 function NaoLidas({ total }: { total: number }) {
   if (total === 0) return null;
@@ -74,8 +74,8 @@ function SeloPrazo({ prazo, agora }: { prazo: string | null; agora: Date }) {
  * Cartão compacto das colunas Concluídos e Cancelados (estreitas, só leitura):
  * número, título e quando/por quê encerrou.
  */
-function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) {
-  const { chamado: c, coluna, responsavel } = dados;
+function CartaoEncerrado({ dados }: { dados: DadosCartao }) {
+  const { chamado: c, coluna } = dados;
   const cancelado = coluna === "cancelados";
   const cor = COR_STATUS[coluna];
   return (
@@ -94,10 +94,8 @@ function CartaoEncerrado({ dados, agora }: { dados: DadosCartao; agora: Date }) 
         {c.titulo}
       </Link>
       <p className={`text-xs font-semibold ${cancelado ? "text-apagado" : "text-sucesso"}`}>
-        {cancelado ? "Cancelado" : "Concluído"} {formatarAtualizacao(encerradoEm(c), agora)}
-        {!cancelado && responsavel ? (
-          <span className="font-normal text-texto-suave"> · {primeiroNome(responsavel)}</span>
-        ) : null}
+        {/* Só "Concluído em 06/10 às 14:30", sem o nome (pedido do dono, 2026-10-08). */}
+        {cancelado ? "Cancelado" : "Concluído"} em {formatarDiaHora(encerradoEm(c))}
       </p>
       {cancelado && c.motivoCancelamento ? (
         <p className="line-clamp-2 text-xs text-texto-suave">“{c.motivoCancelamento}”</p>
@@ -131,7 +129,7 @@ export function CartaoChamado({
 }) {
   const { chamado: c, coluna, solicitante, responsavel, assunto, naoLidas, transferidoPor } = dados;
   if (coluna === "concluidos" || coluna === "cancelados") {
-    return <CartaoEncerrado dados={dados} agora={agora} />;
+    return <CartaoEncerrado dados={dados} />;
   }
 
   const cor = COR_STATUS[coluna];
@@ -204,7 +202,7 @@ export function CartaoChamado({
           <Avatar
             nome={responsavel.nome}
             tamanho="pequeno"
-            tom={responsavel.id === euId ? "escuro" : "suave"}
+            tom="suave" // a mesma bolinha azul para todos (a preta para "você" confundia)
           />
           <span className="sr-only">Com {comQuem}</span>
         </p>

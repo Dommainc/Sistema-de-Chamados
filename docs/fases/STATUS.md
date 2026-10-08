@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-08 | Quadro: etiqueta **ID em grafite** (o verde-água confundia com Concluído; token `id`); Concluídos/Cancelados mostram só "Concluído em 06/10 às 14:30" (sem o nome); bolinha de quem atende sempre **azul clarinha**, igual para todos (a preta para "você" saiu). |
 | 2026-10-08 | Quadro: bolinha de quem atende também em **Aguardando usuário**; mais espaço nos cartões e entre eles; etiqueta **ID** em verde-água cheio (`bg-id`, texto branco), que estava apagada. |
 | 2026-10-08 | Quadro da TI usa a **largura toda da tela** (as 6 colunas iguais estavam estreitas em monitor largo); a barra escura também. As outras telas da TI continuam centralizadas. Em teste pelo dono. |
 | 2026-10-08 | **Área da TI revisada** (pedido do dono, ADR 0014): sem "Iniciar" no cartão (inicia dentro do chamado ou arrastando), sem legenda de cor do status, sem "Próximo da fila"; colunas Novos · Em atendimento · Aguardando usuário · Concluídos · **Transferidos** · Cancelados, **todas da mesma largura**; Em atendimento só com as iniciais; Aguardando com o apoio "Vai para cá sozinho após 2 h úteis..."; prioridade **média e baixa** também no cartão. Saem **aguardar usuário, retomar e devolver à fila** do sistema todo (estados, API, rotas, tela, arraste) — ações: Concluir · Transferir · Cancelar. **Expediente 8h–20h**. +8 respostas prontas (14). Aviso do bot para aguardando anotado na 1E. |
