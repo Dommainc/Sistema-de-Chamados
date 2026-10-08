@@ -56,7 +56,7 @@ function PainelChamado({
           <span className="text-texto-suave">
             Previsão:{" "}
             <strong className="text-texto">
-              {chamado.prazoSla ? formatarQuando(chamado.prazoSla) : "a TI vai informar"}
+              {chamado.prazoSla ? formatarQuando(chamado.prazoSla) : "aguardando análise da TI"}
             </strong>
           </span>
         ) : null}

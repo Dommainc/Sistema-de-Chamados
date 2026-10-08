@@ -44,7 +44,7 @@ assim que você responder, o atendimento volta a andar.
 - **Respondeu e a TI pediu algo?** Se você ficar 2 horas (de expediente) sem responder, o chamado fica como
   **Aguardando sua resposta**; depois de 24 horas, a Central manda um lembrete no chat. É só responder que o
   atendimento continua.
-- **Concluído e o problema voltou?** Toque em **Abrir novo pedido** — ele já vem com o número do anterior.
+- **Concluído e o problema voltou?** Toque em **Abrir novo chamado** — ele já vem com o número do anterior.
 
 ---
 
@@ -94,7 +94,7 @@ junto com ele.
 
 ![Relato técnico](guia/img/computador-08b-relato-tecnico.png)
 
-- No **topo** ficam o solicitante (com telefone e e-mail), o responsável, o prazo e a categoria, e as **ações** —
+- No **topo** ficam o solicitante (com e-mail e o botão **"Falar no Teams"**), o responsável, o prazo e a categoria, e as **ações** —
   só as que dá para fazer agora (Devolver à fila e Cancelar ficam em **⋯**):
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
   - **Aguardar usuário / Retomar atendimento** — quando você precisa de uma resposta;

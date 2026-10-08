@@ -51,6 +51,10 @@ describe("AtendimentoChamado", () => {
     const solicitante = await screen.findByRole("region", { name: "Solicitante" });
     expect(within(solicitante).getByText("Ana Souza")).toBeInTheDocument();
     expect(within(solicitante).getByText("ana@teste.local")).toBeInTheDocument();
+    expect(within(solicitante).getByRole("link", { name: "Falar no Teams" })).toHaveAttribute(
+      "href",
+      "https://teams.microsoft.com/l/chat/0/0?users=ana%40teste.local",
+    );
     const historico = await screen.findByRole("region", { name: "Histórico" });
     expect(within(historico).getByText("Aberto por Ana Souza")).toBeInTheDocument();
     expect(within(historico).getByText("Em atendimento → Aguardando usuário")).toBeInTheDocument();

@@ -19,11 +19,11 @@ test("Ana abre um chamado colando um print e recebe o número (previsão vem da 
   await colarImagem(page, "textarea");
   await expect(page.getByText(/^print-\d{8}-\d{6}\.png$/)).toBeVisible();
 
-  await page.getByRole("button", { name: "Enviar pedido" }).click();
+  await page.getByRole("button", { name: "Enviar chamado" }).click();
   await expect(page.getByText("Pronto! Seu chamado é o")).toBeVisible();
   await expect(page.getByText("#46")).toBeVisible();
   await expect(page.getByText(/Você vai receber avisos no/)).toBeVisible();
-  await expect(page.getByText("A TI vai analisar e informar")).toBeVisible();
+  await expect(page.getByText("Aguardando análise da TI")).toBeVisible();
 
   await page.getByRole("link", { name: "Acompanhar meu chamado" }).click();
   await expect(page).toHaveURL(/\/meus-chamados\/46$/);
@@ -199,7 +199,7 @@ test("erros aparecem com a mensagem amigável do catálogo", async ({ page, cont
   await entrar(page, "Ana Souza");
   await page.goto("/abrir/2");
 
-  await page.getByRole("button", { name: "Enviar pedido" }).click();
+  await page.getByRole("button", { name: "Enviar chamado" }).click();
   await expect(page.getByText("Preencha o campo Resumo do problema para continuar.")).toBeVisible();
 
   const arquivo = page.locator('input[type="file"]');

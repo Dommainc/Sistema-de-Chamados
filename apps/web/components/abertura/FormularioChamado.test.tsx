@@ -68,14 +68,16 @@ describe("FormularioChamado", () => {
     expect(
       screen.getByRole("radio", { name: "O escritório ou a obra inteira" }),
     ).toBeInTheDocument();
-    expect(
-      await screen.findByText(/A TI analisa o pedido e informa a previsão/),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Aguardando análise da TI")).toBeInTheDocument();
+    // Um botão só, no fim do formulário (ajuste do Renato).
+    expect(screen.getAllByRole("button", { name: "Enviar chamado" })).toHaveLength(1);
+    // Sem cores nos sistemas do formulário.
+    expect(document.querySelector('[class*="bg-sis-"]')).toBeNull();
   });
 
   it("enviar vazio mostra o erro embaixo de cada campo obrigatório", async () => {
     renderizar();
-    fireEvent.click((await screen.findAllByRole("button", { name: "Enviar pedido" }))[0]);
+    fireEvent.click((await screen.findAllByRole("button", { name: "Enviar chamado" }))[0]);
     expect(
       await screen.findByText("Preencha o campo Resumo do problema para continuar."),
     ).toBeInTheDocument();
@@ -96,7 +98,7 @@ describe("FormularioChamado", () => {
     fireEvent.change(screen.getByLabelText(/Descreva o que está acontecendo/), {
       target: { value: "Roteador com luz vermelha" },
     });
-    fireEvent.click(screen.getAllByRole("button", { name: "Enviar pedido" })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Enviar chamado" })[0]);
 
     await waitFor(() => expect(navegacao.replace).toHaveBeenCalled());
     const criado = lerEstado().chamados.at(-1)!;
@@ -154,7 +156,7 @@ describe("FormularioChamado", () => {
       },
     });
     await screen.findByText(/^print-\d{8}-\d{6}\.png$/);
-    fireEvent.click(screen.getAllByRole("button", { name: "Enviar pedido" })[0]);
+    fireEvent.click(screen.getAllByRole("button", { name: "Enviar chamado" })[0]);
 
     expect(
       await screen.findByText(

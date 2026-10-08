@@ -120,11 +120,11 @@ describe("ChatChamado", () => {
     expect(screen.getByText("Mensagem importante")).toBeInTheDocument();
   });
 
-  it("chamado encerrado: sem campo de resposta e com 'Abrir novo pedido' citando o número", async () => {
+  it("chamado encerrado: sem campo de resposta e com 'Abrir novo chamado' citando o número", async () => {
     renderizar(ANA, 35);
     expect(await screen.findByText("Este chamado foi encerrado.")).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Mensagem" })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Abrir novo pedido" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Abrir novo chamado" })).toHaveAttribute(
       "href",
       "/?referente=35",
     );

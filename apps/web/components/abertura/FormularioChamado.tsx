@@ -204,9 +204,19 @@ function FormularioCarregado({
           ))}
 
           <SeletorAnexos arquivos={arquivos} aoAdicionar={adicionar} aoRemover={remover} />
+
+          {/* Envio no fim do formulário, abaixo do último campo (ajuste do Renato, 2026-10-08). */}
+          <Botao
+            type="submit"
+            carregando={enviando}
+            larguraTotal
+            className="min-h-13 text-lg"
+          >
+            Enviar chamado
+          </Botao>
         </div>
 
-        {/* Computador: resumo e envio sempre à vista, ao lado do formulário. */}
+        {/* Computador: resumo ao lado do formulário (o envio fica no fim do formulário). */}
         <aside className="hidden lg:block">
           <div className="sticky top-6 flex flex-col gap-4 rounded-2xl border border-borda bg-superficie p-5 shadow-sm">
             <div>
@@ -217,9 +227,7 @@ function FormularioCarregado({
               <Clock aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-primaria" />
               <div>
                 <p className="text-sm text-texto-suave">Previsão de conclusão</p>
-                <p className="text-sm">
-                  A TI analisa o pedido e informa a previsão aqui no chamado.
-                </p>
+                <p className="text-sm font-semibold">Aguardando análise da TI</p>
               </div>
             </div>
             {arquivos.length > 0 ? (
@@ -229,20 +237,8 @@ function FormularioCarregado({
                   : `${arquivos.length} arquivos anexados`}
               </p>
             ) : null}
-            <Botao type="submit" carregando={enviando} larguraTotal className="min-h-13 text-lg">
-              Enviar pedido
-            </Botao>
           </div>
         </aside>
-      </div>
-
-      {/* Celular: rodapé fixo com o envio (mockup, tela 2). A previsão quem informa é a TI (ADR 0009). */}
-      <div className="sticky bottom-0 border-t border-borda bg-superficie lg:hidden">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-3 md:px-8">
-          <Botao type="submit" carregando={enviando} larguraTotal className="min-h-13 text-lg">
-            Enviar pedido
-          </Botao>
-        </div>
       </div>
     </form>
   );

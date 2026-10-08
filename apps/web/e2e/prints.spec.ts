@@ -29,7 +29,7 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await expect(page.getByText(/^print-\d{8}-\d{6}\.png$/)).toBeVisible();
   await print(page, "03-abrir-passo2", p);
 
-  await page.getByRole("button", { name: "Enviar pedido" }).click();
+  await page.getByRole("button", { name: "Enviar chamado" }).click();
   await expect(page.getByText("Pronto! Seu chamado é o")).toBeVisible();
   await print(page, "04-abrir-passo3", p);
 

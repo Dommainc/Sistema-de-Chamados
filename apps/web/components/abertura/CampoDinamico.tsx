@@ -1,6 +1,5 @@
 "use client";
 
-import { corDaOpcao } from "@/lib/sistemas";
 import { AreaTexto } from "@/components/ui/AreaTexto";
 import { Campo } from "@/components/ui/Campo";
 import { OpcaoCartao } from "@/components/ui/OpcaoCartao";
@@ -83,7 +82,6 @@ export function CampoDinamico({
               valor={o.valor}
               rotulo={o.rotulo}
               multipla={multipla}
-              marcador={corDaOpcao(campo, o.valor)?.fundo}
               selecionado={marcados.includes(o.valor)}
               aoSelecionar={(v) =>
                 aoMudar(

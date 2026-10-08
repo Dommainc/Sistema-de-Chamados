@@ -1,6 +1,14 @@
 "use client";
 
-import { CalendarClock, ChevronLeft, Lock, Mail, MoreHorizontal, Phone } from "lucide-react";
+import {
+  CalendarClock,
+  ChevronLeft,
+  Lock,
+  Mail,
+  MessageCircle,
+  MoreHorizontal,
+} from "lucide-react";
+import { linkChatTeams } from "@/lib/teams";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "@/components/ui/Avatar";
@@ -309,14 +317,15 @@ export function CabecalhoChamado({
                 ) : null}
               </span>
               <span className="flex flex-wrap gap-x-3 text-sm">
-                {solicitante.telefone ? (
-                  <a
-                    href={`tel:${solicitante.telefone}`}
-                    className="inline-flex items-center gap-1 text-primaria underline"
-                  >
-                    <Phone aria-hidden="true" className="size-3.5" /> {solicitante.telefone}
-                  </a>
-                ) : null}
+                {/* Só um link que abre o chat do Teams com a pessoa (sem API — integrações: só login e bot). */}
+                <a
+                  href={linkChatTeams(solicitante.email)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 font-semibold text-primaria underline"
+                >
+                  <MessageCircle aria-hidden="true" className="size-3.5 shrink-0" /> Falar no Teams
+                </a>
                 <a
                   href={`mailto:${solicitante.email}`}
                   className="inline-flex min-w-0 items-center gap-1 truncate text-primaria underline"

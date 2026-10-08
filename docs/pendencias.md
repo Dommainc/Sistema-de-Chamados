@@ -11,6 +11,8 @@ Lista viva. **Toda sessão** que encontrar um problema ou resolver um item atual
 
 | Código | Gravidade | Tipo | Descrição | Onde resolver |
 |---|---|---|---|---|
+| P-041 | 🟡 | regra | **Departamento em lista** (ajuste do Renato, 2026-10-08): falta a **lista de setores do RH** (incluindo as obras). Plano: tabela `departamentos` mantida por SQL, seleção no primeiro acesso e item **"Meu setor"** no menu para trocar depois. Puxar do Microsoft 365: só se vier no próprio login (claim do Entra, sem Graph) e o campo estiver preenchido para todos — avaliar com o App Registration. | Lista do RH |
+| P-042 | ⚪ | regra | **Ordem dos assuntos** (pergunta do Renato): hoje a ordem foi definida pela TI, sem contagem. Para ordenar por volume, falta a **quantidade de chamados por tipo** no sistema antigo (exportação única do Lists, sem integração); depois é só ajustar `categorias.ordem` no seed. | Números do sistema antigo |
 | P-040 | ⚪ | web | **Dashboard (Fase 2)** — pedido do dono, 2026-10-08: uma **aba "Dashboard"** na área técnica com os números: chamados por sistema, categoria e técnico; tempo médio até concluir; quantos venceram o prazo. Os dados já existem no banco; falta a tela (e, se precisar, uma view de resumo). | Fase 2 |
 | P-021 | ⚪ | regra | Alerta de chamado `transferido` parado (ideia do dono, sem pressa). | Fase 2 |
 | P-002 | 🟡 | ambiente | Ambiente local de banco (Docker, Supabase CLI) **adiado pelo dono**: nada de banco é executado até a decisão sobre o Supabase (P-022). `uv` e `pnpm` ainda faltam na máquina (o `pnpm` será necessário para o front). | Quando P-022 for decidido |

@@ -17,7 +17,6 @@ export function FormPrimeiroAcesso() {
   const { mostrarErro } = useToast();
   const { dados: perfil } = useConsulta(consultarPerfil);
   const [departamento, setDepartamento] = useState("");
-  const [telefone, setTelefone] = useState("");
   const [errosCampo, setErrosCampo] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
 
@@ -31,7 +30,8 @@ export function FormPrimeiroAcesso() {
     setEnviando(true);
     setErrosCampo({});
     try {
-      await fonte.atualizarMeuPerfil({ departamento, telefone: telefone || null });
+      // Sem telefone: o contato com a TI é pelo Teams (ajuste do Renato, 2026-10-08).
+      await fonte.atualizarMeuPerfil({ departamento, telefone: null });
       router.replace("/");
     } catch (erro) {
       if (erro instanceof ErroApp && erro.campos.length > 0) {
@@ -53,16 +53,6 @@ export function FormPrimeiroAcesso() {
         value={departamento}
         onChange={(e) => setDepartamento(e.target.value)}
         erro={errosCampo.departamento}
-      />
-      <Campo
-        rotulo="Telefone ou celular"
-        name="telefone"
-        type="tel"
-        autoComplete="tel"
-        ajuda="Opcional. Ajuda a TI a falar com você se precisar."
-        value={telefone}
-        onChange={(e) => setTelefone(e.target.value)}
-        erro={errosCampo.telefone}
       />
       <Botao type="submit" carregando={enviando} larguraTotal>
         Continuar

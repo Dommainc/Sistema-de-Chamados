@@ -188,7 +188,7 @@ export function ChatChamado({
             <p className="text-texto-suave">
               O problema voltou ou precisa de algo?{" "}
               <Link href={novoPedido} className="font-semibold text-primaria underline">
-                Abrir novo pedido
+                Abrir novo chamado
               </Link>
             </p>
           </div>

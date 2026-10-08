@@ -14,7 +14,7 @@ O mockup foi desenhado com o fluxo antigo (Resolvido + confirmação + fechament
 | Card "#35 · Deu certo? Confirme · Resolvido" | Não existe. Concluído vai para a aba Encerrados |
 | Coluna "Resolvidos · Falta o solicitante confirmar" / "Fecha sozinho em 2 dias úteis" | Vira **"Concluídos"** (pedido do dono, 2026-10-06): concluídos dos **últimos 7 dias**, só leitura, sem confirmação nem fechamento automático. Arrastar para ela conclui (com confirmação). Cancelados e mais antigos: "Ver encerrados" |
 | Botão "Marcar como resolvido" / "Resolver" | **"Marcar como concluído"** (desktop) / **"Concluir"** (celular) |
-| Painel do técnico: "Contato: Ramal" | **"Telefone"** (o primeiro acesso pede telefone/celular) |
+| Painel do técnico: "Contato: Ramal" | **"Falar no Teams"** (link que abre o chat do Teams com o solicitante) e e-mail. O primeiro acesso **não pede telefone** (ajuste do Renato, 2026-10-08) |
 | Alternância "Quadro \| Lista" na barra escura | **Só o quadro (kanban)** — decisão do dono em 2026-10-06. Busca por texto filtra o quadro; "Ver encerrados" é uma página de cartões só para consulta |
 | Destaque "perto de vencer" | **Menos de 1 h** para o prazo (mockup) — substitui os "20% do SLA" da 1A-3 |
 
@@ -77,13 +77,15 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 **Menu inferior** fixo no celular: Abrir chamado · Meus chamados (contador laranja = chamados aguardando resposta).
 No computador (pedido do dono, 2026-10-05) o portal usa a largura da tela (até ~1150 px): o menu vai para o cabeçalho;
 categorias em 3–4 colunas; "Meus chamados" em 2 colunas; passo 2 com o formulário à esquerda e um painel fixo à direita
-(assunto, previsão, "Enviar pedido"); chamado com o chat à esquerda e um painel à direita (andamento, técnico, previsão,
+(assunto e previsão; o botão **"Enviar chamado"** fica no fim do formulário (ajuste do Renato, 2026-10-08)); chamado com o chat à esquerda e um painel à direita (andamento, técnico, previsão,
 detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirmação seguem centralizados.
 
+0. **Primeiro acesso** (`/primeiro-acesso`): **"Olá, Ana!"**, "Antes de começar, conte em que setor você trabalha.",
+   só o campo Departamento (sem telefone) (ajuste do Renato, 2026-10-08). Lista de setores do RH: P-041.
 1. **Abrir chamado — Passo 1 de 3** (`/`)
    - Aviso âmbar no topo se houver chamado aguardando resposta: ícone de balão, "O técnico está esperando sua resposta",
      "Chamado #41 · título", link "Responder".
-   - "Passo 1 de 3", título "Com o que você precisa de ajuda?", apoio "Escolha o assunto. Na dúvida, use **Outros**."
+   - "Passo 1 de 3", título "Com o que você precisa de ajuda?", apoio "Escolha o assunto." (sem "Na dúvida, use Outros" (ajuste do Renato, 2026-10-08))
    - Busca "Buscar assunto (ex.: senha, impressora)" filtrando as categorias.
    - Grade de 2 colunas: ícone + **nome curto** da categoria. "Outros pedidos para a TI" ocupa a linha inteira, no fim.
 2. **Passo 2 de 3**
@@ -92,12 +94,13 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
    - Campos dinâmicos: `selecao` vira **cartões de opção (rádio)**; texto e texto longo como campos normais.
    - "Fotos e arquivos (opcional)": área tracejada com câmera, "Tirar foto ou anexar arquivo",
      "No computador: cole um print com Ctrl+V"; lista de arquivos com miniatura, nome, tamanho e remover (×).
-   - Rodapé fixo com o botão principal de enviar. No computador, o resumo lateral diz "Previsão de conclusão:
-     A TI analisa o pedido e informa a previsão aqui no chamado" (não há mais previsão automática — ADR 0009).
+   - Botão **"Enviar chamado"** no **fim do formulário**, abaixo do último campo (ajuste do Renato, 2026-10-08). No computador, o resumo
+     lateral diz "Previsão de conclusão: **Aguardando análise da TI**" (não há previsão automática — ADR 0009).
+   - Opções de "Qual sistema?" **sem cores** no formulário (ajuste do Renato, 2026-10-08); as cores ficam só na área da TI.
 3. **Passo 3 de 3 — confirmação**
    - Círculo verde com ✓, "Pronto! Seu chamado é o", **#42** grande em azul, título do chamado.
-   - Cartão: "Previsão de conclusão · A TI vai analisar e informar" e "Você vai receber avisos no **Teams** quando o técnico iniciar o atendimento ou responder."
-   - Botões no rodapé: [Acompanhar meu chamado] (azul) e [Abrir outro pedido] (contorno).
+   - Cartão: "Previsão de conclusão · **Aguardando análise da TI**" e "Você vai receber avisos no **Teams** quando o técnico iniciar o atendimento ou responder."
+   - Botões no rodapé: [Acompanhar meu chamado] (azul) e [Abrir outro chamado] (contorno).
 4. **Meus chamados** (`/meus-chamados`)
    - Seletor "Em andamento (4) | Encerrados".
    - Cartão: "#41" (mono, cinza) · à direita a informação mais útil ("• Nova mensagem", "Previsão: hoje, 11:30",
@@ -106,7 +109,7 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
 5. **Chamado** (`/meus-chamados/41`)
    - "‹ Meus chamados", "Chamado #41" (mono), título, barra de progresso de 3 passos (concluído = ✓ verde; atual = ponto laranja).
    - Aviso âmbar: "Rafael está esperando sua resposta. Responda abaixo para ele continuar."
-   - "Técnico: **Rafael Lima**" · "Previsão: **hoje, 14:00**" (sem prazo: "Previsão: **a TI vai informar**").
+   - "Técnico: **Rafael Lima**" · "Previsão: **hoje, 14:00**" (sem prazo: "Previsão: **aguardando análise da TI**").
      Na conversa, pílula "Previsão de conclusão: 08/10/2026 18:00" (ou "alterada para …: motivo"). Link "Ver detalhes do pedido" (abre respostas do formulário e arquivos).
    - Chat: separador "Hoje"; mensagens do solicitante em bolha azul à direita; da TI em bolha branca à esquerda com
      "Rafael Lima · TI · 09:52"; eventos do sistema em pílula cinza centralizada ("Rafael Lima iniciou o atendimento · 09:40");
@@ -144,7 +147,7 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      → Cancelados (motivo).
    - **Sistema** (categoria de acessos): selo com o nome na cor do sistema (Sienge vermelho · CVCRM verde claro ·
      Construpoint vermelho claro · Construmanager vermelho escuro · Docusign azul escuro · Prevision roxo · Metadados azul
-     claro · Não se aplica cinza; tokens `sis-*`, `lib/sistemas.ts`). No formulário, quadradinho da mesma cor em cada opção.
+     claro · Não se aplica cinza; tokens `sis-*`, `lib/sistemas.ts`). Só na área da TI: o formulário não tem cores (ajuste do Renato, 2026-10-08).
    - **Fundo do cartão branco**, só com a faixa grossa na cor do status (teste do dono, 2026-10-07).
    - **Prioridade alta**: o cartão sobe para o topo da coluna e mostra o selo vermelho **"⚠ Prioridade alta"** (ADR 0012).
 7. **Atendimento** (`/atendimento/41`) — **reorganizada a pedido do dono (2026-10-07)**: antes a direita tinha 5 cartões
@@ -152,7 +155,7 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
    - **Cabeçalho-resumo** (cartão no topo): "‹ Quadro", "#41 título" + selo de status e, à direita, as **ações**:
      a principal em destaque (**Iniciar** ou **Marcar como concluído**), Aguardar/Retomar e Transferir em contorno, e
      **"⋯ Mais ações"** com Devolver à fila e Cancelar chamado (vermelho). Abaixo, quatro blocos: **SOLICITANTE**
-     (avatar, nome, departamento, telefone e e-mail clicáveis), **RESPONSÁVEL** (+ "Aberto em"), **PRAZO** (colorido,
+     (avatar, nome, departamento, e-mail e **"Falar no Teams"**), **RESPONSÁVEL** (+ "Aberto em"), **PRAZO** (colorido,
      link **Definir prazo** / **Alterar prazo** — a janela tem atalhos Hoje 18h · Amanhã 12h · Amanhã 18h · Em 3 dias
      úteis, campo de data e hora e, ao alterar, o motivo), **PRIORIDADE** (botões Alta vermelho · Média amarelo ·
      Baixa cinza; só TI) e **CATEGORIA**. **Não iniciado** (novo/transferido): faixa laranja "Chamado ainda não

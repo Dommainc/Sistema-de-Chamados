@@ -60,7 +60,7 @@ export function ConfirmacaoChamado({ id }: { id: number }) {
               <p className="text-lg font-bold">
                 {chamado.prazoSla
                   ? maiuscula(formatarPrevisao(chamado.prazoSla))
-                  : "A TI vai analisar e informar"}
+                  : "Aguardando análise da TI"}
               </p>
             </div>
           </div>
@@ -85,7 +85,7 @@ export function ConfirmacaoChamado({ id }: { id: number }) {
             href={caminhos.inicio}
             className={`${BASE_BOTAO} ${ESTILOS_BOTAO.contorno} min-h-13 text-lg`}
           >
-            Abrir outro pedido
+            Abrir outro chamado
           </Link>
         </div>
       </div>
