@@ -67,7 +67,7 @@ export function BarraTecnico() {
 
   return (
     <header className="bg-barra text-sobre-barra">
-      <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between gap-4 px-4 py-2.5">
+      <div className="flex w-full items-center justify-between gap-4 px-4 py-2.5">
         <div className="flex items-center gap-5">
           <Link href="/atendimento" className="flex min-h-11 items-center">
             <Logo subtitulo="Atendimento TI" tema="escuro" emLinha />
