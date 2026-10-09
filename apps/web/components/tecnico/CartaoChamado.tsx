@@ -148,7 +148,8 @@ export function CartaoChamado({
     >
       <div className="flex flex-wrap items-center gap-1.5">
         <EtiquetaId numero={c.id} />
-        {c.prioridade === "alta" ? (
+        {/* Em Novos não há prioridade nem prazo: a TI só define depois de iniciar (ADR 0012; dono, 2026-10-09). */}
+        {coluna === "novos" ? null : c.prioridade === "alta" ? (
           <span className="inline-flex items-center gap-1 rounded-md bg-perigo px-1.5 py-0.5 text-[11px] font-bold text-white">
             <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta
           </span>
@@ -220,7 +221,7 @@ export function CartaoChamado({
       ) : null}
 
       <div className="mt-0.5 flex flex-wrap items-center gap-2">
-        <SeloPrazo prazo={c.prazoSla} agora={agora} />
+        {coluna === "novos" ? null : <SeloPrazo prazo={c.prazoSla} agora={agora} />}
         {sistema ? (
           <span className="inline-flex items-center gap-1 text-xs font-semibold text-texto">
             {corSistema ? (

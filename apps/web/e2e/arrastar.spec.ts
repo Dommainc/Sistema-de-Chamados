@@ -23,19 +23,20 @@ test.describe("computador (mouse)", () => {
 
   test("arrastar de Novos para Em atendimento inicia o chamado", async ({ page }) => {
     await entrar(page, "Rafael Lima");
-    const inicio = await pontoDoNumero(cartao(page, 42));
+    // O primeiro da fila (Novos segue a ordem de chegada): fica no topo, à vista.
+    const primeiro = coluna(page, "Novos").getByRole("article").first();
+    const numero = ((await primeiro.getAttribute("aria-label")) ?? "").match(/Chamado (\d+)/)?.[1];
+    const inicio = await pontoDoNumero(primeiro);
     const destino = await coluna(page, "Em atendimento").boundingBox();
-    if (!destino) throw new Error("coluna sem posição");
+    if (!destino || !numero) throw new Error("coluna ou cartão sem posição");
 
     await page.mouse.move(inicio.x, inicio.y);
     await page.mouse.down();
     await page.mouse.move(destino.x + destino.width / 2, destino.y + 120, { steps: 12 });
     await page.mouse.up();
 
-    await expect(page.getByText("Você iniciou o chamado #42.")).toBeVisible();
-    await expect(
-      coluna(page, "Em atendimento").getByText("Sem internet na obra Recreio"),
-    ).toBeVisible();
+    await expect(page.getByText(`Você iniciou o chamado #${numero}.`)).toBeVisible();
+    await expect(cartao(page, Number(numero))).toBeVisible();
   });
 
   test("clicar no título continua abrindo o chamado (não vira arraste)", async ({ page }) => {

@@ -119,9 +119,12 @@ describe("solicitante não faz ações da TI", () => {
 });
 
 describe("fila e contadores", () => {
-  it("próximo da fila = pendente com o prazo mais apertado (sem prazo vai depois)", async () => {
+  it("próximo da fila = o pendente mais antigo (novos não têm prazo — ADR 0012)", async () => {
     const proximo = await criarFonteSimulada(RAFAEL.id).proximoDaFila();
-    expect(proximo?.id).toBe(36); // venceu há 3 h
+    const pendentes = lerEstado()
+      .chamados.filter((c) => c.status === "pendente")
+      .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm));
+    expect(proximo?.id).toBe(pendentes[0].id);
   });
 
   it("contagem de mensagens não lidas por chamado (TI vê as dos outros)", async () => {

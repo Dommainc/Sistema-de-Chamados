@@ -142,6 +142,8 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      na coluna (Em atendimento e Aguardando → **bolinha com as iniciais** de quem atende, o nome no passar do mouse; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**
      (🔴 "Venceu há 3 h" · 🟠 "Vence em 49 min" · 🟡 "Sem prazo" · neutro "Prazo: amanhã, 14:00"); ao lado do prazo, **■ sistema** (Sienge, CVCRM...; "Não se aplica" não
      aparece no cartão); 💬 mensagens novas. **Sem botão Iniciar** (inicia-se dentro do chamado ou arrastando).
+     **Em Novos** o cartão não mostra prazo nem prioridade (só existem depois de iniciar — ADR 0012) e a coluna
+     segue a **ordem de chegada** (mais antigo no topo, sem as seções "Prazo vencido / Na fila").
    - Cartão encerrado (Concluídos/Cancelados): "ID 30", título, "Concluído em 05/10 às 14:30" (sem o nome) ou
      "Cancelado em 03/10 às 10:00" + o motivo. Só leitura.
    - Arrastar: Novos/Transferidos → Em atendimento (**iniciar**), Em atendimento/Aguardando → Transferidos

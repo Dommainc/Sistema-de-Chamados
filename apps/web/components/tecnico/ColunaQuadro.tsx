@@ -2,13 +2,12 @@
 
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
-import { situacaoPrazo } from "@/lib/prazo";
 import type { DadosArraste } from "./arraste";
 import { COR_STATUS } from "./cores";
 import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import type { ColunaQuadro as IdColuna } from "./quadro";
 
-const LIMITE_INICIAL = 6;
+const LIMITE_INICIAL = 8;
 
 type PropsCartao = {
   dados: DadosCartao;
@@ -103,13 +102,6 @@ export function ColunaQuadro({
   const escondidos = cartoes.length - visiveis.length;
   const props = { euId, agora, destacados };
 
-  // Em "Novos": seções "PRAZO VENCIDO" e "NA FILA" (mockup).
-  const vencidos = visiveis.filter((c) => situacaoPrazo(c.chamado.prazoSla, agora) === "vencido");
-  const naFila = visiveis.filter((c) => situacaoPrazo(c.chamado.prazoSla, agora) !== "vencido");
-  const totalVencidos = cartoes.filter(
-    (c) => situacaoPrazo(c.chamado.prazoSla, agora) === "vencido",
-  ).length;
-
   return (
     <section
       id={`coluna-${id}`}
@@ -141,25 +133,6 @@ export function ColunaQuadro({
         <p className="rounded-xl border border-dashed border-borda p-5 text-center text-sm text-texto-suave">
           {encerrada ? "Nada nos últimos 7 dias." : "Nenhum chamado aqui."}
         </p>
-      ) : id === "novos" ? (
-        <>
-          {vencidos.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <p className="px-1 text-xs font-bold tracking-wider text-perigo uppercase">
-                Prazo vencido · {totalVencidos}
-              </p>
-              <ListaCartoes cartoes={vencidos} {...props} />
-            </div>
-          ) : null}
-          {naFila.length > 0 ? (
-            <div className="flex flex-col gap-2">
-              <p className="px-1 text-xs font-bold tracking-wider text-texto-suave uppercase">
-                Na fila · {cartoes.length - totalVencidos}
-              </p>
-              <ListaCartoes cartoes={naFila} {...props} />
-            </div>
-          ) : null}
-        </>
       ) : (
         <ListaCartoes cartoes={visiveis} {...props} />
       )}

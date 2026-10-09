@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-09 | Quadro: cartões de **Novos sem prazo e sem prioridade** (só existem depois de iniciar — ADR 0012); Novos em **ordem de chegada** (o mais antigo no topo), sem as seções "Prazo vencido / Na fila"; colunas mostram até 8 cartões antes do "Ver mais". Exemplos: chamados novos sem prazo e prioridade (VERSAO 14 — a demonstração recomeça). |
 | 2026-10-09 | Ideia de escalonamento N1/N2/N3 com "bater ponto" guardada em `docs/ideias/escalonamento-n1-n2-n3.md` (P-044), para o dono discutir com o Renato. Nada implantado. |
 | 2026-10-09 | Base de conhecimento adiada pelo dono: ideias registradas na P-043. |
 | 2026-10-09 | **Pesquisa de satisfação** (ADR 0015): no chamado concluído, o solicitante dá **1 a 5 estrelas + texto** (obrigatório com nota 1 ou 2), uma vez, sem prazo; selo "Avalie o atendimento" em Meus chamados. TI vê a nota com o nome no chamado e no histórico; Dashboard com **satisfação média** e **nota por técnico**; página **Avaliações** com filtros. Migration 0024 `avaliacoes` + pgTAP 011; `POST /chamados/{id}/avaliacao`; erros `AVALIACAO_INDISPONIVEL` e `AVALIACAO_JA_ENVIADA`. Convite no aviso do Teams anotado na 1E. |

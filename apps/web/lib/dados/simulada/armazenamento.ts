@@ -23,7 +23,7 @@ import {
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 13; // 12: 4 categorias (Infraestrutura) · 13: avaliações (pesquisa de satisfação — ADR 0015)
+const VERSAO = 14; // 13: avaliações · 14: novos (pendente) sem prazo nem prioridade alta (ADR 0012)
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 

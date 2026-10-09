@@ -104,7 +104,9 @@ describe("QuadroAtendimento", () => {
   it("monta Novos, Em atendimento e Aguardando usuário com os exemplos", async () => {
     renderizar();
     await carregado();
-    expect(within(coluna("Novos")).getByText(/^Prazo vencido · \d+$/)).toBeInTheDocument();
+    // Em Novos não há prazo nem prioridade (só depois de iniciar — ADR 0012).
+    expect(within(coluna("Novos")).queryByText(/Prazo|Sem prazo|Vence/)).not.toBeInTheDocument();
+    expect(within(coluna("Novos")).queryByText(/Prioridade/)).not.toBeInTheDocument();
     expect(
       within(coluna("Novos")).getByText("Impressora do 3º andar não imprime"),
     ).toBeInTheDocument();
@@ -142,8 +144,9 @@ describe("QuadroAtendimento", () => {
   it("cartão mostra a prioridade (alta, média ou baixa) e, em atendimento, só as iniciais", async () => {
     renderizar();
     await carregado();
-    expect(within(cartao(36)).getByText(/Prioridade alta/)).toBeInTheDocument();
-    expect(within(cartao(42)).getByText("Prioridade média")).toBeInTheDocument();
+    expect(within(cartao(38)).getByText(/Prioridade alta/)).toBeInTheDocument();
+    expect(within(cartao(33)).getByText("Prioridade média")).toBeInTheDocument();
+    expect(within(cartao(42)).queryByText(/Prioridade/)).not.toBeInTheDocument();
     const emAtendimento = cartao(38);
     expect(within(emAtendimento).getByText("RL")).toBeInTheDocument();
     expect(within(emAtendimento).getByText("Com você")).toHaveClass("sr-only");

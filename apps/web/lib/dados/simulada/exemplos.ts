@@ -464,12 +464,13 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       solicitanteId: e.solicitante,
       responsavelId: e.responsavel,
       status: e.status,
-      // Prioridade alta em dois exemplos (ADR 0012): #36 (novo, vencido) e #38 (em atendimento).
-      prioridade: e.id === 36 || e.id === 38 ? "alta" : "media",
+      // Prioridade e prazo só depois de iniciar (ADR 0012): os novos (pendente) nascem Média e sem prazo.
+      // Prioridade alta no #38 (em atendimento).
+      prioridade: e.status !== "pendente" && e.id === 38 ? "alta" : "media",
       respostasForm: { ...e.respostas, descricao: e.descricao },
       // Prazo futuro em horas úteis; vencidos e "vence em menos de 1 h" ficam exatos.
       prazoSla:
-        e.prazoEm === undefined
+        e.prazoEm === undefined || e.status === "pendente"
           ? null
           : e.prazoEm >= 60
             ? adicionarHorasUteis(agora, e.prazoEm / 60, EXPEDIENTE_SIMULADO).toISOString()
