@@ -4,7 +4,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(11);
+select plan(12);
 
 grant central_api to current_user;
 grant usage on schema extensions to central_api;
@@ -70,9 +70,14 @@ select throws_ok(
 );
 select throws_ok(
   $$ update public.avaliacoes set nota = 1 $$,
-  'CC002', null, 'Avaliação não muda'
+  '42501', null, 'A API não tem permissão de alterar avaliação'
 );
 reset role;
+-- Mesmo quem tem permissão (dono do banco) esbarra no trigger: avaliação não muda.
+select throws_ok(
+  $$ update public.avaliacoes set nota = 1 $$,
+  'CC002', null, 'Avaliação não muda (trigger)'
+);
 
 -- ------------------------------------------------------------------- Leitura (RLS)
 select set_config('request.jwt.claims',
