@@ -136,7 +136,7 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
      sozinho após 2 h úteis sem resposta do solicitante") · **Concluídos** (verde) · **Transferidos** (roxo) ·
      **Cancelados** (cinza). Abaixo de ~1280 px, rolagem lateral.
    - **Cartão**: faixa grossa à esquerda (fundo branco) na **cor do status** (muda junto com o status; tokens `laranja`,
-     `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** sempre **grafite com texto branco** (`id`, cor exclusiva — o verde-água confundia com Concluído);
+     `roxo`, `amarelo`, `royal`, `sucesso`, `apagado`); etiqueta **"ID 36"** em **caixa clarinha neutra** (`superficie-2`, texto escuro — dono, 2026-10-09: o número é referência, as cores fortes ficam para status, prazo e prioridade);
      em cima a **prioridade** ("⚠ Prioridade alta" vermelho · "Prioridade média" amarelo · "Prioridade baixa" cinza), "NOVO" (só em Novos, nas primeiras 24 h depois de aberto) e
      "Transferido para você · por Thiago"; **título em destaque**; "solicitante · categoria"; o que importa
      na coluna (Em atendimento e Aguardando → **bolinha com as iniciais** de quem atende, o nome no passar do mouse; Aguardando → "⌛ Esperando **Ana** há 2h"); **retângulo do prazo**

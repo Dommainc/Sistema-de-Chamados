@@ -45,9 +45,6 @@
   --cor-amarelo-suave: #fff3bf;
   --cor-royal: #2148c0;
   --cor-royal-suave: #e6ecfc;
-  /* Etiqueta "ID": verde-água, cor que não é usada em mais nada. */
-  --cor-id: #343a40; /* grafite: etiqueta do ID (o verde-água confundia com Concluído) */
-  --cor-id-suave: #d9f2ef;
   /* Fundo dos cartões de "Novos": laranja de verdade (o laranja-suave transparente parecia amarelo). */
   --cor-laranja-cartao: #ffe0c2;
 
@@ -98,8 +95,6 @@
   --color-amarelo-suave: var(--cor-amarelo-suave);
   --color-royal: var(--cor-royal);
   --color-royal-suave: var(--cor-royal-suave);
-  --color-id: var(--cor-id);
-  --color-id-suave: var(--cor-id-suave);
   --color-laranja-cartao: var(--cor-laranja-cartao);
   --color-sis-vermelho: var(--cor-sis-vermelho);
   --color-sis-verde-claro: var(--cor-sis-verde-claro);

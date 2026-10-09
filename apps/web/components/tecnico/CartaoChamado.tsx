@@ -37,9 +37,6 @@ export interface PropsArraste {
 
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
-/** Etiqueta "ID 36" na cor própria (verde-água), igual em todos os cartões. */
-const TOM_ID = "bg-id text-white"; // grafite cheio: não lembra nenhuma cor de status (dono, 2026-10-08)
-
 function NaoLidas({ total }: { total: number }) {
   if (total === 0) return null;
   return (
@@ -85,7 +82,7 @@ function CartaoEncerrado({ dados }: { dados: DadosCartao }) {
     >
       {/* Num bloco próprio: solta na coluna flex, a etiqueta esticava até o fim do cartão. */}
       <div>
-        <EtiquetaId numero={c.id} tom={TOM_ID} />
+        <EtiquetaId numero={c.id} />
       </div>
       <Link
         href={`/atendimento/${c.id}`}
@@ -150,7 +147,7 @@ export function CartaoChamado({
       } ${arraste?.arrastando ? "opacity-40" : ""} ${fantasma ? "rotate-1 cursor-grabbing shadow-xl" : ""}`}
     >
       <div className="flex flex-wrap items-center gap-1.5">
-        <EtiquetaId numero={c.id} tom={TOM_ID} />
+        <EtiquetaId numero={c.id} />
         {c.prioridade === "alta" ? (
           <span className="inline-flex items-center gap-1 rounded-md bg-perigo px-1.5 py-0.5 text-[11px] font-bold text-white">
             <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta

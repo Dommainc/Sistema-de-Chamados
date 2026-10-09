@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-09 | Etiqueta **ID** em **caixa clarinha neutra** (cinza claro, texto escuro) no quadro e em "Ver encerrados" — o grafite pesava mais que o título. Tokens `id`/`id-suave` removidos. |
 | 2026-10-08 | Quadro: etiqueta **ID em grafite** (o verde-água confundia com Concluído; token `id`); Concluídos/Cancelados mostram só "Concluído em 06/10 às 14:30" (sem o nome); bolinha de quem atende sempre **azul clarinha**, igual para todos (a preta para "você" saiu). |
 | 2026-10-08 | Quadro: bolinha de quem atende também em **Aguardando usuário**; mais espaço nos cartões e entre eles; etiqueta **ID** em verde-água cheio (`bg-id`, texto branco), que estava apagada. |
 | 2026-10-08 | Quadro da TI usa a **largura toda da tela** (as 6 colunas iguais estavam estreitas em monitor largo); a barra escura também. As outras telas da TI continuam centralizadas. Em teste pelo dono. |

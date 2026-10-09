@@ -1,10 +1,11 @@
 /**
  * Etiqueta "ID 36" dos cartões (pedido do dono, 2026-10-07): pequena, horizontal, no canto superior
- * esquerdo. Substitui o canhoto "Nº" vertical. `tom` = classes de cor (a urgência do cartão).
+ * esquerdo. Caixa clarinha neutra (dono, 2026-10-09): o número é referência, não destaque — as cores
+ * fortes ficam para status, prazo e prioridade. `tom` = classes de cor.
  */
 export function EtiquetaId({
   numero,
-  tom = "bg-superficie-2 text-texto-suave",
+  tom = "bg-superficie-2 text-texto",
 }: {
   numero: number;
   tom?: string;
