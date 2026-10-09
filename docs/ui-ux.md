@@ -73,7 +73,7 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 
 ## Portal do solicitante (celular primeiro)
 
-**Casca:** cabeçalho branco com "DOMMA" (espaçado, negrito) / "Central de Chamados" e avatar com iniciais (menu: nome, Sair).
+**Casca:** cabeçalho branco com a **logo da DOMMA em azul** (`public/logo-domma.png` como máscara, cor `primaria`) / "Central de Chamados" e avatar com iniciais (menu: nome, Sair).
 **Menu inferior** fixo no celular: Abrir chamado · Meus chamados (contador laranja = chamados aguardando resposta).
 No computador (pedido do dono, 2026-10-05) o portal usa a largura da tela (até ~1150 px): o menu vai para o cabeçalho;
 categorias em 3–4 colunas; "Meus chamados" em 2 colunas; passo 2 com o formulário à esquerda e um painel fixo à direita
@@ -119,7 +119,7 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
 
 ## Área técnica (computador primeiro)
 
-**Casca:** barra escura `barra`: "DOMMA Atendimento TI", busca "Buscar #número ou título",
+**Casca:** barra escura `barra`: **logo em branco** + "Atendimento TI", busca "Buscar #número ou título",
 avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
 
 6. **Quadro** (`/atendimento`)
