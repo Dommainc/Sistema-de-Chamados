@@ -111,6 +111,8 @@ export function textoEvento(
         ? `Previsão de conclusão: ${prazo}`
         : `${autor} definiu o prazo para ${prazo}`;
     }
+    case "avaliado":
+      return null; // a avaliação aparece no próprio cartão "Avaliação"
     case "concluido":
       return "Chamado concluído";
     case "cancelado":
@@ -340,6 +342,10 @@ export function textoHistorico(
       return evento.detalhe.prazo_anterior
         ? `Prazo alterado por ${autor} para ${prazo}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`
         : `Prazo definido por ${autor}: ${prazo}`;
+    }
+    case "avaliado": {
+      const nota = Number(evento.detalhe.nota);
+      return `Avaliado por ${autor}: ${nota} ${nota === 1 ? "estrela" : "estrelas"}`;
     }
     case "concluido":
       return `Concluído por ${autor}`;

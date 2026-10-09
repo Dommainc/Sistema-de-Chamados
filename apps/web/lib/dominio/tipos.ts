@@ -77,6 +77,20 @@ export interface CampoForm {
   ordem: number;
 }
 
+/** Pesquisa de satisfação (tabela avaliacoes, migration 0024 — ADR 0015). */
+export interface Avaliacao {
+  chamadoId: number;
+  avaliadorId: string;
+  /** 1 a 5 estrelas. */
+  nota: number;
+  /** Obrigatório com nota 1 ou 2. */
+  comentario: string | null;
+  criadoEm: string;
+}
+
+/** Nota 1 ou 2 exige o texto ("Conte o que podemos melhorar"). */
+export const NOTA_EXIGE_TEXTO = 2;
+
 /** Resposta pronta do chat (tabela respostas_prontas, só TI). "{nome}" = primeiro nome do solicitante. */
 export interface RespostaPronta {
   id: number;

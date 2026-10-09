@@ -405,3 +405,40 @@ def test_prioridade_so_ti_depois_de_iniciar_e_fica_no_historico_interno(cliente,
     assert estado.notificacoes == []  # o solicitante não é avisado
     invalida = cliente.post(url.format(44), headers=como(RAFAEL), json={"prioridade": "critica"})
     assert codigo(invalida) == "CAMPO_OBRIGATORIO"
+
+
+# ----------------------------------------------------------------- pesquisa de satisfação (ADR 0015)
+def test_solicitante_avalia_o_chamado_concluido_uma_vez(cliente, como, estado):
+    url = "/chamados/35/avaliacao"
+    resposta = cliente.post(url, headers=como(ANA), json={"nota": 5, "comentario": " Rápido! "})
+    assert resposta.status_code == 201
+    assert resposta.json()["nota"] == 5 and resposta.json()["comentario"] == "Rápido!"
+    assert estado.avaliacoes[35].avaliador_id == ANA
+    assert estado.eventos[-1].acao == "avaliado" and estado.eventos[-1].publico is True
+    assert codigo(cliente.post(url, headers=como(ANA), json={"nota": 4})) == "AVALIACAO_JA_ENVIADA"
+
+
+def test_avaliacao_so_depois_de_concluido_e_so_pelo_solicitante(cliente, como):
+    assert (
+        codigo(cliente.post("/chamados/41/avaliacao", headers=como(ANA), json={"nota": 5}))
+        == "AVALIACAO_INDISPONIVEL"
+    )
+    assert (
+        codigo(cliente.post("/chamados/35/avaliacao", headers=como(RAFAEL), json={"nota": 5}))
+        == "SEM_PERMISSAO"
+    )
+    assert (
+        codigo(cliente.post("/chamados/35/avaliacao", headers=como(BRUNO), json={"nota": 5}))
+        == "SEM_PERMISSAO"
+    )
+
+
+def test_nota_baixa_exige_o_texto_e_nota_fora_de_1_a_5_e_recusada(cliente, como, estado):
+    url = "/chamados/35/avaliacao"
+    sem_texto = cliente.post(url, headers=como(ANA), json={"nota": 2, "comentario": " "})
+    assert codigo(sem_texto) == "CAMPO_OBRIGATORIO"
+    assert sem_texto.json()["erro"]["campos"][0]["campo"] == "comentario"
+    assert cliente.post(url, headers=como(ANA), json={"nota": 6}).status_code == 422
+    assert 35 not in estado.avaliacoes
+    ok = cliente.post(url, headers=como(ANA), json={"nota": 1, "comentario": "Demorou muito"})
+    assert ok.status_code == 201

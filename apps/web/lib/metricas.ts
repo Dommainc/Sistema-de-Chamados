@@ -2,7 +2,7 @@
 // recebe os chamados e o histórico que a TI já pode ler (RLS) e devolve os números da tela.
 // Tempos em HORAS ÚTEIS (seg–sex, 08–20, sem feriados), como as automações.
 
-import type { Categoria, Chamado, EventoHistorico } from "@/lib/dominio/tipos";
+import type { Avaliacao, Categoria, Chamado, EventoHistorico } from "@/lib/dominio/tipos";
 import { horasUteisEntre, type ExpedienteConfig } from "@/lib/dominio/horario-util";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import { CHAVE_SISTEMA, SEM_SISTEMA } from "@/lib/sistemas";
@@ -89,6 +89,8 @@ export function montarPeriodo(
 export interface EntradaMetricas {
   chamados: readonly Chamado[];
   historico: readonly EventoHistorico[];
+  /** Pesquisa de satisfação (ADR 0015). */
+  avaliacoes: readonly Avaliacao[];
   perfis: readonly PerfilPublico[];
   categorias: readonly Categoria[];
   periodo: Pick<Periodo, "inicio" | "fim">;
@@ -110,6 +112,9 @@ export interface MetricaTecnico {
   tempoMedioConcluir: number | null;
   transferenciasFeitas: number;
   transferenciasRecebidas: number;
+  /** Média das notas dos chamados que ele concluiu no período; null = nenhuma avaliação. */
+  notaMedia: number | null;
+  avaliacoes: number;
 }
 
 export interface PrazoCategoria {
@@ -137,6 +142,8 @@ export interface Metricas {
     tempoMedioConcluir: number | null;
     /** Concluídos no período que tinham prazo: quantos antes do prazo. */
     noPrazo: { dentro: number; comPrazo: number };
+    /** Avaliações dos chamados concluídos no período (ADR 0015). */
+    satisfacao: { media: number | null; avaliacoes: number; concluidos: number };
   };
   volume: {
     porDia: { dia: string; total: number }[];
@@ -209,6 +216,10 @@ export function calcularMetricas(e: EntradaMetricas): Metricas {
   const dentroDoPrazo = (c: Chamado) =>
     !!c.prazoSla && new Date(c.concluidoEm!).getTime() <= new Date(c.prazoSla).getTime();
   const comPrazo = concluidos.filter((c) => c.prazoSla);
+  // Avaliação de cada chamado concluído no período (a nota conta no período da conclusão).
+  const notaDe = new Map(e.avaliacoes.map((a) => [a.chamadoId, a.nota]));
+  const notas = (lista: Chamado[]) =>
+    lista.flatMap((c) => (notaDe.has(c.id) ? [notaDe.get(c.id)!] : []));
 
   // Volume por dia (todos os dias do período, mesmo sem chamado).
   const porDia: { dia: string; total: number }[] = [];
@@ -237,6 +248,8 @@ export function calcularMetricas(e: EntradaMetricas): Metricas {
         transferenciasRecebidas: transferencias.filter(
           (h) => h.detalhe.para_responsavel_id === t.id,
         ).length,
+        notaMedia: media(notas(meus)),
+        avaliacoes: notas(meus).length,
       };
     })
     .sort((a, b) => b.concluidos - a.concluidos || a.nome.localeCompare(b.nome, "pt-BR"));
@@ -282,6 +295,11 @@ export function calcularMetricas(e: EntradaMetricas): Metricas {
       tempoMedioIniciar: media(tempoIniciar),
       tempoMedioConcluir: media(concluidos.map(tempoConcluir)),
       noPrazo: { dentro: comPrazo.filter(dentroDoPrazo).length, comPrazo: comPrazo.length },
+      satisfacao: {
+        media: media(notas(concluidos)),
+        avaliacoes: notas(concluidos).length,
+        concluidos: concluidos.length,
+      },
     },
     volume: {
       porDia,
@@ -331,4 +349,11 @@ export function formatarHorasUteis(horas: number | null): string {
   const m = minutos % 60;
   if (h >= 10 || m === 0) return `${Math.round(minutos / 60)} h`;
   return `${h} h ${m} min`;
+}
+
+/** Nota média com uma casa: "4,6" (— sem avaliações). */
+export function formatarNota(nota: number | null): string {
+  return nota === null
+    ? "—"
+    : nota.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 }

@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import type { Categoria, Chamado, EventoHistorico } from "@/lib/dominio/tipos";
 import type { PerfilPublico } from "@/lib/dados/tipos";
-import { calcularMetricas, formatarHorasUteis, montarPeriodo, SEM_DEPARTAMENTO } from "./metricas";
+import {
+  calcularMetricas,
+  formatarHorasUteis,
+  formatarNota,
+  montarPeriodo,
+  SEM_DEPARTAMENTO,
+} from "./metricas";
 
 const sp = (texto: string) => `${texto}-03:00`;
 const EXPEDIENTE = { inicio: "08:00", fim: "18:00", feriados: new Set<string>() };
@@ -152,6 +158,22 @@ const HISTORICO: EventoHistorico[] = [
 const m = calcularMetricas({
   chamados: CHAMADOS,
   historico: HISTORICO,
+  avaliacoes: [
+    {
+      chamadoId: 1,
+      avaliadorId: "ana",
+      nota: 5,
+      comentario: null,
+      criadoEm: sp("2026-10-06T10:00:00"),
+    },
+    {
+      chamadoId: 2,
+      avaliadorId: "bia",
+      nota: 3,
+      comentario: "Demorou",
+      criadoEm: sp("2026-10-05T13:00:00"),
+    },
+  ],
   perfis: PERFIS,
   categorias: CATEGORIAS,
   periodo: PERIODO,
@@ -174,6 +196,12 @@ describe("calcularMetricas — resumo", () => {
     expect(m.resumo.tempoMedioIniciar).toBeCloseTo(1.5);
     // Concluir: #1 10 h (seg 9h → ter 9h), #2 5 h (sex 17h → seg 12h: 1 h + 4 h) → média 7,5 h.
     expect(m.resumo.tempoMedioConcluir).toBeCloseTo(7.5);
+  });
+
+  it("satisfação: média das notas dos concluídos no período (ADR 0015)", () => {
+    expect(m.resumo.satisfacao).toEqual({ media: 4, avaliacoes: 2, concluidos: 2 });
+    expect(formatarNota(m.resumo.satisfacao.media)).toBe("4,0");
+    expect(formatarNota(null)).toBe("—");
   });
 
   it("% no prazo entre os concluídos que tinham prazo", () => {
@@ -212,6 +240,8 @@ describe("calcularMetricas — equipe", () => {
         tempoMedioConcluir: 10,
         transferenciasFeitas: 0,
         transferenciasRecebidas: 1,
+        notaMedia: 5,
+        avaliacoes: 1,
       },
       {
         id: "thi",
@@ -221,6 +251,8 @@ describe("calcularMetricas — equipe", () => {
         tempoMedioConcluir: 5,
         transferenciasFeitas: 1,
         transferenciasRecebidas: 0,
+        notaMedia: 3,
+        avaliacoes: 1,
       },
     ]);
   });
@@ -250,6 +282,7 @@ describe("calcularMetricas — prazo e espera", () => {
   it("aguardando ainda em aberto conta até agora", () => {
     const r = calcularMetricas({
       chamados: [chamado(9, { status: "aguardando_usuario", responsavelId: "raf" })],
+      avaliacoes: [],
       historico: [
         evento(9, "status_alterado", "2026-10-08T13:00:00", {
           de: "em_andamento",
@@ -269,6 +302,7 @@ describe("calcularMetricas — prazo e espera", () => {
     const r = calcularMetricas({
       chamados: [],
       historico: [],
+      avaliacoes: [],
       perfis: PERFIS,
       categorias: CATEGORIAS,
       periodo: PERIODO,

@@ -141,6 +141,13 @@ def test_ciclo_completo_com_historico_e_notificacoes(cliente, ana, bruno, rafael
     assert acoes[0] == "criado" and "transferido" in acoes and acoes[-1] == "concluido"
     assert len(ler("transferencias", f"chamado_id=eq.{n}", rafael)) == 1
 
+    # Pesquisa de satisfação (ADR 0015): a Ana avalia uma vez; a TI vê, o Bruno não.
+    assert post(ana, "avaliacao", {"nota": 4, "comentario": "Resolveu rápido"}).json()["nota"] == 4
+    repetida = cliente.post(f"/chamados/{n}/avaliacao", headers=ana, json={"nota": 5})
+    assert repetida.json()["erro"]["codigo"] == "AVALIACAO_JA_ENVIADA"
+    assert ler("avaliacoes", f"chamado_id=eq.{n}&select=nota", rafael) == [{"nota": 4}]
+    assert ler("avaliacoes", f"chamado_id=eq.{n}", bruno) == []
+
     # Encerrado: banco e API recusam qualquer coisa.
     recusada = cliente.post(f"/chamados/{n}/mensagens", headers=ana, json={"conteudo": "voltou"})
     assert recusada.json()["erro"]["codigo"] == "TRANSICAO_INVALIDA"

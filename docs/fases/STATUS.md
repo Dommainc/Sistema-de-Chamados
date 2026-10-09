@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-09 | **Pesquisa de satisfação** (ADR 0015): no chamado concluído, o solicitante dá **1 a 5 estrelas + texto** (obrigatório com nota 1 ou 2), uma vez, sem prazo; selo "Avalie o atendimento" em Meus chamados. TI vê a nota com o nome no chamado e no histórico; Dashboard com **satisfação média** e **nota por técnico**; página **Avaliações** com filtros. Migration 0024 `avaliacoes` + pgTAP 011; `POST /chamados/{id}/avaliacao`; erros `AVALIACAO_INDISPONIVEL` e `AVALIACAO_JA_ENVIADA`. Convite no aviso do Teams anotado na 1E. |
 | 2026-10-09 | Etiqueta **ID** em **caixa clarinha neutra** (cinza claro, texto escuro) no quadro e em "Ver encerrados" — o grafite pesava mais que o título. Tokens `id`/`id-suave` removidos. |
 | 2026-10-08 | Quadro: etiqueta **ID em grafite** (o verde-água confundia com Concluído; token `id`); Concluídos/Cancelados mostram só "Concluído em 06/10 às 14:30" (sem o nome); bolinha de quem atende sempre **azul clarinha**, igual para todos (a preta para "você" saiu). |
 | 2026-10-08 | Quadro: bolinha de quem atende também em **Aguardando usuário**; mais espaço nos cartões e entre eles; etiqueta **ID** em verde-água cheio (`bg-id`, texto branco), que estava apagada. |

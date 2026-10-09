@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { ChatChamado } from "@/components/chamado/ChatChamado";
+import { AvaliacaoChamado } from "@/components/chamado/AvaliacaoChamado";
 import { DetalhesPedido } from "@/components/chamado/DetalhesPedido";
 import { contarRelato } from "@/components/chamado/linhaDoTempo";
 import { TelaMensagem } from "@/components/comum/TelaMensagem";
@@ -166,6 +167,13 @@ export function AtendimentoChamado({ id }: { id: number }) {
         </section>
 
         <aside className={`flex-col gap-4 ${aba === "conversa" ? "hidden lg:flex" : "flex"}`}>
+          {chamado.status === "concluido" ? (
+            <div className={aba === "historico" ? "hidden lg:block" : ""}>
+              <Secao titulo="Avaliação">
+                <AvaliacaoChamado chamadoId={chamado.id} modo="ti" />
+              </Secao>
+            </div>
+          ) : null}
           <div className={aba === "historico" ? "hidden lg:block" : ""}>
             <Secao titulo="Pedido">
               <DetalhesPedido chamado={chamado} resumo />

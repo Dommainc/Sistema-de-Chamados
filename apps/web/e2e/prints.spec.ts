@@ -47,6 +47,12 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await expect(page.getByText(/Consegue abrir o Outlook/)).toBeVisible();
   await print(page, "06-chamado-solicitante", p);
 
+  // Pesquisa de satisfação (ADR 0015): o #35 da Ana está concluído e sem avaliação.
+  await page.goto("/meus-chamados/35");
+  await expect(page.getByText("Como foi o atendimento?")).toBeVisible();
+  await page.getByText("Como foi o atendimento?").scrollIntoViewIfNeeded();
+  await print(page, "06b-avaliacao", p);
+
   await trocarPara(context, page, "Rafael Lima");
   await expect(page.getByRole("region", { name: /^Novos:/ })).toBeVisible();
   await print(page, "07-quadro", p);
@@ -76,4 +82,8 @@ test("prints de todas as telas @prints", async ({ page, context }, info) => {
   await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   await expect(page.getByText("Abertos agora")).toBeVisible();
   await print(page, "10-dashboard", p);
+
+  await page.getByRole("link", { name: "Ver todas as avaliações" }).click();
+  await expect(page.getByRole("heading", { name: "Avaliações" })).toBeVisible();
+  await print(page, "11-avaliacoes", p);
 });

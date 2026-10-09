@@ -6,6 +6,7 @@ import type { ModoFonteDados } from "@/lib/dados/config";
 import type { AcaoChamado, DadosAcao } from "@/lib/dominio/estados";
 import type {
   Anexo,
+  Avaliacao,
   CampoForm,
   Categoria,
   CorPaleta,
@@ -26,6 +27,8 @@ import type {
 export interface DadosMetricas {
   chamados: Chamado[];
   historico: EventoHistorico[];
+  /** Avaliações desses chamados (ADR 0015). */
+  avaliacoes: Avaliacao[];
   expediente: { inicio: string; fim: string; feriados: string[] };
 }
 
@@ -143,6 +146,16 @@ export interface FonteDeDados {
    * entre `inicio` (inclusive) e `fim` (exclusivo), com o histórico deles. Solicitante: SEM_PERMISSAO.
    */
   listarDadosMetricas(inicio: string, fim: string): Promise<DadosMetricas>;
+
+  /**
+   * POST /chamados/{id}/avaliacao (ADR 0015): o solicitante avalia o próprio chamado CONCLUÍDO, uma vez.
+   * Erros: AVALIACAO_INDISPONIVEL, AVALIACAO_JA_ENVIADA, CAMPO_OBRIGATORIO (texto com nota 1 ou 2), SEM_PERMISSAO.
+   */
+  avaliarChamado(chamadoId: number, nota: number, comentario?: string): Promise<Avaliacao>;
+  /** Avaliação do chamado (RLS: a própria ou TI); nula se ainda não avaliado. */
+  obterAvaliacao(chamadoId: number): Promise<Avaliacao | null>;
+  /** Avaliações visíveis (TI: todas; solicitante: as próprias), da mais recente para a mais antiga. */
+  listarAvaliacoes(): Promise<Avaliacao[]>;
   /** Respostas prontas do chat (tabela respostas_prontas). Só a TI recebe; solicitante: lista vazia (RLS). */
   listarRespostasProntas(): Promise<RespostaPronta[]>;
 

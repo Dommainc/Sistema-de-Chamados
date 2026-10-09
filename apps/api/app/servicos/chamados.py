@@ -30,6 +30,7 @@ from app.erros.catalogo import ErroApp, ErroDeCampo, mensagem_erro
 from app.integracoes.storage import Armazenamento, InfoArquivo
 from app.repositorios.base import (
     AnexoLinha,
+    AvaliacaoLinha,
     ChamadoLinha,
     MensagemCriada,
     NovaNotificacao,
@@ -328,6 +329,51 @@ async def definir_prioridade(
         ]
     )
     return atualizado
+
+
+async def avaliar(
+    repo: Repositorio, chamado_id: int, nota: int, comentario: str | None
+) -> AvaliacaoLinha:
+    """Pesquisa de satisfação (ADR 0015): o solicitante avalia o próprio chamado CONCLUÍDO, uma vez.
+
+    1 a 5 estrelas; o texto é obrigatório com nota 1 ou 2. Grava a avaliação e o histórico (público)
+    na mesma transação. Sem prazo para avaliar.
+    """
+    eu = await _eu(repo)
+    chamado = await _chamado_visivel(repo, eu, chamado_id)
+    if chamado.solicitante_id != eu.id:
+        raise ErroApp("SEM_PERMISSAO", detalhe="só o solicitante avalia")
+    if chamado.status != "concluido":
+        raise ErroApp("AVALIACAO_INDISPONIVEL")
+    if await repo.obter_avaliacao(chamado.id) is not None:
+        raise ErroApp("AVALIACAO_JA_ENVIADA")
+    texto = (comentario or "").strip() or None
+    if nota <= 2 and (texto is None or len(texto) < 3):
+        raise ErroApp(
+            "CAMPO_OBRIGATORIO",
+            {"campo": "Conte o que podemos melhorar"},
+            campos=[
+                ErroDeCampo(
+                    "comentario",
+                    mensagem_erro("CAMPO_OBRIGATORIO", campo="Conte o que podemos melhorar"),
+                )
+            ],
+        )
+    avaliacao = await repo.inserir_avaliacao(chamado.id, eu.id, nota, texto)
+    await repo.inserir_eventos(
+        [
+            NovoEvento(
+                chamado.id,
+                eu.id,
+                "avaliado",
+                chamado.status,
+                chamado.status,
+                {"nota": str(nota)},
+                True,
+            )
+        ]
+    )
+    return avaliacao
 
 
 async def enviar_mensagem(

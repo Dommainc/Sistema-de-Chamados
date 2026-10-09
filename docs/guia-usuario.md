@@ -45,6 +45,11 @@ assim que você responder, o atendimento volta a andar.
   **Aguardando sua resposta**; depois de 24 horas, a Central manda um lembrete no chat. É só responder que o
   atendimento continua.
 - **Concluído e o problema voltou?** Toque em **Abrir novo chamado** — ele já vem com o número do anterior.
+- **Avalie o atendimento:** quando o chamado é concluído, aparece **"Como foi o atendimento?"** — escolha de 1 a 5
+  estrelas e, se quiser, escreva um comentário (com 1 ou 2 estrelas, conte o que podemos melhorar). Os concluídos
+  ainda sem nota mostram **"Avalie o atendimento"** em Meus chamados. Não tem prazo.
+
+![Avaliação do atendimento](guia/img/computador-06b-avaliacao.png)
 
 ---
 
@@ -116,7 +121,10 @@ amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo
 - **Equipe**: o que cada técnico concluiu, quantos tem em atendimento e as transferências.
 - **Prazo e espera**: prazo cumprido por categoria, chamados sem prazo, quanto tempo esperamos os usuários e os
   últimos cancelamentos.
-- Todos os tempos contam **horas úteis** (seg–sex, 8h–18h, sem feriados).
+- **Satisfação:** a nota média dos chamados concluídos no período, a nota de cada técnico (na tabela da Equipe) e
+  o link **Ver todas as avaliações** — a lista com as estrelas, o comentário, quem avaliou e quem atendeu, com
+  filtros de período, técnico e nota. No chamado concluído, o bloco **Avaliação** mostra a nota daquele chamado.
+- Todos os tempos contam **horas úteis** (seg–sex, 8h–20h, sem feriados).
 
 ---
 

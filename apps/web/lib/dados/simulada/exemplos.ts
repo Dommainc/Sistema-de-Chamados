@@ -5,6 +5,7 @@
 
 import type {
   Anexo,
+  Avaliacao,
   CampoForm,
   Categoria,
   Chamado,
@@ -874,4 +875,34 @@ export function gerarAntigosExemplo(agora: Date): {
 
 function horasUteisDesde(inicio: Date, fim: Date): number {
   return horasUteisEntre(inicio, fim, EXPEDIENTE_SIMULADO);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Avaliações de exemplo (pesquisa de satisfação — ADR 0015): parte dos concluídos antigos e o #30.
+// O #35 (da Ana) fica SEM avaliação, para dar para testar a pesquisa na demonstração.
+const NOTAS_EXEMPLO = [5, 4, 5, 3, 5, 4, 2, 5, 5, 4, 1, 5];
+const COMENTARIOS_EXEMPLO: Record<number, string> = {
+  5: "Resolveu rapidinho, obrigado!",
+  4: "Bom atendimento.",
+  3: "Resolveu, mas demorou um pouco.",
+  2: "Demorou bastante para alguém responder.",
+  1: "Precisei abrir de novo porque o problema voltou.",
+};
+
+export function gerarAvaliacoesExemplo(chamados: readonly Chamado[]): Avaliacao[] {
+  return chamados
+    .filter((c) => c.status === "concluido" && c.concluidoEm && c.id !== 35 && c.id % 4 !== 0)
+    .map((c, i) => {
+      const nota = NOTAS_EXEMPLO[i % NOTAS_EXEMPLO.length];
+      return {
+        chamadoId: c.id,
+        avaliadorId: c.solicitanteId,
+        nota,
+        // Nota baixa sempre com texto; as outras, às vezes.
+        comentario: nota <= 2 || i % 2 === 0 ? COMENTARIOS_EXEMPLO[nota] : null,
+        criadoEm: new Date(
+          new Date(c.concluidoEm!).getTime() + (2 + (i % 5)) * 3_600_000,
+        ).toISOString(),
+      };
+    });
 }

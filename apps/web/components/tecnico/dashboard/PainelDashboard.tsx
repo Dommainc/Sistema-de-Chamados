@@ -1,5 +1,7 @@
 "use client";
 
+import { Star } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { Segmentado } from "@/components/ui/Segmentado";
@@ -9,6 +11,7 @@ import { formatarDataHora } from "@/lib/formato";
 import {
   calcularMetricas,
   formatarHorasUteis,
+  formatarNota,
   montarPeriodo,
   type ChavePeriodo,
   type ItemRanking,
@@ -66,18 +69,22 @@ function Numero({
   valor,
   detalhe,
   destaque = "",
+  children,
 }: {
   rotulo: string;
-  valor: string | number;
+  valor: React.ReactNode;
   detalhe?: string;
   /** Classe de cor do número (ex.: vencidos em vermelho). */
   destaque?: string;
+  /** Extra embaixo (ex.: link "Ver todas as avaliações"). */
+  children?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-borda bg-superficie p-4 shadow-sm">
       <p className="text-sm text-texto-suave">{rotulo}</p>
       <p className={`text-3xl font-bold ${destaque}`}>{valor}</p>
       {detalhe ? <p className="text-xs text-texto-suave">{detalhe}</p> : null}
+      {children}
     </div>
   );
 }
@@ -218,6 +225,7 @@ export function PainelDashboard({ chave, de, ate }: { chave?: string; de?: strin
       const metricas = calcularMetricas({
         chamados: dados.chamados,
         historico: dados.historico,
+        avaliacoes: dados.avaliacoes,
         perfis,
         categorias,
         periodo: { inicio: new Date(inicio), fim: new Date(fim) },
@@ -259,7 +267,7 @@ function Conteudo({ m }: { m: Metricas }) {
   return (
     <>
       <Secao titulo="Resumo">
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <Numero rotulo="Abertos agora" valor={resumo.abertosAgora} />
           <Numero
             rotulo="Vencidos agora"
@@ -281,6 +289,27 @@ function Conteudo({ m }: { m: Metricas }) {
             valor={porcento(resumo.noPrazo.dentro, resumo.noPrazo.comPrazo)}
             detalhe={`${resumo.noPrazo.dentro} de ${resumo.noPrazo.comPrazo} com prazo`}
           />
+          {/* Pesquisa de satisfação (ADR 0015): média das notas dos concluídos no período. */}
+          <Numero
+            rotulo="Satisfação média"
+            valor={
+              <span className="inline-flex items-center gap-1.5">
+                <Star aria-hidden="true" className="size-7 fill-amarelo text-amarelo" />
+                {formatarNota(resumo.satisfacao.media)}
+              </span>
+            }
+            detalhe={`${resumo.satisfacao.avaliacoes} avaliação(ões) · ${porcento(
+              resumo.satisfacao.avaliacoes,
+              resumo.satisfacao.concluidos,
+            )} dos concluídos`}
+          >
+            <Link
+              href="/atendimento/avaliacoes"
+              className="mt-1 text-sm font-semibold text-primaria underline"
+            >
+              Ver todas as avaliações
+            </Link>
+          </Numero>
         </div>
       </Secao>
 
@@ -312,6 +341,7 @@ function Conteudo({ m }: { m: Metricas }) {
                 <th className="px-4 py-3 text-right font-semibold">Tempo médio até concluir</th>
                 <th className="px-4 py-3 text-right font-semibold">Transferiu</th>
                 <th className="px-4 py-3 text-right font-semibold">Recebeu</th>
+                <th className="px-4 py-3 text-right font-semibold">Nota média</th>
               </tr>
             </thead>
             <tbody>
@@ -325,6 +355,17 @@ function Conteudo({ m }: { m: Metricas }) {
                   </td>
                   <td className="px-4 py-3 text-right">{t.transferenciasFeitas}</td>
                   <td className="px-4 py-3 text-right">{t.transferenciasRecebidas}</td>
+                  <td className="px-4 py-3 text-right whitespace-nowrap">
+                    {t.notaMedia === null ? (
+                      "—"
+                    ) : (
+                      <span className="inline-flex items-center gap-1">
+                        <Star aria-hidden="true" className="size-4 fill-amarelo text-amarelo" />
+                        <strong>{formatarNota(t.notaMedia)}</strong>
+                        <span className="text-texto-suave">({t.avaliacoes})</span>
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

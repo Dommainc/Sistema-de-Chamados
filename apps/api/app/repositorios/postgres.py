@@ -18,6 +18,7 @@ from app.dominio.formulario import CampoForm
 from app.dominio.tipos import StatusChamado
 from app.repositorios.base import (
     AnexoLinha,
+    AvaliacaoLinha,
     CategoriaLinha,
     ChamadoLinha,
     MensagemCriada,
@@ -108,6 +109,15 @@ class RepositorioPostgres:
         return await self._c.fetchval(
             "select max(criado_em) from public.mensagens where chamado_id = $1", chamado_id
         )
+
+    async def obter_avaliacao(self, chamado_id: int) -> AvaliacaoLinha | None:
+        await self._t.como_usuario()
+        linha = await self._c.fetchrow(
+            "select chamado_id, avaliador_id::text, nota, comentario, criado_em "
+            "from public.avaliacoes where chamado_id = $1",
+            chamado_id,
+        )
+        return AvaliacaoLinha(**dict(linha)) if linha else None
 
     # ------------------------------------------------------------------ apoio (como a API)
     async def obter_categoria_ativa(self, categoria_id: int) -> CategoriaLinha | None:
@@ -274,6 +284,23 @@ class RepositorioPostgres:
                 for e in eventos
             ],
         )
+
+    async def inserir_avaliacao(
+        self, chamado_id: int, avaliador_id: str, nota: int, comentario: str | None
+    ) -> AvaliacaoLinha:
+        await self._t.como_api()
+        linha = await self._c.fetchrow(
+            """
+            insert into public.avaliacoes (chamado_id, avaliador_id, nota, comentario)
+            values ($1, $2::uuid, $3, $4)
+            returning chamado_id, avaliador_id::text, nota, comentario, criado_em
+            """,
+            chamado_id,
+            avaliador_id,
+            nota,
+            comentario,
+        )
+        return AvaliacaoLinha(**dict(linha))
 
     async def inserir_transferencia(self, transferencia: NovaTransferencia) -> None:
         await self._t.como_api()

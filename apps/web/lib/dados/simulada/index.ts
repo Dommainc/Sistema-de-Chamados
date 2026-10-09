@@ -28,6 +28,8 @@ import {
   type Mensagem,
   type Notificacao,
   type Perfil,
+  type Avaliacao,
+  NOTA_EXIGE_TEXTO,
   type TipoNotificacao,
   naoIniciado,
   type PrioridadeDaTi,
@@ -363,7 +365,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
 
     async listarDadosMetricas(inicio: string, fim: string) {
       if (eu().papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
-      const { chamados, historico } = lerEstado();
+      const { chamados, historico, avaliacoes } = lerEstado();
       const relevantes = chamados.filter((c) => {
         if (c.criadoEm >= fim) return false;
         if (!estaEncerrado(c.status)) return true;
@@ -374,12 +376,78 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return {
         chamados: relevantes.map((c) => ({ ...c })),
         historico: historico.filter((h) => ids.has(h.chamadoId)).map((h) => ({ ...h })),
+        avaliacoes: avaliacoes.filter((a) => ids.has(a.chamadoId)).map((a) => ({ ...a })),
         expediente: {
           inicio: EXPEDIENTE_SIMULADO.inicio,
           fim: EXPEDIENTE_SIMULADO.fim,
           feriados: [...EXPEDIENTE_SIMULADO.feriados],
         },
       };
+    },
+
+    async avaliarChamado(chamadoId: number, nota: number, comentario?: string) {
+      const perfil = eu();
+      const chamado = chamadoVisivel(chamadoId);
+      if (chamado.solicitanteId !== perfil.id) throw new ErroApp("SEM_PERMISSAO");
+      if (chamado.status !== "concluido") throw new ErroApp("AVALIACAO_INDISPONIVEL");
+      if (lerEstado().avaliacoes.some((a) => a.chamadoId === chamadoId)) {
+        throw new ErroApp("AVALIACAO_JA_ENVIADA");
+      }
+      if (!Number.isInteger(nota) || nota < 1 || nota > 5) {
+        throw new ErroApp("CAMPO_OBRIGATORIO", { campo: "Nota" });
+      }
+      const texto = comentario?.trim() || null;
+      if (nota <= NOTA_EXIGE_TEXTO && (texto ?? "").length < 3) {
+        const campo = "Conte o que podemos melhorar";
+        throw new ErroApp(
+          "CAMPO_OBRIGATORIO",
+          { campo },
+          {
+            campos: [
+              { campo: "comentario", mensagem: mensagemErro("CAMPO_OBRIGATORIO", { campo }) },
+            ],
+          },
+        );
+      }
+      const agora = new Date().toISOString();
+      const avaliacao: Avaliacao = {
+        chamadoId,
+        avaliadorId: perfil.id,
+        nota,
+        comentario: texto,
+        criadoEm: agora,
+      };
+      const evento: NovoEvento = {
+        chamadoId,
+        autorId: perfil.id,
+        acao: "avaliado",
+        de: chamado.status,
+        para: chamado.status,
+        detalhe: { nota: String(nota) },
+        publico: true,
+        criadoEm: agora,
+      };
+      gravarMudanca(null, [evento], []);
+      const atual = lerEstado();
+      gravarEstado({ ...atual, avaliacoes: [...atual.avaliacoes, avaliacao] });
+      return { ...avaliacao };
+    },
+
+    async obterAvaliacao(chamadoId: number) {
+      const perfil = eu();
+      chamadoVisivel(chamadoId);
+      const avaliacao = lerEstado().avaliacoes.find((a) => a.chamadoId === chamadoId);
+      // RLS: a própria ou TI.
+      if (!avaliacao || (perfil.papel !== "ti" && avaliacao.avaliadorId !== perfil.id)) return null;
+      return { ...avaliacao };
+    },
+
+    async listarAvaliacoes() {
+      const perfil = eu();
+      return lerEstado()
+        .avaliacoes.filter((a) => perfil.papel === "ti" || a.avaliadorId === perfil.id)
+        .sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
+        .map((a) => ({ ...a }));
     },
 
     async listarRespostasProntas() {

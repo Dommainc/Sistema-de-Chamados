@@ -109,6 +109,17 @@ class NovaTransferencia:
 
 
 @dataclass(frozen=True)
+class AvaliacaoLinha:
+    """Pesquisa de satisfação (tabela avaliacoes, migration 0024 — ADR 0015)."""
+
+    chamado_id: int
+    avaliador_id: str
+    nota: int
+    comentario: str | None
+    criado_em: datetime
+
+
+@dataclass(frozen=True)
 class MensagemCriada:
     id: int
     criado_em: datetime
@@ -127,6 +138,10 @@ class Repositorio(Protocol):
         ...
 
     async def ultima_mensagem_visivel_em(self, chamado_id: int) -> datetime | None: ...
+
+    async def obter_avaliacao(self, chamado_id: int) -> AvaliacaoLinha | None:
+        """Avaliação do chamado, se o usuário pode vê-la (RLS: a própria ou TI)."""
+        ...
 
     # ---------------------------------------------------------------- consultas de apoio (API)
     async def obter_categoria_ativa(self, categoria_id: int) -> CategoriaLinha | None: ...
@@ -163,6 +178,10 @@ class Repositorio(Protocol):
     async def inserir_anexos(self, anexos: list[NovoAnexo]) -> list[AnexoLinha]: ...
 
     async def inserir_eventos(self, eventos: list[NovoEvento]) -> None: ...
+
+    async def inserir_avaliacao(
+        self, chamado_id: int, avaliador_id: str, nota: int, comentario: str | None
+    ) -> AvaliacaoLinha: ...
 
     async def inserir_transferencia(self, transferencia: NovaTransferencia) -> None: ...
 

@@ -4,6 +4,7 @@
 
 import type {
   Anexo,
+  Avaliacao,
   Chamado,
   EventoHistorico,
   Leitura,
@@ -14,6 +15,7 @@ import type {
 import { apagarTodosOsArquivos } from "./arquivos";
 import {
   gerarAntigosExemplo,
+  gerarAvaliacoesExemplo,
   gerarChamadosExemplo,
   gerarConversasExemplo,
   gerarHistoricoExemplo,
@@ -21,7 +23,7 @@ import {
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 12; // 11: histórico do Dashboard · 12: 4 categorias (Infraestrutura) — reorganização do dono
+const VERSAO = 13; // 12: 4 categorias (Infraestrutura) · 13: avaliações (pesquisa de satisfação — ADR 0015)
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 
@@ -34,6 +36,7 @@ export interface EstadoSimulado {
   anexos: Anexo[];
   leituras: Leitura[];
   notificacoes: Notificacao[];
+  avaliacoes: Avaliacao[];
 }
 
 export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
@@ -41,7 +44,24 @@ export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
   const antigos = gerarAntigosExemplo(agora);
   const chamados = [...antigos.chamados, ...atuais];
   const conversas = gerarConversasExemplo(agora);
-  const historico = [...gerarHistoricoExemplo(atuais), ...antigos.eventos, ...conversas.eventos]
+  const avaliacoes = gerarAvaliacoesExemplo(chamados);
+  // Cada avaliação também aparece no histórico ("Avaliado por Carla: 5 estrelas").
+  const avaliados: Omit<EventoHistorico, "id">[] = avaliacoes.map((a) => ({
+    chamadoId: a.chamadoId,
+    autorId: a.avaliadorId,
+    acao: "avaliado",
+    de: "concluido",
+    para: "concluido",
+    detalhe: { nota: String(a.nota) },
+    publico: true,
+    criadoEm: a.criadoEm,
+  }));
+  const historico = [
+    ...gerarHistoricoExemplo(atuais),
+    ...antigos.eventos,
+    ...conversas.eventos,
+    ...avaliados,
+  ]
     .sort((a, b) => a.criadoEm.localeCompare(b.criadoEm))
     .map((e, i) => ({ ...e, id: i + 1 }));
   return {
@@ -53,6 +73,7 @@ export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
     anexos: conversas.anexos,
     leituras: conversas.leituras,
     notificacoes: [],
+    avaliacoes,
   };
 }
 

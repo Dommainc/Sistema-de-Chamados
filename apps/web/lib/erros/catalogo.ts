@@ -18,6 +18,8 @@ export const CATALOGO = {
     "Quem cancela o chamado é a TI. Se não precisa mais, avise pelo chat.",
   CHAMADO_NAO_INICIADO: "Inicie o chamado para conversar com o solicitante.",
   PRAZO_INVALIDO: "Escolha uma data e hora no futuro para o prazo.",
+  AVALIACAO_INDISPONIVEL: "Só dá para avaliar depois que o chamado for concluído.",
+  AVALIACAO_JA_ENVIADA: "Você já avaliou este chamado.",
   MENSAGEM_NAO_ENVIADA: "Sua mensagem não foi enviada. Toque para tentar de novo.",
   SEM_CONEXAO: "Sem conexão. As mensagens novas vão aparecer quando a conexão voltar.",
   ERRO_INESPERADO:

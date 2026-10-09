@@ -110,6 +110,20 @@ class PrioridadeEntrada(BaseModel):
     prioridade: Prioridade = Field(description="alta · media · baixa")
 
 
+class AvaliacaoEntrada(BaseModel):
+    nota: int = Field(ge=1, le=5, description="1 a 5 estrelas")
+    comentario: str | None = Field(
+        default=None, max_length=2000, description="Obrigatório com nota 1 ou 2"
+    )
+
+
+class AvaliacaoSaida(BaseModel):
+    chamado_id: int
+    nota: int
+    comentario: str | None
+    criado_em: datetime
+
+
 class PrazoEntrada(BaseModel):
     prazo: datetime = Field(description="Data e hora com fuso, no futuro (até 1 ano)")
     motivo: str = Field(default="", description="Obrigatório ao ALTERAR um prazo já definido")
@@ -214,6 +228,21 @@ async def definir_prioridade(
     async with fabrica(usuario) as repo:
         return ChamadoSaida.de(
             await servicos.definir_prioridade(repo, chamado_id, dados.prioridade)
+        )
+
+
+@router.post(
+    "/chamados/{chamado_id}/avaliacao",
+    status_code=201,
+    summary="Avaliar o atendimento (solicitante, depois de concluído — ADR 0015)",
+)
+async def avaliar(
+    chamado_id: int, dados: AvaliacaoEntrada, usuario: UsuarioAtual, fabrica: Fabrica
+) -> AvaliacaoSaida:
+    async with fabrica(usuario) as repo:
+        a = await servicos.avaliar(repo, chamado_id, dados.nota, dados.comentario)
+        return AvaliacaoSaida(
+            chamado_id=a.chamado_id, nota=a.nota, comentario=a.comentario, criado_em=a.criado_em
         )
 
 

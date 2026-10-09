@@ -1,5 +1,6 @@
 "use client";
 
+import { Star } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
@@ -24,15 +25,17 @@ function infoDoCanto(c: Chamado, responsavel: PerfilPublico | undefined): string
 export function ListaMeusChamados() {
   const [aba, setAba] = useState<Aba>("andamento");
   const consultar = useCallback(async (fonte: FonteDeDados) => {
-    const [chamados, perfis, naoLidos] = await Promise.all([
+    const [chamados, perfis, naoLidos, avaliacoes] = await Promise.all([
       fonte.listarChamados({ escopo: "meus" }),
       fonte.listarPerfisPublicos(),
       fonte.listarNaoLidos(),
+      fonte.listarAvaliacoes(),
     ]);
     return {
       chamados,
       perfis: new Map(perfis.map((p) => [p.id, p])),
       naoLidos: new Set(naoLidos),
+      avaliados: new Set(avaliacoes.map((a) => a.chamadoId)),
     };
   }, []);
   const { dados, erro, carregando } = useConsulta(consultar);
@@ -40,6 +43,9 @@ export function ListaMeusChamados() {
   const encerrado = (c: Chamado) => c.status === "concluido" || c.status === "cancelado";
   const emAndamento = dados?.chamados.filter((c) => !encerrado(c)) ?? [];
   const encerrados = dados?.chamados.filter(encerrado) ?? [];
+  const paraAvaliarTotal = encerrados.filter(
+    (c) => c.status === "concluido" && !dados?.avaliados.has(c.id),
+  ).length;
   // Quem pede atenção (espera resposta ou tem mensagem nova) vem primeiro.
   const atencao = (c: Chamado) =>
     Number(c.status === "aguardando_usuario" || Boolean(dados?.naoLidos.has(c.id)));
@@ -57,7 +63,12 @@ export function ListaMeusChamados() {
           aoMudar={setAba}
           opcoes={[
             { valor: "andamento", rotulo: `Em andamento (${emAndamento.length})` },
-            { valor: "encerrados", rotulo: "Encerrados" },
+            {
+              valor: "encerrados",
+              rotulo: paraAvaliarTotal
+                ? `Encerrados (${paraAvaliarTotal} para avaliar)`
+                : "Encerrados",
+            },
           ]}
         />
       </div>
@@ -76,6 +87,8 @@ export function ListaMeusChamados() {
         {lista.map((c) => {
           const aguardando = c.status === "aguardando_usuario";
           const novaMensagem = dados?.naoLidos.has(c.id) ?? false;
+          // Pesquisa de satisfação (ADR 0015): concluído sem nota ganha o selo, sem prazo.
+          const paraAvaliar = c.status === "concluido" && !(dados?.avaliados.has(c.id) ?? true);
           const canto = infoDoCanto(
             c,
             c.responsavelId ? dados?.perfis.get(c.responsavelId) : undefined,
@@ -94,6 +107,11 @@ export function ListaMeusChamados() {
                     <span className="flex items-center gap-1.5 font-semibold text-primaria">
                       <span aria-hidden="true" className="size-2 rounded-full bg-primaria" />
                       Nova mensagem
+                    </span>
+                  ) : paraAvaliar ? (
+                    <span className="flex items-center gap-1.5 font-semibold text-alerta">
+                      <Star aria-hidden="true" className="size-4 fill-amarelo text-amarelo" />
+                      Avalie o atendimento
                     </span>
                   ) : canto ? (
                     <span className="text-texto-suave">{canto}</span>

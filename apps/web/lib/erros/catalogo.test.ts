@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 describe("catálogo de erros", () => {
-  it("tem os 14 códigos do escopo + PRAZO_INVALIDO e CHAMADO_NAO_INICIADO", () => {
+  it("tem os 14 códigos do escopo + prazo, não iniciado e avaliação (18)", () => {
     expect(Object.keys(CATALOGO).sort()).toEqual(
       [
         "CAMPO_OBRIGATORIO",
@@ -29,6 +29,8 @@ describe("catálogo de erros", () => {
         "CANCELAMENTO_NAO_PERMITIDO",
         "CHAMADO_NAO_INICIADO",
         "PRAZO_INVALIDO",
+        "AVALIACAO_INDISPONIVEL",
+        "AVALIACAO_JA_ENVIADA",
         "MENSAGEM_NAO_ENVIADA",
         "SEM_CONEXAO",
         "ERRO_INESPERADO",

@@ -197,6 +197,18 @@ avatar + nome + "3 em atendimento". No celular: barra escura com busca abaixo.
     - **Equipe**: tabela por técnico — concluídos, em atendimento agora, tempo médio até concluir, transferiu, recebeu.
     - **Prazo e espera**: % no prazo por categoria (barra verde sobre vermelho-claro), concluídos sem prazo, em
       atendimento sem prazo (âmbar se > 0), tempo médio aguardando o usuário e os últimos cancelamentos com motivo.
+11. **Pesquisa de satisfação** (*2026-10-09 — ADR 0015*):
+    - **Solicitante, chamado concluído:** acima de "Este chamado foi encerrado.", **"Como foi o atendimento?"** com 5
+      estrelas grandes (amarelo; o nome da nota aparece embaixo: Péssimo · Ruim · Regular · Bom · Ótimo). Depois de
+      escolher: campo "Quer deixar um comentário? (opcional)" — com 1 ou 2 estrelas vira **"Conte o que podemos
+      melhorar \*"** — e **"Enviar avaliação"**. Enviada: "Sua avaliação" + estrelas + texto.
+    - **Meus chamados:** concluído sem nota → "★ Avalie o atendimento" no canto do cartão; aba "Encerrados (1 para avaliar)".
+    - **TI, chamado concluído:** bloco **Avaliação** à direita (estrelas, texto, quem avaliou e quando, ou "O solicitante
+      ainda não avaliou").
+    - **Dashboard:** cartão **Satisfação média** (★ 4,1 · n avaliações · % dos concluídos) com "Ver todas as avaliações";
+      coluna **Nota média** (★ 4,5 (n)) na tabela da Equipe.
+    - **Avaliações** (`/atendimento/avaliacoes`): "‹ Dashboard", média e total, filtros Período · Técnico · Nota, cartões
+      em 2 colunas com estrelas, "#30 título", comentário ("Sem comentário."), "avaliador · atendido por … · data".
 
 ## Fora do mockup (manter simples, no mesmo estilo)
 Login, primeiro acesso, sem acesso, 404, erro inesperado, modais (transferir, cancelar, concluir), "Ver encerrados".

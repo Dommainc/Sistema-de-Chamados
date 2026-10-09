@@ -130,3 +130,27 @@ describe("ChatChamado", () => {
     );
   });
 });
+
+describe("pesquisa de satisfação (ADR 0015)", () => {
+  it("no chamado concluído, a Ana avalia com estrelas; nota baixa pede o texto", async () => {
+    renderizar(ANA, 35);
+    expect(await screen.findByText("Como foi o atendimento?")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("radio", { name: /^2 estrelas/ }));
+    const texto = screen.getByRole("textbox", { name: /Conte o que podemos melhorar/ });
+    fireEvent.click(screen.getByRole("button", { name: "Enviar avaliação" }));
+    expect(
+      await screen.findByText("Preencha o campo Conte o que podemos melhorar para continuar."),
+    ).toBeInTheDocument();
+    fireEvent.change(texto, { target: { value: "Demorou para responder" } });
+    fireEvent.click(screen.getByRole("button", { name: "Enviar avaliação" }));
+    expect(await screen.findByText("Sua avaliação")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "2 de 5 estrelas" })).toBeInTheDocument();
+    expect(screen.getByText("“Demorou para responder”")).toBeInTheDocument();
+  });
+
+  it("a TI não vê o formulário no chat (só o bloco Avaliação no atendimento)", async () => {
+    renderizar(RAFAEL, 35);
+    expect(await screen.findByText("Este chamado foi encerrado.")).toBeInTheDocument();
+    expect(screen.queryByText("Como foi o atendimento?")).not.toBeInTheDocument();
+  });
+});

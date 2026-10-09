@@ -43,3 +43,8 @@ Aguardando usuário agora é **só automático** (2 h úteis sem resposta à men
 notificação `status_alterado` com `para = aguardando_usuario` e evento sem autor (`autor_id` nulo, detalhe
 `motivo = sem_resposta_2h_uteis`), a mensagem ao solicitante precisa explicar o porquê, por exemplo:
 "O chamado #41 está esperando sua resposta há 2 horas. Responda no chat da Central para continuarmos."
+
+## Convite para a pesquisa de satisfação (dono, 2026-10-09 — ADR 0015)
+No aviso de **chamado concluído** (`status_alterado` com `para = concluido`), incluir o convite com o link do
+chamado, onde fica a avaliação: "Seu chamado #42 foi concluído. Como foi o atendimento? [Avaliar]" →
+`/chamados/42`. Responder com estrelas dentro do Teams fica para depois (exigiria o bot chamar a API).

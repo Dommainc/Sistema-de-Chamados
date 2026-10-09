@@ -13,6 +13,7 @@ import { ErroApp, mensagemErro } from "@/lib/erros/catalogo";
 import { preencherNome } from "@/lib/respostas-prontas";
 import { caminhosAbertura, comReferente } from "@/lib/rotas";
 import { useOnline } from "@/lib/useOnline";
+import { AvaliacaoChamado } from "./AvaliacaoChamado";
 import { CompositorMensagem } from "./CompositorMensagem";
 import { Balao, Conversa } from "./Conversa";
 import { montarConversa } from "./linhaDoTempo";
@@ -184,6 +185,11 @@ export function ChatChamado({
       <div className="sticky bottom-0">
         {encerrado ? (
           <div className="flex flex-col items-center gap-1 border-t border-borda bg-superficie px-4 py-4 text-center">
+            {dados.chamado.status === "concluido" && dados.chamado.solicitanteId === usuario.id ? (
+              <div className="mb-3 w-full max-w-md border-b border-borda pb-4">
+                <AvaliacaoChamado chamadoId={dados.chamado.id} modo="solicitante" />
+              </div>
+            ) : null}
             <p className="font-semibold">Este chamado foi encerrado.</p>
             <p className="text-texto-suave">
               O problema voltou ou precisa de algo?{" "}

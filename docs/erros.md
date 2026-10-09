@@ -24,6 +24,8 @@ Formato da API:
 | `CANCELAMENTO_NAO_PERMITIDO` | Solicitante tentando cancelar (só a TI cancela — ADR 0011) | Quem cancela o chamado é a TI. Se não precisa mais, avise pelo chat. | Aviso |
 | `CHAMADO_NAO_INICIADO` | TI escrevendo ao solicitante antes de iniciar (ADR 0011) | Inicie o chamado para conversar com o solicitante. | Aviso (a tela já trava o campo) |
 | `PRAZO_INVALIDO` | Técnico escolhe prazo no passado ou a mais de 1 ano (ADR 0009) | Escolha uma data e hora no futuro para o prazo. | Abaixo do campo |
+| `AVALIACAO_INDISPONIVEL` | Avaliar chamado ainda não concluído (ADR 0015) | Só dá para avaliar depois que o chamado for concluído. | Aviso |
+| `AVALIACAO_JA_ENVIADA` | Avaliar de novo o mesmo chamado | Você já avaliou este chamado. | Aviso |
 | `MENSAGEM_NAO_ENVIADA` | Falha ao enviar mensagem | Sua mensagem não foi enviada. Toque para tentar de novo. *(o texto é mantido)* | No próprio balão |
 | `SEM_CONEXAO` | Sem internet / tempo real caiu | Sem conexão. As mensagens novas vão aparecer quando a conexão voltar. | Faixa no chat |
 | `ERRO_INESPERADO` | Qualquer outro | Algo deu errado do nosso lado. Tente novamente. Se continuar, informe o código **{ref}** para a TI. | Aviso ou tela de erro |

@@ -45,6 +45,8 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `CAMPO_OBRIGATORIO` | 422 | Formulário incompleto; mensagem vazia; destino da transferência não é técnico ativo |
 | `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir ou alterar o prazo sem motivo |
 | `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |
+| `AVALIACAO_INDISPONIVEL` | 409 | Avaliar chamado que não está concluído (ADR 0015) |
+| `AVALIACAO_JA_ENVIADA` | 409 | Avaliar de novo o mesmo chamado |
 | `ANEXO_MUITO_GRANDE` / `ANEXO_TIPO_INVALIDO` | 422 | Arquivo acima de 10 MB ou tipo não aceito (vale o tamanho **real** do arquivo enviado) |
 | `UPLOAD_FALHOU` | 502 | Storage fora do ar; arquivo não chegou; upload de outra pessoa |
 | `ERRO_INESPERADO` | 500 | Qualquer outra coisa (com `ref`). Corpo acima de 1 MB → mesmo código com **413** |
@@ -108,6 +110,17 @@ retomar e devolver à fila ([ADR 0014](adr/0014-sem-aguardar-retomar-e-devolver.
 `POST /chamados/{id}/prioridade` `{ "prioridade": "alta" | "media" | "baixa" }` → chamado atualizado (ADR 0012).
 Só TI, depois de iniciar (`CHAMADO_NAO_INICIADO`), não encerrado (`TRANSICAO_INVALIDA`). Histórico **interno**
 (`prioridade_alterada`); o solicitante não vê nem é avisado. Mesma prioridade → nada muda.
+
+### Avaliação (pesquisa de satisfação)
+
+`POST /chamados/{id}/avaliacao` `{ "nota": 1-5, "comentario": "..." }` → `201` com a avaliação
+([ADR 0015](adr/0015-pesquisa-de-satisfacao.md)).
+
+- Só o **solicitante** do chamado (`SEM_PERMISSAO`), só **concluído** (`AVALIACAO_INDISPONIVEL`), uma vez
+  (`AVALIACAO_JA_ENVIADA`). Nota fora de 1–5 → 422.
+- Nota 1 ou 2 sem texto → `CAMPO_OBRIGATORIO` com `campos: [{campo: "comentario"}]`.
+- Grava `avaliacoes` + `historico` `avaliado` (público, `detalhe.nota`) na mesma transação. O front lê as avaliações
+  direto da tabela (RLS: a própria ou TI).
 
 ### Prazo (definido pela TI)
 

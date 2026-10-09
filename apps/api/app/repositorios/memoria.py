@@ -15,6 +15,7 @@ from app.dominio.formulario import CampoForm
 from app.dominio.tipos import StatusChamado
 from app.repositorios.base import (
     AnexoLinha,
+    AvaliacaoLinha,
     CategoriaLinha,
     ChamadoLinha,
     MensagemCriada,
@@ -50,6 +51,7 @@ class EstadoMemoria:
     transferencias: list[NovaTransferencia] = field(default_factory=list)
     notificacoes: list[NovaNotificacao] = field(default_factory=list)
     leituras: dict[tuple[int, str], datetime] = field(default_factory=dict)
+    avaliacoes: dict[int, AvaliacaoLinha] = field(default_factory=dict)
     relogio: datetime = field(default_factory=lambda: datetime(2026, 10, 6, 13, 0, tzinfo=UTC))
 
     def agora(self) -> datetime:
@@ -107,6 +109,12 @@ class RepositorioMemoria:
             if m.chamado_id == chamado_id and self._vejo_mensagem(m)
         ]
         return max(datas, default=None)
+
+    async def obter_avaliacao(self, chamado_id: int) -> AvaliacaoLinha | None:
+        avaliacao = self._e.avaliacoes.get(chamado_id)
+        if avaliacao is None:
+            return None
+        return avaliacao if self._sou_ti() or avaliacao.avaliador_id == self._usuario_id else None
 
     async def obter_categoria_ativa(self, categoria_id: int) -> CategoriaLinha | None:
         return self._e.categorias.get(categoria_id)
@@ -208,6 +216,13 @@ class RepositorioMemoria:
 
     async def inserir_eventos(self, eventos: list[NovoEvento]) -> None:
         self._e.eventos.extend(eventos)
+
+    async def inserir_avaliacao(
+        self, chamado_id: int, avaliador_id: str, nota: int, comentario: str | None
+    ) -> AvaliacaoLinha:
+        avaliacao = AvaliacaoLinha(chamado_id, avaliador_id, nota, comentario, self._e.agora())
+        self._e.avaliacoes[chamado_id] = avaliacao
+        return avaliacao
 
     async def inserir_transferencia(self, transferencia: NovaTransferencia) -> None:
         self._e.transferencias.append(transferencia)

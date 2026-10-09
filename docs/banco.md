@@ -56,6 +56,7 @@ erDiagram
 | `mensagens` | Chat | Só inserção. `interna = true` → nota interna (só TI escreve e lê). Encerrado não aceita mensagem |
 | `anexos` | Nome, tipo, tamanho, origem (`upload`/`colado`), caminho no Storage | Só inserção. Anexo de nota interna é invisível ao solicitante (inclusive no Storage) |
 | `chamado_leituras` | Até quando cada pessoa leu a conversa | Para o selo "• Nova mensagem". Gravada só pela API |
+| `avaliacoes` | Pesquisa de satisfação (0024): nota 1–5 e texto, uma por chamado concluído | Só o solicitante, só concluído (trigger); texto obrigatório com nota ≤ 2; não muda nem é apagada. Gravada só pela API (ADR 0015) |
 
 ### Avisos (Teams)
 | Tabela | O que guarda | Pontos importantes |
@@ -78,6 +79,7 @@ RLS ligado em **todas** as tabelas; os acessos padrão do Supabase foram revogad
 | `transferencias`, `notificacoes`, `teams_conversas`, `bot_respostas_automaticas` | — | todos | API |
 | `profiles` | o próprio | todos | o próprio (só departamento/telefone) e API |
 | `chamado_leituras` | as próprias | as próprias | API |
+| `avaliacoes` | as próprias | todas | API |
 | `configuracoes` | as públicas | todas | API |
 | `categorias`, `campos_form`, `areas` | as ativas | todas | API |
 | `respostas_prontas` | — | as ativas | só SQL (migration) |
@@ -115,3 +117,4 @@ pública (migration 0015).
 | 0021 | `20261008090000_automacoes_inatividade.sql` | Automações por tempo (`app.processar_inatividade`, pg_cron 5 min): 2 h úteis → aguardando usuário; 24 h úteis → aviso no chat. `mensagens.autor_id` nulo = mensagem do sistema (ADR 0011) |
 | 0022 | `20261008120000_cores_das_opcoes.sql` | `campos_form.cores`: cor de cada opção (paleta fixa, conferida por `app.cores_validas`) |
 | 0023 | `20261008130000_respostas_prontas.sql` | Tabela `respostas_prontas` (só a TI lê) |
+| 0024 | `20261009090000_avaliacoes.sql` | Tabela `avaliacoes` — pesquisa de satisfação (ADR 0015) |

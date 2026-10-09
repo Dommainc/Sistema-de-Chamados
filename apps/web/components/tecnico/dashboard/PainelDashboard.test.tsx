@@ -49,6 +49,13 @@ describe("PainelDashboard", () => {
     expect(within(equipe).getByText("Rafael Lima")).toBeInTheDocument();
     expect(within(equipe).getByText("Thiago Martins")).toBeInTheDocument();
     expect(screen.getByText(/Achei um headset sobrando/)).toBeInTheDocument();
+    // Pesquisa de satisfação (ADR 0015): média, nota por técnico e link para todas.
+    expect(screen.getByText("Satisfação média")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ver todas as avaliações" })).toHaveAttribute(
+      "href",
+      "/atendimento/avaliacoes",
+    );
+    expect(within(equipe).getByRole("columnheader", { name: "Nota média" })).toBeInTheDocument();
   });
 
   it("'Escolher datas' mostra os campos De e Até", async () => {
