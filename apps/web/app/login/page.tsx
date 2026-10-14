@@ -15,7 +15,7 @@ export default function PaginaLogin() {
     <main className="flex flex-1 items-center justify-center px-4 py-10">
       <Card className="flex w-full max-w-md flex-col gap-6 p-6">
         <div className="flex flex-col gap-3">
-          <Logo subtitulo="Central de Chamados" />
+          <Logo />
           <p className="text-texto-suave">Peça ajuda para a TI e acompanhe seus pedidos.</p>
         </div>
 

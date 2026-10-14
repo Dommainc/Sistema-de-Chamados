@@ -15,8 +15,12 @@ export default async function LayoutSolicitante({ children }: { children: React.
     <ProvedorDados usuario={usuario}>
       <header className="border-b border-borda bg-superficie">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-8">
-          <Link href="/" className="min-h-11">
-            <Logo subtitulo="Central de Chamados" />
+          <Link
+            href="/"
+            aria-label="DOMMA — voltar ao início"
+            className="flex min-h-11 items-center"
+          >
+            <Logo />
           </Link>
           <MenuCabecalho />
           <MenuUsuario nome={usuario.nome} />

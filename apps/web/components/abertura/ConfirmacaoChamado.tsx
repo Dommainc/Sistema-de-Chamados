@@ -35,7 +35,13 @@ export function ConfirmacaoChamado({ id }: { id: number }) {
     <div className="flex flex-1 flex-col">
       {comCabecalho ? (
         <div className="flex items-center justify-between border-b border-borda bg-superficie px-4 py-3">
-          <Logo subtitulo="Central de Chamados" />
+          <Link
+            href={caminhos.inicio}
+            aria-label="DOMMA — voltar ao início"
+            className="flex min-h-11 items-center"
+          >
+            <Logo />
+          </Link>
           <span className="text-sm font-semibold text-texto-suave">Passo 3 de 3</span>
         </div>
       ) : null}
