@@ -17,6 +17,9 @@ sem problema de "primeiro admin".
 
 ## Consequências
 - Remoção do grupo vale no próximo login/renovação de token (até ~1h).
-- **Validar no início da implementação do login:** se o Supabase repassa o claim `groups`.
+- **Validado em 2026-10-15 (projeto dev):** o Supabase repassa o claim `groups` (declaração de grupos de segurança no
+  App Registration "Central de Chamados"); o dono, membro de `Central-Chamados-TI`, entrou direto na área da TI.
+  Plano B (Graph) descartado.
+- ~~**Validar no início da implementação do login:** se o Supabase repassa o claim `groups`.~~
   Se não repassar, o plano B (leitura no Graph só no login) precisa de aprovação, pois é
   integração além das permitidas.
