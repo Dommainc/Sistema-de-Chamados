@@ -16,15 +16,17 @@ export default async function PaginaLogin({ searchParams }: PageProps<"/login">)
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-10">
       <Card className="flex w-full max-w-md flex-col gap-6 p-6">
-        <div className="flex flex-col gap-3">
+        {/* Logo centralizada + título (pedido do dono, 2026-10-15). */}
+        <div className="flex flex-col items-center gap-3 text-center">
           <Logo />
+          <h1 className="text-2xl font-bold">Central de Chamados</h1>
           <p className="text-texto-suave">Peça ajuda para a TI e acompanhe seus pedidos.</p>
         </div>
 
         {FONTE_DADOS === "simulada" ? (
           <div className="flex flex-col gap-3">
             {/* Tela provisória do modo de demonstração (ADR 0006). O login real é com a conta Microsoft. */}
-            <h1 className="font-semibold">Entrar como:</h1>
+            <h2 className="font-semibold">Entrar como:</h2>
             {USUARIOS_SIMULADOS.map((u) => (
               <form key={u.id} action={entrarSimulado}>
                 <input type="hidden" name="usuarioId" value={u.id} />

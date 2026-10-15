@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-15 | Supabase dev na nuvem montado (24 migrations, seed, senha do `central_api`); App Registration "Central de Chamados" no Entra + grupo `Central-Chamados-TI`; provider Azure ligado e e-mail desligado no Supabase. Login: logo centralizada e título "Central de Chamados". |
 | 2026-10-15 | **Supabase (Free) — camada `real` do front** (ADR 0016): sessão com `@supabase/ssr` (cookies; `proxy.ts` decide a área pelo papel do perfil), login "Entrar com a conta Microsoft" + `/auth/callback` (sincroniza o papel), `/conta-sem-acesso`, login de teste só com `NEXT_PUBLIC_LOGIN_DEV` (recusado em produção); `lib/dados/real/` implementa o contrato inteiro (leituras no Supabase, ações na API, anexos por URL assinada, Realtime). CI: job `banco` sobe a API e roda a integração da camada real contra o Supabase local. |
 | 2026-10-14 | Cabeçalhos só com a **logo** (sem "Central de Chamados" / "Atendimento TI" ao lado); a logo é o link para voltar ao início (portal e confirmação) ou ao quadro (TI). |
 | 2026-10-09 | **Logo da DOMMA** no lugar do texto "DOMMA" (login, portal, confirmação e barra da TI): `public/logo-domma.png` (branca, recortada) usada como máscara — azul da marca (`primaria`) nas páginas claras e branca (`sobre-barra`) na barra escura. |
