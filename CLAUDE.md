@@ -23,7 +23,7 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
 | Banco / Auth / Realtime / Storage | Supabase — `supabase/` (local via Docker; nuvem em `sa-east-1` depois) |
 | Login | Microsoft Entra ID (provider Azure do Supabase) |
 | Avisos | Bot do Teams **já existente** (projeto separado), via endpoint `POST /notificar` |
-| Hospedagem | Vercel: dois projetos (web e api), região `gru1` |
+| Hospedagem | Vercel: **um projeto com Services** (site em `/`, API em `/api`), região `gru1` — `vercel.json` na raiz (`docs/adr/0017`) |
 
 ## Regras que nunca podem ser quebradas
 

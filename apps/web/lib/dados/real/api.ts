@@ -36,12 +36,25 @@ export function erroDaApi(status: number, corpo: unknown): ErroApp {
   return new ErroApp("ERRO_INESPERADO");
 }
 
+/**
+ * Endereço base da API. No navegador: NEXT_PUBLIC_API_URL (na Vercel, "/api" — o mesmo domínio do site, ADR 0017;
+ * local, http://localhost:8000). No servidor do site (ex.: /auth/callback): o endereço interno que a Vercel Services
+ * injeta no binding API_INTERNA_URL; sem ele, o mesmo NEXT_PUBLIC_API_URL.
+ */
+export function baseDaApi(): string {
+  if (typeof window === "undefined") {
+    const interna = process.env.API_INTERNA_URL;
+    if (interna) return interna.replace(/\/+$/, "");
+  }
+  return API_URL;
+}
+
 export async function chamarApi<T>(caminho: string, opcoes: OpcoesApi): Promise<T> {
   if (!opcoes.token) throw new ErroApp("SESSAO_EXPIRADA");
   const temCorpo = opcoes.corpo !== undefined;
   let resposta: Response;
   try {
-    resposta = await fetch(`${API_URL}${caminho}`, {
+    resposta = await fetch(`${baseDaApi()}${caminho}`, {
       method: opcoes.metodo ?? "GET",
       headers: {
         Authorization: `Bearer ${opcoes.token}`,

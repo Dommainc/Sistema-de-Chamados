@@ -65,24 +65,22 @@ também: `update public.profiles set ativo = false where email = '<email>';` (o 
 ## 6. Storage
 - [ ] Conferir que o bucket `anexos` existe e é **privado** (migration 0011), limite de 10 MB.
 
-## 7. Vercel — API (`apps/api`, projeto `central-chamados-api`, região `gru1`)
-Variáveis (Settings → Environment Variables), conforme `apps/api/.env.example`:
-- [ ] `AMBIENTE=prod` (no dev: `dev`)
-- [ ] `DATABASE_URL` (passo 4) · `SUPABASE_URL` · `SUPABASE_SERVICE_ROLE_KEY` · `ENTRA_GRUPO_TI_ID`
-- [ ] `WEB_ORIGEM` = endereço do front (CORS)
-- [ ] `SUPABASE_JWT_SECRET` **só** se o projeto ainda assinar tokens com HS256 (o padrão novo usa JWKS, sem segredo)
-- [ ] Primeiro deploy: conferir se a Vercel achou a FastAPI em `app/main.py`; senão, ajustar `vercel.json` (P-032).
-- [ ] Conferir: `GET <api>/saude` → `{"status": "ok", "banco": "ok", "ambiente": "prod"}`.
+## 7. Vercel — um projeto só, site + API ([ADR 0017](adr/0017-vercel-projeto-unico-com-services.md))
+- [ ] Vercel → **Add New → Project → importar o repositório** com o Root Directory na **raiz (`./`)**: a Vercel lê o
+  `vercel.json` e monta os dois serviços (`web` em `/`, `api` em `/api`), região `gru1`.
+- [ ] Variáveis (Settings → Environment Variables, ambiente **Production**):
+  - site: `NEXT_PUBLIC_FONTE_DADOS=real` (o build recusa `simulada`) · `NEXT_PUBLIC_SUPABASE_URL` ·
+    `NEXT_PUBLIC_SUPABASE_ANON_KEY` (a **publishable/anon**, nunca a secreta) · `NEXT_PUBLIC_API_URL=/api`
+  - API: `AMBIENTE=prod` · `DATABASE_URL` (passo 4; `@` na senha vira `%40`) · `SUPABASE_URL` ·
+    `SUPABASE_SERVICE_ROLE_KEY` (a **secret**) · `ENTRA_GRUPO_TI_ID` · `WEB_ORIGEM` = endereço do site
+  - **Nunca:** `NEXT_PUBLIC_LOGIN_DEV` (o build de produção recusa `true`). `API_INTERNA_URL` a Vercel cria sozinha.
+- [ ] Conferir: `https://<domínio>/api/saude` → `{"status": "ok", "banco": "ok", "ambiente": "prod"}`.
+- [ ] Conferir: `https://<domínio>/login` mostra "Entrar com a conta Microsoft" e **não** mostra a faixa "Modo de
+  demonstração".
 
-## 8. Vercel — front (`apps/web`, projeto `central-chamados-web`, região `gru1`)
-- [ ] `NEXT_PUBLIC_FONTE_DADOS=real` (o build de produção recusa `simulada`)
-- [ ] `NEXT_PUBLIC_SUPABASE_URL` · `NEXT_PUBLIC_SUPABASE_ANON_KEY` (**anon**, nunca a service_role) · `NEXT_PUBLIC_API_URL`
-- [ ] `NEXT_PUBLIC_LOGIN_DEV` **vazio ou ausente** (o botão de login de teste nunca existe em produção)
-- [ ] Conferir: a faixa "Modo de demonstração" **não** aparece.
-- [ ] **Demonstração (desde 2026-10-07):** o projeto da Vercel tem Root Directory `apps/web` e a demonstração é o
-  branch **`demo`** (publicado como **Preview**, dados simulados; atualizar com `git push origin main:demo`). O `main`
-  como produção falha de propósito até o go-live. No go-live: configurar as variáveis acima, apagar o branch `demo` e
-  religar a *Vercel Authentication* (desligada para a demonstração).
+## 8. Supabase — endereço do site
+- [ ] Authentication → URL Configuration: **Site URL** = `https://<domínio>`; **Redirect URLs** + `https://<domínio>/auth/callback`
+  (mantendo `http://localhost:3000/auth/callback` só no `dev`).
 
 ## 9. Migrations automáticas (`.github/workflows/migrations.yml`)
 - [ ] GitHub → Settings → Environments: criar `dev` e `prod` (este com **revisor obrigatório**).

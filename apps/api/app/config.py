@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from typing import Literal
 
@@ -10,7 +11,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # CENTRAL_ENV_FILE vazio = não lê arquivo (os testes usam isso para nunca tocar o banco do .env local).
+    model_config = SettingsConfigDict(
+        env_file=os.environ.get("CENTRAL_ENV_FILE", ".env") or None,
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     #: dev = mostra `detalhe` nos erros e não muda o papel no login; prod = nunca.
     ambiente: Literal["dev", "prod", "teste"] = "dev"

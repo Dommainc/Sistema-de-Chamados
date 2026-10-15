@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import obter_settings
 from app.db import banco
 from app.erros.handlers import registrar_handlers
+from app.prefixo import PrefixoApi
 from app.routers import chamados, me, saude
 from app.seguranca import ProtecoesHttp
 
@@ -47,6 +48,8 @@ def criar_app() -> FastAPI:
         allow_methods=["GET", "POST", "PATCH"],
         allow_headers=["Authorization", "Content-Type"],
     )
+    # Por último = mais externo: tira o "/api" da Vercel Services antes de tudo (ADR 0017).
+    app.add_middleware(PrefixoApi)
     registrar_handlers(app)
     app.include_router(saude.router)
     app.include_router(me.router)

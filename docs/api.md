@@ -1,6 +1,7 @@
 # API da Central de Chamados (`apps/api`)
 
-FastAPI. Documentação interativa (gerada do código, sempre atualizada): **`/docs`** —
+FastAPI. Na Vercel fica no mesmo endereço do site, em **`/api`** (`https://<domínio>/api/chamados`… — ADR 0017);
+local, em `http://localhost:8000` (sem o prefixo). Documentação interativa (gerada do código, sempre atualizada): **`/docs`** —
 local em <http://localhost:8000/docs> (**fechada em produção**). Este arquivo é o resumo para quem vai integrar (a camada `real` do front).
 
 ## Regras gerais

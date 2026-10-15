@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-15 | **Um projeto só na Vercel** (ADR 0017, decisão do dono): `vercel.json` na raiz com Services — site em `/`, API em `/api` (middleware `app/prefixo.py`), binding `API_INTERNA_URL` para o servidor do site; `NEXT_PUBLIC_API_URL=/api`. Teste `segredos-fora-do-site` impede o site de citar segredos da API. Testes da API não leem mais o `.env` local. Projeto e branch `demo` excluídos. `CLAUDE.md` e `go-live.md` §7–8 atualizados. |
 | 2026-10-15 | **Primeiro login de verdade**: conta Microsoft da DOMMA → Supabase dev → API local → área da TI. O claim `groups` chega no token (ADR 0004 validado). |
 | 2026-10-15 | Supabase dev na nuvem montado (24 migrations, seed, senha do `central_api`); App Registration "Central de Chamados" no Entra + grupo `Central-Chamados-TI`; provider Azure ligado e e-mail desligado no Supabase. Login: logo centralizada e título "Central de Chamados". |
 | 2026-10-15 | **Supabase (Free) — camada `real` do front** (ADR 0016): sessão com `@supabase/ssr` (cookies; `proxy.ts` decide a área pelo papel do perfil), login "Entrar com a conta Microsoft" + `/auth/callback` (sincroniza o papel), `/conta-sem-acesso`, login de teste só com `NEXT_PUBLIC_LOGIN_DEV` (recusado em produção); `lib/dados/real/` implementa o contrato inteiro (leituras no Supabase, ações na API, anexos por URL assinada, Realtime). CI: job `banco` sobe a API e roda a integração da camada real contra o Supabase local. |
