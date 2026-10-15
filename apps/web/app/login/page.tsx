@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { entrarSimulado } from "@/app/acoes-sessao";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
+import { LoginReal } from "@/components/login/LoginReal";
 import { Logo } from "@/components/ui/Logo";
 import { FONTE_DADOS } from "@/lib/dados/config";
 import { USUARIOS_SIMULADOS } from "@/lib/dados/simulada/usuarios";
@@ -10,7 +11,8 @@ export const metadata: Metadata = { title: "Entrar" };
 
 const DESCRICAO_PAPEL = { solicitante: "Solicitante", ti: "Equipe de TI" } as const;
 
-export default function PaginaLogin() {
+export default async function PaginaLogin({ searchParams }: PageProps<"/login">) {
+  const motivo = (await searchParams).motivo;
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-10">
       <Card className="flex w-full max-w-md flex-col gap-6 p-6">
@@ -40,9 +42,7 @@ export default function PaginaLogin() {
             ))}
           </div>
         ) : (
-          <p className="text-center text-texto-suave">
-            O login com a conta Microsoft estará disponível em breve.
-          </p>
+          <LoginReal motivo={typeof motivo === "string" ? motivo : undefined} />
         )}
       </Card>
     </main>

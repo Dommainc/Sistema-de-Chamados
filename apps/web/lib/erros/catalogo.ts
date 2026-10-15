@@ -28,6 +28,10 @@ export const CATALOGO = {
 
 export type CodigoErro = keyof typeof CATALOGO;
 
+export function ehCodigoErro(valor: unknown): valor is CodigoErro {
+  return typeof valor === "string" && valor in CATALOGO;
+}
+
 export type ParametrosErro = Partial<Record<"campo" | "numero" | "de" | "para" | "ref", string>>;
 
 export function mensagemErro(codigo: CodigoErro, parametros: ParametrosErro = {}): string {
@@ -60,10 +64,14 @@ export class ErroApp extends Error {
   constructor(
     codigo: CodigoErro,
     parametros: ParametrosErro = {},
-    opcoes: { campos?: ErroDeCampo[] } = {},
+    /**
+     * `mensagem`: texto que veio pronto da API (é o mesmo catálogo, já com {campo} preenchido). Nunca passe
+     * aqui mensagem crua de Supabase, fetch ou stack trace.
+     */
+    opcoes: { campos?: ErroDeCampo[]; mensagem?: string } = {},
   ) {
     const ref = codigo === "ERRO_INESPERADO" ? (parametros.ref ?? gerarRefErro()) : null;
-    super(mensagemErro(codigo, ref ? { ...parametros, ref } : parametros));
+    super(opcoes.mensagem ?? mensagemErro(codigo, ref ? { ...parametros, ref } : parametros));
     this.name = "ErroApp";
     this.codigo = codigo;
     this.campos = opcoes.campos ?? [];

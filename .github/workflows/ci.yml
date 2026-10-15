@@ -143,6 +143,43 @@ jobs:
             exit 1
           }
 
+      # Camada `real` do front (lib/dados/real) contra o mesmo Supabase local e a API rodando de verdade.
+      - name: Subir a API (para a camada real do front)
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
+        working-directory: apps/api
+        run: |
+          nohup uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 > api.log 2>&1 &
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:8000/saude && exit 0; sleep 1; done
+          cat api.log; exit 1
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
+        with:
+          package_json_file: apps/web/package.json
+
+      - uses: actions/setup-node@v4
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+
+      - name: Integração da camada real do front
+        if: ${{ !cancelled() && steps.supabase.outcome == 'success' }}
+        working-directory: apps/web
+        env:
+          INTEGRACAO_REAL: "1"
+          NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
+        run: |
+          set -o pipefail
+          pnpm install --frozen-lockfile
+          export NEXT_PUBLIC_SUPABASE_URL="$SUPABASE_URL" NEXT_PUBLIC_SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+          pnpm exec vitest run lib/dados/real/integracao.test.ts 2>&1 | tee vitest.log || {
+            echo "::error title=Camada real::$(grep -E 'FAIL|Error|expected|codigo|×' vitest.log | head -40 | awk '{printf "%s%%0A", $0}')"
+            cat ../api/api.log | tail -40
+            exit 1
+          }
+
       - name: Logs do Supabase (se falhar)
         if: failure()
         run: docker ps -a && supabase status || true

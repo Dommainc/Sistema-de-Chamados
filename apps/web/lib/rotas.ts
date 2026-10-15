@@ -6,7 +6,7 @@ import type { Papel } from "@/lib/dominio/tipos";
 
 export type DecisaoRota = { tipo: "seguir" } | { tipo: "redirecionar"; para: string };
 
-const PUBLICAS = ["/login"];
+const PUBLICAS = ["/login", "/conta-sem-acesso"];
 
 export function inicioDoPapel(papel: Papel): string {
   return papel === "ti" ? "/atendimento" : "/";

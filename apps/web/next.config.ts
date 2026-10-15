@@ -5,6 +5,10 @@ const fonteDados = process.env.NEXT_PUBLIC_FONTE_DADOS ?? "simulada";
 if (process.env.VERCEL_ENV === "production" && fonteDados === "simulada") {
   throw new Error("NEXT_PUBLIC_FONTE_DADOS=simulada não é permitido em produção (docs/adr/0006).");
 }
+// O login de teste por e-mail/senha (Ana, Bruno, Rafael, Thiago) nunca pode existir em produção (CLAUDE.md).
+if (process.env.VERCEL_ENV === "production" && process.env.NEXT_PUBLIC_LOGIN_DEV === "true") {
+  throw new Error("NEXT_PUBLIC_LOGIN_DEV=true não é permitido em produção.");
+}
 
 const desenvolvimento = process.env.NODE_ENV !== "production";
 

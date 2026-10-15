@@ -1,10 +1,14 @@
 // Separação de áreas por papel (1A-3, Entrega 1). Experiência, não segurança: RLS + API protegem os dados.
 
 import { NextResponse, type NextRequest } from "next/server";
+import { FONTE_DADOS } from "@/lib/dados/config";
 import { decidirRota } from "@/lib/rotas";
 import { COOKIE_SESSAO, usuarioDaSessao } from "@/lib/sessao";
+import { proxyReal } from "@/lib/supabase/proxy";
 
 export function proxy(request: NextRequest) {
+  // Camada `real`: sessão do Supabase Auth (cookies) + papel do perfil (lib/supabase/proxy.ts).
+  if (FONTE_DADOS === "real") return proxyReal(request);
   const valorCookie = request.cookies.get(COOKIE_SESSAO)?.value;
   const usuario = usuarioDaSessao(valorCookie);
   const decisao = decidirRota(request.nextUrl.pathname, usuario?.papel ?? null);

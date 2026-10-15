@@ -6,6 +6,7 @@ import { FONTE_DADOS } from "@/lib/dados/config";
 import { usuarioSimuladoPorId } from "@/lib/dados/simulada/usuarios";
 import { inicioDoPapel } from "@/lib/rotas";
 import { COOKIE_SESSAO } from "@/lib/sessao";
+import { clienteServidor } from "@/lib/supabase/servidor";
 
 /** Login da versão simulada: escolhe Ana, Bruno ou Técnico (ADR 0006). */
 export async function entrarSimulado(formData: FormData): Promise<void> {
@@ -24,6 +25,10 @@ export async function entrarSimulado(formData: FormData): Promise<void> {
 }
 
 export async function sair(): Promise<void> {
+  if (FONTE_DADOS === "real") {
+    await (await clienteServidor()).auth.signOut();
+    redirect("/login");
+  }
   (await cookies()).delete(COOKIE_SESSAO);
   redirect("/login");
 }
