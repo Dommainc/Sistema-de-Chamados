@@ -23,7 +23,7 @@ export interface DadosCartao {
   /** Quem transferiu (para o selo "Transferido para você · por Thiago"). */
   transferidoPor: PerfilPublico | undefined;
   /** Resposta de "Qual sistema?" com a cor do banco (null = categoria sem sistema). */
-  sistema: OpcaoSistema | null;
+  sistema: (OpcaoSistema & { modulo?: string | null }) | null;
 }
 
 /** O que o useDraggable (ColunaQuadro) entrega ao cartão para ele poder ser arrastado. */
@@ -228,6 +228,9 @@ export function CartaoChamado({
               <span aria-hidden="true" className={`size-2.5 rounded-sm ${corSistema.fundo}`} />
             ) : null}
             {sistema.nome}
+            {sistema.modulo ? (
+              <span className="font-normal text-texto-suave">· {sistema.modulo}</span>
+            ) : null}
           </span>
         ) : null}
         <NaoLidas total={naoLidas} />

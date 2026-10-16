@@ -56,6 +56,11 @@ function normalizar(campo: CampoForm, valor: unknown): ValorResposta | undefined
   }
 }
 
+/** Pergunta condicional (migration 0031): aparece se o outro campo tiver o valor pedido. */
+export function campoVisivel(campo: CampoForm, respostas: Record<string, unknown>): boolean {
+  return !campo.mostrarSe || respostas[campo.mostrarSe.campo] === campo.mostrarSe.igual;
+}
+
 /** Valida título + respostas. Ignora chaves que não são campos da categoria. */
 export function validarFormulario(
   campos: CampoForm[],
@@ -68,6 +73,8 @@ export function validarFormulario(
 
   const validas: Record<string, ValorResposta> = {};
   for (const campo of [...campos].sort((a, b) => a.ordem - b.ordem)) {
+    // Escondida: não é obrigatória e a resposta é ignorada.
+    if (!campoVisivel(campo, validas)) continue;
     const bruto = respostas[campo.chave];
     if (vazio(bruto)) {
       if (campo.obrigatorio) erros.push(erroCampo(campo.chave, campo.label));

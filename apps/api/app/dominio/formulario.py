@@ -34,6 +34,8 @@ class CampoForm:
     obrigatorio: bool = False
     opcoes: list[str] = field(default_factory=list)
     ordem: int = 0
+    #: Só aparece (e só vale) se outro campo tiver este valor: ("sistema", "Sienge"). None = sempre.
+    mostrar_se: tuple[str, str] | None = None
 
 
 @dataclass(frozen=True)
@@ -102,6 +104,9 @@ def validar_formulario(
 
     validas: dict[str, ValorResposta] = {}
     for campo in sorted(campos, key=lambda c: c.ordem):
+        # Pergunta condicional (migration 0031): escondida = não é obrigatória e a resposta é ignorada.
+        if campo.mostrar_se and validas.get(campo.mostrar_se[0]) != campo.mostrar_se[1]:
+            continue
         bruto = respostas.get(campo.chave)
         if _vazio(bruto):
             if campo.obrigatorio:

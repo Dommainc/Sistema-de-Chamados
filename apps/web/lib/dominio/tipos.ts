@@ -92,6 +92,8 @@ export interface CampoForm {
   cores: Partial<Record<string, CorPaleta>>;
   ajuda: string | null;
   ordem: number;
+  /** Só aparece se outro campo tiver este valor (migration 0031). Ausente/nulo = sempre aparece. */
+  mostrarSe?: { campo: string; igual: string } | null;
 }
 
 /** Pesquisa de satisfação (tabela avaliacoes, migration 0024 — ADR 0015). */

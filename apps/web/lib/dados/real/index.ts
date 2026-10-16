@@ -214,7 +214,9 @@ export function criarFonteReal(
       const linhas = ler(
         await supabase
           .from("campos_form")
-          .select("id, categoria_id, chave, label, tipo, obrigatorio, opcoes, cores, ajuda, ordem")
+          .select(
+            "id, categoria_id, chave, label, tipo, obrigatorio, opcoes, cores, ajuda, ordem, mostrar_se",
+          )
           .eq("categoria_id", categoriaId)
           .eq("ativo", true)
           .order("ordem")

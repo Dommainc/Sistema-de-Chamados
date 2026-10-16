@@ -52,3 +52,16 @@ export function classesDaCor(cor: CorPaleta | null | undefined): ClassesCor | nu
 export function corDaOpcao(campo: Pick<CampoForm, "cores">, valor: unknown): ClassesCor | null {
   return typeof valor === "string" ? classesDaCor(campo.cores[valor]) : null;
 }
+
+/**
+ * Módulo escolhido para o sistema (campos "modulo_*" — migration 0031), para o cartão do quadro:
+ * "■ Sienge · Financeiro". "Não sei" não aparece.
+ */
+export function moduloDe(respostas: Record<string, unknown>): string | null {
+  for (const [chave, valor] of Object.entries(respostas)) {
+    if (chave.startsWith("modulo_") && typeof valor === "string" && valor && valor !== "Não sei") {
+      return valor;
+    }
+  }
+  return null;
+}

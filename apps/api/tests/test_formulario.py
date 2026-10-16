@@ -109,3 +109,35 @@ def test_recusa_numero_data_e_opcoes_invalidos():
 def test_nao_em_sim_nao_e_resposta_e_nao_campo_vazio():
     r = validar_formulario([campo("urgente", "sim_nao")], "Pedido", {"urgente": False})
     assert r.respostas["urgente"] is False
+
+
+# ---------------------------------------------------------------- pergunta condicional (migration 0031)
+SISTEMA = CampoForm("sistema", "Qual sistema?", "selecao", True, ["Sienge", "CVCRM", "Outro"], 10)
+MODULO = CampoForm(
+    "modulo_sienge",
+    "Qual módulo do Sienge?",
+    "selecao",
+    True,
+    ["Financeiro", "Não sei"],
+    15,
+    mostrar_se=("sistema", "Sienge"),
+)
+
+
+def test_modulo_obrigatorio_so_quando_o_sistema_e_escolhido():
+    with pytest.raises(ErroApp) as erro:
+        validar_formulario([SISTEMA, MODULO], "Acesso ao financeiro", {"sistema": "Sienge"})
+    assert [c.campo for c in erro.value.campos] == ["modulo_sienge"]
+    ok = validar_formulario(
+        [SISTEMA, MODULO],
+        "Acesso ao financeiro",
+        {"sistema": "Sienge", "modulo_sienge": "Financeiro"},
+    )
+    assert ok.respostas == {"sistema": "Sienge", "modulo_sienge": "Financeiro"}
+
+
+def test_modulo_escondido_e_ignorado():
+    ok = validar_formulario(
+        [SISTEMA, MODULO], "Acesso ao CV", {"sistema": "CVCRM", "modulo_sienge": "Financeiro"}
+    )
+    assert ok.respostas == {"sistema": "CVCRM"}

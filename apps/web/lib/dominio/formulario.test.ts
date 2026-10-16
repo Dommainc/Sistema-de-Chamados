@@ -125,3 +125,32 @@ describe("validarFormulario", () => {
     expect(r.respostas.urgente).toBe(false);
   });
 });
+
+describe("pergunta que só aparece se... (módulo do Sienge — migration 0031)", () => {
+  const sistema = campo("sistema", "selecao", true, ["Sienge", "CVCRM"], 10);
+  const modulo = {
+    ...campo("modulo_sienge", "selecao", true, ["Financeiro", "Não sei"], 15),
+    mostrarSe: { campo: "sistema", igual: "Sienge" },
+  };
+
+  it("com Sienge, o módulo é obrigatório", () => {
+    expect(() => validarFormulario([sistema, modulo], "Acesso", { sistema: "Sienge" })).toThrow(
+      ErroApp,
+    );
+    expect(
+      validarFormulario([sistema, modulo], "Acesso", {
+        sistema: "Sienge",
+        modulo_sienge: "Financeiro",
+      }).respostas,
+    ).toEqual({ sistema: "Sienge", modulo_sienge: "Financeiro" });
+  });
+
+  it("com outro sistema, o módulo some e a resposta é ignorada", () => {
+    expect(
+      validarFormulario([sistema, modulo], "Acesso", {
+        sistema: "CVCRM",
+        modulo_sienge: "Financeiro",
+      }).respostas,
+    ).toEqual({ sistema: "CVCRM" });
+  });
+});

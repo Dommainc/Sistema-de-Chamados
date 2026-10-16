@@ -9,7 +9,7 @@ import { Campo } from "@/components/ui/Campo";
 import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useDados, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
-import { CHAVE_TITULO, ROTULO_TITULO, TITULO_MAX } from "@/lib/dominio/formulario";
+import { CHAVE_TITULO, ROTULO_TITULO, TITULO_MAX, campoVisivel } from "@/lib/dominio/formulario";
 import type { CampoForm, Categoria } from "@/lib/dominio/tipos";
 import { ErroApp } from "@/lib/erros/catalogo";
 import { formatarNumeroChamado } from "@/lib/formato";
@@ -183,20 +183,22 @@ function FormularioCarregado({
             onChange={(e) => mudar({ ...rascunho, titulo: e.target.value }, CHAVE_TITULO)}
           />
 
-          {campos.map((campo) => (
-            <CampoDinamico
-              key={campo.id}
-              campo={campo}
-              valor={rascunho.respostas[campo.chave]}
-              erro={erros[campo.chave]}
-              aoMudar={(valor) =>
-                mudar(
-                  { ...rascunho, respostas: { ...rascunho.respostas, [campo.chave]: valor } },
-                  campo.chave,
-                )
-              }
-            />
-          ))}
+          {campos
+            .filter((campo) => campoVisivel(campo, rascunho.respostas))
+            .map((campo) => (
+              <CampoDinamico
+                key={campo.id}
+                campo={campo}
+                valor={rascunho.respostas[campo.chave]}
+                erro={erros[campo.chave]}
+                aoMudar={(valor) =>
+                  mudar(
+                    { ...rascunho, respostas: { ...rascunho.respostas, [campo.chave]: valor } },
+                    campo.chave,
+                  )
+                }
+              />
+            ))}
 
           <SeletorAnexos arquivos={arquivos} aoAdicionar={adicionar} aoRemover={remover} />
 

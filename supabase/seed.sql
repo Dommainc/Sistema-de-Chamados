@@ -72,6 +72,18 @@ join (values
   on f.categoria = c.nome
 on conflict (categoria_id, chave) do nothing;
 
+-- Módulos do Sienge e do CVCRM: só aparecem quando o sistema é escolhido (migration 0031).
+insert into public.campos_form
+  (categoria_id, chave, label, tipo, obrigatorio, opcoes, ajuda, ordem, mostrar_se)
+select c.id, m.chave, m.label, 'selecao', true, m.opcoes::jsonb, null, 15, m.mostrar_se::jsonb
+from public.categorias c
+cross join (values
+  ('modulo_sienge', 'Qual módulo do Sienge?', '["Engenharia","Suprimentos","Financeiro","Notas Fiscais","Contabilidade / Fiscal","Comercial","Suporte à decisão","Administrativo","Gestão da Qualidade","Gestão de Ativos","Segurança / Apoio","Não sei"]', '{"campo":"sistema","igual":"Sienge"}'),
+  ('modulo_cvcrm', 'Qual módulo do CVCRM?', '["Cadastros","Lead","Pré-cadastros","Reservas","Comissões","Repasse","Relacionamento","Relatórios","Configurações","Não sei"]', '{"campo":"sistema","igual":"CVCRM"}')
+) as m(chave, label, opcoes, mostrar_se)
+where c.nome = 'Solicitações de acesso e Permissões'
+on conflict (categoria_id, chave) do nothing;
+
 -- Cor de cada sistema (paleta fixa — migration 0022). Sistema novo: opção em `opcoes` + cor aqui.
 update public.campos_form f
    set cores = '{"Sienge":"vermelho","Prevision":"roxo","Construpoint":"vermelho-claro","Construmanager":"vermelho-escuro","CVCRM":"verde-claro","Suplos":"verde-escuro","Metadados":"azul-claro","Microsoft":"azul","Aipim Tech":"ciano","ClickUp":"lilas","AnyDesk":"laranja","Serasa":"magenta","BotMaker":"grafite","Stuo":"mostarda","Nexxera":"verde-agua","Paytrack":"verde","Hinc":"indigo","Mapfry":"laranja-claro","Kait":"oliva","KickIn":"rosa","FastBuilt":"marrom","TRC":"areia","Kairos":"amarelo","Docusign":"azul-escuro","Não se aplica":"cinza"}'

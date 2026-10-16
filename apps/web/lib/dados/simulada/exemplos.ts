@@ -77,6 +77,50 @@ type LinhaCampo = [string, string, string, TipoCampo, boolean, string[], string 
 
 const CAMPOS_ESPECIFICOS: LinhaCampo[] = [
   [
+    "Solicitações de acesso e Permissões",
+    "modulo_sienge",
+    "Qual módulo do Sienge?",
+    "selecao",
+    true,
+    [
+      "Engenharia",
+      "Suprimentos",
+      "Financeiro",
+      "Notas Fiscais",
+      "Contabilidade / Fiscal",
+      "Comercial",
+      "Suporte à decisão",
+      "Administrativo",
+      "Gestão da Qualidade",
+      "Gestão de Ativos",
+      "Segurança / Apoio",
+      "Não sei",
+    ],
+    null,
+    15,
+  ],
+  [
+    "Solicitações de acesso e Permissões",
+    "modulo_cvcrm",
+    "Qual módulo do CVCRM?",
+    "selecao",
+    true,
+    [
+      "Cadastros",
+      "Lead",
+      "Pré-cadastros",
+      "Reservas",
+      "Comissões",
+      "Repasse",
+      "Relacionamento",
+      "Relatórios",
+      "Configurações",
+      "Não sei",
+    ],
+    null,
+    15,
+  ],
+  [
     "Microsoft",
     "programa",
     "Qual programa?",
@@ -182,6 +226,12 @@ const CORES_SISTEMAS: Record<string, CorPaleta> = {
   "Não se aplica": "cinza",
 };
 
+/** Perguntas que só aparecem com um sistema escolhido (no banco: campos_form.mostrar_se — migration 0031). */
+const CONDICOES: Record<string, { campo: string; igual: string }> = {
+  modulo_sienge: { campo: "sistema", igual: "Sienge" },
+  modulo_cvcrm: { campo: "sistema", igual: "CVCRM" },
+};
+
 /** Respostas prontas do chat (cópia do seed.sql). */
 export const RESPOSTAS_PRONTAS: readonly RespostaPronta[] = [
   ["Reiniciar", "Oi, {nome}! Pode reiniciar o computador e testar de novo? Me conta se resolveu."],
@@ -256,6 +306,7 @@ export const CAMPOS_FORM: readonly CampoForm[] = [
   cores: chave === "sistema" ? CORES_SISTEMAS : {},
   ajuda,
   ordem,
+  mostrarSe: CONDICOES[chave] ?? null,
 }));
 
 interface ChamadoExemplo {

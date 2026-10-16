@@ -70,6 +70,15 @@ def _anexo(linha: asyncpg.Record) -> AnexoLinha:
     )
 
 
+def _condicao(valor: object) -> tuple[str, str] | None:
+    """campos_form.mostrar_se ({"campo", "igual"}) → ("sistema", "Sienge")."""
+    if isinstance(valor, str):
+        valor = json.loads(valor)
+    if isinstance(valor, dict) and isinstance(valor.get("campo"), str):
+        return (valor["campo"], str(valor.get("igual", "")))
+    return None
+
+
 class RepositorioPostgres:
     def __init__(self, transacao: Transacao) -> None:
         self._t = transacao
@@ -136,7 +145,7 @@ class RepositorioPostgres:
         await self._t.como_api()
         linhas = await self._c.fetch(
             """
-            select chave, label, tipo::text as tipo, obrigatorio, opcoes, ordem
+            select chave, label, tipo::text as tipo, obrigatorio, opcoes, ordem, mostrar_se
               from public.campos_form
              where categoria_id = $1 and ativo
              order by ordem
@@ -153,6 +162,7 @@ class RepositorioPostgres:
                 if isinstance(linha["opcoes"], str)
                 else list(linha["opcoes"]),
                 ordem=linha["ordem"],
+                mostrar_se=_condicao(linha["mostrar_se"]),
             )
             for linha in linhas
         ]

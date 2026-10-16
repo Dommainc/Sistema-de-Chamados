@@ -127,6 +127,7 @@ export interface LinhaCampo {
   cores: Record<string, CorPaleta> | null;
   ajuda: string | null;
   ordem: number;
+  mostrar_se: { campo: string; igual: string } | null;
 }
 
 export function campoDaLinha(l: LinhaCampo): CampoForm {
@@ -141,6 +142,7 @@ export function campoDaLinha(l: LinhaCampo): CampoForm {
     cores: l.cores ?? {},
     ajuda: l.ajuda,
     ordem: l.ordem,
+    mostrarSe: l.mostrar_se ?? null,
   };
 }
 

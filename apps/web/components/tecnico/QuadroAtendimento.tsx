@@ -8,7 +8,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { mensagemErro } from "@/lib/erros/catalogo";
-import { CHAVE_SISTEMA } from "@/lib/sistemas";
+import { CHAVE_SISTEMA, moduloDe } from "@/lib/sistemas";
 import {
   AVISOS,
   colisao,
@@ -126,7 +126,11 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         transferidoPor: autorTransferencia ? perfil.get(autorTransferencia) : undefined,
         sistema:
           typeof sistema === "string"
-            ? { nome: sistema, cor: corSistema.get(sistema) ?? null }
+            ? {
+                nome: sistema,
+                cor: corSistema.get(sistema) ?? null,
+                modulo: moduloDe(c.respostasForm),
+              }
             : null,
       };
     });
