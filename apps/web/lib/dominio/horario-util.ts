@@ -59,6 +59,15 @@ export function adicionarHorasUteis(inicio: Date, horas: number, config: Expedie
   throw new Error("adicionarHorasUteis: sem dias úteis em 10 anos (verifique feriados/expediente)");
 }
 
+/** Está no expediente agora? (espelho de app.eh_horario_util — migration 0028). */
+export function ehHorarioUtil(instante: Date, config: ExpedienteConfig): boolean {
+  const local = paraLocal(instante.getTime());
+  const dia = inicioDoDia(local);
+  if (!ehDiaUtil(dia, config.feriados)) return false;
+  const minuto = (local - dia) / 60_000;
+  return minuto >= minutos(config.inicio) && minuto < minutos(config.fim);
+}
+
 /**
  * Horas úteis entre dois instantes (Dashboard — ADR 0013). Ex.: sexta 17:00 → segunda 09:00 = 2 h.
  * `fim` antes de `inicio` = 0.

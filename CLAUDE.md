@@ -71,18 +71,20 @@ Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
 | em_andamento, aguardando_usuario | transferido | TI | destino técnico + motivo |
 | transferido | em_andamento | técnico de destino (assumir) | — |
 | em_andamento, aguardando_usuario | concluido | TI | — (inclusive sem resposta do solicitante) |
+| em_andamento, aguardando_usuario | concluido | **só automático**: 48 h úteis sem resposta à mensagem da TI (`docs/adr/0019`) | — |
 | em_andamento, aguardando_usuario, transferido | cancelado | TI | motivo |
 | concluido, cancelado | — | ninguém | terminal, somente leitura |
 
 Sem "aguardar usuário", "retomar" e "devolver à fila" (`docs/adr/0014`): a TI só **inicia**, **conclui**, **transfere** ou **cancela**.
 Expediente das horas úteis: **seg–sex, 8h–20h** (`configuracoes`).
-Não há confirmação, reabertura nem fechamento automático: se o problema voltar, o solicitante abre um novo chamado.
+Não há confirmação nem reabertura: se o problema voltar, o solicitante abre um novo chamado. O único fechamento
+automático é o das **48 h úteis** sem resposta (`docs/adr/0019`); antes disso, lembrete no Teams com 12 h e aviso no chat com 24 h.
 **Prazo** (`docs/adr/0009`): o chamado nasce **sem prazo**; qualquer técnico define (data e hora) quando quiser e pode
 alterar **com motivo** (`POST /chamados/{id}/prazo`). O solicitante vê a previsão e o motivo. Nada é calculado pela categoria.
 **Só a TI cancela**: solicitante tentando → `CANCELAMENTO_NAO_PERMITIDO` (`docs/adr/0011`).
 **Chamado não iniciado** (`pendente`/`transferido`): a TI só **vê**, **inicia** ou **cancela** — conversa, Relato técnico, prazo e prioridade → `CHAMADO_NAO_INICIADO` (`docs/adr/0012`).
 **Prioridade** (Alta · Média · Baixa; nasce Média): só a TI, depois de iniciar; histórico interno; alta sobe no quadro com "⚠ Prioridade alta".
-24 h úteis sem resposta à mensagem da TI → **aviso automático** no chat (uma vez). Automações: `app.processar_inatividade()` (pg_cron, 5 min).
+24 h úteis sem resposta à mensagem da TI → **aviso automático** no chat (uma vez). Automações: `app.processar_inatividade()` (pg_cron, 5 min, **só no expediente**).
 Na interface, "assumir" aparece como **Iniciar** (a ação interna continua `assumir`).
 Toda transição grava `historico` + `notificacoes` (pendente) na mesma transação.
 

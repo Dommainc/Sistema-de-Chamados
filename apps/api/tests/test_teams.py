@@ -59,7 +59,13 @@ def dados(tipo: str, **extra) -> DadosAviso:
         ),
         ("status_alterado", {"payload": {"para": "concluido"}}, "Como foi o atendimento?"),
         ("status_alterado", {"payload": {"para": "cancelado"}}, "foi cancelado"),
-        ("aviso_inatividade", {}, "ainda está esperando sua resposta"),
+        ("lembrete_resposta", {}, "esperando sua resposta há 12 horas"),
+        ("aviso_inatividade", {}, "esperando sua resposta há 24 horas"),
+        (
+            "status_alterado",
+            {"payload": {"para": "concluido", "motivo": "sem_resposta_48h_uteis"}},
+            "foi concluído automaticamente",
+        ),
         ("tipo_novo", {}, "Novidade no chamado #42"),
     ],
 )
@@ -72,6 +78,28 @@ def test_concluido_convida_para_avaliar_e_mensagem_mostra_trecho():
     aviso = montar_aviso(dados("nova_mensagem", ultima_mensagem="Consegue abrir " + "x" * 400))
     assert aviso.detalhe is not None and aviso.detalhe.startswith("“Consegue abrir")
     assert len(aviso.detalhe) <= 205
+
+
+def test_chamado_aberto_fora_do_expediente_diz_quando_a_ti_volta():
+    sexta_noite = datetime(2026, 10, 16, 23, 30, tzinfo=UTC)  # sexta 20:30 em São Paulo
+    segunda = datetime(2026, 10, 19, 11, 0, tzinfo=UTC)  # segunda 8:00
+    aviso = montar_aviso(dados("chamado_aberto", criado_em=sexta_noite, volta=segunda))
+    assert aviso.detalhe == (
+        "No momento não há técnicos em horário de atendimento. A equipe volta segunda-feira às 8h."
+    )
+    noite = datetime(2026, 10, 14, 23, 30, tzinfo=UTC)  # quarta 20:30
+    quinta = datetime(2026, 10, 15, 11, 0, tzinfo=UTC)
+    assert (
+        "volta amanhã às 8h"
+        in montar_aviso(dados("chamado_aberto", criado_em=noite, volta=quinta)).detalhe
+    )
+    no_expediente = montar_aviso(dados("chamado_aberto", criado_em=quinta, volta=quinta))
+    assert no_expediente.detalhe is None and "logo começa a atender" in no_expediente.texto
+    # Para a TI, o "chamado novo" não muda.
+    ti = montar_aviso(
+        dados("chamado_aberto", para_solicitante=False, criado_em=noite, volta=quinta)
+    )
+    assert ti.detalhe is None
 
 
 def test_prazo_em_horario_de_brasilia():

@@ -160,6 +160,9 @@ describe("perfil e primeiro acesso", () => {
 
 describe("contadores e avisos de mudança", () => {
   it("conta fila e meus atendimentos do técnico", async () => {
+    // Exemplos na data de hoje: as automações usam o relógio de verdade (com a data fixa, as 48 h úteis
+    // já teriam concluído chamados parados — ADR 0019).
+    gravarEstado(estadoInicial(new Date()));
     const contadores = await criarFonteSimulada(TECNICO.id).obterContadores();
     expect(contadores.fila).toBe(7);
     expect(contadores.meusAtendimentos).toBe(3); // como no mockup: "3 em atendimento"

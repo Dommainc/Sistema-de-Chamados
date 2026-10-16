@@ -118,6 +118,10 @@ export function textoEvento(
     case "avaliado":
       return null; // a avaliação aparece no próprio cartão "Avaliação"
     case "concluido":
+      // ADR 0019: sem resposta do solicitante por 48 h úteis, o sistema conclui.
+      if (evento.detalhe.motivo === "sem_resposta_48h_uteis") {
+        return "Concluído automaticamente: sem resposta por 48 horas úteis";
+      }
       return "Chamado concluído";
     case "cancelado":
       return `Chamado cancelado${evento.detalhe.motivo ? `: ${evento.detalhe.motivo}` : ""}`;
@@ -360,6 +364,9 @@ export function textoHistorico(
       return `Avaliado por ${autor}: ${nota} ${nota === 1 ? "estrela" : "estrelas"}`;
     }
     case "concluido":
+      if (evento.detalhe.motivo === "sem_resposta_48h_uteis") {
+        return "Sistema · concluído automaticamente (48 h úteis sem resposta)";
+      }
       return `Concluído por ${autor}`;
     case "cancelado":
       return `Cancelado por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;

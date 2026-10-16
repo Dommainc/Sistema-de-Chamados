@@ -74,6 +74,38 @@ describe("automações por tempo (modo de demonstração)", () => {
     expect(processarInatividade(depois, AGORA)).toBeNull();
   });
 
+  it("12 h úteis → lembrete (uma vez), sem o aviso das 2 h junto", () => {
+    // Segunda 9h → terça 15h = 18 h úteis (passa das 12, não das 24).
+    const depois = processarInatividade(cenario([daTi("2026-10-05T12:00:00Z")]), AGORA)!;
+    expect(depois.chamados[0].status).toBe("aguardando_usuario");
+    expect(depois.notificacoes.map((n) => n.tipo)).toEqual(["lembrete_resposta"]);
+    expect(processarInatividade(depois, AGORA)).toBeNull();
+  });
+
+  it("48 h úteis sem resposta → concluído automaticamente, só com o aviso da conclusão (ADR 0019)", () => {
+    const depois = processarInatividade(cenario([daTi("2026-09-28T12:00:00Z")]), AGORA)!;
+    expect(depois.chamados[0]).toMatchObject({
+      status: "concluido",
+      concluidoEm: AGORA.toISOString(),
+    });
+    expect(depois.historico.at(-1)).toMatchObject({
+      autorId: null,
+      acao: "concluido",
+      detalhe: { motivo: "sem_resposta_48h_uteis" },
+    });
+    expect(depois.notificacoes).toHaveLength(1);
+    expect(depois.notificacoes[0].payload).toMatchObject({
+      para: "concluido",
+      motivo: "sem_resposta_48h_uteis",
+    });
+    expect(depois.mensagens).toHaveLength(1); // sem a mensagem das 24 h
+  });
+
+  it("fora do expediente nada acontece (nem conclusão)", () => {
+    const sabado = new Date("2026-10-10T15:00:00Z");
+    expect(processarInatividade(cenario([daTi("2026-09-28T12:00:00Z")]), sabado)).toBeNull();
+  });
+
   it("se o solicitante respondeu por último, nada acontece", () => {
     const estado = cenario([
       daTi("2026-10-01T13:00:00Z"),

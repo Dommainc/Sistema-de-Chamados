@@ -2,6 +2,7 @@
 
 ADR 0014: sem aguardar usuário, retomar e devolver à fila. Aguardando usuário é só automático
 (app.processar_inatividade, 2 h úteis) e volta sozinho quando o solicitante responde.
+ADR 0019: 48 h úteis sem resposta à TI → concluído automaticamente, também só no banco (não é ação da API).
 
 Espelho em TypeScript: apps/web/lib/dominio/estados.ts (modo simulado e botões do front).
 Qualquer mudança aqui precisa ser feita lá também — os testes dos dois lados cobrem os mesmos casos.

@@ -6,7 +6,7 @@ O texto depende do tipo do aviso e de quem recebe (solicitante ou TI). Linguagem
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
 
@@ -35,6 +35,9 @@ class DadosAviso:
     ultima_mensagem: str | None
     #: Motivo da transferência (último registro).
     motivo_transferencia: str | None
+    #: Quando o chamado foi aberto e quando a TI volta ao expediente (aviso "A equipe volta amanhã às 8h").
+    criado_em: datetime | None = None
+    volta: datetime | None = None
 
 
 @dataclass(frozen=True)
@@ -60,6 +63,42 @@ def _quando(data: datetime) -> str:
     return data.astimezone(FUSO).strftime("%d/%m às %H:%M")
 
 
+DIAS = (
+    "segunda-feira",
+    "terça-feira",
+    "quarta-feira",
+    "quinta-feira",
+    "sexta-feira",
+    "sábado",
+    "domingo",
+)
+
+
+def quando_volta(aberto: datetime, volta: datetime) -> str:
+    """'hoje às 8h' · 'amanhã às 8h' · 'segunda-feira às 8h' (horário de Brasília)."""
+    a, v = aberto.astimezone(FUSO), volta.astimezone(FUSO)
+    dias = (v.date() - a.date()).days
+    if dias == 0:
+        dia = "hoje"
+    elif dias == 1:
+        dia = "amanhã"
+    elif dias < 7:
+        dia = DIAS[v.weekday()]
+    else:
+        dia = f"em {v:%d/%m}"
+    hora = f"{v.hour}h" if v.minute == 0 else f"{v.hour}h{v.minute:02d}"
+    return f"{dia} às {hora}"
+
+
+def _fora_do_expediente(d: DadosAviso) -> str | None:
+    if d.criado_em is None or d.volta is None or d.volta - d.criado_em < timedelta(minutes=1):
+        return None
+    return (
+        "No momento não há técnicos em horário de atendimento. "
+        f"A equipe volta {quando_volta(d.criado_em, d.volta)}."
+    )
+
+
 def montar_aviso(d: DadosAviso) -> Aviso:
     n = f"#{d.chamado_id}"
     tecnico = d.responsavel_nome or "A TI"
@@ -67,6 +106,9 @@ def montar_aviso(d: DadosAviso) -> Aviso:
 
     if d.tipo == "chamado_aberto":
         if d.para_solicitante:
+            fora = _fora_do_expediente(d)
+            if fora:
+                return Aviso(f"Recebemos seu chamado {n}.", detalhe=fora)
             return Aviso(f"Recebemos seu chamado {n}. A TI já foi avisada e logo começa a atender.")
         return Aviso(f"Chamado novo {n}, aberto por {d.solicitante_nome}.")
 
@@ -101,6 +143,11 @@ def montar_aviso(d: DadosAviso) -> Aviso:
                 "Responda no chat da Central para continuarmos.",
                 botao="Responder",
             )
+        if para == "concluido" and d.payload.get("motivo") == "sem_resposta_48h_uteis":
+            return Aviso(
+                f"O chamado {n} ficou sem resposta por 48 horas e foi concluído automaticamente.",
+                detalhe="Se ainda precisar de ajuda, abra um novo chamado.",
+            )
         if para == "concluido":
             return Aviso(
                 f"Seu chamado {n} foi concluído. Como foi o atendimento?",
@@ -122,10 +169,17 @@ def montar_aviso(d: DadosAviso) -> Aviso:
         motivo = d.payload.get("motivo")
         return Aviso(texto, detalhe=_trecho(f"Motivo: {motivo}") if motivo else None)
 
+    if d.tipo == "lembrete_resposta":
+        return Aviso(
+            f"O chamado {n} está esperando sua resposta há 12 horas.",
+            detalhe="Responda no chat do chamado para continuarmos o atendimento.",
+            botao="Responder",
+        )
+
     if d.tipo == "aviso_inatividade":
         return Aviso(
-            f"A TI ainda está esperando sua resposta no chamado {n}. "
-            "Se o problema já foi resolvido, é só avisar no chat.",
+            f"O chamado {n} está esperando sua resposta há 24 horas.",
+            detalhe="Sem resposta em 48 horas úteis, o chamado será concluído automaticamente.",
             botao="Responder",
         )
 

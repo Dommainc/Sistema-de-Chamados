@@ -176,6 +176,7 @@ export type TipoNotificacao =
   | "chamado_transferido"
   | "prazo_definido"
   | "aviso_inatividade"
+  | "lembrete_resposta"
   | "status_alterado"
   | "nova_mensagem";
 

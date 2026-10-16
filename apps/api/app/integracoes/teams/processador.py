@@ -39,6 +39,8 @@ update public.notificacoes
 SQL_FILA = """
 select n.id, n.tipo, n.payload, n.tentativas, n.chamado_id, n.destinatario_id,
        c.titulo, c.status::text as status, c.prazo_sla, c.motivo_cancelamento,
+       c.criado_em as chamado_criado_em,
+       case when n.tipo = 'chamado_aberto' then app.proxima_abertura(c.criado_em) end as volta,
        (n.destinatario_id = c.solicitante_id) as para_solicitante,
        sol.nome as solicitante_nome, resp.nome as responsavel_nome,
        tc.teams_user_id, tc.conversation_id, tc.service_url,
@@ -92,6 +94,8 @@ def dados_do_aviso(linha: asyncpg.Record | dict[str, Any]) -> DadosAviso:
         motivo_cancelamento=linha["motivo_cancelamento"],
         ultima_mensagem=linha["ultima_mensagem"],
         motivo_transferencia=linha["motivo_transferencia"],
+        criado_em=linha["chamado_criado_em"],
+        volta=linha["volta"],
     )
 
 

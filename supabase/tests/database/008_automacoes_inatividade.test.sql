@@ -1,5 +1,7 @@
 -- =============================================================================
 -- Testes: migration 0021 — automações por tempo (2 h úteis → aguardando; 24 h úteis → aviso).
+-- Datas fixas (migration 0028): "agora" = segunda 05/10/2026 10:00; a TI falou na quinta 01/10 às 09:00
+-- (25 h úteis: passa de 2 h e de 24 h, mas não das 48 h da conclusão automática — teste 015).
 -- Rodar com:  supabase test db
 -- =============================================================================
 begin;
@@ -24,19 +26,19 @@ update public.chamados
    set status = 'em_andamento', responsavel_id = 'd8000003-0000-0000-0000-000000000003'
  where id in (select id from fx);
 
--- Mensagens: a da TI de 10 dias atrás (passa de 2 h e de 24 h úteis), uma de agora, e uma conversa
+-- Mensagens: a da TI de quinta (passa de 2 h e de 24 h úteis), uma de agora, e uma conversa
 -- em que o solicitante respondeu por último.
 insert into public.mensagens (chamado_id, autor_id, conteudo, criado_em) values
-  ((select id from fx where nome = 'TI falou ha dias'), 'd8000003-0000-0000-0000-000000000003', 'Consegue testar?', now() - interval '10 days'),
-  ((select id from fx where nome = 'TI falou agora'),   'd8000003-0000-0000-0000-000000000003', 'Consegue testar?', now() - interval '1 minute'),
-  ((select id from fx where nome = 'Solicitante falou por ultimo'), 'd8000003-0000-0000-0000-000000000003', 'Pergunta', now() - interval '10 days'),
-  ((select id from fx where nome = 'Solicitante falou por ultimo'), 'd8000001-0000-0000-0000-000000000001', 'Resposta', now() - interval '9 days');
--- Entrou em atendimento há 10 dias (histórico do "iniciar").
+  ((select id from fx where nome = 'TI falou ha dias'), 'd8000003-0000-0000-0000-000000000003', 'Consegue testar?', '2026-10-01 09:00-03'),
+  ((select id from fx where nome = 'TI falou agora'),   'd8000003-0000-0000-0000-000000000003', 'Consegue testar?', '2026-10-05 09:59-03'),
+  ((select id from fx where nome = 'Solicitante falou por ultimo'), 'd8000003-0000-0000-0000-000000000003', 'Pergunta', '2026-10-01 09:00-03'),
+  ((select id from fx where nome = 'Solicitante falou por ultimo'), 'd8000001-0000-0000-0000-000000000001', 'Resposta', '2026-10-01 10:00-03');
+-- Entrou em atendimento na quinta cedo (histórico do "iniciar").
 insert into public.historico (chamado_id, autor_id, acao, de, para, criado_em)
-select id, 'd8000003-0000-0000-0000-000000000003', 'assumido', 'pendente', 'em_andamento', now() - interval '10 days'
+select id, 'd8000003-0000-0000-0000-000000000003', 'assumido', 'pendente', 'em_andamento', '2026-10-01 08:30-03'
 from fx;
 
-select ok(app.processar_inatividade() >= 2, 'Processa: muda o status e manda o aviso');
+select ok(app.processar_inatividade('2026-10-05 10:00-03') >= 2, 'Processa: muda o status e manda o aviso');
 
 select is(
   (select status::text from public.chamados where id = (select id from fx where nome = 'TI falou ha dias')),
@@ -64,7 +66,7 @@ select is(
 );
 
 -- Rodar de novo não repete o aviso nem o histórico.
-select app.processar_inatividade();
+select app.processar_inatividade('2026-10-05 10:05-03');
 select is(
   (select count(*) from public.mensagens
     where chamado_id = (select id from fx where nome = 'TI falou ha dias') and origem::text = 'sistema'),
