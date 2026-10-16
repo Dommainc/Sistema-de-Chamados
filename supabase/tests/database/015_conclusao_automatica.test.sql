@@ -5,7 +5,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(22);
+select plan(23);
 
 -- ----------------------------------------------------------------------------- expediente
 select ok(app.eh_horario_util('2026-10-05 10:00-03'), 'Segunda 10h: expediente');
@@ -18,6 +18,11 @@ select ok(not app.eh_horario_util('2026-10-12 10:00-03'), 'Feriado (12/10): fora
 select is(app.proxima_abertura('2026-10-05 10:00-03'), '2026-10-05 10:00-03'::timestamptz, 'No expediente: agora mesmo');
 select is(app.proxima_abertura('2026-10-05 06:30-03'), '2026-10-05 08:00-03'::timestamptz, 'Madrugada de dia útil: hoje às 8h');
 select is(app.proxima_abertura('2026-10-09 21:00-03'), '2026-10-13 08:00-03'::timestamptz, 'Sexta à noite antes do feriado: terça às 8h');
+
+select ok(
+  has_function_privilege('central_api', 'app.proxima_abertura(timestamptz)', 'execute'),
+  'A API pode calcular quando a TI volta (migration 0029)'
+);
 
 -- ----------------------------------------------------------------------------- dados
 insert into auth.users (id, email, raw_user_meta_data) values
