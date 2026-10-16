@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     bot_app_id: str | None = None
     bot_app_segredo: SecretStr | None = None
     bot_tenant_id: str | None = None
+    #: Registro do bot "Várias organizações" (criado pelo Portal do Desenvolvedor do Teams): o token é pedido
+    #: ao diretório do Bot Framework (botframework.com), não ao da DOMMA. BOT_TENANT_ID continua sendo o da
+    #: DOMMA: só pessoas da DOMMA falam com o bot.
+    bot_multilocatario: bool = False
     #: Segredo que o banco (pg_cron + pg_net) manda em X-Central-Secret para disparar o envio dos avisos.
     processador_segredo: SecretStr | None = None
 

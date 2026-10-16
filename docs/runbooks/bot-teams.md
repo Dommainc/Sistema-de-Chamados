@@ -5,7 +5,20 @@ segredo **nunca** vão para o chat, para o Git ou para este arquivo: só para a 
 
 Troque `<central>` pelo endereço da Central (hoje `https://sistema-de-chamados-rouge-nine.vercel.app`).
 
-## 1. Azure — criar o recurso do bot (gratuito)
+## 1. Registrar o bot
+
+**Caminho usado na DOMMA (2026-10-16): Portal do Desenvolvedor do Teams** — não precisa de assinatura do Azure.
+1. [dev.teams.microsoft.com](https://dev.teams.microsoft.com) → ícone de lápis (**Ferramentas**) → **Gerenciamento
+   de bot** → **+ Novo bot** → nome `central-chamados-domma`.
+2. **Configurar** → **Endereço do ponto de extremidade:** `<central>/api/bot/mensagens` → **Salvar**.
+   **Canais** → Microsoft Teams ligado.
+3. **Segredos do cliente** → **Adicionar** → copiar o valor na hora → é o `BOT_APP_SEGREDO`.
+4. **ID do bot** (lista de bots) → `BOT_APP_ID`. **ID do Locatário** (Entra → Visão geral) → `BOT_TENANT_ID`.
+5. Esse registro sai como **"Várias organizações"** (Entra → Registros de aplicativo → Todos os aplicativos):
+   na Vercel, `BOT_MULTILOCATARIO=true` (o token é pedido ao diretório do Bot Framework). Só pessoas do
+   locatário da DOMMA conseguem falar com o bot (a API confere).
+
+**Alternativa com assinatura do Azure — recurso Azure Bot (F0, gratuito):**
 1. [portal.azure.com](https://portal.azure.com) → **Criar um recurso** → pesquisar **Azure Bot** → **Criar**.
 2. Preencher:
    - **Identificador do bot:** `central-chamados-domma`
@@ -33,7 +46,7 @@ Esse valor é o `PROCESSADOR_SEGREDO`. Ele vai em dois lugares: Vercel (passo 3)
 
 ## 3. Vercel — variáveis da API
 Settings → Environment Variables (Production): `BOT_APP_ID`, `BOT_APP_SEGREDO`, `BOT_TENANT_ID`,
-`PROCESSADOR_SEGREDO`. Depois **Redeploy**.
+`PROCESSADOR_SEGREDO` e, se o registro for "Várias organizações", `BOT_MULTILOCATARIO=true`. Depois **Redeploy**.
 
 Conferir (terminal):
 ```

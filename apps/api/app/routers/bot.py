@@ -47,8 +47,10 @@ def _verificador(app_id: str, tenant: str) -> VerificadorTeams:
 def obter_conector(settings: Annotated[Settings, Depends(obter_settings)]) -> Conector | None:
     if not (settings.bot_app_id and settings.bot_app_segredo and settings.bot_tenant_id):
         return None
+    # Registro "Várias organizações": token pelo diretório do Bot Framework (docs/runbooks/bot-teams.md).
+    tenant_do_token = "botframework.com" if settings.bot_multilocatario else settings.bot_tenant_id
     return _conector(
-        settings.bot_app_id, settings.bot_app_segredo.get_secret_value(), settings.bot_tenant_id
+        settings.bot_app_id, settings.bot_app_segredo.get_secret_value(), tenant_do_token
     )
 
 

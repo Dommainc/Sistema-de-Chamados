@@ -247,3 +247,24 @@ def test_mensagens_do_teams_sem_bot_configurado_recusa(cliente):
 
 def test_rota_do_bot_tambem_responde_com_prefixo_api(cliente):
     assert cliente.post("/api/internal/notificacoes/processar").status_code == 403
+
+
+@pytest.mark.parametrize(
+    ("multilocatario", "diretorio"), [(True, "botframework.com"), (False, TENANT)]
+)
+def test_token_do_bot_no_diretorio_certo(multilocatario, diretorio):
+    """Registro "Várias organizações" (Portal do Desenvolvedor) pede o token ao Bot Framework."""
+    from app.config import Settings
+    from app.routers.bot import obter_conector
+
+    settings = Settings(
+        bot_app_id=APP_ID,
+        bot_app_segredo="segredo",
+        bot_tenant_id=TENANT,
+        bot_multilocatario=multilocatario,
+    )
+    conector = obter_conector(settings)
+    assert conector is not None
+    assert conector._url_token == (
+        f"https://login.microsoftonline.com/{diretorio}/oauth2/v2.0/token"
+    )
