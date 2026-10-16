@@ -59,6 +59,53 @@
   --cor-sis-roxo: #6a3fb0;
   --cor-sis-azul-claro: #8cc4f0;
   --cor-sis-cinza: #7b818b;
+  /* Texto sobre as opções claras (verde/vermelho/azul claro): escuro nos dois temas. */
+  --cor-sobre-claro: #1a1c20;
+}
+
+/*
+ * Tela escura (botão ☀/🌙, pedido do dono 2026-10-15). Mesmos nomes de token, valores para fundo escuro;
+ * os componentes não mudam. O <html data-tema> vem do cookie cc_tema (lib/tema.ts).
+ */
+:root[data-tema="escuro"] {
+  color-scheme: dark;
+
+  --cor-primaria: #4f83d4;
+  --cor-primaria-forte: #6493dc;
+  --cor-primaria-suave: #1e2a3b;
+  --cor-sobre-primaria: #ffffff;
+
+  --cor-fundo: #121418;
+  --cor-superficie: #1b1e23;
+  --cor-superficie-2: #252930;
+  --cor-borda: #343941;
+  --cor-texto: #e9e7e2;
+  --cor-texto-suave: #a2a7af;
+
+  --cor-barra: #0c0d10;
+  --cor-barra-2: #23262c;
+
+  --cor-info: #6f9be0;
+  --cor-info-suave: #1e2a3b;
+  --cor-sucesso: #2f9a5c;
+  --cor-sucesso-suave: #16301f;
+  --cor-alerta: #e3a640;
+  --cor-alerta-suave: #342814;
+  --cor-alerta-borda: #8a6420;
+  --cor-laranja: #d9701f;
+  --cor-laranja-suave: #3b2614;
+  --cor-perigo: #dc4a3f;
+  --cor-perigo-suave: #3b1b18;
+  --cor-roxo: #8c6fdd;
+  --cor-roxo-suave: #2a2340;
+  --cor-apagado: #808a98;
+  --cor-apagado-suave: #2a2d33;
+
+  --cor-amarelo: #d0a215;
+  --cor-amarelo-suave: #3a3214;
+  --cor-royal: #5a7ce6;
+  --cor-royal-suave: #1f2747;
+  --cor-laranja-cartao: #3b2614;
 }
 
 @theme inline {
@@ -104,6 +151,7 @@
   --color-sis-roxo: var(--cor-sis-roxo);
   --color-sis-azul-claro: var(--cor-sis-azul-claro);
   --color-sis-cinza: var(--cor-sis-cinza);
+  --color-sobre-claro: var(--cor-sobre-claro);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
 }

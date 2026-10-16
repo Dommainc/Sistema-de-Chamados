@@ -41,3 +41,15 @@ def test_patch_me_nao_muda_o_papel(cliente):
 def test_tecnico_tem_papel_ti(cliente):
     resposta = cliente.get("/me", headers=cabecalho("tec@teste.local"))
     assert resposta.json()["papel"] == "ti"
+
+
+def test_tema_fica_no_perfil(cliente):
+    """Tela clara/escura (migration 0025): só claro ou escuro; volta para claro no fim."""
+    bruno = cabecalho("bruno@teste.local")
+    assert cliente.get("/me", headers=bruno).json()["tema"] == "claro"
+    assert (
+        cliente.patch("/me/tema", headers=bruno, json={"tema": "escuro"}).json()["tema"] == "escuro"
+    )
+    assert cliente.get("/me", headers=bruno).json()["tema"] == "escuro"
+    assert cliente.patch("/me/tema", headers=bruno, json={"tema": "azul"}).status_code == 422
+    cliente.patch("/me/tema", headers=bruno, json={"tema": "claro"})

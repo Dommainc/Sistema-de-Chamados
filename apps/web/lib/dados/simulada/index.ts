@@ -300,6 +300,10 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return { ...eu() };
     },
 
+    async salvarTema() {
+      // Modo de demonstração: a escolha fica só no cookie deste navegador.
+    },
+
     async atualizarMeuPerfil(dados: DadosPrimeiroAcesso) {
       const departamento = dados.departamento.trim();
       const telefone = dados.telefone?.trim() || null;

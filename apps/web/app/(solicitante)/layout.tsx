@@ -1,6 +1,7 @@
 // Portal do solicitante: leve, pensado para celular (docs/ui-ux.md); no computador usa a largura da tela.
 
 import Link from "next/link";
+import { BotaoTemaPerfil } from "@/components/comum/BotaoTemaPerfil";
 import { MenuUsuario } from "@/components/comum/MenuUsuario";
 import { GuardaPrimeiroAcesso } from "@/components/solicitante/GuardaPrimeiroAcesso";
 import { MenuCabecalho, MenuInferior } from "@/components/solicitante/NavegacaoPortal";
@@ -23,7 +24,10 @@ export default async function LayoutSolicitante({ children }: { children: React.
             <Logo />
           </Link>
           <MenuCabecalho />
-          <MenuUsuario nome={usuario.nome} />
+          <div className="flex items-center gap-1">
+            <BotaoTemaPerfil />
+            <MenuUsuario nome={usuario.nome} />
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 pb-28 md:px-8 md:pb-10">

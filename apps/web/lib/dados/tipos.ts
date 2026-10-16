@@ -4,6 +4,7 @@
 
 import type { ModoFonteDados } from "@/lib/dados/config";
 import type { AcaoChamado, DadosAcao } from "@/lib/dominio/estados";
+import type { Tema } from "@/lib/tema";
 import type {
   Anexo,
   Avaliacao,
@@ -133,6 +134,8 @@ export interface FonteDeDados {
   obterMeuPerfil(): Promise<Perfil>;
   /** Só departamento e telefone (o papel nunca é editável). */
   atualizarMeuPerfil(dados: DadosPrimeiroAcesso): Promise<Perfil>;
+  /** Tela clara ou escura (botão ☀/🌙): guarda no perfil para valer no próximo login (migration 0025). */
+  salvarTema(tema: Tema): Promise<void>;
   listarPerfisPublicos(): Promise<PerfilPublico[]>;
   /** Perfil com contato (e-mail, telefone). TI lê todos; cada um lê o próprio (policy profiles_leitura). */
   obterPerfilCompleto(perfilId: string): Promise<Perfil>;

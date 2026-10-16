@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { entrarSimulado } from "@/app/acoes-sessao";
+import { BotaoTema } from "@/components/comum/BotaoTema";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card } from "@/components/ui/Card";
 import { LoginReal } from "@/components/login/LoginReal";
@@ -14,7 +15,11 @@ const DESCRICAO_PAPEL = { solicitante: "Solicitante", ti: "Equipe de TI" } as co
 export default async function PaginaLogin({ searchParams }: PageProps<"/login">) {
   const motivo = (await searchParams).motivo;
   return (
-    <main className="flex flex-1 items-center justify-center px-4 py-10">
+    <main className="relative flex flex-1 items-center justify-center px-4 py-10">
+      {/* Antes de entrar a escolha fica só no navegador; ao entrar, vale a do perfil. */}
+      <div className="absolute top-3 right-3">
+        <BotaoTema />
+      </div>
       <Card className="flex w-full max-w-md flex-col gap-6 p-6">
         {/* Logo centralizada + título (pedido do dono, 2026-10-15). */}
         <div className="flex flex-col items-center gap-3 text-center">

@@ -4,6 +4,7 @@ import { ChartColumn, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { BotaoTemaPerfil } from "@/components/comum/BotaoTemaPerfil";
 import { MenuUsuario } from "@/components/comum/MenuUsuario";
 import { Logo } from "@/components/ui/Logo";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
@@ -83,6 +84,7 @@ export function BarraTecnico() {
             <BotaoDashboard />
           </div>
           <CampoBusca className="hidden w-72 md:block" />
+          <BotaoTemaPerfil naBarra />
           <MenuUsuario
             nome={usuario.nome}
             resumo={resumo}

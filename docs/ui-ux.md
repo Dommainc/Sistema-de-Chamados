@@ -46,6 +46,14 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 | `perigo` (+ `suave`) | Prazo vencido, "Cancelar chamado" | `#B42318` / `#FBE8E6` |
 | `roxo` (+ `suave`) | Selo "Transferido para você" | `#5B3FA0` / `#EEE8FA` |
 
+### Tela escura (botão ☀/🌙, pedido do dono em 2026-10-15)
+- Botão ☀/🌙 no topo: no portal (ao lado do avatar), na barra da TI (ao lado da busca) e no canto da tela de login.
+- Padrão **claro**. A escolha fica no perfil (`profiles.tema`, `PATCH /me/tema`) e vale no próximo login, em qualquer
+  computador; no navegador fica no cookie `cc_tema`, que o servidor lê para abrir a página já na cor certa.
+- Mesmos tokens, outros valores: bloco `:root[data-tema="escuro"]` do `globals.css`. Componentes não mudam.
+  Opções claras (verde/vermelho/azul claro) usam `text-sobre-claro`, escuro nos dois temas.
+- Prints em `docs/guia/img/escuro-*.png` (`pnpm prints`).
+
 ### Tipografia
 - **IBM Plex Sans** (texto) e **IBM Plex Mono** (números de chamado: "Chamado #41", "Nº 36").
 - Títulos de página 28–32 px semibold; títulos de cartão 16–17 px semibold; apoio 14 px `texto-suave`.

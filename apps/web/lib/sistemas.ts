@@ -17,10 +17,10 @@ export interface ClassesCor {
 
 const PALETA: Record<CorPaleta, ClassesCor> = {
   vermelho: { fundo: "bg-sis-vermelho", texto: "text-white" },
-  "vermelho-claro": { fundo: "bg-sis-vermelho-claro", texto: "text-texto" },
+  "vermelho-claro": { fundo: "bg-sis-vermelho-claro", texto: "text-sobre-claro" },
   "vermelho-escuro": { fundo: "bg-sis-vermelho-escuro", texto: "text-white" },
-  "verde-claro": { fundo: "bg-sis-verde-claro", texto: "text-texto" },
-  "azul-claro": { fundo: "bg-sis-azul-claro", texto: "text-texto" },
+  "verde-claro": { fundo: "bg-sis-verde-claro", texto: "text-sobre-claro" },
+  "azul-claro": { fundo: "bg-sis-azul-claro", texto: "text-sobre-claro" },
   "azul-escuro": { fundo: "bg-sis-azul-escuro", texto: "text-white" },
   roxo: { fundo: "bg-sis-roxo", texto: "text-white" },
   cinza: { fundo: "bg-sis-cinza", texto: "text-white" },

@@ -26,7 +26,10 @@ export async function trocarPara(
   page: Page,
   usuario: Usuario,
 ): Promise<void> {
+  // Sai do usuário atual, mas mantém a tela clara/escura escolhida (cookie cc_tema).
+  const tema = (await context.cookies()).filter((c) => c.name === "cc_tema");
   await context.clearCookies();
+  await context.addCookies(tema);
   await entrar(page, usuario);
 }
 

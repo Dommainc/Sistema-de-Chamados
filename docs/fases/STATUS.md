@@ -2,6 +2,7 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 2026-10-16 | **Tela escura** (botão ☀/🌙, pedido do dono): migration 0025 `profiles.tema` (claro/escuro, padrão claro) + pgTAP 012; API `PATCH /me/tema` e `tema` no perfil; site com tokens escuros em `globals.css` (`:root[data-tema="escuro"]`), cookie `cc_tema` lido no layout (sem piscar) e gravado na volta do login, `salvarTema` nas duas fontes; botão no portal, na barra da TI e no login. Prints `escuro-*`. Aplicar na nuvem: `npx supabase@latest db push`. |
 | 2026-10-15 | **Um projeto só na Vercel** (ADR 0017, decisão do dono): `vercel.json` na raiz com Services — site em `/`, API em `/api` (middleware `app/prefixo.py`), binding `API_INTERNA_URL` para o servidor do site; `NEXT_PUBLIC_API_URL=/api`. Teste `segredos-fora-do-site` impede o site de citar segredos da API. Testes da API não leem mais o `.env` local. Projeto e branch `demo` excluídos. `CLAUDE.md` e `go-live.md` §7–8 atualizados. |
 | 2026-10-15 | **Primeiro login de verdade**: conta Microsoft da DOMMA → Supabase dev → API local → área da TI. O claim `groups` chega no token (ADR 0004 validado). |
 | 2026-10-15 | Supabase dev na nuvem montado (24 migrations, seed, senha do `central_api`); App Registration "Central de Chamados" no Entra + grupo `Central-Chamados-TI`; provider Azure ligado e e-mail desligado no Supabase. Login: logo centralizada e título "Central de Chamados". |

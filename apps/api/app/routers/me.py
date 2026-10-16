@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Annotated
+from typing import Annotated, Literal
 
 import asyncpg
 from fastapi import APIRouter, Depends
@@ -21,7 +21,7 @@ log = logging.getLogger("central.me")
 router = APIRouter(tags=["perfil"], responses=RESPOSTAS_COM_LOGIN)
 
 _SQL_PERFIL = """
-    select id, nome, email, departamento, telefone, papel, ativo
+    select id, nome, email, departamento, telefone, papel, ativo, tema
       from public.profiles
      where id = auth.uid()
 """
@@ -35,6 +35,8 @@ class Perfil(BaseModel):
     telefone: str | None
     papel: Papel
     ativo: bool
+    #: Tela clara ou escura (botão ☀/🌙 — migration 0025).
+    tema: Literal["claro", "escuro"] = "claro"
     #: Departamento ainda não informado → o front leva para /primeiro-acesso.
     cadastro_pendente: bool
 
@@ -53,6 +55,7 @@ def _perfil(linha: asyncpg.Record) -> Perfil:
         telefone=linha["telefone"],
         papel=linha["papel"],
         ativo=linha["ativo"],
+        tema=linha["tema"],
         cadastro_pendente=linha["departamento"] is None,
     )
 
@@ -86,7 +89,7 @@ async def atualizar_me(
             update public.profiles
                set departamento = $2, telefone = $3
              where id = $1
-         returning id, nome, email, departamento, telefone, papel, ativo
+         returning id, nome, email, departamento, telefone, papel, ativo, tema
             """,
             usuario.id,
             dados.departamento.strip(),
@@ -120,9 +123,35 @@ async def sincronizar(
             update public.profiles
                set papel = $2, ultimo_login_em = now()
              where id = $1
-         returning id, nome, email, departamento, telefone, papel, ativo
+         returning id, nome, email, departamento, telefone, papel, ativo, tema
             """,
             usuario.id,
             papel,
+        )
+        return _perfil(linha)
+
+
+class TemaAtualizacao(BaseModel):
+    tema: Literal["claro", "escuro"]
+
+
+@router.patch("/me/tema", summary="Tela clara ou escura (vale em qualquer computador)")
+async def atualizar_tema(
+    dados: TemaAtualizacao,
+    usuario: UsuarioAtual,
+    banco: Annotated[Banco, Depends(obter_banco)],
+) -> Perfil:
+    async with banco.transacao(usuario) as t:
+        await _ler_perfil_ativo(t)
+        await t.como_api()
+        linha = await t.conn.fetchrow(
+            """
+            update public.profiles
+               set tema = $2
+             where id = $1
+         returning id, nome, email, departamento, telefone, papel, ativo, tema
+            """,
+            usuario.id,
+            dados.tema,
         )
         return _perfil(linha)

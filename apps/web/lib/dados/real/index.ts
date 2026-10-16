@@ -172,6 +172,10 @@ export function criarFonteReal(
       return perfilDaLinha(perfil);
     },
 
+    async salvarTema(tema) {
+      await api<LinhaPerfil>("/me/tema", { metodo: "PATCH", corpo: { tema } });
+    },
+
     async listarPerfisPublicos() {
       const linhas = ler(
         await supabase
