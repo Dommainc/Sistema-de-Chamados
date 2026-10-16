@@ -50,7 +50,7 @@ def manifesto(app_id: str, central: str) -> dict:
     return {
         "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
         "manifestVersion": "1.17",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "id": app_id,
         "developer": {
             "name": "DOMMA Incorporações — TI",
@@ -74,7 +74,7 @@ def manifesto(app_id: str, central: str) -> dict:
                 "botId": app_id,
                 "scopes": ["personal"],
                 "supportsFiles": False,
-                "isNotificationOnly": False,
+                "isNotificationOnly": True,  # só avisos: ninguém escreve para o bot
             }
         ],
         "permissions": ["identity", "messageTeamMembers"],

@@ -14,9 +14,10 @@ Troque `<central>` pelo endereço da Central (hoje `https://sistema-de-chamados-
    **Canais** → Microsoft Teams ligado.
 3. **Segredos do cliente** → **Adicionar** → copiar o valor na hora → é o `BOT_APP_SEGREDO`.
 4. **ID do bot** (lista de bots) → `BOT_APP_ID`. **ID do Locatário** (Entra → Visão geral) → `BOT_TENANT_ID`.
-5. Esse registro sai como **"Várias organizações"** (Entra → Registros de aplicativo → Todos os aplicativos):
-   na Vercel, `BOT_MULTILOCATARIO=true` (o token é pedido ao diretório do Bot Framework). Só pessoas do
-   locatário da DOMMA conseguem falar com o bot (a API confere).
+5. O App Registration aparece como "Várias organizações", mas o Teams trata o bot como **da DOMMA** (o
+   endereço do Teams vem com o ID da DOMMA: `smba.trafficmanager.net/br/<tenant>/`). **Não** usar
+   `BOT_MULTILOCATARIO` (ou deixar `false`): o token vem do diretório da DOMMA. Com `true` (diretório do Bot
+   Framework) o Teams responde **401** — testado em 2026-10-16. Só pessoas da DOMMA falam com o bot.
 
 **Alternativa com assinatura do Azure — recurso Azure Bot (F0, gratuito):**
 1. [portal.azure.com](https://portal.azure.com) → **Criar um recurso** → pesquisar **Azure Bot** → **Criar**.
@@ -46,7 +47,9 @@ Esse valor é o `PROCESSADOR_SEGREDO`. Ele vai em dois lugares: Vercel (passo 3)
 
 ## 3. Vercel — variáveis da API
 Settings → Environment Variables (Production): `BOT_APP_ID`, `BOT_APP_SEGREDO`, `BOT_TENANT_ID`,
-`PROCESSADOR_SEGREDO` e, se o registro for "Várias organizações", `BOT_MULTILOCATARIO=true`. Depois **Redeploy**.
+`PROCESSADOR_SEGREDO`. Depois **Redeploy** (variável nova só vale num deploy novo).
+`BOT_MULTILOCATARIO=true` só para bot registrado como multi-tenant no Bot Framework (se o Teams responder 401 com
+`false`, tentar `true`, e vice-versa).
 
 Conferir (terminal):
 ```

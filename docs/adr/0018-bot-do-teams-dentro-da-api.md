@@ -15,7 +15,8 @@ coisa para hospedar, proteger e explicar.
   Registration do bot, single-tenant). O token que o Teams manda é conferido com PyJWT (emissor do Bot Framework
   ou do Entra da DOMMA, público = App ID, `serviceUrl` igual ao da mensagem).
 - **Registro do bot pelo Portal do Desenvolvedor do Teams** (a DOMMA não tem assinatura do Azure; sem custo).
-  Esse registro é "Várias organizações": o token vem do diretório do Bot Framework (`BOT_MULTILOCATARIO=true`).
+  O Teams trata esse bot como da DOMMA: o token vem do diretório da DOMMA (`BOT_MULTILOCATARIO` desligado; ligado,
+  o Teams responde 401). App em modo **só avisos** (`isNotificationOnly`): ninguém escreve para o bot.
   Com assinatura, o recurso Azure Bot F0 (gratuito, single-tenant) também funciona.
 - **App do Teams "Central de Chamados"** (pacote gerado por `apps/bot-teams/gerar_pacote.py`), instalado para
   todos pela política de configuração do Teams. Quando o app é instalado, o Teams avisa a Central, que guarda a
