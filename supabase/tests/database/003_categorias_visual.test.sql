@@ -46,8 +46,8 @@ select is(
 select is(
   (select f.opcoes from public.campos_form f join public.categorias c on c.id = f.categoria_id
     where c.nome = 'Solicitações de acesso e Permissões' and f.chave = 'sistema'),
-  '["Sienge","CVCRM","Construpoint","Construmanager","Docusign","Prevision","Metadados","Não se aplica"]'::jsonb,
-  'Acessos e permissões pergunta "Qual sistema?" com os 8 sistemas'
+  '["Sienge","Prevision","Construpoint","Construmanager","CVCRM","Suplos","Metadados","Microsoft","Aipim Tech","ClickUp","AnyDesk","Serasa","BotMaker","Stuo","Nexxera","Paytrack","Hinc","Mapfry","Kait","KickIn","FastBuilt","TRC","Kairos","Docusign","Não se aplica"]'::jsonb,
+  'Acessos e permissões pergunta "Qual sistema?" com os 25 sistemas (migration 0030)'
 );
 select is(
   (select count(*) from public.categorias
