@@ -16,11 +16,14 @@ export function CampoDinamico({
   valor,
   erro,
   aoMudar,
+  ramos,
 }: {
   campo: CampoForm;
   valor: unknown;
   erro?: string;
   aoMudar: (valor: unknown) => void;
+  /** Ramificação: pergunta que abre logo abaixo de uma opção escolhida (ex.: módulo do Sienge). */
+  ramos?: (opcao: string) => React.ReactNode;
 }) {
   const id = idDoCampo(campo.chave);
   const texto = typeof valor === "string" ? valor : valor == null ? "" : String(valor);
@@ -74,26 +77,35 @@ export function CampoDinamico({
             {campo.obrigatorio ? <span className="text-perigo"> *</span> : null}
           </legend>
           {campo.ajuda ? <p className="-mt-1 text-sm text-texto-suave">{campo.ajuda}</p> : null}
-          {opcoes.map((o, i) => (
-            <OpcaoCartao
-              key={o.valor}
-              id={i === 0 ? id : undefined}
-              nome={campo.chave}
-              valor={o.valor}
-              rotulo={o.rotulo}
-              multipla={multipla}
-              selecionado={marcados.includes(o.valor)}
-              aoSelecionar={(v) =>
-                aoMudar(
-                  multipla
-                    ? marcados.includes(v)
-                      ? marcados.filter((m) => m !== v)
-                      : [...marcados, v]
-                    : v,
-                )
-              }
-            />
-          ))}
+          {opcoes.map((o, i) => {
+            const ramo = marcados.includes(o.valor) ? ramos?.(o.valor) : null;
+            return (
+              <div key={o.valor} className="flex flex-col gap-2">
+                <OpcaoCartao
+                  id={i === 0 ? id : undefined}
+                  nome={campo.chave}
+                  valor={o.valor}
+                  rotulo={o.rotulo}
+                  multipla={multipla}
+                  selecionado={marcados.includes(o.valor)}
+                  aoSelecionar={(v) =>
+                    aoMudar(
+                      multipla
+                        ? marcados.includes(v)
+                          ? marcados.filter((m) => m !== v)
+                          : [...marcados, v]
+                        : v,
+                    )
+                  }
+                />
+                {ramo ? (
+                  <div className="mb-2 ml-4 flex flex-col gap-4 border-l-2 border-primaria py-1 pl-4">
+                    {ramo}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
           {erro ? (
             <p id={idErro} role="alert" className="text-sm font-medium text-perigo">
               {erro}

@@ -183,22 +183,50 @@ function FormularioCarregado({
             onChange={(e) => mudar({ ...rascunho, titulo: e.target.value }, CHAVE_TITULO)}
           />
 
+          {/* Perguntas que dependem de outra (ex.: módulo do Sienge) não entram na lista: aparecem como
+              ramificação logo abaixo da opção escolhida (migration 0031). */}
           {campos
-            .filter((campo) => campoVisivel(campo, rascunho.respostas))
-            .map((campo) => (
-              <CampoDinamico
-                key={campo.id}
-                campo={campo}
-                valor={rascunho.respostas[campo.chave]}
-                erro={erros[campo.chave]}
-                aoMudar={(valor) =>
-                  mudar(
-                    { ...rascunho, respostas: { ...rascunho.respostas, [campo.chave]: valor } },
-                    campo.chave,
-                  )
-                }
-              />
-            ))}
+            .filter((campo) => !campo.mostrarSe)
+            .map((campo) => {
+              const campoDe = (c: CampoForm) => (
+                <CampoDinamico
+                  key={c.id}
+                  campo={c}
+                  valor={rascunho.respostas[c.chave]}
+                  erro={erros[c.chave]}
+                  aoMudar={(valor) =>
+                    mudar(
+                      { ...rascunho, respostas: { ...rascunho.respostas, [c.chave]: valor } },
+                      c.chave,
+                    )
+                  }
+                />
+              );
+              const ramos = (opcao: string) => {
+                const filhos = campos.filter(
+                  (c) =>
+                    c.mostrarSe?.campo === campo.chave &&
+                    c.mostrarSe.igual === opcao &&
+                    campoVisivel(c, rascunho.respostas),
+                );
+                return filhos.length > 0 ? filhos.map(campoDe) : null;
+              };
+              return (
+                <CampoDinamico
+                  key={campo.id}
+                  campo={campo}
+                  valor={rascunho.respostas[campo.chave]}
+                  erro={erros[campo.chave]}
+                  ramos={ramos}
+                  aoMudar={(valor) =>
+                    mudar(
+                      { ...rascunho, respostas: { ...rascunho.respostas, [campo.chave]: valor } },
+                      campo.chave,
+                    )
+                  }
+                />
+              );
+            })}
 
           <SeletorAnexos arquivos={arquivos} aoAdicionar={adicionar} aoRemover={remover} />
 
