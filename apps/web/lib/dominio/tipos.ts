@@ -35,6 +35,23 @@ export const CORES_PALETA = [
   "azul-escuro",
   "roxo",
   "cinza",
+  "verde",
+  "verde-escuro",
+  "verde-agua",
+  "oliva",
+  "azul",
+  "indigo",
+  "magenta",
+  "marrom",
+  "grafite",
+  "laranja",
+  "mostarda",
+  "ciano",
+  "lilas",
+  "rosa",
+  "laranja-claro",
+  "areia",
+  "amarelo",
 ] as const;
 export type CorPaleta = (typeof CORES_PALETA)[number];
 

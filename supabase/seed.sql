@@ -59,7 +59,7 @@ select c.id, f.chave, f.label, f.tipo::public.tipo_campo, f.obrigatorio, f.opcoe
 from public.categorias c
 join (values
   ('Solicitações de acesso e Permissões', 'sistema', 'Qual sistema?', 'selecao', true,
-     '["Sienge","CVCRM","Construpoint","Construmanager","Docusign","Prevision","Metadados","Não se aplica"]', null, 10),
+     '["Sienge","Prevision","Construpoint","Construmanager","CVCRM","Suplos","Metadados","Microsoft","Aipim Tech","ClickUp","AnyDesk","Serasa","BotMaker","Stuo","Nexxera","Paytrack","Hinc","Mapfry","Kait","KickIn","FastBuilt","TRC","Kairos","Docusign","Não se aplica"]', null, 10),
 
   ('Microsoft', 'programa', 'Qual programa?', 'selecao', true,
      '["E-mail / Outlook","Teams","Word, Excel ou PowerPoint","OneDrive","Redefinição de senha","Outro"]', null, 10),
@@ -74,9 +74,7 @@ on conflict (categoria_id, chave) do nothing;
 
 -- Cor de cada sistema (paleta fixa — migration 0022). Sistema novo: opção em `opcoes` + cor aqui.
 update public.campos_form f
-   set cores = '{"Sienge":"vermelho","CVCRM":"verde-claro","Construpoint":"vermelho-claro",
-                 "Construmanager":"vermelho-escuro","Docusign":"azul-escuro","Prevision":"roxo",
-                 "Metadados":"azul-claro","Não se aplica":"cinza"}'
+   set cores = '{"Sienge":"vermelho","Prevision":"roxo","Construpoint":"vermelho-claro","Construmanager":"vermelho-escuro","CVCRM":"verde-claro","Suplos":"verde-escuro","Metadados":"azul-claro","Microsoft":"azul","Aipim Tech":"ciano","ClickUp":"lilas","AnyDesk":"laranja","Serasa":"magenta","BotMaker":"grafite","Stuo":"mostarda","Nexxera":"verde-agua","Paytrack":"verde","Hinc":"indigo","Mapfry":"laranja-claro","Kait":"oliva","KickIn":"rosa","FastBuilt":"marrom","TRC":"areia","Kairos":"amarelo","Docusign":"azul-escuro","Não se aplica":"cinza"}'
   from public.categorias c
  where c.id = f.categoria_id
    and c.nome = 'Solicitações de acesso e Permissões'

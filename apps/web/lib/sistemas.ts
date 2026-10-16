@@ -24,6 +24,23 @@ const PALETA: Record<CorPaleta, ClassesCor> = {
   "azul-escuro": { fundo: "bg-sis-azul-escuro", texto: "text-white" },
   roxo: { fundo: "bg-sis-roxo", texto: "text-white" },
   cinza: { fundo: "bg-sis-cinza", texto: "text-white" },
+  verde: { fundo: "bg-sis-verde", texto: "text-white" },
+  "verde-escuro": { fundo: "bg-sis-verde-escuro", texto: "text-white" },
+  "verde-agua": { fundo: "bg-sis-verde-agua", texto: "text-white" },
+  oliva: { fundo: "bg-sis-oliva", texto: "text-white" },
+  azul: { fundo: "bg-sis-azul", texto: "text-white" },
+  indigo: { fundo: "bg-sis-indigo", texto: "text-white" },
+  magenta: { fundo: "bg-sis-magenta", texto: "text-white" },
+  marrom: { fundo: "bg-sis-marrom", texto: "text-white" },
+  grafite: { fundo: "bg-sis-grafite", texto: "text-white" },
+  laranja: { fundo: "bg-sis-laranja", texto: "text-white" },
+  mostarda: { fundo: "bg-sis-mostarda", texto: "text-white" },
+  ciano: { fundo: "bg-sis-ciano", texto: "text-sobre-claro" },
+  lilas: { fundo: "bg-sis-lilas", texto: "text-sobre-claro" },
+  rosa: { fundo: "bg-sis-rosa", texto: "text-sobre-claro" },
+  "laranja-claro": { fundo: "bg-sis-laranja-claro", texto: "text-sobre-claro" },
+  areia: { fundo: "bg-sis-areia", texto: "text-sobre-claro" },
+  amarelo: { fundo: "bg-sis-amarelo", texto: "text-sobre-claro" },
 };
 
 /** Classes de uma cor da paleta; null se não houver cor (ou se o banco mandar um nome desconhecido). */

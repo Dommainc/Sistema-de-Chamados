@@ -59,6 +59,24 @@
   --cor-sis-roxo: #6a3fb0;
   --cor-sis-azul-claro: #8cc4f0;
   --cor-sis-cinza: #7b818b;
+  /* Sistemas novos (2026-10-16): uma cor para cada, sem repetir. */
+  --cor-sis-verde: #2b8a3e;
+  --cor-sis-verde-escuro: #0b4d2a;
+  --cor-sis-verde-agua: #0c7c7e;
+  --cor-sis-oliva: #66751a;
+  --cor-sis-azul: #0067b8;
+  --cor-sis-indigo: #3b2fb5;
+  --cor-sis-magenta: #b0175a;
+  --cor-sis-marrom: #73503c;
+  --cor-sis-grafite: #343a40;
+  --cor-sis-laranja: #d9480f;
+  --cor-sis-mostarda: #8a6400;
+  --cor-sis-ciano: #66d9e8;
+  --cor-sis-lilas: #c0a8ff;
+  --cor-sis-rosa: #f0a0e6;
+  --cor-sis-laranja-claro: #ffb070;
+  --cor-sis-areia: #e3cfa2;
+  --cor-sis-amarelo: #f2c200;
   /* Texto sobre as opções claras (verde/vermelho/azul claro): escuro nos dois temas. */
   --cor-sobre-claro: #1a1c20;
 }
@@ -151,6 +169,23 @@
   --color-sis-roxo: var(--cor-sis-roxo);
   --color-sis-azul-claro: var(--cor-sis-azul-claro);
   --color-sis-cinza: var(--cor-sis-cinza);
+  --color-sis-verde: var(--cor-sis-verde);
+  --color-sis-verde-escuro: var(--cor-sis-verde-escuro);
+  --color-sis-verde-agua: var(--cor-sis-verde-agua);
+  --color-sis-oliva: var(--cor-sis-oliva);
+  --color-sis-azul: var(--cor-sis-azul);
+  --color-sis-indigo: var(--cor-sis-indigo);
+  --color-sis-magenta: var(--cor-sis-magenta);
+  --color-sis-marrom: var(--cor-sis-marrom);
+  --color-sis-grafite: var(--cor-sis-grafite);
+  --color-sis-laranja: var(--cor-sis-laranja);
+  --color-sis-mostarda: var(--cor-sis-mostarda);
+  --color-sis-ciano: var(--cor-sis-ciano);
+  --color-sis-lilas: var(--cor-sis-lilas);
+  --color-sis-rosa: var(--cor-sis-rosa);
+  --color-sis-laranja-claro: var(--cor-sis-laranja-claro);
+  --color-sis-areia: var(--cor-sis-areia);
+  --color-sis-amarelo: var(--cor-sis-amarelo);
   --color-sobre-claro: var(--cor-sobre-claro);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);

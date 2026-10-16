@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-16 | **Mais sistemas** no "Qual sistema?" (lista do dono): 17 novos (Suplos, Microsoft, Aipim Tech, ClickUp, AnyDesk, Serasa, BotMaker, Stuo, Nexxera, Paytrack, Hinc, Mapfry, Kait, KickIn, FastBuilt, TRC, Kairos), cada um com uma cor sem repetir; os existentes mantêm nome e cor (Docusign fica). Paleta fixa com 17 cores novas (tokens `sis-*`). Migration 0030 + pgTAP 016; seed e modo de demonstração. |
 | 2026-10-16 | Bot: **mensagem de boas-vindas** na 1ª instalação do app (a mesma da resposta automática; atualização do app não repete). App do Teams renomeado para **Portal de Chamados**. |
 | 2026-10-16 | **Bot do Teams funcionando** no dev: app instalado pelo dono, conversa ligada ao perfil pelo e-mail, resposta automática chegou. Token pelo diretório da DOMMA (`BOT_MULTILOCATARIO` desligado — com ele o Teams deu 401). App 1.0.1 em modo **só avisos** (ninguém escreve para o bot). Runbook e ADR 0018 corrigidos. |
 | 2026-10-16 | Bot registrado pelo **Portal do Desenvolvedor do Teams** (sem assinatura do Azure): registro "Várias organizações" → nova variável `BOT_MULTILOCATARIO` (token pelo diretório do Bot Framework). Runbook `bot-teams.md` e ADR 0018 atualizados. |
