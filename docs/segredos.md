@@ -12,9 +12,9 @@ ligados no GitHub; o que vai para o navegador começa com `NEXT_PUBLIC_` e **nun
 | **JWT secret / chaves JWKS** do Supabase (`SUPABASE_JWT_SECRET`, se usado) | API (validar o login) | Só quem administra a API | Vercel (projeto api) | Conforme o Supabase | Painel Supabase → JWT; a API prefere JWKS (sem segredo) |
 | **Client secret do Azure** (App Registration) | Supabase Auth (login Microsoft) | Admin do Entra e do Supabase | Painel Supabase → Auth → Azure | ⚠️ **Vence** (máx. 24 meses) — anotar a data | Entra → App Registration → Certificates & secrets → novo secret; colar no Supabase; apagar o antigo |
 | **ID do grupo Central-Chamados-TI** (`ENTRA_GRUPO_TI_ID`) | API (definir papel `ti`) | Não é segredo, mas não divulgar | Vercel (projeto api) | — | Se o grupo for recriado |
-| **Segredo do bot** (`X-Central-Secret` / `BOT_SEGREDO`) | API ↔ bot do Teams | Admin da API e do bot | Vercel (api) e configuração do bot | Trocar a cada 6 meses | Gerar novo, atualizar os dois lados ao mesmo tempo |
-| **Segredo do webhook de notificações** (`WEBHOOK_SEGREDO`) | Banco → API (`/internal/notificacoes/processar`) | Admin da API | Vercel (api) + Database Webhook do Supabase | Trocar a cada 6 meses | Atualizar Vercel e o webhook |
-| **CRON_SECRET** da Vercel | Cron → API (reprocessar notificações) | Admin da API | Vercel (api) | — | Vercel → Settings → Cron |
+| **App do bot** (`BOT_APP_ID`, `BOT_TENANT_ID`) | API (bot do Teams — ADR 0018) | Não é segredo, mas não divulgar | Vercel (api) | — | Se o recurso Azure Bot for recriado |
+| **Segredo do bot** (`BOT_APP_SEGREDO`) | API → Microsoft (token para mandar avisos no Teams) | Admin da API e do Azure | Vercel (api) | ⚠️ **Vence** (máx. 24 meses) — anotar a data | Azure Bot → Configuração → Gerenciar senha → novo segredo; Vercel; Redeploy; apagar o antigo ([runbooks/bot-teams.md](runbooks/bot-teams.md)) |
+| **Segredo do processador** (`PROCESSADOR_SEGREDO`) | Banco (pg_cron + pg_net) → API (`/api/internal/notificacoes/processar`) | Admin da API | Vercel (api) **e** Vault do Supabase (`central_processador_segredo`) | Trocar a cada 6 meses | Gerar novo; atualizar Vercel (Redeploy) e `vault.update_secret` ao mesmo tempo |
 | **Senha dos usuários de teste** (`teste123`) | Só ambiente **local** (`seed.dev.sql`) | Todos (não é segredo) | Repositório | — | Nunca existe em dev/prod na nuvem |
 
 ## Proteções do site e da API
@@ -35,4 +35,4 @@ Se o site passar a carregar algo de outra origem (ex.: imagem externa), ajuste a
 |---|---|---|
 | Client secret do Azure | (definir) | (anotar na criação) |
 | Senha `central_api` dev / prod | (definir) | (anotar na criação) |
-| Segredo do bot e do webhook | (definir) | (anotar na criação) |
+| Segredo do bot (`BOT_APP_SEGREDO`, vence) e do processador | (definir) | (anotar na criação) |

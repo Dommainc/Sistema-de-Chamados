@@ -14,7 +14,7 @@
 - Hoje: quem abre chamado não acompanha o andamento, não conversa com a TI, não há prazos nem métricas, e as automações
   do Power Automate são difíceis de manter.
 - Objetivo: lugar único para abrir, acompanhar e conversar sobre pedidos de suporte, com avisos no Teams e números para a gestão.
-- Integrações permitidas: **apenas** login Entra ID e bot do Teams existente. Nenhuma integração com Lists, SharePoint ou Power Automate.
+- Integrações permitidas: **apenas** login Entra ID e bot do Teams (próprio da Central — ADR 0018). Nenhuma integração com Lists, SharePoint ou Power Automate.
 - Reaproveitar: o bot de helpdesk existente e **apenas o padrão visual e de formulários** do sistema "Cadastro de Insumos".
 - Público não técnico: interface e mensagens simples, em português do Brasil.
 

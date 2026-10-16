@@ -35,8 +35,15 @@ class Settings(BaseSettings):
     #: Id do grupo "Central-Chamados-TI" no Entra ID (docs/adr/0004).
     entra_grupo_ti_id: str | None = None
 
-    #: Origem do front, liberada no CORS.
+    #: Origem do front, liberada no CORS. Também é o endereço dos links nos avisos do Teams.
     web_origem: str = "http://localhost:3000"
+
+    #: Bot do Teams (docs/adr/0018). Sem os três, o envio fica desligado e os avisos esperam como pendente.
+    bot_app_id: str | None = None
+    bot_app_segredo: SecretStr | None = None
+    bot_tenant_id: str | None = None
+    #: Segredo que o banco (pg_cron + pg_net) manda em X-Central-Secret para disparar o envio dos avisos.
+    processador_segredo: SecretStr | None = None
 
 
 @lru_cache

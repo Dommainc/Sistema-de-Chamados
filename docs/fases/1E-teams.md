@@ -1,5 +1,10 @@
 # Etapa 1E — Notificações no Teams e resposta automática do bot
 
+> **2026-10-16 — mudou ([ADR 0018](../adr/0018-bot-do-teams-dentro-da-api.md)):** o código do bot antigo se perdeu.
+> O bot agora é a **própria API** (`POST /api/bot/mensagens`), sem `/notificar` nem bot simulado; o envio é
+> disparado pelo banco (pg_cron + pg_net), não por Database Webhook/Vercel Cron. Instalação:
+> [runbooks/bot-teams.md](../runbooks/bot-teams.md). O texto abaixo é o plano original, mantido como histórico.
+
 ## Pré-requisito
 Acesso ao código do bot existente (Azure Bot Service + Graph). **Antes de planejar, pergunte a linguagem/SDK e onde ele roda.**
 Se ainda não houver acesso, implemente só o lado da Central contra um **bot simulado** (`apps/bot-mock`) que respeite o contrato abaixo.

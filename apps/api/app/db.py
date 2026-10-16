@@ -68,6 +68,14 @@ class Banco:
             return False
 
     @asynccontextmanager
+    async def servico(self) -> AsyncIterator[asyncpg.Connection]:
+        """Bot e jobs: conexão como central_api, sem usuário (quem chama abre a própria transação)."""
+        if self._pool is None:
+            raise ErroApp("ERRO_INESPERADO", detalhe="banco não configurado (DATABASE_URL)")
+        async with self._pool.acquire() as conn:
+            yield conn
+
+    @asynccontextmanager
     async def transacao(self, usuario: UsuarioAutenticado) -> AsyncIterator[Transacao]:
         if self._pool is None:
             raise ErroApp("ERRO_INESPERADO", detalhe="banco não configurado (DATABASE_URL)")

@@ -22,7 +22,7 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
 | Back | FastAPI (Python 3.12) + asyncpg + Pydantic v2 — `apps/api` |
 | Banco / Auth / Realtime / Storage | Supabase — `supabase/` (local via Docker; nuvem em `sa-east-1` depois) |
 | Login | Microsoft Entra ID (provider Azure do Supabase) |
-| Avisos | Bot do Teams **já existente** (projeto separado), via endpoint `POST /notificar` |
+| Avisos | Bot do Teams **próprio, dentro da API** (`/api/bot/mensagens`; app do Teams em `apps/bot-teams`) — `docs/adr/0018` |
 | Hospedagem | Vercel: **um projeto com Services** (site em `/`, API em `/api`), região `gru1` — `vercel.json` na raiz (`docs/adr/0017`) |
 
 ## Regras que nunca podem ser quebradas
@@ -40,7 +40,7 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
   - `service_role` só na FastAPI, apenas para Storage e jobs. **Nunca** no front.
 - **Migrations:** nunca editar uma migration já commitada; sempre criar nova (`supabase migration new`). Tabela nova exige `enable row level security` + GRANT + policy explícitos (os defaults do Supabase foram revogados) + teste em `supabase/tests/database/`.
 - **Sem segredos no código.** `.env` no `.gitignore`; `.env.example` sem valores; inventário em `docs/segredos.md`.
-- **Falha no Teams nunca bloqueia a ação.** Notificação é gravada como `pendente` (outbox, `docs/adr/0003`).
+- **Falha no Teams nunca bloqueia a ação.** Notificação é gravada como `pendente` (outbox, `docs/adr/0003`); o banco dispara o envio a cada minuto (`docs/adr/0018`).
 - **Erros:** sempre pelo catálogo central (`apps/api/app/erros/catalogo.py` ↔ `apps/web/lib/erros/catalogo.ts`). Nunca mostrar stack trace, SQL ou mensagem crua do Supabase.
 
 ## Domínio

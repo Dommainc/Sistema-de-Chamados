@@ -13,7 +13,7 @@ from app.config import obter_settings
 from app.db import banco
 from app.erros.handlers import registrar_handlers
 from app.prefixo import PrefixoApi
-from app.routers import chamados, me, saude
+from app.routers import bot, chamados, me, saude
 from app.seguranca import ProtecoesHttp
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -54,6 +54,7 @@ def criar_app() -> FastAPI:
     app.include_router(saude.router)
     app.include_router(me.router)
     app.include_router(chamados.router)
+    app.include_router(bot.router)
     return app
 
 
