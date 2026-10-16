@@ -219,3 +219,47 @@ def test_mensagem_para_o_bot_guarda_a_conversa_e_responde():
     _, resposta = teams.enviadas[-1]
     acoes = resposta["attachments"][0]["content"]["actions"]
     assert acoes[-1]["title"] == "Abrir a Central"
+
+
+def test_boas_vindas_so_na_primeira_instalacao():
+    from app.main import criar_app
+    from app.routers.bot import obter_conector, obter_verificador
+
+    class SemVerificar:
+        def verificar(self, autorizacao, service_url):
+            return {}
+
+    teams = TeamsDeMentira()
+    app = criar_app()
+    app.dependency_overrides[obter_verificador] = SemVerificar
+    app.dependency_overrides[obter_conector] = lambda: teams
+    base = {
+        "type": "installationUpdate",
+        "serviceUrl": SERVICE_URL,
+        "from": {"id": TEAMS_ANA, "aadObjectId": "aad-ana"},
+        "conversation": {"id": "a:conversa-ana", "conversationType": "personal"},
+    }
+    with TestClient(app) as cliente:
+        assert cliente.post("/bot/mensagens", json={**base, "action": "add"}).status_code == 200
+        assert len(teams.enviadas) == 1
+        texto = teams.enviadas[0][1]["attachments"][0]["content"]["body"][0]["text"]
+        assert texto.startswith("Olá!")
+        # Atualização do app: guarda a conversa de novo, sem repetir as boas-vindas.
+        assert (
+            cliente.post("/bot/mensagens", json={**base, "action": "add-upgrade"}).status_code
+            == 200
+        )
+        assert len(teams.enviadas) == 1
+
+    async def limpar():
+        c = await asyncpg.connect(os.environ["DATABASE_URL"], statement_cache_size=0)
+        try:
+            await c.execute(
+                "delete from public.teams_conversas where teams_user_id = $1", TEAMS_ANA
+            )
+        finally:
+            await c.close()
+
+    import asyncio
+
+    asyncio.run(limpar())

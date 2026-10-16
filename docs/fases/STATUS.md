@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-16 | Bot: **mensagem de boas-vindas** na 1ª instalação do app (a mesma da resposta automática; atualização do app não repete). App do Teams renomeado para **Portal de Chamados**. |
 | 2026-10-16 | **Bot do Teams funcionando** no dev: app instalado pelo dono, conversa ligada ao perfil pelo e-mail, resposta automática chegou. Token pelo diretório da DOMMA (`BOT_MULTILOCATARIO` desligado — com ele o Teams deu 401). App 1.0.1 em modo **só avisos** (ninguém escreve para o bot). Runbook e ADR 0018 corrigidos. |
 | 2026-10-16 | Bot registrado pelo **Portal do Desenvolvedor do Teams** (sem assinatura do Azure): registro "Várias organizações" → nova variável `BOT_MULTILOCATARIO` (token pelo diretório do Bot Framework). Runbook `bot-teams.md` e ADR 0018 atualizados. |
 | 2026-10-16 | **Conclusão automática em 48 h úteis, lembrete de 12 h e aviso fora do expediente** (ADR 0019 — escolhidos pelo dono no pacote "avisos-teams"; a parte do bot externo e "transferência sem avisar o solicitante" ficaram de fora). Migration 0028 (`processar_inatividade(p_agora)`, `eh_horario_util`, `proxima_abertura`, agendamento só no expediente; 0029 dá à API o GRANT de `proxima_abertura`) + pgTAP 008 com datas fixas e 015; cartões do Teams para 12 h, 24 h e conclusão automática, e "A equipe volta amanhã às 8h" na abertura fora do horário; histórico "Concluído automaticamente"; modo de demonstração com as mesmas regras. `CLAUDE.md` (máquina de estados). |

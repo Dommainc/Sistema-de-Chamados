@@ -29,6 +29,8 @@ coisa para hospedar, proteger e explicar.
 - Envio: até 10 avisos por chamada, `for update skip locked`; falha → nova tentativa em 1 e 5 min; na 3ª falha,
   `falhou` com o erro. Pessoa sem o app → `falhou` na hora ("sem conversa com o bot"). Aviso com mais de 24 h
   parado não é mais enviado (evita mandar de uma vez os avisos acumulados antes de o bot existir).
+- **Boas-vindas:** na 1ª instalação do app (`installationUpdate` com `action = add`), o bot manda a mesma
+  mensagem da resposta automática. Atualização do app (`add-upgrade`) não repete.
 - **Resposta automática:** quem escreve para o bot recebe o texto de `configuracoes.bot_resposta_automatica` e os
   botões "Abrir chamado #N" (último aviso) e "Abrir a Central". Nada vai para o chamado; registro em
   `bot_respostas_automaticas`.

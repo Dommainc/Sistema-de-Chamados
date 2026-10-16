@@ -160,19 +160,24 @@ async def mensagens_do_teams(
         guardada = await conn.fetchrow(
             SQL_GUARDAR_CONVERSA, usuario_id, tenant, conversa_id, service_url, email, upn, aad
         )
-        if atividade.get("type") != "message":
+        # Boas-vindas: só na 1ª instalação (o Teams manda "add-upgrade" quando o app é só atualizado).
+        boas_vindas = (
+            atividade.get("type") == "installationUpdate" and atividade.get("action") == "add"
+        )
+        if atividade.get("type") != "message" and not boas_vindas:
             return Response(status_code=200)
 
-        recebido = _texto(atividade.get("text"))
-        await conn.execute(
-            """insert into public.bot_respostas_automaticas
-                 (profile_id, teams_user_id, texto_recebido, chamado_referenciado)
-               values ($1, $2, $3, $4)""",
-            guardada["profile_id"],
-            usuario_id,
-            recebido[:4000] if recebido else None,
-            guardada["ultimo_chamado_notificado"],
-        )
+        if not boas_vindas:
+            recebido = _texto(atividade.get("text"))
+            await conn.execute(
+                """insert into public.bot_respostas_automaticas
+                     (profile_id, teams_user_id, texto_recebido, chamado_referenciado)
+                   values ($1, $2, $3, $4)""",
+                guardada["profile_id"],
+                usuario_id,
+                recebido[:4000] if recebido else None,
+                guardada["ultimo_chamado_notificado"],
+            )
         configurado = await conn.fetchval(
             "select valor from public.configuracoes where chave = 'bot_resposta_automatica'"
         )
