@@ -32,4 +32,4 @@ que for mais recente) e **zera quando o solicitante responde**. A mensagem autom
 
 ## Consequências
 - Um chamado pode ser concluído sem a TI. Se o problema continuar, o solicitante abre um novo (não há reabertura).
-- Migration 0028 (`20261016150000_conclusao_automatica_e_lembretes.sql`).
+- Migrations 0028 (`20261016150000_conclusao_automatica_e_lembretes.sql`) e 0029 (GRANT para a API).
