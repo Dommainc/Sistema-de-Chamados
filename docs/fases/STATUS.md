@@ -2,6 +2,37 @@
 
 | Etapa | Status | Observações |
 |---|---|---|
+| 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migrations 0015–0017 validadas no CI (job `banco`, Supabase local no runner) |
+| 1A-3 Entrega 1 — Base do front e perfis | ✅ Concluída | Dados simulados (ADR 0006); Next 16, 42 testes; lint, typecheck e build verdes |
+| 1A-4 (parte) CI do front | ✅ Concluída | `.github/workflows/ci.yml` (formatação, lint, tipos, testes, build), PR template, `.editorconfig` |
+| UI/UX — base visual do mockup | ✅ Concluída | `docs/ui-ux.md`; tokens, IBM Plex, lucide, cascas, componentes, rótulos; 59 testes |
+| 1A-3 Entrega 2 — Parte A: abrir chamado | ✅ Concluída | Telas 1–3 do mockup; máquina de estados, formulário, horas úteis e anexos (Ctrl+V); 118 testes |
+| 1A-3 Entrega 2 — Parte B: acompanhar | ✅ Concluída | Telas 4–5: chat, nova mensagem, cancelar, encerrado; migration 0017 `chamado_leituras`; 144 testes |
+| 1A-3 Entrega 3 — Parte A: ações + quadro | ✅ Concluída | Quadro (kanban) com Próximo da fila, filtros, arrastar; ações com histórico e notificação; 173 testes |
+| 1A-3 Entrega 3 — Parte B: tela de atendimento | ✅ Concluída | Chat com nota interna, painel de ações, modais, solicitante com contato, histórico completo, versão celular; 180 testes |
+| 1A-2 API base + dados reais | ✅ Concluída | Camada `real` do front (ADR 0016), Supabase dev na nuvem, login Microsoft validado e publicação na Vercel (ADR 0017). Detalhes antigos:  **Base pronta sem banco**: FastAPI, catálogo de erros (igual ao do front), JWT (JWKS/HS256), máquina de estados e formulário em Python, `/saude`, `/me`, `/auth/sincronizar`; **rotas de chamados** (abrir, ações, mensagens, anexos, lido, previsão — ADR 0008); 95 testes (+4 de banco pulados). Rotas validadas contra banco real no CI (8 testes de integração). Falta: o Supabase da nuvem (P-022) e a camada de dados `real` do front |
+| 1A-4 (restante) CI de banco/API e docs | ✅ Concluída | Job `banco` no CI (Supabase local: migrations, 71 testes pgTAP, integração da API); `migrations.yml` (dev automático, prod manual com aprovação — desligado até os projetos existirem); `docs/api.md`; `docs/go-live.md` |
+| 1E Teams | ⏳ Pendente | Depende do código do bot existente |
+| 1F Fechamento | ⏳ Pendente | |
+
+## Pendências externas
+- [x] App Registration no Entra ID + grupo `Central-Chamados-TI` (claim `groups`, só grupos atribuídos ao app)
+- [ ] **Aprovação do Supabase pela diretoria** — praticamente ok, falta a assinatura (2026-10-06) — P-022
+- [x] Projeto Supabase `dev` em `sa-east-1` (Free, 2026-10-15) · [ ] `prod` no Pro, após a assinatura
+- [ ] Validar no Supabase hospedado: `grant authenticated to central_api` (migration 0001)
+- [x] Validar se o Supabase repassa o claim `groups` no login (ADR 0004)
+- [ ] Acesso ao código do bot do Teams (linguagem/SDK)
+- [ ] Padrão visual do Cadastro de Insumos (cores, componentes)
+
+## Problemas e decisões em aberto
+Ver `docs/pendencias.md`.
+
+## Registro de mudanças
+Mais recente primeiro. Uma linha por sessão que alterou o projeto.
+
+| Data | O que mudou |
+|---|---|
+| 2026-10-16 | STATUS: linhas do registro que tinham ido para a tabela de etapas voltaram para cá; 1A-2 marcada como concluída. |
 | 2026-10-16 | **Tela escura** (botão ☀/🌙, pedido do dono): migration 0025 `profiles.tema` (claro/escuro, padrão claro) + pgTAP 012; API `PATCH /me/tema` e `tema` no perfil; site com tokens escuros em `globals.css` (`:root[data-tema="escuro"]`), cookie `cc_tema` lido no layout (sem piscar) e gravado na volta do login, `salvarTema` nas duas fontes; botão no portal, na barra da TI e no login. Prints `escuro-*`. Aplicar na nuvem: `npx supabase@latest db push`. |
 | 2026-10-15 | **Um projeto só na Vercel** (ADR 0017, decisão do dono): `vercel.json` na raiz com Services — site em `/`, API em `/api` (middleware `app/prefixo.py`), binding `API_INTERNA_URL` para o servidor do site; `NEXT_PUBLIC_API_URL=/api`. Teste `segredos-fora-do-site` impede o site de citar segredos da API. Testes da API não leem mais o `.env` local. Projeto e branch `demo` excluídos. `CLAUDE.md` e `go-live.md` §7–8 atualizados. |
 | 2026-10-15 | **Primeiro login de verdade**: conta Microsoft da DOMMA → Supabase dev → API local → área da TI. O claim `groups` chega no token (ADR 0004 validado). |
@@ -26,36 +57,6 @@
 | 2026-10-08 | Melhorias da TI (pedido do dono): **filtro por sistema** no quadro (`?sistema=Sienge`); **respostas prontas** no chat (só TI; texto entra no campo com o nome do solicitante; migration 0023 `respostas_prontas`, pgTAP 010); **cor dos sistemas no banco** (`campos_form.cores` com paleta fixa — migration 0022, pgTAP 009; tokens `sis-*` agora têm nome de cor). Nova pendência P-040 (aba **Dashboard** na Fase 2). Prints 07b e 08c. Teste de "avisos de mudança" do modo simulado deixou de depender do relógio (as automações por tempo disparavam no meio dele no CI). |
 | 2026-10-07 | Cartão do quadro: o **sistema** (Sienge, CVCRM...) desceu para o rodapé, ao lado do prazo, como ■ + nome; "Não se aplica" não aparece no cartão. Em cima só ID, prioridade alta, NOVO e transferido. **NOVO** passa a valer nas **primeiras 24 h** depois de aberto (antes 15 min) e só na coluna Novos. |
 | 2026-10-07 | **Demonstração na Vercel** para o chefe testar: projeto com Root Directory `apps/web`, branch **`demo`** publicado como Preview (`git push origin main:demo` para atualizar) (dados simulados; a trava do ADR 0006 continua valendo para produção). Passo de volta registrado no `go-live.md` §8. |
-| 1A-1 Banco | ✅ Concluída | 14 migrations, seed, 35 testes pgTAP passando (em outra máquina). Migrations 0015–0017 validadas no CI (job `banco`, Supabase local no runner) |
-| 1A-3 Entrega 1 — Base do front e perfis | ✅ Concluída | Dados simulados (ADR 0006); Next 16, 42 testes; lint, typecheck e build verdes |
-| 1A-4 (parte) CI do front | ✅ Concluída | `.github/workflows/ci.yml` (formatação, lint, tipos, testes, build), PR template, `.editorconfig` |
-| UI/UX — base visual do mockup | ✅ Concluída | `docs/ui-ux.md`; tokens, IBM Plex, lucide, cascas, componentes, rótulos; 59 testes |
-| 1A-3 Entrega 2 — Parte A: abrir chamado | ✅ Concluída | Telas 1–3 do mockup; máquina de estados, formulário, horas úteis e anexos (Ctrl+V); 118 testes |
-| 1A-3 Entrega 2 — Parte B: acompanhar | ✅ Concluída | Telas 4–5: chat, nova mensagem, cancelar, encerrado; migration 0017 `chamado_leituras`; 144 testes |
-| 1A-3 Entrega 3 — Parte A: ações + quadro | ✅ Concluída | Quadro (kanban) com Próximo da fila, filtros, arrastar; ações com histórico e notificação; 173 testes |
-| 1A-3 Entrega 3 — Parte B: tela de atendimento | ✅ Concluída | Chat com nota interna, painel de ações, modais, solicitante com contato, histórico completo, versão celular; 180 testes |
-| 1A-2 API base + dados reais | 🟡 Em andamento | **Base pronta sem banco**: FastAPI, catálogo de erros (igual ao do front), JWT (JWKS/HS256), máquina de estados e formulário em Python, `/saude`, `/me`, `/auth/sincronizar`; **rotas de chamados** (abrir, ações, mensagens, anexos, lido, previsão — ADR 0008); 95 testes (+4 de banco pulados). Rotas validadas contra banco real no CI (8 testes de integração). Falta: o Supabase da nuvem (P-022) e a camada de dados `real` do front |
-| 1A-4 (restante) CI de banco/API e docs | ✅ Concluída | Job `banco` no CI (Supabase local: migrations, 71 testes pgTAP, integração da API); `migrations.yml` (dev automático, prod manual com aprovação — desligado até os projetos existirem); `docs/api.md`; `docs/go-live.md` |
-| 1E Teams | ⏳ Pendente | Depende do código do bot existente |
-| 1F Fechamento | ⏳ Pendente | |
-
-## Pendências externas
-- [ ] App Registration no Entra ID + grupo `Central-Chamados-TI` (claim `groups`, só grupos atribuídos ao app)
-- [ ] **Aprovação do Supabase pela diretoria** — praticamente ok, falta a assinatura (2026-10-06) — P-022
-- [ ] Projetos Supabase `dev` e `prod` em `sa-east-1`
-- [ ] Validar no Supabase hospedado: `grant authenticated to central_api` (migration 0001)
-- [ ] Validar se o Supabase repassa o claim `groups` no login (ADR 0004)
-- [ ] Acesso ao código do bot do Teams (linguagem/SDK)
-- [ ] Padrão visual do Cadastro de Insumos (cores, componentes)
-
-## Problemas e decisões em aberto
-Ver `docs/pendencias.md`.
-
-## Registro de mudanças
-Mais recente primeiro. Uma linha por sessão que alterou o projeto.
-
-| Data | O que mudou |
-|---|---|
 | 2026-10-07 | **Categorias unificadas** (pedido do dono): "Acesso, senha e bloqueio" + "Sistemas da empresa" → **Solicitações de acesso e Permissões** com "Qual sistema?" (8 sistemas, cada um com sua cor — quadradinho no formulário, selo no quadro e no pedido; tokens `sis-*`); "Internet, rede ou VPN" + "Infraestrutura" → **Internet / Infraestrutura** ("O que é?": Internet/Wi-Fi · VPN · Câmeras · Cabeamento; "Quem é afetado?" opcional; "Onde fica?"); Microsoft ganha **Redefinição de senha**. 11 categorias. Cartões do quadro com **fundo branco** e só a faixa do status (teste do dono). P-039 resolvida. pgTAP 001/003/006 ajustados. |
 | 2026-10-07 | Cores do quadro: fundo de **Novos** laranja de verdade (token `laranja-cartao`; o laranja transparente parecia amarelo) e **Em atendimento** num amarelo mais nítido — os dois não se confundem mais. |
 | 2026-10-07 | Cartão do quadro: linha "Nome · Categoria" inteira (letra um pouco menor, quebra de linha em vez de "…"). |
