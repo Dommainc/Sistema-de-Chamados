@@ -66,7 +66,11 @@ export function ChatChamado({
         // Respostas prontas: só a TI (o solicitante nem consulta).
         ti ? f.listarRespostasProntas() : Promise.resolve([]),
       ]);
-      return { chamado, mensagens, historico, anexos, perfis, prontas };
+      // "Visto" (✓✓): só a TI consulta até quando o solicitante leu.
+      const lidoPeloSolicitanteAte = ti
+        ? await f.lidoPeloSolicitanteAte(chamadoId, chamado.solicitanteId)
+        : null;
+      return { chamado, mensagens, historico, anexos, perfis, prontas, lidoPeloSolicitanteAte };
     },
     [chamadoId, ti],
   );

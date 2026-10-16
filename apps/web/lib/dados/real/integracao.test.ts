@@ -104,6 +104,10 @@ describe.runIf(ligado)("camada real contra o Supabase local e a API", () => {
     expect(conversaAna.map((m) => m.conteudo)).not.toContain("Nota só da TI");
     await ana.fonte.marcarComoLido(id);
     expect(await ana.fonte.listarNaoLidos()).not.toContain(id);
+    // "Visto" (migration 0026): a TI vê até quando a Ana leu; a Ana não vê a leitura da TI.
+    const anaId = (await ana.fonte.obterMeuPerfil()).id;
+    expect(await rafael.fonte.lidoPeloSolicitanteAte(id, anaId)).not.toBeNull();
+    expect(await ana.fonte.lidoPeloSolicitanteAte(id, anaId)).toBeNull();
     const anexos = await ana.fonte.listarAnexos(id);
     expect(anexos).toHaveLength(1);
     expect(anexos[0]).toMatchObject({ nome: "print-20261015-090000.png", origem: "colado" });

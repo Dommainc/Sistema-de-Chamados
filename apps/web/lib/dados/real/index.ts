@@ -47,7 +47,7 @@ import {
 } from "./mapear";
 
 const ENCERRADOS = "(concluido,cancelado)";
-const TABELAS_AO_VIVO = ["chamados", "mensagens", "historico"] as const;
+const TABELAS_AO_VIVO = ["chamados", "mensagens", "historico", "chamado_leituras"] as const;
 
 /** Erro de leitura do Supabase → catálogo (42501 = sem permissão pelo RLS/grant). Nunca a mensagem crua. */
 function erroDeLeitura(erro: PostgrestError): ErroApp {
@@ -480,6 +480,19 @@ export function criarFonteReal(
 
     async marcarComoLido(chamadoId) {
       await api<void>(`/chamados/${chamadoId}/lido`, { metodo: "POST" });
+    },
+
+    async lidoPeloSolicitanteAte(chamadoId, solicitanteId) {
+      if (usuario.papel !== "ti") return null;
+      const linha = ler(
+        await supabase
+          .from("chamado_leituras")
+          .select("lido_ate")
+          .eq("chamado_id", chamadoId)
+          .eq("profile_id", solicitanteId)
+          .maybeSingle<{ lido_ate: string }>(),
+      );
+      return linha?.lido_ate ?? null;
     },
 
     async listarNaoLidos() {

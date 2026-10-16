@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-16 | **"Visto" no chat** (pedido do dono): nas mensagens da TI, ✓ enviada e ✓✓ azul-claro quando o solicitante leu; só a TI vê. Migration 0026 (policy para a TI ler a leitura do solicitante + `chamado_leituras` no Realtime) + pgTAP 013; contrato `lidoPeloSolicitanteAte` nas duas fontes; integração da camada real cobre. Aplicar na nuvem: `npx supabase@latest db push`. |
 | 2026-10-16 | STATUS: linhas do registro que tinham ido para a tabela de etapas voltaram para cá; 1A-2 marcada como concluída. |
 | 2026-10-16 | **Tela escura** (botão ☀/🌙, pedido do dono): migration 0025 `profiles.tema` (claro/escuro, padrão claro) + pgTAP 012; API `PATCH /me/tema` e `tema` no perfil; site com tokens escuros em `globals.css` (`:root[data-tema="escuro"]`), cookie `cc_tema` lido no layout (sem piscar) e gravado na volta do login, `salvarTema` nas duas fontes; botão no portal, na barra da TI e no login. Prints `escuro-*`. Aplicar na nuvem: `npx supabase@latest db push`. |
 | 2026-10-15 | **Um projeto só na Vercel** (ADR 0017, decisão do dono): `vercel.json` na raiz com Services — site em `/`, API em `/api` (middleware `app/prefixo.py`), binding `API_INTERNA_URL` para o servidor do site; `NEXT_PUBLIC_API_URL=/api`. Teste `segredos-fora-do-site` impede o site de citar segredos da API. Testes da API não leem mais o `.env` local. Projeto e branch `demo` excluídos. `CLAUDE.md` e `go-live.md` §7–8 atualizados. |

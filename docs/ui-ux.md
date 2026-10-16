@@ -29,6 +29,12 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 - Notas internas **não aparecem no chat**: ficam na aba **Relato técnico** da tela de atendimento (2026-10-06).
 - Cores do mockup mantidas: minhas em azul à direita, dos outros em branco à esquerda; eventos do sistema em pílula.
 
+## "Visto" no chat (pedido do dono, 2026-10-16)
+- **Só a TI vê**, nas mensagens que ela mesma mandou: **✓** = enviada, **✓✓ azul-claro** = o solicitante já leu
+  (passar o mouse: "Vista pelo solicitante"). O solicitante não vê se a TI leu.
+- Vem de `chamado_leituras` (até quando o solicitante leu — a mesma tabela do "• Nova mensagem"); a TI pode ler a
+  linha do solicitante (migration 0026) e ela chega pelo Realtime.
+
 ## Fundamentos
 
 ### Cores (tokens em `apps/web/app/globals.css`)

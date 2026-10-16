@@ -196,6 +196,11 @@ export interface FonteDeDados {
   enviarMensagem(dados: NovaMensagem): Promise<Mensagem>;
   /** Marca a conversa como lida por mim (tabela chamado_leituras). */
   marcarComoLido(chamadoId: number): Promise<void>;
+  /**
+   * Até quando o SOLICITANTE leu a conversa ("visto" ✓✓ nos balões da TI — migration 0026). Só TI;
+   * para o solicitante, ou se ele nunca abriu, devolve null.
+   */
+  lidoPeloSolicitanteAte(chamadoId: number, solicitanteId: string): Promise<string | null>;
   /** Números dos meus chamados com mensagem da TI ainda não lida ("• Nova mensagem"). */
   listarNaoLidos(): Promise<number[]>;
   /** Quantas mensagens não lidas cada chamado tem (contador 💬 dos cartões da TI). */

@@ -330,3 +330,24 @@ describe("prazo definido pela TI (ADR 0009)", () => {
     );
   });
 });
+
+describe("visto (✓/✓✓) — só a TI, nas mensagens dela", () => {
+  const base = { chamado, mensagens, historico, anexos: [], perfis, agora };
+  const daTi = (lido: string | null) =>
+    montarConversa({ ...base, euId: RAFAEL, papel: "ti", lidoPeloSolicitanteAte: lido }).find(
+      (i) => i.chave === "m1",
+    );
+
+  it("✓ enquanto o solicitante não leu; ✓✓ depois que leu", () => {
+    expect(daTi(null)).toMatchObject({ visto: false });
+    expect(daTi("2026-10-05T12:51:00Z")).toMatchObject({ visto: false });
+    expect(daTi("2026-10-05T12:52:00Z")).toMatchObject({ visto: true });
+  });
+
+  it("não marca as mensagens do solicitante nem aparece para o solicitante", () => {
+    const ti = montarConversa({ ...base, euId: RAFAEL, papel: "ti", lidoPeloSolicitanteAte: null });
+    expect(ti.find((i) => i.chave === "pedido")).toMatchObject({ visto: null });
+    const ana = montarConversa({ ...base, euId: ANA, papel: "solicitante" });
+    expect(ana.filter((i) => i.tipo === "mensagem").every((i) => i.visto === null)).toBe(true);
+  });
+});

@@ -709,6 +709,14 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       });
     },
 
+    async lidoPeloSolicitanteAte(chamadoId: number, solicitanteId: string) {
+      if (eu().papel !== "ti") return null;
+      return (
+        lerEstado().leituras.find((l) => l.chamadoId === chamadoId && l.profileId === solicitanteId)
+          ?.lidoAte ?? null
+      );
+    },
+
     async listarNaoLidos() {
       return Object.keys(contagemNaoLidas()).map(Number);
     },

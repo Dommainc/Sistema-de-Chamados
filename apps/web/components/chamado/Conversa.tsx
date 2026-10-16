@@ -5,6 +5,7 @@
 // anexos dentro do balão. Cores do mockup: as minhas em azul à direita, as dos outros em branco.
 // Notas internas não aparecem aqui: ficam no Relato técnico (components/tecnico/atendimento/RelatoTecnico).
 
+import { Check, CheckCheck } from "lucide-react";
 import type { Anexo } from "@/lib/dominio/tipos";
 import { AnexoMiniatura } from "./AnexoMiniatura";
 import type { ItemConversa } from "./linhaDoTempo";
@@ -39,6 +40,7 @@ export function Balao({
   inicioDeGrupo = true,
   anexos = [],
   esmaecido = false,
+  visto = null,
 }: {
   conteudo: string;
   minha: boolean;
@@ -50,6 +52,8 @@ export function Balao({
   inicioDeGrupo?: boolean;
   anexos?: Anexo[];
   esmaecido?: boolean;
+  /** ✓ enviada · ✓✓ vista pelo solicitante (só a TI vê). Nulo = sem marca. */
+  visto?: boolean | null;
 }) {
   const cor = sistema ? CORES.sistema : minha ? CORES.minha : CORES.outra;
   const lado = minha ? "self-end" : "self-start";
@@ -87,7 +91,20 @@ export function Balao({
         {conteudo ? (
           <p className="mr-auto min-w-0 break-words whitespace-pre-line">{conteudo}</p>
         ) : null}
-        <span className={`shrink-0 text-[11px] leading-5 ${cor.hora}`}>{hora}</span>
+        <span
+          className={`inline-flex shrink-0 items-center gap-1 text-[11px] leading-5 ${cor.hora}`}
+        >
+          {hora}
+          {visto === null ? null : visto ? (
+            <CheckCheck role="img" aria-label="Vista" className="size-4 text-sis-azul-claro">
+              <title>Vista pelo solicitante</title>
+            </CheckCheck>
+          ) : (
+            <Check role="img" aria-label="Enviada" className="size-4">
+              <title>Enviada (ainda não vista)</title>
+            </Check>
+          )}
+        </span>
       </div>
     </div>
   );
@@ -134,6 +151,7 @@ export function Conversa({ itens }: { itens: ItemConversa[] }) {
               hora={item.hora}
               inicioDeGrupo={item.inicioDeGrupo}
               anexos={item.anexos}
+              visto={item.visto}
             />
           </li>
         );

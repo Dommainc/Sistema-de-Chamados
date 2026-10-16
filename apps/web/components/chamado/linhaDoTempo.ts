@@ -34,6 +34,8 @@ export type ItemConversa =
       inicioDeGrupo: boolean;
       anexos: Anexo[];
       criadoEm: string;
+      /** Só para a TI, nas mensagens dela: o solicitante já leu (✓✓) ou ainda não (✓). Nulo = não mostra. */
+      visto: boolean | null;
     };
 
 interface Entrada {
@@ -44,6 +46,8 @@ interface Entrada {
   perfis: PerfilPublico[];
   euId: string;
   papel: Papel;
+  /** Até quando o solicitante leu (lidoPeloSolicitanteAte). Só a TI recebe; ativa o ✓/✓✓. */
+  lidoPeloSolicitanteAte?: string | null;
   agora?: Date;
 }
 
@@ -130,8 +134,14 @@ export function montarConversa({
   perfis,
   euId,
   papel,
+  lidoPeloSolicitanteAte = null,
   agora = new Date(),
 }: Entrada): ItemConversa[] {
+  // ✓/✓✓ só para a TI, nas mensagens que ela mesma mandou (pedido do dono, 2026-10-16).
+  const visto = (minha: boolean, criadoEm: string): boolean | null =>
+    papel === "ti" && minha
+      ? lidoPeloSolicitanteAte !== null && new Date(lidoPeloSolicitanteAte) >= new Date(criadoEm)
+      : null;
   const perfil = new Map(perfis.map((p) => [p.id, p]));
   const nome = (id: string | null | undefined) => (id ? (perfil.get(id)?.nome ?? null) : null);
 
@@ -157,6 +167,7 @@ export function montarConversa({
       inicioDeGrupo: true,
       anexos: anexos.filter((a) => a.mensagemId === null),
       criadoEm: chamado.criadoEm,
+      visto: visto(chamado.solicitanteId === euId, chamado.criadoEm),
     },
     ...mensagens
       .filter((m) => !m.interna)
@@ -172,6 +183,7 @@ export function montarConversa({
         inicioDeGrupo: true,
         anexos: anexos.filter((a) => a.mensagemId === m.id),
         criadoEm: m.criadoEm,
+        visto: visto(m.autorId === euId, m.criadoEm),
       })),
     ...historico.flatMap((h) => {
       const texto = textoEvento(h, nome, euId, papel);
