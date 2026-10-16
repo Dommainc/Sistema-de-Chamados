@@ -58,7 +58,7 @@ def manifesto(app_id: str, central: str) -> dict:
             "privacyUrl": central,
             "termsOfUseUrl": central,
         },
-        "name": {"short": "Central de Chamados", "full": "Central de Chamados — DOMMA"},
+        "name": {"short": "Portal de Chamados", "full": "Portal de Chamados — DOMMA"},
         "description": {
             "short": "Avisos dos seus chamados de TI.",
             "full": (

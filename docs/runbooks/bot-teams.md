@@ -1,4 +1,4 @@
-# Runbook — instalar o bot do Teams ("Central de Chamados")
+# Runbook — instalar o bot do Teams ("Portal de Chamados")
 
 Como ligar os avisos no Teams ([ADR 0018](../adr/0018-bot-do-teams-dentro-da-api.md)). Faça na ordem. Valores de
 segredo **nunca** vão para o chat, para o Git ou para este arquivo: só para a Vercel e para o Vault do Supabase.
