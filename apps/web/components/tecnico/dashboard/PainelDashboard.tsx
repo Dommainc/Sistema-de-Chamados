@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { Segmentado } from "@/components/ui/Segmentado";
+import { BotaoRelatorio } from "./BotaoRelatorio";
 import { useConsulta } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { formatarDataHora } from "@/lib/formato";
@@ -222,6 +223,7 @@ export function PainelDashboard({ chave, de, ate }: { chave?: string; de?: strin
         f.listarPerfisPublicos(),
         f.listarCategorias(),
       ]);
+      const expediente = { ...dados.expediente, feriados: new Set(dados.expediente.feriados) };
       const metricas = calcularMetricas({
         chamados: dados.chamados,
         historico: dados.historico,
@@ -230,9 +232,11 @@ export function PainelDashboard({ chave, de, ate }: { chave?: string; de?: strin
         categorias,
         periodo: { inicio: new Date(inicio), fim: new Date(fim) },
         agora: new Date(),
-        expediente: { ...dados.expediente, feriados: new Set(dados.expediente.feriados) },
+        expediente,
       });
-      return { metricas, expediente: dados.expediente };
+      // Os mesmos dados alimentam o "Baixar relatório" (Excel).
+      const relatorio = { ...dados, perfis, categorias, expediente };
+      return { metricas, expediente: dados.expediente, relatorio };
     },
     [inicio, fim],
   );
@@ -246,12 +250,23 @@ export function PainelDashboard({ chave, de, ate }: { chave?: string; de?: strin
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-texto-suave">
-          De {ddmmaaaa(periodo.de)} a {ddmmaaaa(periodo.ate)} · tempos em horas úteis
-          {expediente ? ` (seg–sex, ${expediente})` : ""}
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-bold">Dashboard</h1>
+          <p className="text-texto-suave">
+            De {ddmmaaaa(periodo.de)} a {ddmmaaaa(periodo.ate)} · tempos em horas úteis
+            {expediente ? ` (seg–sex, ${expediente})` : ""}
+          </p>
+        </div>
+        {dados ? (
+          <BotaoRelatorio
+            entrada={dados.relatorio}
+            metricas={dados.metricas}
+            de={periodo.de}
+            ate={periodo.ate}
+            periodoTexto={`${ddmmaaaa(periodo.de)} a ${ddmmaaaa(periodo.ate)}`}
+          />
+        ) : null}
       </div>
       <SeletorPeriodo key={`${periodo.chave}-${periodo.de}-${periodo.ate}`} periodo={periodo} />
 
