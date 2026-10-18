@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-18 | Pendências revisadas: P-002, P-032 e P-035 resolvidas; P-045 reescrita (bot já funciona, falta publicar para todos); nova **P-046** (plano Free sem backup e com pausa — risco antes do go-live). |
 | 2026-10-17 | **Lista de sistemas em grade com busca**: com 7+ opções, botões compactos em 2 colunas (celular) / 3 (computador); com 13+, campo "Digite para buscar…" (sem acento, a opção escolhida não some); o módulo continua abrindo como galho logo abaixo. **Até 5 arquivos por envio** (abertura e cada mensagem; prints colados contam): aviso no site, conferência na API e no modo de demonstração; erro novo `ANEXOS_DEMAIS` nos dois catálogos e em `docs/erros.md`; rótulo "(opcional, até 5)". |
 | 2026-10-16 | Módulo do Sienge/CVCRM abre como **ramificação** logo abaixo do sistema escolhido (recuado, com linha azul), não mais como pergunta separada depois da lista; trocar de sistema esconde o galho. |
 | 2026-10-16 | **Módulos do Sienge e do CVCRM**: ao escolher o sistema, aparece "Qual módulo do Sienge/CVCRM?" (obrigatório, com "Não sei" no fim). Formulário ganhou **pergunta que só aparece se…** (`campos_form.mostrar_se`, migration 0031 + pgTAP 017; validação na API e no site ignora a pergunta escondida). Quadro mostra "■ Sienge · Financeiro" ("Não sei" não aparece). |
