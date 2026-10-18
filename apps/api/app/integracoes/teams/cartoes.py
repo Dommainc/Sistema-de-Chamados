@@ -258,3 +258,146 @@ def resposta_automatica(
             }
         ],
     }
+
+
+# ------------------------------------------------------------------ resumo mensal (migration 0032)
+MESES = (
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+)
+
+
+def _nome_mes(ano_mes: str) -> str:
+    """'2026-10' → 'outubro de 2026'."""
+    ano, mes = ano_mes.split("-")
+    return f"{MESES[int(mes) - 1]} de {ano}"
+
+
+def _mes_anterior(ano_mes: str) -> str:
+    ano, mes = (int(x) for x in ano_mes.split("-"))
+    return f"{ano - 1}-12" if mes == 1 else f"{ano}-{mes - 1:02d}"
+
+
+def _horas(valor: object) -> str:
+    """Horas úteis como no Dashboard: 1,5 → '1 h 30 min'; 0,4 → '24 min'; vazio → '—'."""
+    if valor is None:
+        return "—"
+    minutos = round(float(str(valor)) * 60)
+    h, m = divmod(minutos, 60)
+    if h == 0:
+        return f"{m} min"
+    return f"{h} h" + (f" {m} min" if m else "")
+
+
+def _porcento(dentro: object, total: object) -> str:
+    d, t = int(str(dentro or 0)), int(str(total or 0))
+    return f"{round(d * 100 / t)}% ({d} de {t})" if t else "—"
+
+
+def _nota(media: object, quantidade: object) -> str:
+    if media is None:
+        return "—"
+    return f"{float(str(media)):.1f}".replace(".", ",") + f" ({int(str(quantidade or 0))})"
+
+
+def linhas_resumo(n: dict[str, Any]) -> list[tuple[str, str]]:
+    """Indicador → valor, na ordem do cartão."""
+    return [
+        ("Chamados abertos", str(n.get("abertos", 0))),
+        ("Concluídos", str(n.get("concluidos", 0))),
+        ("Cancelados", str(n.get("cancelados", 0))),
+        ("Em aberto no fim do mês", str(n.get("em_aberto_no_fim", 0))),
+        ("Tempo médio até iniciar", _horas(n.get("horas_ate_iniciar"))),
+        ("Tempo médio até concluir", _horas(n.get("horas_ate_concluir"))),
+        ("Concluídos no prazo", _porcento(n.get("no_prazo"), n.get("com_prazo"))),
+        ("Satisfação média (avaliações)", _nota(n.get("nota_media"), n.get("avaliacoes"))),
+    ]
+
+
+def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
+    """Cartão do resumo mensal: tabela Indicador | mês | mês anterior, e o botão para o Dashboard."""
+    mes = str(payload.get("mes", ""))
+    atual = linhas_resumo(payload.get("atual") or {})
+    anterior = dict(linhas_resumo(payload.get("anterior") or {}))
+    nome_atual = _nome_mes(mes) if mes else ""
+    nome_anterior = _nome_mes(_mes_anterior(mes)).split(" de ")[0] if mes else ""
+
+    def linha(textos: list[str], negrito: bool = False) -> dict[str, Any]:
+        return {
+            "type": "ColumnSet",
+            "spacing": "Small",
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": largura,
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "text": t,
+                            "wrap": True,
+                            "weight": "Bolder" if negrito else "Default",
+                            "horizontalAlignment": "Left" if i == 0 else "Right",
+                        }
+                    ],
+                }
+                for i, (t, largura) in enumerate(
+                    zip(textos, ("stretch", "auto", "auto"), strict=True)
+                )
+            ],
+        }
+
+    corpo: list[dict[str, Any]] = [
+        {
+            "type": "TextBlock",
+            "text": f"Resumo da TI · {nome_atual}",
+            "weight": "Bolder",
+            "size": "Medium",
+            "wrap": True,
+        },
+        {
+            "type": "TextBlock",
+            "text": "Tempos em horas úteis (seg–sex, no expediente).",
+            "isSubtle": True,
+            "spacing": "None",
+            "wrap": True,
+        },
+        linha(
+            ["", nome_atual.split(" de ")[0].capitalize(), nome_anterior.capitalize()], negrito=True
+        ),
+        *[linha([rotulo, valor, anterior.get(rotulo, "—")]) for rotulo, valor in atual],
+    ]
+    resumo = (
+        f"Resumo da TI de {nome_atual}: {atual[0][1]} chamados abertos, {atual[1][1]} concluídos."
+    )
+    return {
+        "type": "message",
+        "summary": resumo,
+        "attachments": [
+            {
+                "contentType": "application/vnd.microsoft.card.adaptive",
+                "content": {
+                    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                    "type": "AdaptiveCard",
+                    "version": "1.4",
+                    "body": corpo,
+                    "actions": [
+                        {
+                            "type": "Action.OpenUrl",
+                            "title": "Abrir o Dashboard do mês",
+                            "url": f"{central}/atendimento/dashboard?periodo=mes_passado",
+                        }
+                    ],
+                },
+            }
+        ],
+    }

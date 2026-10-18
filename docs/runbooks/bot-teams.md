@@ -95,3 +95,18 @@ Gera `apps/bot-teams/dist/central-chamados-teams.zip`.
 ## Atualizar o app (nova versão do pacote)
 Aumentar `"version"` em `apps/bot-teams/gerar_pacote.py`, gerar de novo e, no admin do Teams, abrir o app →
 **Carregar arquivo** com o .zip novo.
+
+## Resumo mensal da TI (migration 0032)
+No **1º dia útil do mês, às 8h**, o bot manda no Teams um cartão com os números do mês anterior (abertos,
+concluídos, cancelados, em aberto no fim do mês, tempos até iniciar e concluir, % no prazo, satisfação),
+lado a lado com o mês antes dele, e o botão **Abrir o Dashboard do mês**.
+
+Quem recebe: e-mails em `configuracoes.resumo_mensal_para`. A pessoa precisa ter o app instalado no Teams.
+```sql
+-- ver
+select valor from public.configuracoes where chave = 'resumo_mensal_para';
+-- trocar (lista de e-mails)
+update public.configuracoes set valor = '["fulano@dommainc.com.br", "ciclano@dommainc.com.br"]'::jsonb
+ where chave = 'resumo_mensal_para';
+```
+

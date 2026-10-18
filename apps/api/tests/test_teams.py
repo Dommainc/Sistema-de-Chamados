@@ -268,3 +268,46 @@ def test_token_do_bot_no_diretorio_certo(multilocatario, diretorio):
     assert conector._url_token == (
         f"https://login.microsoftonline.com/{diretorio}/oauth2/v2.0/token"
     )
+
+
+# ------------------------------------------------------------------ resumo mensal
+def test_cartao_do_resumo_mensal_compara_com_o_mes_anterior():
+    from app.integracoes.teams.cartoes import cartao_resumo, linhas_resumo
+
+    atual = {
+        "abertos": 120,
+        "concluidos": 110,
+        "cancelados": 4,
+        "em_aberto_no_fim": 9,
+        "horas_ate_iniciar": 1.5,
+        "horas_ate_concluir": 16,
+        "no_prazo": 70,
+        "com_prazo": 90,
+        "nota_media": 4.6,
+        "avaliacoes": 40,
+    }
+    linhas = dict(linhas_resumo(atual))
+    assert linhas["Tempo médio até iniciar"] == "1 h 30 min"
+    assert linhas["Tempo médio até concluir"] == "16 h"
+    assert linhas["Concluídos no prazo"] == "78% (70 de 90)"
+    assert linhas["Satisfação média (avaliações)"] == "4,6 (40)"
+    assert dict(linhas_resumo({}))["Tempo médio até iniciar"] == "—"
+
+    atividade = cartao_resumo(
+        {"mes": "2026-10", "atual": atual, "anterior": {"abertos": 100}}, "https://c"
+    )
+    card = atividade["attachments"][0]["content"]
+    assert card["body"][0]["text"] == "Resumo da TI · outubro de 2026"
+    cabecalho = [c["items"][0]["text"] for c in card["body"][2]["columns"]]
+    assert cabecalho == ["", "Outubro", "Setembro"]
+    abertos = [c["items"][0]["text"] for c in card["body"][3]["columns"]]
+    assert abertos == ["Chamados abertos", "120", "100"]
+    assert card["actions"][0]["url"] == "https://c/atendimento/dashboard?periodo=mes_passado"
+
+
+def test_resumo_de_janeiro_compara_com_dezembro():
+    from app.integracoes.teams.cartoes import cartao_resumo
+
+    card = cartao_resumo({"mes": "2027-01", "atual": {}, "anterior": {}}, "https://c")
+    cabecalho = card["attachments"][0]["content"]["body"][2]["columns"]
+    assert [c["items"][0]["text"] for c in cabecalho][1:] == ["Janeiro", "Dezembro"]

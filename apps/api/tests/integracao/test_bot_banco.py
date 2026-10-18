@@ -263,3 +263,18 @@ def test_boas_vindas_so_na_primeira_instalacao():
     import asyncio
 
     asyncio.run(limpar())
+
+
+async def test_resumo_mensal_vai_para_o_teams_sem_chamado(conn):
+    await guardar_conversa_da_ana(conn)
+    aviso = await conn.fetchval(
+        """insert into public.notificacoes (chamado_id, destinatario_id, tipo, payload)
+           values (null, $1, 'resumo_mensal', $2::jsonb) returning id""",
+        ANA,
+        '{"mes": "2026-09", "atual": {"abertos": 3}, "anterior": {"abertos": 1}}',
+    )
+    teams = TeamsDeMentira()
+    linha = await processar_ate_sair_da_fila(conn, teams, aviso)
+    assert linha["status"] == "enviada"
+    card = next(a for c, a in teams.enviadas if c == "a:conversa-ana")["attachments"][0]["content"]
+    assert card["body"][0]["text"] == "Resumo da TI · setembro de 2026"

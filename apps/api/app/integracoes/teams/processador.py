@@ -16,7 +16,7 @@ from typing import Any
 
 import asyncpg
 
-from app.integracoes.teams.cartoes import DadosAviso, cartao
+from app.integracoes.teams.cartoes import DadosAviso, cartao, cartao_resumo
 from app.integracoes.teams.conector import Conector, ErroTeams
 
 log = logging.getLogger(__name__)
@@ -51,9 +51,9 @@ select n.id, n.tipo, n.payload, n.tentativas, n.chamado_id, n.destinatario_id,
        (select t.motivo from public.transferencias t
          where t.chamado_id = c.id order by t.criado_em desc limit 1) as motivo_transferencia
   from public.notificacoes n
-  join public.chamados c on c.id = n.chamado_id
+  left join public.chamados c on c.id = n.chamado_id
   join public.profiles dest on dest.id = n.destinatario_id
-  join public.profiles sol on sol.id = c.solicitante_id
+  left join public.profiles sol on sol.id = c.solicitante_id
   left join public.profiles resp on resp.id = c.responsavel_id
   left join lateral (
     select x.teams_user_id, x.conversation_id, x.service_url
@@ -111,13 +111,18 @@ async def processar(conn: asyncpg.Connection, conector: Conector, central: str) 
                 resultado.falharam += 1
                 continue
 
-            link = f"{central.rstrip('/')}/chamados/{linha['chamado_id']}"
-            try:
-                await conector.enviar(
-                    linha["service_url"],
-                    linha["conversation_id"],
-                    cartao(dados_do_aviso(linha), link),
+            if linha["tipo"] == "resumo_mensal":
+                # Resumo do mês para o gestor (migration 0032): não é de um chamado.
+                payload = linha["payload"]
+                atividade = cartao_resumo(
+                    json.loads(payload) if isinstance(payload, str) else payload,
+                    central.rstrip("/"),
                 )
+            else:
+                link = f"{central.rstrip('/')}/chamados/{linha['chamado_id']}"
+                atividade = cartao(dados_do_aviso(linha), link)
+            try:
+                await conector.enviar(linha["service_url"], linha["conversation_id"], atividade)
             except ErroTeams as erro:
                 tentativas = linha["tentativas"] + 1
                 if tentativas >= MAX_TENTATIVAS:
@@ -145,7 +150,7 @@ async def processar(conn: asyncpg.Connection, conector: Conector, central: str) 
             )
             await conn.execute(
                 """update public.teams_conversas
-                      set ultimo_chamado_notificado = $2,
+                      set ultimo_chamado_notificado = coalesce($2, ultimo_chamado_notificado),
                           profile_id = coalesce(profile_id, case
                             when exists (select 1 from public.teams_conversas o where o.profile_id = $3)
                             then null else $3 end)
