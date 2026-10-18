@@ -130,7 +130,12 @@ class RepositorioMemoria:
 
     # --------------------------------------------------------------------------------- gravações
     async def inserir_chamado(
-        self, titulo: str, categoria_id: int, solicitante_id: str, respostas: dict[str, Any]
+        self,
+        titulo: str,
+        categoria_id: int,
+        solicitante_id: str,
+        respostas: dict[str, Any],
+        continuacao_de: int | None = None,
     ) -> ChamadoLinha:
         categoria = self._e.categorias[categoria_id]
         agora = self._e.agora()
@@ -147,6 +152,7 @@ class RepositorioMemoria:
             criado_em=agora,
             atualizado_em=agora,
             respostas_form=dict(respostas),
+            continuacao_de=continuacao_de,
         )
         self._e.chamados[chamado.id] = chamado
         return chamado

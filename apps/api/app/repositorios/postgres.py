@@ -33,7 +33,7 @@ _COLUNAS_CHAMADO = """
     id, titulo, categoria_id, area_id, solicitante_id, responsavel_id, status::text as status,
     prioridade::text as prioridade,
     prazo_sla, criado_em, atualizado_em, concluido_em, cancelado_em, motivo_cancelamento,
-    respostas_form
+    respostas_form, continuacao_de
 """
 
 
@@ -55,6 +55,7 @@ def _chamado(linha: asyncpg.Record) -> ChamadoLinha:
         cancelado_em=linha["cancelado_em"],
         motivo_cancelamento=linha["motivo_cancelamento"],
         respostas_form=json.loads(respostas) if isinstance(respostas, str) else dict(respostas),
+        continuacao_de=linha["continuacao_de"],
     )
 
 
@@ -179,20 +180,27 @@ class RepositorioPostgres:
 
     # ------------------------------------------------------------------ gravações (central_api)
     async def inserir_chamado(
-        self, titulo: str, categoria_id: int, solicitante_id: str, respostas: dict[str, Any]
+        self,
+        titulo: str,
+        categoria_id: int,
+        solicitante_id: str,
+        respostas: dict[str, Any],
+        continuacao_de: int | None = None,
     ) -> ChamadoLinha:
         await self._t.como_api()
         # Área e datas vêm do trigger app.chamados_antes_inserir; o prazo nasce vazio (ADR 0009).
         linha = await self._c.fetchrow(
             f"""
-            insert into public.chamados (titulo, categoria_id, solicitante_id, respostas_form)
-            values ($1, $2, $3::uuid, $4::jsonb)
+            insert into public.chamados
+              (titulo, categoria_id, solicitante_id, respostas_form, continuacao_de)
+            values ($1, $2, $3::uuid, $4::jsonb, $5)
             returning {_COLUNAS_CHAMADO}
             """,
             titulo,
             categoria_id,
             solicitante_id,
             json.dumps(respostas),
+            continuacao_de,
         )
         return _chamado(linha)
 

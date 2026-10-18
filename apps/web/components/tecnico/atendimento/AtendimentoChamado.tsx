@@ -16,6 +16,7 @@ import { formatarNumeroChamado } from "@/lib/formato";
 import { useAcaoChamado } from "../useAcaoChamado";
 import { CabecalhoChamado } from "./CabecalhoChamado";
 import { CartaoHistorico, Secao } from "./Cartoes";
+import { OutrosChamados } from "./OutrosChamados";
 import { ModalAcao, type AcaoComModal } from "./ModalAcao";
 import { ModalPrazo } from "./ModalPrazo";
 import { RelatoTecnico } from "./RelatoTecnico";
@@ -178,6 +179,13 @@ export function AtendimentoChamado({ id }: { id: number }) {
             <Secao titulo="Pedido">
               <DetalhesPedido chamado={chamado} resumo />
             </Secao>
+          </div>
+          <div className={aba === "historico" ? "hidden lg:block" : ""}>
+            <OutrosChamados
+              chamadoId={chamado.id}
+              solicitanteId={chamado.solicitanteId}
+              nome={solicitante?.nome ?? "solicitante"}
+            />
           </div>
           {extras ? (
             <div className={aba === "detalhes" ? "hidden lg:block" : ""}>

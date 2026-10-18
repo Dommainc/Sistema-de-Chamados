@@ -180,3 +180,46 @@ describe("contadores e avisos de mudança", () => {
     expect(avisos).toBe(1);
   });
 });
+
+describe('"O problema voltou" e outros chamados do solicitante (migration 0033)', () => {
+  it("abre um chamado novo ligado ao concluído da própria pessoa", async () => {
+    const ana = criarFonteSimulada(ANA.id);
+    const anterior = await ana.obterChamado(35);
+    expect(anterior.status).toBe("concluido");
+    const campos = await ana.listarCamposForm(anterior.categoriaId);
+    const respostas = Object.fromEntries(
+      campos
+        .filter((c) => c.obrigatorio)
+        .map((c) => [c.chave, c.opcoes[0] ?? "Voltou a acontecer"]),
+    );
+    const { id } = await ana.criarChamado({
+      categoriaId: anterior.categoriaId,
+      titulo: "O problema voltou: notebook lento",
+      respostas,
+      anexos: [],
+      continuacaoDe: 35,
+    });
+    expect((await ana.obterChamado(id)).continuacaoDe).toBe(35);
+  });
+
+  it("não continua chamado aberto nem de outra pessoa", async () => {
+    const ana = criarFonteSimulada(ANA.id);
+    await expect(
+      ana.criarChamado({
+        categoriaId: 4,
+        titulo: "Voltou",
+        respostas: {},
+        anexos: [],
+        continuacaoDe: 41,
+      }),
+    ).rejects.toMatchObject({ codigo: "SEM_PERMISSAO" });
+  });
+
+  it("a TI vê os últimos chamados do solicitante, sem o atual", async () => {
+    const ti = criarFonteSimulada(TECNICO.id);
+    const outros = await ti.listarChamadosDoSolicitante(ANA.id, 41);
+    expect(outros.length).toBeGreaterThan(0);
+    expect(outros.every((c) => c.solicitanteId === ANA.id && c.id !== 41)).toBe(true);
+    expect(await criarFonteSimulada(ANA.id).listarChamadosDoSolicitante(ANA.id, 41)).toEqual([]);
+  });
+});

@@ -45,6 +45,8 @@ class NovoChamadoEntrada(BaseModel):
     titulo: str = Field(default="", description='"Resumo do problema"')
     respostas: dict[str, Any] = Field(default_factory=dict, description="Por campos_form.chave")
     anexos: list[UploadEntrada] = Field(default_factory=list, max_length=20)
+    #: "O problema voltou": número do chamado concluído que este continua (migration 0033).
+    continuacao_de: int | None = None
 
 
 class ChamadoSaida(BaseModel):
@@ -168,6 +170,7 @@ async def abrir_chamado(
             dados.titulo,
             dados.respostas,
             [a.para_servico() for a in dados.anexos],
+            dados.continuacao_de,
         )
     return ChamadoSaida.de(chamado)
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { WifiOff } from "lucide-react";
+import { RotateCcw, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ArquivoSelecionado } from "@/components/abertura/rascunho";
@@ -195,8 +195,20 @@ export function ChatChamado({
               </div>
             ) : null}
             <p className="font-semibold">Este chamado foi encerrado.</p>
+            {dados.chamado.status === "concluido" && dados.chamado.solicitanteId === usuario.id ? (
+              // "O problema voltou" (migration 0033): chamado novo do mesmo assunto, já ligado a este.
+              <Link
+                href={comReferente(
+                  caminhosAbertura(usuario.papel).formulario(dados.chamado.categoriaId),
+                  dados.chamado.id,
+                )}
+                className="my-1 inline-flex min-h-11 items-center gap-2 rounded-xl bg-primaria px-4 font-semibold text-sobre-primaria hover:bg-primaria-forte"
+              >
+                <RotateCcw aria-hidden="true" className="size-4" /> O problema voltou
+              </Link>
+            ) : null}
             <p className="text-texto-suave">
-              O problema voltou ou precisa de algo?{" "}
+              Precisa de outra coisa?{" "}
               <Link href={novoPedido} className="font-semibold text-primaria underline">
                 Abrir novo chamado
               </Link>

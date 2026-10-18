@@ -459,3 +459,36 @@ def test_no_maximo_5_arquivos_por_envio(cliente, como, storage):
         },
     )
     assert codigo(resposta) == "ANEXOS_DEMAIS"
+
+
+# ---------------------------------------------------------------------------- "o problema voltou"
+def _abrir(cliente, como, quem, **extra):
+    return cliente.post(
+        "/chamados",
+        headers=como(quem),
+        json={
+            "categoria_id": OUTROS,
+            "titulo": "Voltou a falhar",
+            "respostas": {"descricao": "x"},
+            **extra,
+        },
+    )
+
+
+def test_problema_voltou_liga_ao_chamado_concluido(cliente, como, estado):
+    concluido = next(
+        c for c in estado.chamados.values() if c.solicitante_id == ANA and c.status == "concluido"
+    )
+    resposta = _abrir(cliente, como, ANA, continuacao_de=concluido.id)
+    assert resposta.status_code == 201
+    novo = estado.chamados[resposta.json()["id"]]
+    assert novo.continuacao_de == concluido.id
+
+
+def test_problema_voltou_so_do_proprio_chamado_concluido(cliente, como, estado):
+    aberto = next(
+        c for c in estado.chamados.values() if c.solicitante_id == ANA and c.status != "concluido"
+    )
+    assert codigo(_abrir(cliente, como, ANA, continuacao_de=aberto.id)) == "SEM_PERMISSAO"
+    do_bruno = next(c for c in estado.chamados.values() if c.solicitante_id == BRUNO)
+    assert codigo(_abrir(cliente, como, ANA, continuacao_de=do_bruno.id)) == "SEM_PERMISSAO"

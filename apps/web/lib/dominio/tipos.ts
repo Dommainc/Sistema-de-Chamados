@@ -137,6 +137,8 @@ export interface Chamado {
   concluidoEm: string | null;
   canceladoEm: string | null;
   motivoCancelamento: string | null;
+  /** "O problema voltou" (migration 0033): chamado concluído que este continua. */
+  continuacaoDe?: number | null;
 }
 
 export type OrigemAnexo = "upload" | "colado";

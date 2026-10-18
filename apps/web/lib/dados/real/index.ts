@@ -131,7 +131,7 @@ export function criarFonteReal(
     const linha = ler(
       await supabase
         .from("chamados")
-        .select(COLUNAS_CHAMADO)
+        .select(`${COLUNAS_CHAMADO}, continuacao_de`)
         .eq("id", id)
         .maybeSingle<LinhaChamado>(),
     );
@@ -239,6 +239,21 @@ export function criarFonteReal(
       return (campo?.opcoes ?? []).map((nome) => ({ nome, cor: campo?.cores?.[nome] ?? null }));
     },
 
+    async listarChamadosDoSolicitante(solicitanteId, excetoId) {
+      if (usuario.papel !== "ti") return [];
+      const linhas = ler(
+        await supabase
+          .from("chamados")
+          .select(COLUNAS_CHAMADO)
+          .eq("solicitante_id", solicitanteId)
+          .neq("id", excetoId)
+          .order("criado_em", { ascending: false })
+          .limit(5)
+          .returns<LinhaChamado[]>(),
+      );
+      return linhas.map(chamadoDaLinha);
+    },
+
     async listarDadosMetricas(inicio, fim): Promise<DadosMetricas> {
       if (usuario.papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
       const chamados = ler(
@@ -344,6 +359,7 @@ export function criarFonteReal(
           titulo: dados.titulo,
           respostas: dados.respostas,
           anexos,
+          continuacao_de: dados.continuacaoDe ?? null,
         },
       });
       avisar();

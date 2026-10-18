@@ -161,8 +161,16 @@ async def abrir_chamado(
     titulo: str,
     respostas: dict[str, object],
     uploads: list[UploadInformado],
+    continuacao_de: int | None = None,
 ) -> ChamadoLinha:
     eu = await _eu(repo)
+    if continuacao_de is not None:
+        # "O problema voltou" (migration 0033): só de um chamado CONCLUÍDO da própria pessoa.
+        anterior = await _chamado_visivel(repo, eu, continuacao_de)
+        if anterior.solicitante_id != eu.id or anterior.status != "concluido":
+            raise ErroApp(
+                "SEM_PERMISSAO", detalhe=f"continuação do #{continuacao_de} não permitida"
+            )
     categoria = await repo.obter_categoria_ativa(categoria_id)
     if categoria is None:
         raise ErroApp("ERRO_INESPERADO", detalhe=f"categoria {categoria_id} inativa ou inexistente")
@@ -170,11 +178,21 @@ async def abrir_chamado(
     confirmados = await _confirmar_uploads(storage, eu, uploads)
 
     chamado = await repo.inserir_chamado(
-        formulario.titulo, categoria_id, eu.id, dict(formulario.respostas)
+        formulario.titulo, categoria_id, eu.id, dict(formulario.respostas), continuacao_de
     )
     await _guardar_anexos(repo, storage, eu, chamado.id, None, confirmados)
     await repo.inserir_eventos(
-        [NovoEvento(chamado.id, eu.id, "criado", None, "pendente", {}, True)]
+        [
+            NovoEvento(
+                chamado.id,
+                eu.id,
+                "criado",
+                None,
+                "pendente",
+                {"continuacao_de": continuacao_de} if continuacao_de else {},
+                True,
+            )
+        ]
     )
     # Avisos: o solicitante e cada técnico ativo (docs/escopo.md 7.5).
     destinatarios = dict.fromkeys([eu.id, *await repo.listar_tecnicos_ativos()])

@@ -96,6 +96,8 @@ export interface DadosNovoChamado {
   /** Respostas brutas do formulário, por campos_form.chave (validadas na criação). */
   respostas: Record<string, unknown>;
   anexos: ArquivoNovo[];
+  /** "O problema voltou": número do chamado CONCLUÍDO da própria pessoa que este continua. */
+  continuacaoDe?: number;
 }
 
 /** Linha do quadro da TI (view `chamados_quadro`, migration 0020): o chamado + o que o cartão precisa. */
@@ -149,6 +151,8 @@ export interface FonteDeDados {
    * entre `inicio` (inclusive) e `fim` (exclusivo), com o histórico deles. Solicitante: SEM_PERMISSAO.
    */
   listarDadosMetricas(inicio: string, fim: string): Promise<DadosMetricas>;
+  /** Só TI: os últimos chamados de um solicitante, sem o atual (painel "Outros chamados de..."). */
+  listarChamadosDoSolicitante(solicitanteId: string, excetoId: number): Promise<Chamado[]>;
 
   /**
    * POST /chamados/{id}/avaliacao (ADR 0015): o solicitante avalia o próprio chamado CONCLUÍDO, uma vez.

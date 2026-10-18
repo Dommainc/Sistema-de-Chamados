@@ -210,6 +210,14 @@ export function CabecalhoChamado({
             <h1 className="text-xl font-bold lg:text-2xl">{chamado.titulo}</h1>
             <BadgeStatus status={chamado.status} papel="ti" tamanho="pequeno" />
           </div>
+          {chamado.continuacaoDe ? (
+            <Link
+              href={`/atendimento/${chamado.continuacaoDe}`}
+              className="self-start text-sm font-semibold text-primaria underline"
+            >
+              ↻ O problema voltou · continuação do {formatarNumeroChamado(chamado.continuacaoDe)}
+            </Link>
+          ) : null}
         </div>
         <AcoesCabecalho
           chamado={chamado}

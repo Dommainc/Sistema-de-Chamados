@@ -296,6 +296,14 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
   return {
     modo: "simulada",
 
+    async listarChamadosDoSolicitante(solicitanteId: string, excetoId: number) {
+      if (eu().papel !== "ti") return [];
+      return visiveis()
+        .filter((c) => c.solicitanteId === solicitanteId && c.id !== excetoId)
+        .sort((a, b) => b.criadoEm.localeCompare(a.criadoEm))
+        .slice(0, 5);
+    },
+
     async obterMeuPerfil() {
       return { ...eu() };
     },
@@ -462,10 +470,17 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
 
     async criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado> {
       const perfil = eu();
+      // "O problema voltou" (migration 0033): só de um chamado concluído da própria pessoa.
+      if (dados.continuacaoDe !== undefined) {
+        const anterior = visiveis().find((c) => c.id === dados.continuacaoDe);
+        if (!anterior || anterior.solicitanteId !== perfil.id || anterior.status !== "concluido") {
+          throw new ErroApp("SEM_PERMISSAO");
+        }
+      }
+
       const categoria = categoriaAtiva(dados.categoriaId);
       const campos = CAMPOS_FORM.filter((c) => c.categoriaId === categoria.id);
       const { titulo, respostas } = validarFormulario(campos, dados.titulo, dados.respostas);
-      validarQuantidade(dados.anexos.length);
       validarQuantidade(dados.anexos.length);
       dados.anexos.forEach(validarArquivo);
 
@@ -489,6 +504,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         concluidoEm: null,
         canceladoEm: null,
         motivoCancelamento: null,
+        continuacaoDe: dados.continuacaoDe ?? null,
       };
 
       // Na API real: chamado + anexos + historico + notificacoes numa única transação.
@@ -638,6 +654,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
           { campos: [{ campo: "conteudo", mensagem }] },
         );
       }
+      validarQuantidade(dados.anexos.length);
       dados.anexos.forEach(validarArquivo);
 
       // Resposta do solicitante em "aguardando_usuario" volta o chamado para "em_andamento".

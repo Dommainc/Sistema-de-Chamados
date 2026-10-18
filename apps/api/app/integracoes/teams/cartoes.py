@@ -324,6 +324,11 @@ def linhas_resumo(n: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
+#: Colunas do resumo: indicador ocupa o resto; cada mês tem largura fixa, para os números ficarem
+#: centralizados embaixo do nome do mês em todas as linhas.
+LARGURAS_RESUMO = ("stretch", "96px", "96px")
+
+
 def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
     """Cartão do resumo mensal: tabela Indicador | mês | mês anterior, e o botão para o Dashboard."""
     mes = str(payload.get("mes", ""))
@@ -346,13 +351,11 @@ def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
                             "text": t,
                             "wrap": True,
                             "weight": "Bolder" if negrito else "Default",
-                            "horizontalAlignment": "Left" if i == 0 else "Right",
+                            "horizontalAlignment": "Left" if i == 0 else "Center",
                         }
                     ],
                 }
-                for i, (t, largura) in enumerate(
-                    zip(textos, ("stretch", "auto", "auto"), strict=True)
-                )
+                for i, (t, largura) in enumerate(zip(textos, LARGURAS_RESUMO, strict=True))
             ],
         }
 

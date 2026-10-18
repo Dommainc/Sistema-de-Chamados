@@ -54,6 +54,8 @@ class ChamadoLinha:
     cancelado_em: datetime | None = None
     motivo_cancelamento: str | None = None
     respostas_form: dict[str, Any] = field(default_factory=dict)
+    #: "O problema voltou" (migration 0033): chamado concluído que este continua.
+    continuacao_de: int | None = None
 
 
 @dataclass(frozen=True)
@@ -156,7 +158,12 @@ class Repositorio(Protocol):
 
     # ---------------------------------------------------------------- gravações (como central_api)
     async def inserir_chamado(
-        self, titulo: str, categoria_id: int, solicitante_id: str, respostas: dict[str, Any]
+        self,
+        titulo: str,
+        categoria_id: int,
+        solicitante_id: str,
+        respostas: dict[str, Any],
+        continuacao_de: int | None = None,
     ) -> ChamadoLinha: ...
 
     async def atualizar_chamado(

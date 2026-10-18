@@ -10,7 +10,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useDados, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
 import { CHAVE_TITULO, ROTULO_TITULO, TITULO_MAX, campoVisivel } from "@/lib/dominio/formulario";
-import type { CampoForm, Categoria } from "@/lib/dominio/tipos";
+import type { CampoForm, Categoria, Chamado } from "@/lib/dominio/tipos";
 import { ErroApp } from "@/lib/erros/catalogo";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { caminhosAbertura, comReferente, type CaminhosAbertura } from "@/lib/rotas";
@@ -27,7 +27,8 @@ export function FormularioChamado({
   categoriaId: number;
   referente: number | null;
 }) {
-  const caminhos = caminhosAbertura(useUsuario().papel);
+  const usuario = useUsuario();
+  const caminhos = caminhosAbertura(usuario.papel);
   const consultar = useCallback(
     async (fonte: FonteDeDados) => {
       const [categorias, campos] = await Promise.all([
@@ -35,9 +36,11 @@ export function FormularioChamado({
         fonte.listarCamposForm(categoriaId),
       ]);
       const categoria = categorias.find((c) => c.id === categoriaId) ?? null;
-      return { categoria, campos };
+      // Novo pedido a partir de um chamado encerrado: se for o mesmo assunto, vira "O problema voltou".
+      const anterior = referente ? await fonte.obterChamado(referente).catch(() => null) : null;
+      return { categoria, campos, anterior };
     },
-    [categoriaId],
+    [categoriaId, referente],
   );
   const { dados, carregando, erro } = useConsulta(consultar);
   const voltar = comReferente(caminhos.inicio, referente);
@@ -60,13 +63,35 @@ export function FormularioChamado({
       campos={dados.campos}
       caminhos={caminhos}
       referente={referente}
+      anterior={continuavel(dados.anterior, categoriaId, usuario.id)}
       voltar={voltar}
     />
   );
 }
 
-function rascunhoInicial(referente: number | null): RascunhoTexto {
+/** Só continua (migration 0033) um chamado concluído, da própria pessoa e do mesmo assunto. */
+function continuavel(anterior: Chamado | null, categoriaId: number, euId: string): Chamado | null {
+  return anterior &&
+    anterior.status === "concluido" &&
+    anterior.solicitanteId === euId &&
+    anterior.categoriaId === categoriaId
+    ? anterior
+    : null;
+}
+
+function rascunhoInicial(referente: number | null, anterior: Chamado | null): RascunhoTexto {
   const r = lerRascunho();
+  if (anterior && !r.titulo) {
+    // Já vem com o assunto e as respostas do anterior (sistema, módulo...); a descrição é nova.
+    const respostas = Object.fromEntries(
+      Object.entries(anterior.respostasForm).filter(([chave]) => chave !== "descricao"),
+    );
+    return {
+      ...r,
+      titulo: `O problema voltou: ${anterior.titulo}`.slice(0, TITULO_MAX),
+      respostas: { ...respostas, ...r.respostas },
+    };
+  }
   if (referente && !r.titulo) {
     return { ...r, titulo: `Referente ao chamado ${formatarNumeroChamado(referente)}: ` };
   }
@@ -78,18 +103,22 @@ function FormularioCarregado({
   campos,
   caminhos,
   referente,
+  anterior,
   voltar,
 }: {
   categoria: Categoria;
   campos: CampoForm[];
   caminhos: CaminhosAbertura;
   referente: number | null;
+  anterior: Chamado | null;
   voltar: string;
 }) {
   const router = useRouter();
   const fonte = useDados();
   const { mostrarErro } = useToast();
-  const [rascunho, setRascunho] = useState<RascunhoTexto>(() => rascunhoInicial(referente));
+  const [rascunho, setRascunho] = useState<RascunhoTexto>(() =>
+    rascunhoInicial(referente, anterior),
+  );
   const [erros, setErros] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
   const { arquivos, adicionar, remover } = useArquivosSelecionados();
@@ -115,6 +144,7 @@ function FormularioCarregado({
         categoriaId: categoria.id,
         titulo: rascunho.titulo,
         respostas: rascunho.respostas,
+        continuacaoDe: anterior?.id,
         anexos: arquivos.map(({ arquivo, nome, mime, tamanho, origem }) => ({
           arquivo,
           nome,
@@ -171,6 +201,12 @@ function FormularioCarregado({
             </span>
           </div>
           <h1 className="text-2xl font-bold">Conte o que está acontecendo</h1>
+          {anterior ? (
+            <p className="-mt-3 rounded-xl border border-info bg-info-suave px-4 py-3 text-sm">
+              <strong>Continuação do chamado {formatarNumeroChamado(anterior.id)}</strong> ·{" "}
+              {anterior.titulo}. Conte o que voltou a acontecer: a TI vê o histórico do anterior.
+            </p>
+          ) : null}
 
           <Campo
             id="campo-titulo"

@@ -302,6 +302,9 @@ def test_cartao_do_resumo_mensal_compara_com_o_mes_anterior():
     assert cabecalho == ["", "Outubro", "Setembro"]
     abertos = [c["items"][0]["text"] for c in card["body"][3]["columns"]]
     assert abertos == ["Chamados abertos", "120", "100"]
+    # Mesma largura em todas as linhas: os números ficam embaixo do nome do mês.
+    larguras = {tuple(c["width"] for c in linha["columns"]) for linha in card["body"][2:]}
+    assert larguras == {("stretch", "96px", "96px")}
     assert card["actions"][0]["url"] == "https://c/atendimento/dashboard?periodo=mes_passado"
 
 

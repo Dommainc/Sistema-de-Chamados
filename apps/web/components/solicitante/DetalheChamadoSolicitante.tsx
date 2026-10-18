@@ -128,6 +128,14 @@ export function DetalheChamadoSolicitante({ id }: { id: number }) {
               Chamado {formatarNumeroChamado(chamado.id)}
             </p>
             <h1 className="text-2xl font-bold lg:text-3xl">{chamado.titulo}</h1>
+            {chamado.continuacaoDe ? (
+              <Link
+                href={`/meus-chamados/${chamado.continuacaoDe}`}
+                className="text-sm font-semibold text-primaria underline"
+              >
+                Continuação do chamado {formatarNumeroChamado(chamado.continuacaoDe)}
+              </Link>
+            ) : null}
           </div>
 
           <div className="lg:hidden">

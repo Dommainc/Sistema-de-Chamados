@@ -127,6 +127,21 @@ describe.runIf(ligado)("camada real contra o Supabase local e a API", () => {
     });
     expect(await rafael.fonte.obterAvaliacao(id)).toMatchObject({ nota: 5, comentario: "Rápido" });
 
+    // --- "O problema voltou" (migration 0033) e os outros chamados da Ana para a TI
+    const voltou = await ana.fonte.criarChamado({
+      categoriaId: outros.id,
+      titulo: "O problema voltou: teste da camada real",
+      respostas: { descricao: "Voltou a acontecer." },
+      anexos: [],
+      continuacaoDe: id,
+    });
+    expect((await rafael.fonte.obterChamado(voltou.id)).continuacaoDe).toBe(id);
+    const anteriores = await rafael.fonte.listarChamadosDoSolicitante(
+      (await ana.fonte.obterMeuPerfil()).id,
+      voltou.id,
+    );
+    expect(anteriores.map((c) => c.id)).toContain(id);
+
     // --- Histórico, encerrados e Dashboard
     const acoes = (await rafael.fonte.listarHistorico(id)).map((h) => h.acao);
     expect(acoes).toEqual(expect.arrayContaining(["criado", "assumido", "concluido", "avaliado"]));

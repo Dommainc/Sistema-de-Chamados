@@ -40,6 +40,8 @@ export interface LinhaChamado {
   concluido_em: string | null;
   cancelado_em: string | null;
   motivo_cancelamento: string | null;
+  /** Só em obterChamado (a view do quadro não tem esta coluna). */
+  continuacao_de?: number | null;
 }
 
 export function chamadoDaLinha(l: LinhaChamado): Chamado {
@@ -58,6 +60,7 @@ export function chamadoDaLinha(l: LinhaChamado): Chamado {
     concluidoEm: l.concluido_em,
     canceladoEm: l.cancelado_em,
     motivoCancelamento: l.motivo_cancelamento,
+    continuacaoDe: l.continuacao_de ?? null,
   };
 }
 
