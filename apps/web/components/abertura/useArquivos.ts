@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
-import { ehImagem, mimeDoArquivo, nomeDoPrint, validarArquivo } from "@/lib/anexos";
+import { ehImagem, MAX_POR_ENVIO, mimeDoArquivo, nomeDoPrint, validarArquivo } from "@/lib/anexos";
+import { ErroApp } from "@/lib/erros/catalogo";
 import type { OrigemAnexo } from "@/lib/dominio/tipos";
 import { lerArquivosRascunho, salvarArquivosRascunho, type ArquivoSelecionado } from "./rascunho";
 
@@ -44,6 +45,11 @@ export function useArquivosSelecionados({ persistir = true }: { persistir?: bool
       const nomes = arquivos.map((a) => a.nome);
       const agora = new Date();
       for (const arquivo of novos) {
+        // Até 5 por envio (prints colados contam): o que passar disso fica de fora, com aviso.
+        if (arquivos.length + aceitos.length >= MAX_POR_ENVIO) {
+          mostrarErro(new ErroApp("ANEXOS_DEMAIS"));
+          break;
+        }
         const nome = origem === "colado" ? nomeDoPrint(agora, [...nomes]) : arquivo.name;
         const mime = origem === "colado" ? "image/png" : mimeDoArquivo(arquivo.name, arquivo.type);
         try {

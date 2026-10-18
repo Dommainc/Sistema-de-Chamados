@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from app.dominio.anexos import (
+    MAX_POR_ENVIO,
     caminho_definitivo,
     caminho_temporario,
     e_do_usuario,
@@ -95,6 +96,8 @@ async def _confirmar_uploads(
     storage: Armazenamento, eu: PerfilLinha, uploads: list[UploadInformado]
 ) -> list[tuple[UploadInformado, InfoArquivo]]:
     """Confere no Storage se cada arquivo existe, é do próprio usuário e respeita tamanho/tipo REAIS."""
+    if len(uploads) > MAX_POR_ENVIO:
+        raise ErroApp("ANEXOS_DEMAIS", detalhe=f"{len(uploads)} arquivos")
     confirmados = []
     for upload in uploads:
         if not e_do_usuario(upload.upload_id, eu.id):

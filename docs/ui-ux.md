@@ -35,6 +35,12 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 - Vem de `chamado_leituras` (até quando o solicitante leu — a mesma tabela do "• Nova mensagem"); a TI pode ler a
   linha do solicitante (migration 0026) e ela chega pelo Realtime.
 
+## Listas grandes de opções (2026-10-17)
+- 7 ou mais opções (ex.: sistemas, módulos): botões compactos em grade — 2 colunas no celular, 3 no computador.
+- 13 ou mais: campo "Digite para buscar…" em cima (ignora acentos; a opção já escolhida continua visível).
+- Pergunta que depende de uma opção (módulo do Sienge/CVCRM) abre como galho logo abaixo dela, na linha inteira.
+- Anexos: até 5 por envio; o rótulo diz "(opcional, até 5)".
+
 ## Fundamentos
 
 ### Cores (tokens em `apps/web/app/globals.css`)

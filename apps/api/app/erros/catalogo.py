@@ -14,6 +14,7 @@ CodigoErro = Literal[
     "CAMPO_OBRIGATORIO",
     "ANEXO_MUITO_GRANDE",
     "ANEXO_TIPO_INVALIDO",
+    "ANEXOS_DEMAIS",
     "COLAR_SEM_IMAGEM",
     "UPLOAD_FALHOU",
     "SESSAO_EXPIRADA",
@@ -39,6 +40,7 @@ CATALOGO: dict[CodigoErro, str] = {
     "ANEXO_TIPO_INVALIDO": (
         "Esse tipo de arquivo não é aceito. Envie imagem, PDF ou documento do Office."
     ),
+    "ANEXOS_DEMAIS": "Você pode enviar até 5 arquivos por vez. Remova algum para adicionar outro.",
     "COLAR_SEM_IMAGEM": "Não encontramos uma imagem para colar. Copie o print e tente de novo.",
     "UPLOAD_FALHOU": "Não conseguimos enviar o arquivo. Verifique sua conexão e tente novamente.",
     "SESSAO_EXPIRADA": "Sua sessão expirou. Entre novamente com sua conta Microsoft.",
@@ -69,6 +71,7 @@ STATUS_HTTP: dict[CodigoErro, int] = {
     "CAMPO_OBRIGATORIO": 422,
     "ANEXO_MUITO_GRANDE": 422,
     "ANEXO_TIPO_INVALIDO": 422,
+    "ANEXOS_DEMAIS": 422,
     "COLAR_SEM_IMAGEM": 422,
     "UPLOAD_FALHOU": 502,
     "SESSAO_EXPIRADA": 401,

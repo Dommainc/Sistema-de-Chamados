@@ -442,3 +442,20 @@ def test_nota_baixa_exige_o_texto_e_nota_fora_de_1_a_5_e_recusada(cliente, como,
     assert 35 not in estado.avaliacoes
     ok = cliente.post(url, headers=como(ANA), json={"nota": 1, "comentario": "Demorou muito"})
     assert ok.status_code == 201
+
+
+def test_no_maximo_5_arquivos_por_envio(cliente, como, storage):
+    ids = [_subir(cliente, como, storage, ANA, f"print-2026100{i}-090000.png") for i in range(6)]
+    resposta = cliente.post(
+        "/chamados",
+        headers=como(ANA),
+        json={
+            "categoria_id": OUTROS,
+            "titulo": "Muitos prints",
+            "respostas": {"descricao": "veja"},
+            "anexos": [
+                {"upload_id": u, "nome": f"p{i}.png", "origem": "colado"} for i, u in enumerate(ids)
+            ],
+        },
+    )
+    assert codigo(resposta) == "ANEXOS_DEMAIS"

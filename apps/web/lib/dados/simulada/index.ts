@@ -2,7 +2,7 @@
 // Reproduz as regras do banco e da API que importam para as telas: o que cada papel enxerga (RLS),
 // a máquina de estados e as validações. Toda falha sai como ErroApp do catálogo.
 
-import { validarArquivo } from "@/lib/anexos";
+import { validarArquivo, validarQuantidade } from "@/lib/anexos";
 import {
   ENCERRADOS_POR_PAGINA,
   type ArquivoNovo,
@@ -465,6 +465,8 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       const categoria = categoriaAtiva(dados.categoriaId);
       const campos = CAMPOS_FORM.filter((c) => c.categoriaId === categoria.id);
       const { titulo, respostas } = validarFormulario(campos, dados.titulo, dados.respostas);
+      validarQuantidade(dados.anexos.length);
+      validarQuantidade(dados.anexos.length);
       dados.anexos.forEach(validarArquivo);
 
       const agora = new Date();

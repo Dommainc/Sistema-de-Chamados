@@ -14,6 +14,7 @@ Formato da API:
 | `CAMPO_OBRIGATORIO` | Campo vazio ou inválido no formulário | Preencha o campo **{campo}** para continuar. | Embaixo do campo (lista `campos`) |
 | `ANEXO_MUITO_GRANDE` | Arquivo acima de 10 MB | Esse arquivo tem mais de 10 MB. Tente um arquivo menor ou envie um print da tela. | Aviso (toast) |
 | `ANEXO_TIPO_INVALIDO` | Tipo não permitido (ex.: `.exe`) | Esse tipo de arquivo não é aceito. Envie imagem, PDF ou documento do Office. | Aviso |
+| `ANEXOS_DEMAIS` | Mais de 5 arquivos num envio (abertura ou mensagem; prints colados contam) | Você pode enviar até 5 arquivos por vez. Remova algum para adicionar outro. | Aviso |
 | `COLAR_SEM_IMAGEM` | Ctrl+V na área de anexos sem imagem | Não encontramos uma imagem para colar. Copie o print e tente de novo. | Aviso |
 | `UPLOAD_FALHOU` | Falha ao enviar/mover o arquivo | Não conseguimos enviar o arquivo. Verifique sua conexão e tente novamente. | Aviso |
 | `SESSAO_EXPIRADA` | Token expirado | Sua sessão expirou. Entre novamente com sua conta Microsoft. | Aviso + volta para o login |

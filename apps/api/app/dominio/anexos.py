@@ -9,6 +9,8 @@ import uuid
 from app.erros.catalogo import ErroApp
 
 TAMANHO_MAX_MB = 10
+#: Arquivos por envio — abertura do chamado ou cada mensagem (prints colados contam).
+MAX_POR_ENVIO = 5
 TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024
 
 TIPOS_PERMITIDOS: frozenset[str] = frozenset(

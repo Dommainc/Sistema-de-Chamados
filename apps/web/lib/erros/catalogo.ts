@@ -7,6 +7,7 @@ export const CATALOGO = {
     "Esse arquivo tem mais de 10 MB. Tente um arquivo menor ou envie um print da tela.",
   ANEXO_TIPO_INVALIDO:
     "Esse tipo de arquivo não é aceito. Envie imagem, PDF ou documento do Office.",
+  ANEXOS_DEMAIS: "Você pode enviar até 5 arquivos por vez. Remova algum para adicionar outro.",
   COLAR_SEM_IMAGEM: "Não encontramos uma imagem para colar. Copie o print e tente de novo.",
   UPLOAD_FALHOU: "Não conseguimos enviar o arquivo. Verifique sua conexão e tente novamente.",
   SESSAO_EXPIRADA: "Sua sessão expirou. Entre novamente com sua conta Microsoft.",

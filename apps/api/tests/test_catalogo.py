@@ -6,9 +6,9 @@ from app.erros.catalogo import CATALOGO, STATUS_HTTP, ErroApp, mensagem_erro, tr
 CATALOGO_WEB = Path(__file__).resolve().parents[2] / "web" / "lib" / "erros" / "catalogo.ts"
 
 
-def test_tem_os_18_codigos():
+def test_tem_os_19_codigos():
     # 14 do escopo + PRAZO_INVALIDO (ADR 0009) + CHAMADO_NAO_INICIADO (ADR 0011)
-    assert len(CATALOGO) == 18
+    assert len(CATALOGO) == 19
     assert set(CATALOGO) == set(STATUS_HTTP)
 
 

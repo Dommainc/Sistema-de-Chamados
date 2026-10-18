@@ -30,7 +30,7 @@ export function SeletorAnexos({
   return (
     <div className="flex flex-col gap-3">
       <p className="font-semibold">
-        Fotos e arquivos <span className="font-normal text-texto-suave">(opcional)</span>
+        Fotos e arquivos <span className="font-normal text-texto-suave">(opcional, até 5)</span>
       </p>
 
       <div

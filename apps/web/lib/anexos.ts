@@ -5,6 +5,8 @@ import { ErroApp } from "@/lib/erros/catalogo";
 
 export const TAMANHO_MAX_MB = 10;
 export const TAMANHO_MAX_BYTES = TAMANHO_MAX_MB * 1024 * 1024;
+/** Arquivos por envio — abertura do chamado ou cada mensagem (prints colados contam). */
+export const MAX_POR_ENVIO = 5;
 
 export const TIPOS_PERMITIDOS: readonly string[] = [
   "image/png",
@@ -96,4 +98,9 @@ export function formatarTamanho(bytes: number): string {
     return `${(bytes / (1024 * 1024)).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
   }
   return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+/** Lança ANEXOS_DEMAIS se o envio passar de MAX_POR_ENVIO arquivos. */
+export function validarQuantidade(quantidade: number): void {
+  if (quantidade > MAX_POR_ENVIO) throw new ErroApp("ANEXOS_DEMAIS");
 }
