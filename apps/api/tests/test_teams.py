@@ -297,14 +297,20 @@ def test_cartao_do_resumo_mensal_compara_com_o_mes_anterior():
         {"mes": "2026-10", "atual": atual, "anterior": {"abertos": 100}}, "https://c"
     )
     card = atividade["attachments"][0]["content"]
+    assert card["version"] == "1.5"
     assert card["body"][0]["text"] == "Resumo da TI · outubro de 2026"
-    cabecalho = [c["items"][0]["text"] for c in card["body"][2]["columns"]]
-    assert cabecalho == ["", "Outubro", "Setembro"]
-    abertos = [c["items"][0]["text"] for c in card["body"][3]["columns"]]
-    assert abertos == ["Chamados abertos", "120", "100"]
-    # Mesma largura em todas as linhas: os números ficam embaixo do nome do mês.
-    larguras = {tuple(c["width"] for c in linha["columns"]) for linha in card["body"][2:]}
-    assert larguras == {("stretch", "96px", "96px")}
+    tabela = card["body"][2]
+    assert tabela["type"] == "Table" and tabela["firstRowAsHeader"] is True
+    assert [c["width"] for c in tabela["columns"]] == [2, 1, 1]
+
+    def textos(linha):
+        return [c["items"][0]["text"] for c in linha["cells"]]
+
+    assert textos(tabela["rows"][0]) == ["Indicador", "Outubro", "Setembro"]
+    assert textos(tabela["rows"][1]) == ["Chamados abertos", "120", "100"]
+    # Números centralizados embaixo do nome do mês.
+    alinhamentos = {c["items"][0]["horizontalAlignment"] for c in tabela["rows"][1]["cells"][1:]}
+    assert alinhamentos == {"Center"}
     assert card["actions"][0]["url"] == "https://c/atendimento/dashboard?periodo=mes_passado"
 
 
@@ -312,5 +318,5 @@ def test_resumo_de_janeiro_compara_com_dezembro():
     from app.integracoes.teams.cartoes import cartao_resumo
 
     card = cartao_resumo({"mes": "2027-01", "atual": {}, "anterior": {}}, "https://c")
-    cabecalho = card["attachments"][0]["content"]["body"][2]["columns"]
+    cabecalho = card["attachments"][0]["content"]["body"][2]["rows"][0]["cells"]
     assert [c["items"][0]["text"] for c in cabecalho][1:] == ["Janeiro", "Dezembro"]

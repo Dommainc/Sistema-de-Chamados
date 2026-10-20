@@ -324,9 +324,9 @@ def linhas_resumo(n: dict[str, Any]) -> list[tuple[str, str]]:
     ]
 
 
-#: Colunas do resumo: indicador ocupa o resto; cada mês tem largura fixa, para os números ficarem
-#: centralizados embaixo do nome do mês em todas as linhas.
-LARGURAS_RESUMO = ("stretch", "96px", "96px")
+#: Colunas da tabela do resumo (pesos): indicador 2, cada mês 1 — os números ficam centralizados
+#: embaixo do nome do mês.
+PESOS_RESUMO = (2, 1, 1)
 
 
 def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
@@ -337,27 +337,40 @@ def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
     nome_atual = _nome_mes(mes) if mes else ""
     nome_anterior = _nome_mes(_mes_anterior(mes)).split(" de ")[0] if mes else ""
 
-    def linha(textos: list[str], negrito: bool = False) -> dict[str, Any]:
+    def celula(texto: str, coluna: int, negrito: bool = False) -> dict[str, Any]:
         return {
-            "type": "ColumnSet",
-            "spacing": "Small",
-            "columns": [
+            "type": "TableCell",
+            "items": [
                 {
-                    "type": "Column",
-                    "width": largura,
-                    "items": [
-                        {
-                            "type": "TextBlock",
-                            "text": t,
-                            "wrap": True,
-                            "weight": "Bolder" if negrito else "Default",
-                            "horizontalAlignment": "Left" if i == 0 else "Center",
-                        }
-                    ],
+                    "type": "TextBlock",
+                    "text": texto,
+                    "wrap": True,
+                    "weight": "Bolder" if negrito else "Default",
+                    "horizontalAlignment": "Left" if coluna == 0 else "Center",
                 }
-                for i, (t, largura) in enumerate(zip(textos, LARGURAS_RESUMO, strict=True))
             ],
         }
+
+    def linha(textos: list[str], negrito: bool = False) -> dict[str, Any]:
+        return {
+            "type": "TableRow",
+            "cells": [celula(t, i, negrito) for i, t in enumerate(textos)],
+        }
+
+    # Tabela de verdade: cada mês é uma coluna fixa, o número fica embaixo do nome do mês.
+    tabela = {
+        "type": "Table",
+        "columns": [{"width": peso} for peso in PESOS_RESUMO],
+        "firstRowAsHeader": True,
+        "showGridLines": False,
+        "rows": [
+            linha(
+                ["Indicador", nome_atual.split(" de ")[0].capitalize(), nome_anterior.capitalize()],
+                negrito=True,
+            ),
+            *[linha([rotulo, valor, anterior.get(rotulo, "—")]) for rotulo, valor in atual],
+        ],
+    }
 
     corpo: list[dict[str, Any]] = [
         {
@@ -374,10 +387,7 @@ def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
             "spacing": "None",
             "wrap": True,
         },
-        linha(
-            ["", nome_atual.split(" de ")[0].capitalize(), nome_anterior.capitalize()], negrito=True
-        ),
-        *[linha([rotulo, valor, anterior.get(rotulo, "—")]) for rotulo, valor in atual],
+        tabela,
     ]
     resumo = (
         f"Resumo da TI de {nome_atual}: {atual[0][1]} chamados abertos, {atual[1][1]} concluídos."
@@ -391,7 +401,7 @@ def cartao_resumo(payload: dict[str, Any], central: str) -> dict[str, Any]:
                 "content": {
                     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                     "type": "AdaptiveCard",
-                    "version": "1.4",
+                    "version": "1.5",
                     "body": corpo,
                     "actions": [
                         {
