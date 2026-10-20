@@ -196,6 +196,13 @@ body {
   color: var(--cor-texto);
 }
 
+/* Guias em PDF (páginas de Ajuda): fundo branco na impressão. */
+@media print {
+  body {
+    background: var(--cor-superficie);
+  }
+}
+
 :focus-visible {
   outline: 3px solid var(--cor-primaria);
   outline-offset: 2px;

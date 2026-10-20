@@ -16,7 +16,7 @@ function comecaCom(caminho: string, prefixo: string): boolean {
   return caminho === prefixo || caminho.startsWith(`${prefixo}/`);
 }
 
-const AREA_SOLICITANTE = ["/meus-chamados", "/primeiro-acesso", "/abrir"];
+const AREA_SOLICITANTE = ["/meus-chamados", "/primeiro-acesso", "/abrir", "/ajuda"];
 const AREA_TI = ["/atendimento"];
 
 export function decidirRota(caminho: string, papel: Papel | null): DecisaoRota {

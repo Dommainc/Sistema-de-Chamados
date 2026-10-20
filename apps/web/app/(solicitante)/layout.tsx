@@ -14,7 +14,7 @@ export default async function LayoutSolicitante({ children }: { children: React.
 
   return (
     <ProvedorDados usuario={usuario}>
-      <header className="border-b border-borda bg-superficie">
+      <header className="border-b border-borda bg-superficie print:hidden">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 md:px-8">
           <Link
             href="/"
@@ -26,7 +26,7 @@ export default async function LayoutSolicitante({ children }: { children: React.
           <MenuCabecalho />
           <div className="flex items-center gap-1">
             <BotaoTemaPerfil />
-            <MenuUsuario nome={usuario.nome} />
+            <MenuUsuario nome={usuario.nome} atalhos={[{ href: "/ajuda", rotulo: "Ajuda" }]} />
           </div>
         </div>
       </header>

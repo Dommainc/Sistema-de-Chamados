@@ -95,3 +95,11 @@ describe("abrir chamado", () => {
     expect(comReferente("/abrir/3", null)).toBe("/abrir/3");
   });
 });
+
+describe("página de Ajuda", () => {
+  it("o solicitante abre /ajuda; a TI vai para o quadro (a Ajuda dela é /atendimento/ajuda)", () => {
+    expect(decidirRota("/ajuda", "solicitante")).toEqual({ tipo: "seguir" });
+    expect(decidirRota("/ajuda", "ti")).toEqual({ tipo: "redirecionar", para: "/atendimento" });
+    expect(decidirRota("/atendimento/ajuda", "ti")).toEqual({ tipo: "seguir" });
+  });
+});

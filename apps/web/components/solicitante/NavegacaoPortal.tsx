@@ -55,7 +55,7 @@ export function MenuInferior() {
   return (
     <nav
       aria-label="Menu principal"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-borda bg-superficie pb-[env(safe-area-inset-bottom)] md:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-borda bg-superficie pb-[env(safe-area-inset-bottom)] md:hidden print:hidden"
     >
       <ul className="mx-auto grid max-w-2xl grid-cols-2">
         {ITENS.map((item) => {

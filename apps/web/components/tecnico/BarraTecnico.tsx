@@ -67,7 +67,7 @@ export function BarraTecnico() {
     contadores === undefined ? undefined : `${contadores.meusAtendimentos} em atendimento`;
 
   return (
-    <header className="bg-barra text-sobre-barra">
+    <header className="bg-barra text-sobre-barra print:hidden">
       <div className="flex w-full items-center justify-between gap-4 px-4 py-2.5">
         <div className="flex items-center gap-5">
           <Link
@@ -89,7 +89,10 @@ export function BarraTecnico() {
             nome={usuario.nome}
             resumo={resumo}
             tema="escuro"
-            atalhos={[{ href: "/atendimento/novo", rotulo: "Abrir chamado" }]}
+            atalhos={[
+              { href: "/atendimento/novo", rotulo: "Abrir chamado" },
+              { href: "/atendimento/ajuda", rotulo: "Ajuda" },
+            ]}
           />
         </div>
       </div>

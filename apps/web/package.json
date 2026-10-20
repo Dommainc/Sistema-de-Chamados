@@ -12,8 +12,9 @@
     "test:watch": "vitest",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "e2e": "playwright test --grep-invert @prints",
-    "prints": "playwright test --grep @prints"
+    "e2e": "playwright test --grep-invert \"@prints|@guias\"",
+    "prints": "playwright test --grep @prints",
+    "guias": "playwright test --grep @guias --project=computador"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
