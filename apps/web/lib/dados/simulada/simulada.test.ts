@@ -210,7 +210,9 @@ describe('"O problema voltou" e outros chamados do solicitante (migration 0033)'
         titulo: "Voltou",
         respostas: {},
         anexos: [],
-        continuacaoDe: 41,
+        // #42 é Novo: nunca é concluído sozinho (as 48 h só contam depois de iniciar), então o
+        // teste não depende da data em que roda.
+        continuacaoDe: 42,
       }),
     ).rejects.toMatchObject({ codigo: "SEM_PERMISSAO" });
   });
