@@ -21,6 +21,7 @@ export const CATALOGO = {
   PRAZO_INVALIDO: "Escolha uma data e hora no futuro para o prazo.",
   AVALIACAO_INDISPONIVEL: "Só dá para avaliar depois que o chamado for concluído.",
   AVALIACAO_JA_ENVIADA: "Você já avaliou este chamado.",
+  CHAMADO_PROPRIO: "Este chamado é seu: peça para um colega da TI atender.",
   MENSAGEM_NAO_ENVIADA: "Sua mensagem não foi enviada. Toque para tentar de novo.",
   SEM_CONEXAO: "Sem conexão. As mensagens novas vão aparecer quando a conexão voltar.",
   ERRO_INESPERADO:

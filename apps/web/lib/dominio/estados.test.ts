@@ -180,3 +180,14 @@ describe("acoesDisponiveis", () => {
     expect(acoesDisponiveis(chamado("transferido", TEC2.id), TEC)).toEqual(["cancelar"]);
   });
 });
+
+describe("técnico não atende o próprio chamado (dono, 2026-10-20)", () => {
+  const meu = { status: "pendente" as const, responsavelId: null, solicitanteId: "ti-1" };
+  it("quem abriu não inicia; outro técnico sim", () => {
+    expect(() => validarAcao(meu, "assumir", { id: "ti-1", papel: "ti" })).toThrow(
+      expect.objectContaining({ codigo: "CHAMADO_PROPRIO" }),
+    );
+    expect(acoesDisponiveis(meu, { id: "ti-1", papel: "ti" })).not.toContain("assumir");
+    expect(validarAcao(meu, "assumir", { id: "ti-2", papel: "ti" }).responsavelId).toBe("ti-2");
+  });
+});

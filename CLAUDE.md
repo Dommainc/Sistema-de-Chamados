@@ -64,7 +64,7 @@ Aplicado no banco pela migration `20261005120000_status_simplificados.sql`.
 
 | De | Para | Quem | Exige |
 |---|---|---|---|
-| pendente | em_andamento | TI (assumir) | responsável = quem assumiu |
+| pendente | em_andamento | TI (assumir) | responsável = quem assumiu (**nunca quem abriu** — `CHAMADO_PROPRIO`, migration 0034) |
 | pendente | cancelado | TI | motivo |
 | em_andamento | aguardando_usuario | **só automático**: 2 h úteis sem resposta à mensagem da TI | — |
 | aguardando_usuario | em_andamento | solicitante responde no chat (automático) | — |

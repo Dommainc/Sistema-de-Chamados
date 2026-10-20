@@ -218,6 +218,9 @@ async def executar_acao(
 
     if acao == "transferir" and resultado.responsavel_id not in await repo.listar_tecnicos_ativos():
         raise ErroApp("CAMPO_OBRIGATORIO", {"campo": "Técnico de destino"})
+    if acao == "transferir" and resultado.responsavel_id == chamado.solicitante_id:
+        # Quem abriu não recebe o próprio chamado (dono, 2026-10-20).
+        raise ErroApp("CHAMADO_PROPRIO")
 
     motivo = (dados.motivo or "").strip() or None
     atualizado = await repo.atualizar_chamado(

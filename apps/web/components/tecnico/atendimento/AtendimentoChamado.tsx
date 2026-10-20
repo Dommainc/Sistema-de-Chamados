@@ -207,7 +207,8 @@ export function AtendimentoChamado({ id }: { id: number }) {
         acao={modal}
         chamadoId={chamado.id}
         responsavelId={chamado.responsavelId}
-        tecnicos={extras?.tecnicos ?? []}
+        // Quem abriu o chamado não recebe por transferência (dono, 2026-10-20).
+        tecnicos={(extras?.tecnicos ?? []).filter((t) => t.id !== chamado.solicitanteId)}
         aoFechar={() => setModal(null)}
       />
     </div>

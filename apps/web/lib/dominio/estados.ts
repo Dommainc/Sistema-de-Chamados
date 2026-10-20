@@ -89,6 +89,8 @@ export function validarAcao(
 
   switch (acao) {
     case "assumir":
+      // Quem abriu não atende o próprio chamado: outro técnico inicia (dono, 2026-10-20).
+      if (ehDono) throw new ErroApp("CHAMADO_PROPRIO");
       // Transferido: só o técnico de destino assume (os outros podem cancelar).
       if (de === "transferido" && chamado.responsavelId !== ator.id) {
         throw new ErroApp("SEM_PERMISSAO");

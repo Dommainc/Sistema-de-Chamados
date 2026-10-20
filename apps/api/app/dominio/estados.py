@@ -117,6 +117,9 @@ def validar_acao(
         raise _transicao_invalida(de, para, ator.papel)
 
     if acao == "assumir":
+        # Quem abriu não atende o próprio chamado: outro técnico inicia (dono, 2026-10-20).
+        if eh_dono:
+            raise ErroApp("CHAMADO_PROPRIO")
         # Transferido: só o técnico de destino assume (os outros podem cancelar).
         if de == "transferido" and chamado.responsavel_id != ator.id:
             raise ErroApp("SEM_PERMISSAO")

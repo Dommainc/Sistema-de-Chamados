@@ -169,3 +169,14 @@ def test_ti_em_aguardando_usuario():
 
 def test_ti_que_nao_e_destino_de_um_transferido():
     assert sorted(acoes_disponiveis(chamado("transferido", TEC2.id), TEC)) == ["cancelar"]
+
+
+def test_tecnico_nao_atende_o_proprio_chamado():
+    from app.dominio.estados import Ator, ChamadoParaTransicao, validar_acao
+    from app.erros.catalogo import ErroApp
+
+    meu = ChamadoParaTransicao(status="pendente", responsavel_id=None, solicitante_id="ti-1")
+    with pytest.raises(ErroApp) as erro:
+        validar_acao(meu, "assumir", Ator("ti-1", "ti"))
+    assert erro.value.codigo == "CHAMADO_PROPRIO"
+    assert validar_acao(meu, "assumir", Ator("ti-2", "ti")).responsavel_id == "ti-2"

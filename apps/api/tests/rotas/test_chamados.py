@@ -492,3 +492,23 @@ def test_problema_voltou_so_do_proprio_chamado_concluido(cliente, como, estado):
     assert codigo(_abrir(cliente, como, ANA, continuacao_de=aberto.id)) == "SEM_PERMISSAO"
     do_bruno = next(c for c in estado.chamados.values() if c.solicitante_id == BRUNO)
     assert codigo(_abrir(cliente, como, ANA, continuacao_de=do_bruno.id)) == "SEM_PERMISSAO"
+
+
+# ---------------------------------------------------------------------- técnico e o próprio chamado
+def test_tecnico_nao_inicia_nem_recebe_o_proprio_chamado(cliente, como):
+    aberto = _abrir(cliente, como, RAFAEL)
+    assert aberto.status_code == 201
+    numero = aberto.json()["id"]
+    # Quem abriu não inicia (dono, 2026-10-20) ...
+    assert (
+        codigo(cliente.post(f"/chamados/{numero}/assumir", headers=como(RAFAEL)))
+        == "CHAMADO_PROPRIO"
+    )
+    # ... outro técnico sim, e não consegue passar o chamado para quem abriu.
+    assert cliente.post(f"/chamados/{numero}/assumir", headers=como(THIAGO)).status_code == 200
+    transferir = cliente.post(
+        f"/chamados/{numero}/transferir",
+        headers=como(THIAGO),
+        json={"destino_id": RAFAEL, "motivo": "ele sabe resolver"},
+    )
+    assert codigo(transferir) == "CHAMADO_PROPRIO"

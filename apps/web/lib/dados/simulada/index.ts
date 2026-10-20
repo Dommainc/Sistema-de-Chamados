@@ -192,6 +192,10 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
     if (acao === "transferir" && !tecnicosAtivos().some((t) => t.id === responsavelId)) {
       throw new ErroApp("CAMPO_OBRIGATORIO", { campo: "Técnico de destino" });
     }
+    if (acao === "transferir" && responsavelId === chamado.solicitanteId) {
+      // Quem abriu não recebe o próprio chamado (dono, 2026-10-20).
+      throw new ErroApp("CHAMADO_PROPRIO");
+    }
 
     const agora = new Date().toISOString();
     const motivo = dados.motivo?.trim();

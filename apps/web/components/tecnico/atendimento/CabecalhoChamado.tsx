@@ -231,8 +231,9 @@ export function CabecalhoChamado({
       {naoIniciado(chamado.status) ? (
         <p className="flex items-center gap-2 rounded-xl bg-laranja-suave px-3 py-2.5 text-sm font-semibold text-texto">
           <Lock aria-hidden="true" className="size-4 shrink-0 text-laranja" />
-          Chamado ainda não iniciado: você pode ver tudo, mas para conversar, anotar, definir prazo
-          ou prioridade, clique em Iniciar.
+          {chamado.solicitanteId === usuario.id
+            ? "Este chamado é seu: um colega da TI precisa iniciar o atendimento."
+            : "Chamado ainda não iniciado: você pode ver tudo, mas para conversar, anotar, definir prazo ou prioridade, clique em Iniciar."}
         </p>
       ) : null}
 
