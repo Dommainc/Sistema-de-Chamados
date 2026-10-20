@@ -8,6 +8,7 @@ import { BASE_BOTAO, ESTILOS_BOTAO } from "@/components/ui/Botao";
 import { Logo } from "@/components/ui/Logo";
 import { useConsulta, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
+import { tituloErroChamado } from "@/lib/erros/catalogo";
 import { formatarNumeroChamado, formatarPrevisao, maiuscula } from "@/lib/formato";
 import { caminhosAbertura } from "@/lib/rotas";
 
@@ -24,7 +25,7 @@ export function ConfirmacaoChamado({ id }: { id: number }) {
   if (erro || !chamado) {
     return (
       <TelaMensagem
-        titulo="Chamado não encontrado"
+        titulo={tituloErroChamado(erro)}
         texto={erro?.message ?? ""}
         acao={{ rotulo: "Voltar para o início", href: caminhos.inicio }}
       />

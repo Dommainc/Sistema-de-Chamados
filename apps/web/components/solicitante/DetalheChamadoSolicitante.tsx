@@ -11,6 +11,7 @@ import { Aviso } from "@/components/ui/Aviso";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
 import { BarraProgresso } from "@/components/ui/BarraProgresso";
 import type { PerfilPublico } from "@/lib/dados/tipos";
+import { tituloErroChamado } from "@/lib/erros/catalogo";
 import { estaEncerrado, type Chamado } from "@/lib/dominio/tipos";
 import { formatarNumeroChamado, formatarQuando } from "@/lib/formato";
 
@@ -99,7 +100,7 @@ export function DetalheChamadoSolicitante({ id }: { id: number }) {
   if (erro || !dados) {
     return (
       <TelaMensagem
-        titulo="Sem acesso"
+        titulo={tituloErroChamado(erro)}
         texto={erro?.message ?? ""}
         acao={{ rotulo: "Ver meus chamados", href: "/meus-chamados" }}
       />

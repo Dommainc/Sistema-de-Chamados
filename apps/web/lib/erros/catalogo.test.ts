@@ -96,3 +96,17 @@ describe("paraErroApp", () => {
     expect(console.error).toHaveBeenCalled();
   });
 });
+
+describe("título da tela quando o chamado não abre", () => {
+  it("só diz 'não encontrado' quando o chamado não existe", async () => {
+    const { tituloErroChamado } = await import("./catalogo");
+    expect(tituloErroChamado(new ErroApp("CHAMADO_NAO_ENCONTRADO", { numero: "42" }))).toBe(
+      "Chamado não encontrado",
+    );
+    expect(tituloErroChamado(new ErroApp("SEM_PERMISSAO"))).toBe("Sem acesso");
+    expect(tituloErroChamado(new ErroApp("ERRO_INESPERADO"))).toBe(
+      "Não conseguimos abrir o chamado",
+    );
+    expect(tituloErroChamado(new Error("x"))).toBe("Não conseguimos abrir o chamado");
+  });
+});

@@ -87,3 +87,12 @@ export function paraErroApp(erro: unknown): ErroApp {
   console.error(`[${convertido.ref}]`, erro);
   return convertido;
 }
+
+/** Título da tela quando um chamado não abre: acompanha o erro de verdade (não diz "não encontrado" à toa). */
+export function tituloErroChamado(erro: unknown): string {
+  const codigo = erro instanceof ErroApp ? erro.codigo : null;
+  if (codigo === "CHAMADO_NAO_ENCONTRADO") return "Chamado não encontrado";
+  if (codigo === "SEM_PERMISSAO") return "Sem acesso";
+  if (codigo === "SEM_CONEXAO") return "Sem conexão";
+  return "Não conseguimos abrir o chamado";
+}

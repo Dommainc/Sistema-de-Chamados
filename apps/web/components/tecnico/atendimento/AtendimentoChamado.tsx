@@ -11,6 +11,7 @@ import { Segmentado } from "@/components/ui/Segmentado";
 import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useDados, useUsuario } from "@/lib/dados/provedor";
 import type { FonteDeDados } from "@/lib/dados/tipos";
+import { tituloErroChamado } from "@/lib/erros/catalogo";
 import { naoIniciado, type PrioridadeDaTi } from "@/lib/dominio/tipos";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { useAcaoChamado } from "../useAcaoChamado";
@@ -67,7 +68,7 @@ export function AtendimentoChamado({ id }: { id: number }) {
   if (erro || !dados) {
     return (
       <TelaMensagem
-        titulo="Chamado não encontrado"
+        titulo={tituloErroChamado(erro)}
         texto={erro?.message ?? ""}
         acao={{ rotulo: "Voltar para o quadro", href: "/atendimento" }}
       />
