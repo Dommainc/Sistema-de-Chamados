@@ -26,6 +26,7 @@ from app.dominio.estados import (
     validar_acao,
 )
 from app.dominio.formulario import validar_formulario
+from app.dominio.limites import MENSAGEM_MAX, MOTIVO_MAX, numero_br
 from app.dominio.tipos import ROTULOS, Prioridade, esta_encerrado, nao_iniciado
 from app.erros.catalogo import ErroApp, ErroDeCampo, mensagem_erro
 from app.integracoes.storage import Armazenamento, InfoArquivo
@@ -297,6 +298,8 @@ async def definir_prazo(
     anterior = chamado.prazo_sla
     if anterior is not None and not motivo:
         raise ErroApp("MOTIVO_OBRIGATORIO")
+    if motivo and len(motivo) > MOTIVO_MAX:
+        raise ErroApp("TEXTO_LONGO_DEMAIS", {"campo": "Motivo", "maximo": numero_br(MOTIVO_MAX)})
 
     atualizado = await repo.definir_prazo(chamado.id, prazo)
     detalhe = {"prazo": prazo.isoformat()}
@@ -427,9 +430,18 @@ async def enviar_mensagem(
             {"campo": "Mensagem"},
             campos=[ErroDeCampo("conteudo", mensagem_erro("CAMPO_OBRIGATORIO", campo="Mensagem"))],
         )
+    if len(texto) > MENSAGEM_MAX:
+        aviso = mensagem_erro(
+            "TEXTO_LONGO_DEMAIS", campo="Mensagem", maximo=numero_br(MENSAGEM_MAX)
+        )
+        raise ErroApp(
+            "TEXTO_LONGO_DEMAIS",
+            {"campo": "Mensagem", "maximo": numero_br(MENSAGEM_MAX)},
+            campos=[ErroDeCampo("conteudo", aviso)],
+        )
     confirmados = await _confirmar_uploads(storage, eu, uploads)
 
-    mensagem = await repo.inserir_mensagem(chamado.id, eu.id, texto[:10_000], interna)
+    mensagem = await repo.inserir_mensagem(chamado.id, eu.id, texto, interna)
     await _guardar_anexos(repo, storage, eu, chamado.id, mensagem.id, confirmados)
 
     # Resposta do solicitante em "aguardando_usuario" volta o chamado para "em_andamento".

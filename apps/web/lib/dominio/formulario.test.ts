@@ -154,3 +154,18 @@ describe("pergunta que só aparece se... (módulo do Sienge — migration 0031)"
     ).toEqual({ sistema: "CVCRM" });
   });
 });
+
+describe("limites de caracteres (2026-10-23)", () => {
+  const descricao = campo("descricao", "texto_longo", true, [], 100);
+  it("descrição até 2.000 caracteres", () => {
+    expect(
+      validarFormulario([descricao], "Resumo", { descricao: "x".repeat(2000) }).respostas,
+    ).toBeTruthy();
+    expect(() => validarFormulario([descricao], "Resumo", { descricao: "x".repeat(2001) })).toThrow(
+      ErroApp,
+    );
+  });
+  it("resumo vai até 100 caracteres", () => {
+    expect(validarFormulario([], "y".repeat(150), {}).titulo).toHaveLength(100);
+  });
+});

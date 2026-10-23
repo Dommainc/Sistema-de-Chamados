@@ -1,5 +1,6 @@
 "use client";
 
+import { TEXTO_LONGO_MAX } from "@/lib/dominio/limites";
 import { Search } from "lucide-react";
 import { Fragment, useState } from "react";
 import { AreaTexto } from "@/components/ui/AreaTexto";
@@ -55,7 +56,14 @@ export function CampoDinamico({
     case "texto":
       return <Campo {...comum} value={texto} onChange={(e) => aoMudar(e.target.value)} />;
     case "texto_longo":
-      return <AreaTexto {...comum} value={texto} onChange={(e) => aoMudar(e.target.value)} />;
+      return (
+        <AreaTexto
+          {...comum}
+          value={texto}
+          maxLength={TEXTO_LONGO_MAX}
+          onChange={(e) => aoMudar(e.target.value)}
+        />
+      );
     case "numero":
       return (
         <Campo

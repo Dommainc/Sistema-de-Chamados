@@ -3,6 +3,7 @@
 
 export const CATALOGO = {
   CAMPO_OBRIGATORIO: "Preencha o campo {campo} para continuar.",
+  TEXTO_LONGO_DEMAIS: "O campo {campo} pode ter até {maximo} caracteres.",
   ANEXO_MUITO_GRANDE:
     "Esse arquivo tem mais de 10 MB. Tente um arquivo menor ou envie um print da tela.",
   ANEXO_TIPO_INVALIDO:
@@ -34,7 +35,9 @@ export function ehCodigoErro(valor: unknown): valor is CodigoErro {
   return typeof valor === "string" && valor in CATALOGO;
 }
 
-export type ParametrosErro = Partial<Record<"campo" | "numero" | "de" | "para" | "ref", string>>;
+export type ParametrosErro = Partial<
+  Record<"campo" | "maximo" | "numero" | "de" | "para" | "ref", string>
+>;
 
 export function mensagemErro(codigo: CodigoErro, parametros: ParametrosErro = {}): string {
   return CATALOGO[codigo].replace(/\{(\w+)\}/g, (_trecho, nome: string) => {

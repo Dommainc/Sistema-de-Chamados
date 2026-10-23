@@ -12,6 +12,7 @@ from typing import Literal
 
 CodigoErro = Literal[
     "CAMPO_OBRIGATORIO",
+    "TEXTO_LONGO_DEMAIS",
     "ANEXO_MUITO_GRANDE",
     "ANEXO_TIPO_INVALIDO",
     "ANEXOS_DEMAIS",
@@ -35,6 +36,7 @@ CodigoErro = Literal[
 
 CATALOGO: dict[CodigoErro, str] = {
     "CAMPO_OBRIGATORIO": "Preencha o campo {campo} para continuar.",
+    "TEXTO_LONGO_DEMAIS": "O campo {campo} pode ter até {maximo} caracteres.",
     "ANEXO_MUITO_GRANDE": (
         "Esse arquivo tem mais de 10 MB. Tente um arquivo menor ou envie um print da tela."
     ),
@@ -71,6 +73,7 @@ CATALOGO: dict[CodigoErro, str] = {
 
 STATUS_HTTP: dict[CodigoErro, int] = {
     "CAMPO_OBRIGATORIO": 422,
+    "TEXTO_LONGO_DEMAIS": 422,
     "ANEXO_MUITO_GRANDE": 422,
     "ANEXO_TIPO_INVALIDO": 422,
     "ANEXOS_DEMAIS": 422,
@@ -98,7 +101,7 @@ _PLACEHOLDER = re.compile(r"\{(\w+)\}")
 def mensagem_erro(codigo: CodigoErro, **parametros: str) -> str:
     """Texto do catálogo com os placeholders preenchidos.
 
-    Placeholders: {campo}, {numero}, {de}, {para}, {ref}.
+    Placeholders: {campo}, {maximo}, {numero}, {de}, {para}, {ref}.
     """
     return _PLACEHOLDER.sub(lambda m: parametros.get(m.group(1), ""), CATALOGO[codigo])
 

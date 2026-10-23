@@ -1,5 +1,7 @@
 "use client";
 
+import { Contador } from "@/components/ui/Contador";
+import { MENSAGEM_MAX } from "@/lib/dominio/limites";
 import { MessageSquareText, Paperclip, SendHorizontal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { imagensColadas, useArquivosSelecionados } from "@/components/abertura/useArquivos";
@@ -163,6 +165,7 @@ export function CompositorMensagem({
             }
           }}
           rows={1}
+          maxLength={MENSAGEM_MAX}
           aria-label={rotuloCampo}
           placeholder={placeholder}
           className="max-h-40 min-h-11 flex-1 resize-none rounded-3xl border border-borda bg-superficie px-4 py-2.5 text-base [field-sizing:content] placeholder:text-texto-suave"
@@ -176,6 +179,9 @@ export function CompositorMensagem({
         >
           <SendHorizontal aria-hidden="true" className="size-5" />
         </button>
+      </div>
+      <div className="flex justify-end px-2">
+        <Contador valor={texto} maximo={MENSAGEM_MAX} />
       </div>
     </div>
   );

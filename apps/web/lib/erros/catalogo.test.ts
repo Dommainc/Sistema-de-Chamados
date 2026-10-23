@@ -13,10 +13,11 @@ afterEach(() => {
 });
 
 describe("catálogo de erros", () => {
-  it("tem os 14 códigos do escopo + prazo, não iniciado, avaliação, anexos demais e chamado próprio (20)", () => {
+  it("tem os 14 códigos do escopo + prazo, não iniciado, avaliação, anexos demais, chamado próprio e texto longo demais (21)", () => {
     expect(Object.keys(CATALOGO).sort()).toEqual(
       [
         "CAMPO_OBRIGATORIO",
+        "TEXTO_LONGO_DEMAIS",
         "ANEXO_MUITO_GRANDE",
         "ANEXO_TIPO_INVALIDO",
         "ANEXOS_DEMAIS",

@@ -2,6 +2,7 @@
 // Reproduz as regras do banco e da API que importam para as telas: o que cada papel enxerga (RLS),
 // a máquina de estados e as validações. Toda falha sai como ErroApp do catálogo.
 
+import { MENSAGEM_MAX, MOTIVO_MAX, numeroBr } from "@/lib/dominio/limites";
 import { validarArquivo, validarQuantidade } from "@/lib/anexos";
 import {
   ENCERRADOS_POR_PAGINA,
@@ -637,6 +638,12 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
     async enviarMensagem(dados: NovaMensagem): Promise<Mensagem> {
       const perfil = eu();
       if (semConexao()) throw new ErroApp("MENSAGEM_NAO_ENVIADA");
+      if (dados.conteudo.trim().length > MENSAGEM_MAX) {
+        throw new ErroApp("TEXTO_LONGO_DEMAIS", {
+          campo: "Mensagem",
+          maximo: numeroBr(MENSAGEM_MAX),
+        });
+      }
       const chamado = chamadoVisivel(dados.chamadoId);
       if (estaEncerrado(chamado.status)) {
         throw new ErroApp("TRANSICAO_INVALIDA", {
@@ -799,6 +806,9 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         throw new ErroApp("PRAZO_INVALIDO");
       }
       const texto = motivo?.trim();
+      if (texto && texto.length > MOTIVO_MAX) {
+        throw new ErroApp("TEXTO_LONGO_DEMAIS", { campo: "Motivo", maximo: numeroBr(MOTIVO_MAX) });
+      }
       if (chamado.prazoSla !== null && !texto) throw new ErroApp("MOTIVO_OBRIGATORIO");
 
       const criadoEm = new Date(agora).toISOString();

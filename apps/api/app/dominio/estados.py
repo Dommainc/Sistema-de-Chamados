@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
+from app.dominio.limites import MOTIVO_MAX, numero_br
 from app.dominio.tipos import ROTULOS, Papel, StatusChamado, esta_encerrado
 from app.erros.catalogo import ErroApp
 
@@ -77,8 +78,11 @@ class ResultadoTransicao:
 
 
 def _exigir_motivo(dados: DadosAcao) -> None:
-    if len((dados.motivo or "").strip()) < 3:
+    motivo = (dados.motivo or "").strip()
+    if len(motivo) < 3:
         raise ErroApp("MOTIVO_OBRIGATORIO")
+    if len(motivo) > MOTIVO_MAX:
+        raise ErroApp("TEXTO_LONGO_DEMAIS", {"campo": "Motivo", "maximo": numero_br(MOTIVO_MAX)})
 
 
 def _transicao_invalida(de: StatusChamado, para: StatusChamado, papel: Papel) -> ErroApp:

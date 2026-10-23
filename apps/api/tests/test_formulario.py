@@ -141,3 +141,16 @@ def test_modulo_escondido_e_ignorado():
         [SISTEMA, MODULO], "Acesso ao CV", {"sistema": "CVCRM", "modulo_sienge": "Financeiro"}
     )
     assert ok.respostas == {"sistema": "CVCRM"}
+
+
+# ---------------------------------------------------------------- limites de caracteres (2026-10-23)
+def test_descricao_ate_2000_caracteres():
+    descricao = CampoForm("descricao", "Descreva", "texto_longo", True, [], 100)
+    assert validar_formulario([descricao], "Resumo", {"descricao": "x" * 2000}).respostas
+    with pytest.raises(ErroApp) as erro:
+        validar_formulario([descricao], "Resumo", {"descricao": "x" * 2001})
+    assert erro.value.campos[0].mensagem == "O campo Descreva pode ter até 2.000 caracteres."
+
+
+def test_resumo_vai_ate_100_caracteres():
+    assert len(validar_formulario([], "y" * 150, {}).titulo) == 100

@@ -1,3 +1,4 @@
+import { Contador } from "./Contador";
 import { useId, type TextareaHTMLAttributes } from "react";
 
 export interface AreaTextoProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -38,6 +39,7 @@ export function AreaTexto({
         className={`min-h-28 rounded-xl border bg-superficie px-4 py-3 text-base leading-relaxed placeholder:text-texto-suave ${erro ? "border-perigo" : "border-borda"}`}
         {...props}
       />
+      <Contador valor={props.value} maximo={props.maxLength} />
       {ajuda ? (
         <p id={idAjuda} className="text-sm text-texto-suave">
           {ajuda}

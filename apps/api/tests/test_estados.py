@@ -180,3 +180,14 @@ def test_tecnico_nao_atende_o_proprio_chamado():
         validar_acao(meu, "assumir", Ator("ti-1", "ti"))
     assert erro.value.codigo == "CHAMADO_PROPRIO"
     assert validar_acao(meu, "assumir", Ator("ti-2", "ti")).responsavel_id == "ti-2"
+
+
+def test_motivo_ate_500_caracteres():
+    from app.dominio.estados import Ator, ChamadoParaTransicao, DadosAcao, validar_acao
+    from app.erros.catalogo import ErroApp
+
+    aberto = ChamadoParaTransicao(status="pendente", responsavel_id=None, solicitante_id="sol")
+    validar_acao(aberto, "cancelar", Ator("ti", "ti"), DadosAcao("m" * 500))
+    with pytest.raises(ErroApp) as erro:
+        validar_acao(aberto, "cancelar", Ator("ti", "ti"), DadosAcao("m" * 501))
+    assert erro.value.codigo == "TEXTO_LONGO_DEMAIS"

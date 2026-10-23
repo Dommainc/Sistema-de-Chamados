@@ -11,6 +11,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Literal
 
+from app.dominio.limites import TEXTO_LONGO_MAX, numero_br
+from app.dominio.limites import TITULO_MAX as TITULO_MAX
 from app.erros.catalogo import ErroApp, ErroDeCampo, mensagem_erro
 
 TipoCampo = Literal[
@@ -21,7 +23,6 @@ ValorResposta = str | list[str] | bool | float | int
 #: Chave usada para o "Resumo do problema" (vira chamados.titulo).
 CHAVE_TITULO = "titulo"
 ROTULO_TITULO = "Resumo do problema"
-TITULO_MAX = 200
 
 _INVALIDO = object()
 
@@ -115,6 +116,16 @@ def validar_formulario(
         valor = _normalizar(campo, bruto)
         if valor is _INVALIDO:
             erros.append(_erro(campo.chave, campo.label))
+            continue
+        if campo.tipo == "texto_longo" and isinstance(valor, str) and len(valor) > TEXTO_LONGO_MAX:
+            erros.append(
+                ErroDeCampo(
+                    campo.chave,
+                    mensagem_erro(
+                        "TEXTO_LONGO_DEMAIS", campo=campo.label, maximo=numero_br(TEXTO_LONGO_MAX)
+                    ),
+                )
+            )
             continue
         validas[campo.chave] = valor  # type: ignore[assignment]
 

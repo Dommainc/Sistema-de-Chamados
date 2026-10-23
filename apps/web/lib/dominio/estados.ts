@@ -3,6 +3,7 @@
 // Na versão real a fonte da verdade é a API (apps/api/app/dominio/estados.py e GET /chamados/{id}/acoes);
 // aqui ela serve à versão simulada e para decidir quais botões mostrar.
 
+import { MOTIVO_MAX, numeroBr } from "./limites";
 import { rotuloStatus } from "@/lib/status";
 import { ErroApp } from "@/lib/erros/catalogo";
 import { estaEncerrado, type Chamado, type Papel, type StatusChamado } from "./tipos";
@@ -48,7 +49,11 @@ const ORIGENS: Record<AcaoChamado, readonly StatusChamado[]> = {
 export const TODAS_AS_ACOES = Object.keys(DESTINO) as AcaoChamado[];
 
 function exigirMotivo(dados: DadosAcao): void {
-  if ((dados.motivo ?? "").trim().length < 3) throw new ErroApp("MOTIVO_OBRIGATORIO");
+  const motivo = (dados.motivo ?? "").trim();
+  if (motivo.length < 3) throw new ErroApp("MOTIVO_OBRIGATORIO");
+  if (motivo.length > MOTIVO_MAX) {
+    throw new ErroApp("TEXTO_LONGO_DEMAIS", { campo: "Motivo", maximo: numeroBr(MOTIVO_MAX) });
+  }
 }
 
 function transicaoInvalida(de: StatusChamado, para: StatusChamado, papel: Papel): ErroApp {

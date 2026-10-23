@@ -1,3 +1,4 @@
+import { Contador } from "./Contador";
 import { useId, type InputHTMLAttributes } from "react";
 
 export interface CampoProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -38,6 +39,7 @@ export function Campo({
         className={`min-h-12 rounded-xl border bg-superficie px-4 py-2 text-base placeholder:text-texto-suave ${erro ? "border-perigo" : "border-borda"}`}
         {...props}
       />
+      <Contador valor={props.value} maximo={props.maxLength} />
       {ajuda ? (
         <p id={idAjuda} className="text-sm text-texto-suave">
           {ajuda}

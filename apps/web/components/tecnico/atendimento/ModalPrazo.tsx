@@ -1,5 +1,6 @@
 "use client";
 
+import { MOTIVO_MAX } from "@/lib/dominio/limites";
 import { useState } from "react";
 import { AreaTexto } from "@/components/ui/AreaTexto";
 import { Botao } from "@/components/ui/Botao";
@@ -119,6 +120,7 @@ export function ModalPrazo({
             rotulo="Por que está mudando o prazo?"
             required
             rows={3}
+            maxLength={MOTIVO_MAX}
             value={motivo}
             erro={erros.motivo}
             onChange={(e) => setMotivo(e.target.value)}

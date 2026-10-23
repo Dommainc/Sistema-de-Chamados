@@ -2,12 +2,13 @@
 // Erro em qualquer campo → CAMPO_OBRIGATORIO, com a lista `campos` (chave + mensagem) para exibir inline.
 
 import { ErroApp, mensagemErro, type ErroDeCampo } from "@/lib/erros/catalogo";
+import { TEXTO_LONGO_MAX, TITULO_MAX, numeroBr } from "./limites";
 import type { CampoForm, ValorResposta } from "./tipos";
 
 /** Chave usada para o "Resumo do problema" (vira chamados.titulo). */
 export const CHAVE_TITULO = "titulo";
 export const ROTULO_TITULO = "Resumo do problema";
-export const TITULO_MAX = 200;
+export { TITULO_MAX } from "./limites";
 
 export interface FormularioValidado {
   titulo: string;
@@ -83,6 +84,20 @@ export function validarFormulario(
     const valor = normalizar(campo, bruto);
     if (valor === undefined) {
       erros.push(erroCampo(campo.chave, campo.label));
+      continue;
+    }
+    if (
+      campo.tipo === "texto_longo" &&
+      typeof valor === "string" &&
+      valor.length > TEXTO_LONGO_MAX
+    ) {
+      erros.push({
+        campo: campo.chave,
+        mensagem: mensagemErro("TEXTO_LONGO_DEMAIS", {
+          campo: campo.label,
+          maximo: numeroBr(TEXTO_LONGO_MAX),
+        }),
+      });
       continue;
     }
     validas[campo.chave] = valor;
