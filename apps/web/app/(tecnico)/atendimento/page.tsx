@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { QuadroAtendimento } from "@/components/tecnico/QuadroAtendimento";
 import {
+  lerAgrupamento,
   lerCategoria,
   lerFiltro,
+  lerOrdem,
   lerPrioridade,
   lerSistema,
   lerSoMeus,
+  lerVisao,
 } from "@/components/tecnico/parametros";
 
 export const metadata: Metadata = { title: "Atendimento" };
@@ -19,6 +22,9 @@ export default async function PaginaAtendimento({ searchParams }: PageProps<"/at
   const parametros = await searchParams;
   return (
     <QuadroAtendimento
+      visao={lerVisao(primeiro(parametros.visao))}
+      agrupamento={lerAgrupamento(primeiro(parametros.agrupar))}
+      ordem={lerOrdem(primeiro(parametros.ordem))}
       filtros={{
         responsavel: lerFiltro(primeiro(parametros.filtro)),
         soMeus: lerSoMeus(primeiro(parametros.meus), primeiro(parametros.filtro)),

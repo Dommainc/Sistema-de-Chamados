@@ -69,3 +69,20 @@ export function destinoBusca(texto: string): string | null {
   if (/^\d+$/.test(numero)) return `/atendimento/${Number(numero)}`;
   return `/atendimento?busca=${encodeURIComponent(limpo)}`;
 }
+
+/** Visão da área técnica: "quadro" (padrão) ou "lista" (?visao=lista). */
+export function lerVisao(valor: string | null | undefined): "quadro" | "lista" {
+  return valor === "lista" ? "lista" : "quadro";
+}
+
+/** Lista: agrupar por status (padrão), responsável ou categoria. */
+export function lerAgrupamento(
+  valor: string | null | undefined,
+): "status" | "responsavel" | "categoria" {
+  return valor === "responsavel" || valor === "categoria" ? valor : "status";
+}
+
+/** Lista: ordem pelo prazo (?ordem=prazo ou -prazo); sem parâmetro = a ordem do quadro. */
+export function lerOrdem(valor: string | null | undefined): "padrao" | "prazo" | "-prazo" {
+  return valor === "prazo" || valor === "-prazo" ? valor : "padrao";
+}

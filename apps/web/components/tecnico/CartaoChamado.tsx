@@ -47,23 +47,35 @@ function Prioridade({ chamado }: { chamado: Chamado }) {
 }
 
 /** Rodapé: quando (prazo, espera ou encerramento) à esquerda; mensagens novas e quem atende à direita. */
+/**
+ * O "tempo" do chamado, igual no cartão e na Lista: Concluído/Cancelado há…, Aguardando há…, Aberto há… (antes
+ * de iniciar não há prazo — ADR 0012) ou o prazo ("Vence em 3h 10min" · "Atrasado 35min").
+ */
+export function tempoDoChamado(
+  coluna: ColunaQuadro,
+  c: Chamado,
+  agora: Date,
+): { texto: string; atrasado: boolean } {
+  if (coluna === "concluidos")
+    return { texto: `Concluído ${tempoRelativo(encerradoEm(c), agora)}`, atrasado: false };
+  if (coluna === "cancelados")
+    return { texto: `Cancelado ${tempoRelativo(encerradoEm(c), agora)}`, atrasado: false };
+  if (coluna === "aguardando")
+    return { texto: `Aguardando ${tempoRelativo(c.atualizadoEm, agora)}`, atrasado: false };
+  if (coluna === "novos" || coluna === "transferidos")
+    return { texto: `Aberto ${tempoRelativo(c.criadoEm, agora)}`, atrasado: false };
+  return {
+    texto: textoPrazoCartao(c.prazoSla, agora),
+    atrasado: situacaoPrazo(c.prazoSla, agora) === "vencido",
+  };
+}
+
 function Rodape({ dados, agora, euId }: { dados: DadosCartao; agora: Date; euId: string }) {
   const { chamado: c, coluna, responsavel, naoLidas } = dados;
-  let quando: React.ReactNode;
-  if (coluna === "concluidos") quando = `Concluído ${tempoRelativo(encerradoEm(c), agora)}`;
-  else if (coluna === "cancelados") quando = `Cancelado ${tempoRelativo(encerradoEm(c), agora)}`;
-  else if (coluna === "aguardando") quando = `Aguardando ${tempoRelativo(c.atualizadoEm, agora)}`;
-  else if (coluna === "novos" || coluna === "transferidos")
-    // Antes de iniciar não há prazo (ADR 0012): mostra há quanto tempo espera.
-    quando = `Aberto ${tempoRelativo(c.criadoEm, agora)}`;
-  else {
-    const atrasado = situacaoPrazo(c.prazoSla, agora) === "vencido";
-    quando = (
-      <span className={atrasado ? "font-bold text-texto" : ""}>
-        {textoPrazoCartao(c.prazoSla, agora)}
-      </span>
-    );
-  }
+  const tempo = tempoDoChamado(coluna, c, agora);
+  const quando = (
+    <span className={tempo.atrasado ? "font-bold text-texto" : ""}>{tempo.texto}</span>
+  );
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 border-t border-borda pt-2.5 text-xs text-texto-suave">
       <span className="flex items-center gap-1.5">

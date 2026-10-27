@@ -2,7 +2,7 @@
 
 import { ChartColumn, Search } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { BotaoTemaPerfil } from "@/components/comum/BotaoTemaPerfil";
 import { MenuUsuario } from "@/components/comum/MenuUsuario";
@@ -39,6 +39,47 @@ function CampoBusca({ className = "" }: { className?: string }) {
         className="min-h-11 w-full rounded-xl bg-barra-2 pr-3 pl-9 text-sobre-barra placeholder:text-sobre-barra-suave"
       />
     </form>
+  );
+}
+
+/** Abas "Quadro | Lista" (layout novo): trocam a visão mantendo os filtros escolhidos. */
+function AbasVisao() {
+  const caminho = usePathname();
+  const parametros = useSearchParams();
+  const noQuadro = caminho === "/atendimento";
+  const lista = noQuadro && parametros.get("visao") === "lista";
+  const link = (visao: "quadro" | "lista") => {
+    const p = new URLSearchParams(noQuadro ? parametros.toString() : "");
+    if (visao === "lista") p.set("visao", "lista");
+    else p.delete("visao");
+    p.delete("agrupar");
+    p.delete("ordem");
+    if (visao === "lista") {
+      for (const chave of ["agrupar", "ordem"]) {
+        const valor = noQuadro ? parametros.get(chave) : null;
+        if (valor) p.set(chave, valor);
+      }
+    }
+    const texto = p.toString();
+    return texto ? `/atendimento?${texto}` : "/atendimento";
+  };
+  const aba = (ativa: boolean) =>
+    `inline-flex min-h-9 items-center rounded-lg px-3 text-sm font-semibold ${
+      ativa ? "bg-barra-2 text-sobre-barra" : "text-sobre-barra-suave hover:text-sobre-barra"
+    }`;
+  return (
+    <nav aria-label="Visão" className="flex items-center gap-1">
+      <Link
+        href={link("quadro")}
+        aria-current={noQuadro && !lista ? "page" : undefined}
+        className={aba(noQuadro && !lista)}
+      >
+        Quadro
+      </Link>
+      <Link href={link("lista")} aria-current={lista ? "page" : undefined} className={aba(lista)}>
+        Lista
+      </Link>
+    </nav>
   );
 }
 
@@ -80,6 +121,7 @@ export function BarraTecnico() {
           <span className="rounded-md bg-barra-2 px-2 py-0.5 text-xs font-bold text-sobre-barra-suave">
             TI
           </span>
+          <AbasVisao />
         </div>
         <div className="flex items-center gap-4">
           {/* Computador: ao lado da busca. Celular: na linha de baixo, junto da busca. */}

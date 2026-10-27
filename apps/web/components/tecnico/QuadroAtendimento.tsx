@@ -23,6 +23,7 @@ import {
 } from "./arraste";
 import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import { ColunaQuadro } from "./ColunaQuadro";
+import { ListaChamados, type Agrupamento, type Ordem } from "./ListaChamados";
 import { FiltrosQuadro } from "./FiltrosQuadro";
 import {
   acaoDoArraste,
@@ -47,7 +48,18 @@ const SEGUNDOS_DESTAQUE = 6;
 const ROLAGEM_AUTOMATICA = { threshold: { x: 0.1, y: 0.12 }, acceleration: 4 };
 
 /** Quadro da área técnica (mockup, telas 6 e 8). */
-export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
+export function QuadroAtendimento({
+  filtros,
+  visao = "quadro",
+  agrupamento = "status",
+  ordem = "padrao",
+}: {
+  filtros: Filtros;
+  /** "Quadro" (kanban) ou "Lista" (tabela) — layout novo, parte 2. */
+  visao?: "quadro" | "lista";
+  agrupamento?: Agrupamento;
+  ordem?: Ordem;
+}) {
   const usuario = useUsuario();
   const executar = useAcaoChamado();
   const { mostrar } = useToast();
@@ -138,6 +150,11 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       };
     });
 
+  const porColuna = Object.fromEntries(COLUNAS.map((c) => [c.id, cartoes(c.id)])) as Record<
+    IdColuna,
+    DadosCartao[]
+  >;
+
   function soltar(chamadoId: number, de: IdColuna, para: IdColuna) {
     const acao = acaoDoArraste(de, para);
     if (!acao) {
@@ -200,38 +217,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         ) : null}
       </div>
 
-      {/* Até ~1280 px nem todas as colunas cabem: atalhos para pular até cada uma. */}
-      <div className="flex flex-col gap-2 xl:hidden">
-        <div
-          role="tablist"
-          aria-label="Colunas do quadro"
-          className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
-        >
-          {COLUNAS.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              role="tab"
-              aria-selected={colunaCelular === c.id}
-              onClick={() => {
-                setColunaCelular(c.id);
-                document
-                  .getElementById(`coluna-${c.id}`)
-                  ?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
-              }}
-              className={`min-h-11 shrink-0 rounded-full border px-4 font-semibold whitespace-nowrap ${
-                colunaCelular === c.id
-                  ? "border-primaria bg-primaria text-sobre-primaria"
-                  : "border-borda bg-superficie text-texto"
-              }`}
-            >
-              {c.titulo} {totalPorColuna(c.id)}
-            </button>
-          ))}
-        </div>
-        <p className="text-sm text-texto-suave">Deslize para o lado para ver as outras colunas</p>
-      </div>
-
       {filtros.busca ? (
         <p className="text-sm text-texto-suave">
           Mostrando só os chamados com “<strong className="text-texto">{filtros.busca}</strong>” no
@@ -245,59 +230,106 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         </p>
       ) : null}
 
-      {/* Sempre kanban: colunas lado a lado. Abaixo de ~1280 px, desliza-se para o lado entre elas. */}
-      <DndContext
-        sensors={sensores}
-        collisionDetection={colisao}
-        accessibility={{ announcements: AVISOS, screenReaderInstructions: INSTRUCOES }}
-        autoScroll={ROLAGEM_AUTOMATICA}
-        onDragStart={({ active }) =>
-          setArrastado((active.data.current as DadosArraste | undefined)?.chamadoId ?? null)
-        }
-        onDragCancel={() => setArrastado(null)}
-        onDragEnd={({ active, over }) => {
-          setArrastado(null);
-          const origem = active.data.current as DadosArraste | undefined;
-          if (origem && over && over.id !== origem.coluna) {
-            soltar(origem.chamadoId, origem.coluna, over.id as IdColuna);
-          }
-        }}
-      >
-        {/* Seis colunas da mesma largura (pedido do dono, 2026-10-08). */}
-        <div
-          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(6,minmax(11.5rem,1fr))] xl:px-0`}
-        >
-          {COLUNAS.map((c) => (
-            <ColunaQuadro
-              key={c.id}
-              id={c.id}
-              titulo={c.titulo}
-              apoio={c.apoio}
-              encerrada={c.encerrada}
-              cartoes={cartoes(c.id)}
-              euId={usuario.id}
-              agora={agora}
-              destacados={destacados}
-              className="w-[85vw] max-w-[21rem] shrink-0 snap-start xl:w-auto xl:max-w-none"
-            />
-          ))}
-        </div>
-
-        {/* "Fantasma" que acompanha o dedo/mouse. */}
-        <DragOverlay dropAnimation={null}>
-          {cartaoArrastado ? (
-            <div className="w-[min(85vw,20rem)]">
-              <CartaoChamado
-                dados={cartaoArrastado}
-                euId={usuario.id}
-                agora={agora}
-                destacado={false}
-                fantasma
-              />
+      {visao === "lista" ? (
+        <ListaChamados
+          porColuna={porColuna}
+          categorias={dados.categorias}
+          euId={usuario.id}
+          agora={agora}
+          agrupamento={agrupamento}
+          ordem={ordem}
+        />
+      ) : (
+        <>
+          {/* Até ~1280 px nem todas as colunas cabem: atalhos para pular até cada uma. */}
+          <div className="flex flex-col gap-2 xl:hidden">
+            <div
+              role="tablist"
+              aria-label="Colunas do quadro"
+              className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1"
+            >
+              {COLUNAS.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={colunaCelular === c.id}
+                  onClick={() => {
+                    setColunaCelular(c.id);
+                    document
+                      .getElementById(`coluna-${c.id}`)
+                      ?.scrollIntoView({ behavior: "smooth", inline: "start", block: "nearest" });
+                  }}
+                  className={`min-h-11 shrink-0 rounded-full border px-4 font-semibold whitespace-nowrap ${
+                    colunaCelular === c.id
+                      ? "border-primaria bg-primaria text-sobre-primaria"
+                      : "border-borda bg-superficie text-texto"
+                  }`}
+                >
+                  {c.titulo} {totalPorColuna(c.id)}
+                </button>
+              ))}
             </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+            <p className="text-sm text-texto-suave">
+              Deslize para o lado para ver as outras colunas
+            </p>
+          </div>
+
+          {/* Sempre kanban: colunas lado a lado. Abaixo de ~1280 px, desliza-se para o lado entre elas. */}
+          <DndContext
+            sensors={sensores}
+            collisionDetection={colisao}
+            accessibility={{ announcements: AVISOS, screenReaderInstructions: INSTRUCOES }}
+            autoScroll={ROLAGEM_AUTOMATICA}
+            onDragStart={({ active }) =>
+              setArrastado((active.data.current as DadosArraste | undefined)?.chamadoId ?? null)
+            }
+            onDragCancel={() => setArrastado(null)}
+            onDragEnd={({ active, over }) => {
+              setArrastado(null);
+              const origem = active.data.current as DadosArraste | undefined;
+              if (origem && over && over.id !== origem.coluna) {
+                soltar(origem.chamadoId, origem.coluna, over.id as IdColuna);
+              }
+            }}
+          >
+            {/* Seis colunas da mesma largura (pedido do dono, 2026-10-08). */}
+            <div
+              className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(6,minmax(11.5rem,1fr))] xl:px-0`}
+            >
+              {COLUNAS.map((c) => (
+                <ColunaQuadro
+                  key={c.id}
+                  id={c.id}
+                  titulo={c.titulo}
+                  apoio={c.apoio}
+                  encerrada={c.encerrada}
+                  cartoes={cartoes(c.id)}
+                  euId={usuario.id}
+                  agora={agora}
+                  destacados={destacados}
+                  className="w-[85vw] max-w-[21rem] shrink-0 snap-start xl:w-auto xl:max-w-none"
+                />
+              ))}
+            </div>
+
+            {/* "Fantasma" que acompanha o dedo/mouse. */}
+            <DragOverlay dropAnimation={null}>
+              {cartaoArrastado ? (
+                <div className="w-[min(85vw,20rem)]">
+                  <CartaoChamado
+                    dados={cartaoArrastado}
+                    euId={usuario.id}
+                    agora={agora}
+                    destacado={false}
+                    fantasma
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        </>
+      )}
 
       <ModalAcao
         acao={comJanela?.acao ?? null}

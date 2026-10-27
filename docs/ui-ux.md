@@ -46,6 +46,10 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
   sistema), rodapé com o tempo (Novos/Transferidos: "Aberto há 6h"; em atendimento: "Vence em 3h 10min" ou
   **"Atrasado 35min"** em negrito — opção A do layout; Aguardando: "Aguardando há 2h"), mensagens novas e quem atende.
 - **Botão "?"** no canto de baixo à direita (TI e portal) abre a Ajuda.
+- **Quadro | Lista** (abas na barra de cima, parte 2): a Lista é uma tabela com os mesmos chamados e filtros —
+  ID · Chamado (título + solicitante · assunto) · Status · Prioridade · Responsável · Prazo do chamado · Msgs —,
+  agrupada por **status** (padrão), **responsável** ou **categoria**, e ordenável clicando em "Prazo do chamado"
+  (`?visao=lista&agrupar=…&ordem=prazo|-prazo`). Concluídos e cancelados: últimos 7 dias, em cinza.
 
 ## Listas grandes de opções (2026-10-17)
 - 7 ou mais opções (ex.: sistemas, módulos): botões compactos em grade — 2 colunas no celular, 3 no computador.
