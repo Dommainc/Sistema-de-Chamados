@@ -1,17 +1,22 @@
-// Regras puras do quadro da área técnica (mockup, tela 6; adaptado ao ADR 0005).
-// Seis colunas, todas da mesma largura: Novos · Em atendimento · Aguardando usuário · Concluídos ·
-// Transferidos · Cancelados (pedidos do dono, 2026-10-06 a 2026-10-08). Concluídos e Cancelados: últimos 7 dias.
+// Regras puras do quadro da área técnica (layout novo e ata de 26/10/2026; adaptado ao ADR 0005).
+// Seis colunas da mesma largura: Novos · Transferidos · Em atendimento · Aguardando solicitante · Concluídos ·
+// Cancelados. Concluídos e Cancelados: últimos 7 dias (os antigos ficam na busca, na Lista e no relatório).
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
 import { CHAVE_SISTEMA } from "@/lib/sistemas";
-import type { Chamado, StatusChamado } from "@/lib/dominio/tipos";
-import { compararPrazo, situacaoPrazo, type SituacaoPrazo } from "@/lib/prazo";
+import {
+  naoIniciado,
+  type Chamado,
+  type PrioridadeDaTi,
+  type StatusChamado,
+} from "@/lib/dominio/tipos";
+import { compararPrazo, situacaoPrazo } from "@/lib/prazo";
 import type { FiltroResponsavel } from "./parametros";
 
 export type ColunaQuadro =
   "novos" | "transferidos" | "em_atendimento" | "aguardando" | "concluidos" | "cancelados";
 
-/** "Concluídos" e "Cancelados" mostram só os dos últimos dias (os demais ficam em "Ver encerrados"). */
+/** "Concluídos" e "Cancelados" mostram só os dos últimos dias. */
 export const DIAS_CONCLUIDOS = 7;
 
 export interface DefinicaoColuna {
@@ -23,12 +28,19 @@ export interface DefinicaoColuna {
 }
 
 export const COLUNAS: readonly DefinicaoColuna[] = [
-  { id: "novos", titulo: "Novos", apoio: "Arraste para iniciar", encerrada: false },
-  { id: "em_atendimento", titulo: "Em atendimento", apoio: "TI cuidando", encerrada: false },
+  // Ordem da ata de 26/10/2026 (item 03): Transferidos de volta ao lado de Novos.
+  { id: "novos", titulo: "Novos", apoio: "Triagem", encerrada: false },
+  {
+    id: "transferidos",
+    titulo: "Transferidos",
+    apoio: "O técnico de destino inicia",
+    encerrada: false,
+  },
+  { id: "em_atendimento", titulo: "Em atendimento", apoio: "", encerrada: false },
   {
     id: "aguardando",
-    titulo: "Aguardando usuário",
-    apoio: "Vai para cá sozinho após 2 h úteis sem resposta do solicitante",
+    titulo: "Aguardando solicitante",
+    apoio: "Esperando resposta",
     encerrada: false,
   },
   {
@@ -36,13 +48,6 @@ export const COLUNAS: readonly DefinicaoColuna[] = [
     titulo: "Concluídos",
     apoio: `Últimos ${DIAS_CONCLUIDOS} dias`,
     encerrada: true,
-  },
-  // Transferidos entre Concluídos e Cancelados (pedido do dono, 2026-10-08).
-  {
-    id: "transferidos",
-    titulo: "Transferidos",
-    apoio: "O técnico de destino inicia",
-    encerrada: false,
   },
   {
     id: "cancelados",
@@ -69,17 +74,17 @@ export function colunaDoStatus(status: StatusChamado): ColunaQuadro | null {
   }
 }
 
-export type FiltroPrazo = "todos" | SituacaoPrazo;
-
 export interface FiltrosQuadro {
+  /** "Responsável": um técnico, "sem_responsavel" ou "todos" (sem filtro). */
   responsavel: FiltroResponsavel;
+  /** "Só os meus": só os chamados em que eu sou o responsável. */
+  soMeus: boolean;
   categoriaId: number | null;
-  /** Filtro "Sistema": só os chamados com esta resposta em "Qual sistema?" (null = qualquer). */
+  /** "Sistema": só os chamados com esta resposta em "Qual sistema?" (null = sem filtro). */
   sistema: string | null;
-  prazo: FiltroPrazo;
-  /** Filtro "Status": só esta coluna (null = todas). */
-  coluna: ColunaQuadro | null;
-  /** Texto da busca da barra (parte do título); vazio = sem busca. */
+  /** "Prioridade" (só vale para chamados já iniciados: nos Novos ela ainda não existe — ADR 0012). */
+  prioridade: PrioridadeDaTi | null;
+  /** Busca da barra: parte do título ou do nome do solicitante; vazio = sem busca. */
   busca: string;
 }
 
@@ -95,34 +100,53 @@ export function filtrarChamados(
   chamados: readonly Chamado[],
   filtros: FiltrosQuadro,
   euId: string,
-  agora: Date = new Date(),
+  /** Nome do solicitante (para a busca encontrar "Paula" além do título). */
+  nomeDe: (perfilId: string) => string = () => "",
 ): Chamado[] {
+  const termo = normalizar(filtros.busca.trim());
   return chamados.filter((c) => {
-    if (filtros.responsavel === "meus" && c.responsavelId !== euId) return false;
+    if (filtros.soMeus && c.responsavelId !== euId) return false;
     if (filtros.responsavel === "sem_responsavel" && c.responsavelId !== null) return false;
     if (
-      !["todos", "meus", "sem_responsavel"].includes(filtros.responsavel) &&
+      filtros.responsavel !== "todos" &&
+      filtros.responsavel !== "sem_responsavel" &&
       c.responsavelId !== filtros.responsavel
     ) {
       return false;
     }
-    if (filtros.coluna !== null && colunaDoStatus(c.status) !== filtros.coluna) return false;
     if (filtros.categoriaId !== null && c.categoriaId !== filtros.categoriaId) return false;
     if (filtros.sistema !== null && c.respostasForm[CHAVE_SISTEMA] !== filtros.sistema)
       return false;
-    // Prazo não se aplica a encerrados.
     if (
-      filtros.prazo !== "todos" &&
-      c.status !== "concluido" &&
-      c.status !== "cancelado" &&
-      situacaoPrazo(c.prazoSla, agora) !== filtros.prazo
+      filtros.prioridade !== null &&
+      (naoIniciado(c.status) || c.prioridade !== filtros.prioridade)
+    )
+      return false;
+    if (
+      termo &&
+      !normalizar(c.titulo).includes(termo) &&
+      !normalizar(nomeDe(c.solicitanteId)).includes(termo)
     ) {
       return false;
     }
-    const termo = normalizar(filtros.busca.trim());
-    if (termo && !normalizar(c.titulo).includes(termo)) return false;
     return true;
   });
+}
+
+/** Resumo do topo: "9 em aberto · 1 com prazo estourado · 2 aguardando solicitante". */
+export function resumoQuadro(
+  chamados: readonly Chamado[],
+  agora: Date = new Date(),
+): { abertos: number; atrasados: number; aguardando: number } {
+  const abertos = chamados.filter((c) => c.status !== "concluido" && c.status !== "cancelado");
+  return {
+    abertos: abertos.length,
+    // Aguardando: o prazo fica pausado (não conta como atraso da TI).
+    atrasados: abertos.filter(
+      (c) => c.status !== "aguardando_usuario" && situacaoPrazo(c.prazoSla, agora) === "vencido",
+    ).length,
+    aguardando: abertos.filter((c) => c.status === "aguardando_usuario").length,
+  };
 }
 
 export type Quadro = Record<ColunaQuadro, Chamado[]>;

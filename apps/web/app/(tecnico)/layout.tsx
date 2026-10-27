@@ -1,5 +1,6 @@
 // Área técnica: ferramenta de trabalho, densa, pensada para desktop (docs/ui-ux.md).
 
+import { BotaoAjuda } from "@/components/comum/BotaoAjuda";
 import { Suspense } from "react";
 import { AreaPrincipal } from "@/components/tecnico/AreaPrincipal";
 import { BarraTecnico } from "@/components/tecnico/BarraTecnico";
@@ -15,6 +16,7 @@ export default async function LayoutTecnico({ children }: { children: React.Reac
         <BarraTecnico />
       </Suspense>
       <AreaPrincipal>{children}</AreaPrincipal>
+      <BotaoAjuda href="/atendimento/ajuda" />
     </ProvedorDados>
   );
 }

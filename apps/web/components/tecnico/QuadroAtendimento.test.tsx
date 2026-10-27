@@ -24,10 +24,10 @@ vi.mock("next/navigation", () => ({
 const RAFAEL = USUARIOS_SIMULADOS[2];
 const TODOS: FiltrosQuadro = {
   responsavel: "todos",
+  soMeus: false,
   categoriaId: null,
   sistema: null,
-  prazo: "todos",
-  coluna: null,
+  prioridade: null,
   busca: "",
 };
 
@@ -60,8 +60,8 @@ afterEach(() => {
 // O jsdom não calcula layout: cada coluna ganha uma posição (lado a lado, 300 px) e cada cartão fica
 // dentro da sua coluna — o suficiente para o dnd-kit saber sobre qual coluna o cartão está.
 // O "fantasma" (DragOverlay, fora das colunas) começa onde estava o cartão arrastado.
-// Ordem das colunas (pedido do dono, 2026-10-08): Transferidos entre Concluídos e Cancelados.
-const ORDEM = ["novos", "em_atendimento", "aguardando", "concluidos", "transferidos", "cancelados"];
+// Ordem das colunas (ata de 26/10/2026, item 03): Transferidos de volta ao lado de Novos.
+const ORDEM = ["novos", "transferidos", "em_atendimento", "aguardando", "concluidos", "cancelados"];
 
 /** Espera o quadro carregar (a coluna Novos aparece). */
 const carregado = () => screen.findByRole("region", { name: /^Novos:/ });
@@ -101,12 +101,12 @@ async function arrastarComTeclado(numero: number, colunasParaDireita: number) {
 }
 
 describe("QuadroAtendimento", () => {
-  it("monta Novos, Em atendimento e Aguardando usuário com os exemplos", async () => {
+  it("monta Novos, Em atendimento e Aguardando solicitante com os exemplos", async () => {
     renderizar();
     await carregado();
     // Em Novos não há prazo nem prioridade (só depois de iniciar — ADR 0012).
-    expect(within(coluna("Novos")).queryByText(/Prazo|Sem prazo|Vence/)).not.toBeInTheDocument();
-    expect(within(coluna("Novos")).queryByText(/Prioridade/)).not.toBeInTheDocument();
+    expect(within(coluna("Novos")).queryByText(/Sem prazo|Vence|Atrasado/)).not.toBeInTheDocument();
+    expect(within(coluna("Novos")).queryByText(/^(Alta|Média|Baixa)$/)).not.toBeInTheDocument();
     expect(
       within(coluna("Novos")).getByText("Impressora do 3º andar não imprime"),
     ).toBeInTheDocument();
@@ -114,29 +114,31 @@ describe("QuadroAtendimento", () => {
       within(coluna("Em atendimento")).getByText("Instalar AutoCAD no notebook"),
     ).toBeInTheDocument();
     expect(
-      within(coluna("Aguardando usuário")).getByText("Outlook não sincroniza"),
+      within(coluna("Aguardando solicitante")).getByText("Outlook não sincroniza"),
     ).toBeInTheDocument();
     expect(
       within(coluna("Transferidos")).getByText(/Transferido para você · por Thiago/),
     ).toBeInTheDocument();
-    expect(within(cartao(42)).getByText("NOVO")).toBeInTheDocument();
+    expect(within(cartao(42)).getByText("Sem responsável")).toBeInTheDocument();
+    expect(
+      screen.getByText(/em aberto · \d+ com prazo estourado · \d+ aguardando solicitante/),
+    ).toBeInTheDocument();
   });
 
-  it("sem Próximo da fila, sem legenda de cor do status e sem Iniciar no cartão", async () => {
+  it("sem legendas, sem Ver encerrados e sem Iniciar no cartão (ata de 26/10/2026)", async () => {
     renderizar();
     await carregado();
-    expect(screen.queryByText("Próximo da fila")).not.toBeInTheDocument();
-    expect(screen.queryByRole("list", { name: "Cores de status" })).not.toBeInTheDocument();
-    expect(screen.getAllByRole("list", { name: "Cores do prazo" }).length).toBeGreaterThan(0);
+    expect(screen.queryByRole("list", { name: "Cores do prazo" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Ver encerrados" })).not.toBeInTheDocument();
     expect(within(cartao(42)).queryByRole("button", { name: "Iniciar" })).not.toBeInTheDocument();
     expect(
       screen.getAllByRole("region").map((r) => r.getAttribute("aria-label")?.split(":")[0]),
     ).toEqual([
       "Novos",
-      "Em atendimento",
-      "Aguardando usuário",
-      "Concluídos",
       "Transferidos",
+      "Em atendimento",
+      "Aguardando solicitante",
+      "Concluídos",
       "Cancelados",
     ]);
   });
@@ -144,9 +146,9 @@ describe("QuadroAtendimento", () => {
   it("cartão mostra a prioridade (alta, média ou baixa) e, em atendimento, só as iniciais", async () => {
     renderizar();
     await carregado();
-    expect(within(cartao(38)).getByText(/Prioridade alta/)).toBeInTheDocument();
-    expect(within(cartao(33)).getByText("Prioridade média")).toBeInTheDocument();
-    expect(within(cartao(42)).queryByText(/Prioridade/)).not.toBeInTheDocument();
+    expect(within(cartao(38)).getByText("Alta")).toBeInTheDocument();
+    expect(within(cartao(33)).getByText("Média")).toBeInTheDocument();
+    expect(within(cartao(42)).queryByText(/^(Alta|Média|Baixa)$/)).not.toBeInTheDocument();
     const emAtendimento = cartao(38);
     expect(within(emAtendimento).getByText("RL")).toBeInTheDocument();
     expect(within(emAtendimento).getByText("Com você")).toHaveClass("sr-only");
@@ -154,11 +156,11 @@ describe("QuadroAtendimento", () => {
     expect(within(cartao(41)).getByText("RL")).toBeInTheDocument();
   });
 
-  it('sistema fica no rodapé do cartão; "Não se aplica" não aparece', async () => {
+  it('sistema aparece junto do solicitante, sem cor; "Não se aplica" não aparece', async () => {
     renderizar();
     await carregado();
-    expect(within(cartao(40)).getByText("Construmanager")).toBeInTheDocument();
-    expect(within(cartao(31)).queryByText("Não se aplica")).not.toBeInTheDocument();
+    expect(within(cartao(40)).getByText(/· Construmanager/)).toBeInTheDocument();
+    expect(within(cartao(31)).queryByText(/Não se aplica/)).not.toBeInTheDocument();
   });
 
   it("filtro por sistema: só os chamados daquele sistema", async () => {
@@ -225,7 +227,7 @@ describe("QuadroAtendimento", () => {
   it("arrastar de Novos para Em atendimento inicia o chamado", async () => {
     renderizar();
     await carregado();
-    await arrastarComTeclado(42, 1); // → Em atendimento
+    await arrastarComTeclado(42, 2); // → Em atendimento (passando por Transferidos)
     await waitFor(() =>
       expect(
         within(coluna("Em atendimento")).getByText("Sem internet na obra Recreio"),
@@ -235,12 +237,14 @@ describe("QuadroAtendimento", () => {
     expect(await screen.findByText("Você iniciou o chamado #42.")).toBeInTheDocument();
   });
 
-  it("aguardando usuário é só automático: arrastar para lá não vale (ADR 0014)", async () => {
+  it("aguardando solicitante é só automático: arrastar para lá não vale (ADR 0014)", async () => {
     renderizar();
     await carregado();
-    await arrastarComTeclado(38, 1); // → Aguardando usuário
+    await arrastarComTeclado(38, 1); // → Aguardando solicitante
     expect(
-      await screen.findByText("Não é possível mudar de Em atendimento para Aguardando usuário."),
+      await screen.findByText(
+        "Não é possível mudar de Em atendimento para Aguardando solicitante.",
+      ),
     ).toBeInTheDocument();
     expect(lerEstado().chamados.find((c) => c.id === 38)?.status).toBe("em_andamento");
   });
@@ -248,15 +252,15 @@ describe("QuadroAtendimento", () => {
   it("movimento que não vale avisa e não muda nada", async () => {
     renderizar();
     await carregado();
-    await arrastarComTeclado(42, 2); // → Aguardando usuário
+    await arrastarComTeclado(42, 3); // → Aguardando solicitante
     expect(
-      await screen.findByText("Não é possível mudar de Novos para Aguardando usuário."),
+      await screen.findByText("Não é possível mudar de Novos para Aguardando solicitante."),
     ).toBeInTheDocument();
     expect(lerEstado().chamados.find((c) => c.id === 42)?.status).toBe("pendente");
   });
 
   it("filtro 'Só os meus' mostra só o que é do técnico", async () => {
-    renderizar({ ...TODOS, responsavel: "meus" });
+    renderizar({ ...TODOS, soMeus: true });
     await carregado();
     expect(screen.queryByText("VPN não conecta em casa")).not.toBeInTheDocument(); // do Thiago
     expect(screen.getByText("Instalar AutoCAD no notebook")).toBeInTheDocument();

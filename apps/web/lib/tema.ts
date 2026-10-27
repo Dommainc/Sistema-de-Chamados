@@ -23,4 +23,4 @@ export function aplicarTema(tema: Tema): void {
 }
 
 /** Cor da barra do navegador no celular (meta theme-color) = cor do fundo. */
-export const COR_DO_NAVEGADOR: Record<Tema, string> = { claro: "#f2f0eb", escuro: "#121418" };
+export const COR_DO_NAVEGADOR: Record<Tema, string> = { claro: "#f3f3f1", escuro: "#121418" };

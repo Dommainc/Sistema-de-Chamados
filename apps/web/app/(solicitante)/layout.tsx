@@ -1,5 +1,6 @@
 // Portal do solicitante: leve, pensado para celular (docs/ui-ux.md); no computador usa a largura da tela.
 
+import { BotaoAjuda } from "@/components/comum/BotaoAjuda";
 import Link from "next/link";
 import { BotaoTemaPerfil } from "@/components/comum/BotaoTemaPerfil";
 import { MenuUsuario } from "@/components/comum/MenuUsuario";
@@ -34,6 +35,7 @@ export default async function LayoutSolicitante({ children }: { children: React.
         <GuardaPrimeiroAcesso>{children}</GuardaPrimeiroAcesso>
       </main>
       <MenuInferior />
+      <BotaoAjuda href="/ajuda" acimaDoMenu />
     </ProvedorDados>
   );
 }

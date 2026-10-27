@@ -113,3 +113,28 @@ export function atalhosPrazo(agora: Date = new Date()): AtalhoPrazo[] {
     .filter((a) => a.data.getTime() > agora.getTime())
     .map((a) => ({ rotulo: a.rotulo, iso: a.data.toISOString() }));
 }
+
+/** Horas e minutos: "3h 10min", "35min", "2 dias". */
+function duracaoCurta(ms: number): string {
+  const minutos = Math.max(1, Math.floor(ms / 60_000));
+  if (minutos < 60) return `${minutos}min`;
+  const horas = Math.floor(minutos / 60);
+  if (horas >= 24) {
+    const dias = Math.floor(horas / 24);
+    return dias === 1 ? "1 dia" : `${dias} dias`;
+  }
+  const resto = minutos % 60;
+  return resto ? `${horas}h ${String(resto).padStart(2, "0")}min` : `${horas}h`;
+}
+
+/**
+ * Prazo no rodapé do cartão (layout novo, opção A): "Atrasado 35min" · "Vence em 3h 10min" (menos de 12 h) ·
+ * "Vence amanhã, 10:00" · "Sem prazo".
+ */
+export function textoPrazoCartao(prazoIso: string | null, agora: Date = new Date()): string {
+  if (prazoIso === null) return "Sem prazo";
+  const restante = new Date(prazoIso).getTime() - agora.getTime();
+  if (restante < 0) return `Atrasado ${duracaoCurta(-restante)}`;
+  if (restante < 12 * 3_600_000) return `Vence em ${duracaoCurta(restante)}`;
+  return `Vence ${formatarQuando(prazoIso, agora)}`;
+}

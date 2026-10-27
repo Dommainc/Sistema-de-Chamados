@@ -41,10 +41,10 @@ function chamado(
 
 const TODOS: FiltrosQuadro = {
   responsavel: "todos",
+  soMeus: false,
   categoriaId: null,
   sistema: null,
-  prazo: "todos",
-  coluna: null,
+  prioridade: null,
   busca: "",
 };
 
@@ -90,28 +90,31 @@ describe("filtros", () => {
   ];
 
   it("Só os meus = responsável sou eu (inclui transferido para mim)", () => {
-    expect(
-      filtrarChamados(lista, { ...TODOS, responsavel: "meus" }, "eu", agora).map((c) => c.id),
-    ).toEqual([2, 4]);
+    expect(filtrarChamados(lista, { ...TODOS, soMeus: true }, "eu").map((c) => c.id)).toEqual([
+      2, 4,
+    ]);
   });
 
   it("Sem responsável", () => {
     expect(
-      filtrarChamados(lista, { ...TODOS, responsavel: "sem_responsavel" }, "eu", agora).map(
-        (c) => c.id,
-      ),
+      filtrarChamados(lista, { ...TODOS, responsavel: "sem_responsavel" }, "eu").map((c) => c.id),
     ).toEqual([1]);
   });
 
-  it("por categoria e por prazo", () => {
+  it("por categoria", () => {
+    expect(filtrarChamados(lista, { ...TODOS, categoriaId: 2 }, "eu").map((c) => c.id)).toEqual([
+      2,
+    ]);
+  });
+
+  it("por prioridade: só os já iniciados (nos Novos a prioridade ainda não existe)", () => {
+    const comPrioridade = [
+      { ...chamado(1, "pendente", 60), prioridade: "alta" as const },
+      { ...chamado(2, "em_andamento", 60, "eu"), prioridade: "alta" as const },
+      { ...chamado(3, "em_andamento", 60, "eu"), prioridade: "baixa" as const },
+    ];
     expect(
-      filtrarChamados(lista, { ...TODOS, categoriaId: 2 }, "eu", agora).map((c) => c.id),
-    ).toEqual([2]);
-    expect(
-      filtrarChamados(lista, { ...TODOS, prazo: "vencido" }, "eu", agora).map((c) => c.id),
-    ).toEqual([1]);
-    expect(
-      filtrarChamados(lista, { ...TODOS, prazo: "vence_em_breve" }, "eu", agora).map((c) => c.id),
+      filtrarChamados(comPrioridade, { ...TODOS, prioridade: "alta" }, "eu").map((c) => c.id),
     ).toEqual([2]);
   });
 
@@ -122,27 +125,36 @@ describe("filtros", () => {
       chamado(3, "pendente", 60),
     ];
     expect(
-      filtrarChamados(comSistema, { ...TODOS, sistema: "Sienge" }, "eu", agora).map((c) => c.id),
+      filtrarChamados(comSistema, { ...TODOS, sistema: "Sienge" }, "eu").map((c) => c.id),
     ).toEqual([1]);
-    expect(filtrarChamados(comSistema, TODOS, "eu", agora)).toHaveLength(3);
+    expect(filtrarChamados(comSistema, TODOS, "eu")).toHaveLength(3);
   });
 });
 
 describe("busca", () => {
+  it("acha pelo nome do solicitante também", () => {
+    const lista = [
+      chamado(1, "pendente", 60),
+      { ...chamado(2, "pendente", 60), solicitanteId: "paula" },
+    ];
+    const nomeDe = (id: string) => (id === "paula" ? "Paula Menezes" : "Ana Souza");
+    expect(
+      filtrarChamados(lista, { ...TODOS, busca: "paula" }, "eu", nomeDe).map((c) => c.id),
+    ).toEqual([2]);
+  });
+
   it("filtra pelo título, sem ligar para acentos e maiúsculas", () => {
     const lista = [
       { ...chamado(1, "pendente", 60), titulo: "Impressora não imprime" },
       { ...chamado(2, "pendente", 60), titulo: "VPN caiu" },
     ];
-    expect(
-      filtrarChamados(lista, { ...TODOS, busca: "IMPRESSAO" }, "eu", agora).map((c) => c.id),
-    ).toEqual([]);
-    expect(
-      filtrarChamados(lista, { ...TODOS, busca: "imprime" }, "eu", agora).map((c) => c.id),
-    ).toEqual([1]);
-    expect(
-      filtrarChamados(lista, { ...TODOS, busca: "vpn" }, "eu", agora).map((c) => c.id),
-    ).toEqual([2]);
+    expect(filtrarChamados(lista, { ...TODOS, busca: "IMPRESSAO" }, "eu").map((c) => c.id)).toEqual(
+      [],
+    );
+    expect(filtrarChamados(lista, { ...TODOS, busca: "imprime" }, "eu").map((c) => c.id)).toEqual([
+      1,
+    ]);
+    expect(filtrarChamados(lista, { ...TODOS, busca: "vpn" }, "eu").map((c) => c.id)).toEqual([2]);
   });
 });
 

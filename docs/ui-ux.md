@@ -35,6 +35,18 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 - Vem de `chamado_leituras` (até quando o solicitante leu — a mesma tabela do "• Nova mensagem"); a TI pode ler a
   linha do solicitante (migration 0026) e ela chega pelo Realtime.
 
+## Visual neutro e quadro novo (2026-10-27 — layout "Central de Chamados — Kanban" e ata de 26/10/2026)
+- **Cores:** preto, branco e cinzas em todo o sistema (barra de cima clara, botões principais quase pretos).
+  A cor fica só para **prioridade** (Alta vermelho · Média âmbar · Baixa cinza), atraso e avisos. Modo escuro igual.
+- **Quadro da TI:** título "Chamados da TI" + resumo ("13 em aberto · 0 com prazo estourado · 2 aguardando
+  solicitante"); filtros **Responsável · Categoria · Sistema · Prioridade · Só os meus** (sem "Qualquer/Todas";
+  sem filtro, o botão mostra o nome do filtro); 6 colunas: Novos · Transferidos · Em atendimento · Aguardando
+  solicitante · Concluídos · Cancelados (os dois últimos: 7 dias). Sem legenda de prazo e sem "Ver encerrados".
+- **Cartão:** "ID 42" + prioridade (só depois de iniciar), título, "Solicitante · assunto/sistema" (sem cor de
+  sistema), rodapé com o tempo (Novos/Transferidos: "Aberto há 6h"; em atendimento: "Vence em 3h 10min" ou
+  **"Atrasado 35min"** em negrito — opção A do layout; Aguardando: "Aguardando há 2h"), mensagens novas e quem atende.
+- **Botão "?"** no canto de baixo à direita (TI e portal) abre a Ajuda.
+
 ## Listas grandes de opções (2026-10-17)
 - 7 ou mais opções (ex.: sistemas, módulos): botões compactos em grade — 2 colunas no celular, 3 no computador.
 - 13 ou mais: campo "Digite para buscar…" em cima (ignora acentos; a opção já escolhida continua visível).

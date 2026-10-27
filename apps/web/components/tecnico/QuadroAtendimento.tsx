@@ -23,13 +23,14 @@ import {
 } from "./arraste";
 import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import { ColunaQuadro } from "./ColunaQuadro";
-import { FiltrosQuadro, Legenda } from "./FiltrosQuadro";
+import { FiltrosQuadro } from "./FiltrosQuadro";
 import {
   acaoDoArraste,
   COLUNAS,
   filtrarChamados,
   montarQuadro,
   ordenarNovos,
+  resumoQuadro,
   ordenarTransferidos,
   type ColunaQuadro as IdColuna,
   type FiltrosQuadro as Filtros,
@@ -109,7 +110,9 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
   const perfil = new Map(dados.perfis.map((p) => [p.id, p]));
   const categoria = new Map(dados.categorias.map((c) => [c.id, c]));
   const corSistema = new Map(dados.sistemas.map((s) => [s.nome, s.cor]));
-  const quadro = montarQuadro(filtrarChamados(dados.chamados, filtros, usuario.id, agora), agora);
+  const nomeDe = (id: string) => perfil.get(id)?.nome ?? "";
+  const quadro = montarQuadro(filtrarChamados(dados.chamados, filtros, usuario.id, nomeDe), agora);
+  const resumo = resumoQuadro(dados.chamados, agora);
   quadro.novos = ordenarNovos(quadro.novos, agora);
   quadro.transferidos = ordenarTransferidos(quadro.transferidos, usuario.id);
   const cartoes = (coluna: IdColuna): DadosCartao[] =>
@@ -154,15 +157,23 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* Computador: filtros sempre visíveis. Celular: atrás do botão "Filtros". */}
-      <div className="hidden flex-wrap items-center justify-between gap-3 lg:flex">
-        <FiltrosQuadro
-          filtros={filtros}
-          categorias={dados.categorias}
-          sistemas={dados.sistemas}
-          tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
-        />
-        <Legenda />
+      {/* Cabeçalho do layout novo: título, resumo e (no computador) os filtros à direita. */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
+          <h1 className="text-2xl font-bold">Chamados da TI</h1>
+          <p className="text-sm text-texto-suave">
+            {resumo.abertos} em aberto · {resumo.atrasados} com prazo estourado ·{" "}
+            {resumo.aguardando} aguardando solicitante
+          </p>
+        </div>
+        <div className="hidden lg:block">
+          <FiltrosQuadro
+            filtros={filtros}
+            categorias={dados.categorias}
+            sistemas={dados.sistemas}
+            tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
+          />
+        </div>
       </div>
 
       {/* Celular: filtros atrás do botão "Filtros". */}
@@ -185,7 +196,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
               sistemas={dados.sistemas}
               tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
             />
-            <Legenda />
           </div>
         ) : null}
       </div>
@@ -211,7 +221,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
               }}
               className={`min-h-11 shrink-0 rounded-full border px-4 font-semibold whitespace-nowrap ${
                 colunaCelular === c.id
-                  ? "border-barra bg-barra text-sobre-barra"
+                  ? "border-primaria bg-primaria text-sobre-primaria"
                   : "border-borda bg-superficie text-texto"
               }`}
             >
@@ -225,7 +235,7 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       {filtros.busca ? (
         <p className="text-sm text-texto-suave">
           Mostrando só os chamados com “<strong className="text-texto">{filtros.busca}</strong>” no
-          título ·{" "}
+          título ou no nome do solicitante ·{" "}
           <Link
             href="/atendimento"
             className="inline-flex min-h-11 items-center font-semibold text-primaria underline"
@@ -255,14 +265,9 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
       >
         {/* Seis colunas da mesma largura (pedido do dono, 2026-10-08). */}
         <div
-          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:snap-none xl:px-0 ${
-            // Filtro de status: uma coluna só, mais larga.
-            filtros.coluna
-              ? "xl:grid xl:grid-cols-[minmax(0,28rem)]"
-              : "xl:grid xl:grid-cols-[repeat(6,minmax(11.5rem,1fr))]"
-          }`}
+          className={`-mx-4 flex ${arrastado ? "" : "snap-x snap-mandatory"} items-start gap-3 overflow-x-auto px-4 pb-3 xl:mx-0 xl:grid xl:snap-none xl:grid-cols-[repeat(6,minmax(11.5rem,1fr))] xl:px-0`}
         >
-          {COLUNAS.filter((c) => filtros.coluna === null || c.id === filtros.coluna).map((c) => (
+          {COLUNAS.map((c) => (
             <ColunaQuadro
               key={c.id}
               id={c.id}
@@ -301,15 +306,6 @@ export function QuadroAtendimento({ filtros }: { filtros: Filtros }) {
         tecnicos={dados.perfis.filter((p) => p.papel === "ti")}
         aoFechar={() => setComJanela(null)}
       />
-
-      <p className="text-center">
-        <Link
-          href="/atendimento/encerrados"
-          className="inline-flex min-h-11 items-center text-sm font-semibold text-primaria underline underline-offset-2"
-        >
-          Ver encerrados
-        </Link>
-      </p>
     </div>
   );
 }

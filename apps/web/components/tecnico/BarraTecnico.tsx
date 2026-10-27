@@ -34,8 +34,8 @@ function CampoBusca({ className = "" }: { className?: string }) {
         type="search"
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
-        aria-label="Buscar chamado por número ou título"
-        placeholder="Buscar #número ou título"
+        aria-label="Buscar chamado por ID, título ou solicitante"
+        placeholder="Buscar por ID, título ou solicitante"
         className="min-h-11 w-full rounded-xl bg-barra-2 pr-3 pl-9 text-sobre-barra placeholder:text-sobre-barra-suave"
       />
     </form>
@@ -67,7 +67,7 @@ export function BarraTecnico() {
     contadores === undefined ? undefined : `${contadores.meusAtendimentos} em atendimento`;
 
   return (
-    <header className="bg-barra text-sobre-barra print:hidden">
+    <header className="border-b border-borda bg-barra text-sobre-barra print:hidden">
       <div className="flex w-full items-center justify-between gap-4 px-4 py-2.5">
         <div className="flex items-center gap-5">
           <Link
@@ -77,6 +77,9 @@ export function BarraTecnico() {
           >
             <Logo tema="escuro" />
           </Link>
+          <span className="rounded-md bg-barra-2 px-2 py-0.5 text-xs font-bold text-sobre-barra-suave">
+            TI
+          </span>
         </div>
         <div className="flex items-center gap-4">
           {/* Computador: ao lado da busca. Celular: na linha de baixo, junto da busca. */}

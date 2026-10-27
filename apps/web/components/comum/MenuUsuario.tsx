@@ -13,7 +13,6 @@ import { Avatar } from "@/components/ui/Avatar";
 export function MenuUsuario({
   nome,
   resumo,
-  tema = "claro",
   atalhos = [],
 }: {
   nome: string;
@@ -51,7 +50,7 @@ export function MenuUsuario({
         onClick={() => setAberto((v) => !v)}
         className="flex min-h-11 items-center gap-3 rounded-full"
       >
-        <Avatar nome={nome} tom={tema === "escuro" ? "claro" : "primaria"} />
+        <Avatar nome={nome} tom="suave" />
         {resumo ? (
           <span className="hidden flex-col text-left leading-tight sm:flex">
             <span className="text-sm font-semibold">{nome}</span>

@@ -1,10 +1,11 @@
 // Parâmetros da URL da área técnica (filtros compartilháveis por link).
-// A área técnica tem só o quadro (kanban) — decisão do dono em 2026-10-06, sem modo "Lista".
 
 import type { ColunaQuadro } from "./quadro";
 
-/** "Pessoa atendendo": qualquer pessoa, eu, ninguém ainda, ou o id de um técnico. */
-export type FiltroResponsavel = "todos" | "meus" | "sem_responsavel" | (string & {});
+import { PRIORIDADES_DA_TI, type PrioridadeDaTi } from "@/lib/dominio/tipos";
+
+/** "Responsável": sem filtro, ninguém ainda, ou o id de um técnico ("Só os meus" é um botão à parte). */
+export type FiltroResponsavel = "todos" | "sem_responsavel" | (string & {});
 
 export type FiltroPrazoUrl = "todos" | "vencido" | "vence_em_breve" | "no_prazo" | "sem_prazo";
 
@@ -30,8 +31,17 @@ export function lerSistema(valor: string | null | undefined): string | null {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function lerFiltro(valor: string | null | undefined): FiltroResponsavel {
-  if (valor === "meus" || valor === "sem_responsavel") return valor;
+  if (valor === "sem_responsavel") return valor;
   return valor && UUID.test(valor) ? valor.toLowerCase() : "todos";
+}
+
+/** "Só os meus" (?meus=1; links antigos com ?filtro=meus também valem). */
+export function lerSoMeus(meus: string | null | undefined, filtro?: string | null): boolean {
+  return meus === "1" || filtro === "meus";
+}
+
+export function lerPrioridade(valor: string | null | undefined): PrioridadeDaTi | null {
+  return PRIORIDADES_DA_TI.find((p) => p === valor) ?? null;
 }
 
 const COLUNAS_VALIDAS: readonly ColunaQuadro[] = [

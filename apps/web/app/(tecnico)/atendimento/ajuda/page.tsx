@@ -58,15 +58,18 @@ export default function PaginaAjudaTi() {
       <SecaoGuia id="quadro" titulo="O quadro">
         <p className="text-lg">
           O quadro mostra os chamados por situação: <strong>Novos</strong>,{" "}
-          <strong>Em atendimento</strong>, <strong>Aguardando usuário</strong>,{" "}
-          <strong>Concluídos</strong>, <strong>Transferidos</strong> e <strong>Cancelados</strong>{" "}
-          (Concluídos e Cancelados mostram os dos últimos 7 dias; os mais antigos ficam em &quot;Ver
-          encerrados&quot;). Em cima, filtros por status, pessoa, categoria, sistema e prazo.
+          <strong>Transferidos</strong>, <strong>Em atendimento</strong>,{" "}
+          <strong>Aguardando solicitante</strong>, <strong>Concluídos</strong> e{" "}
+          <strong>Cancelados</strong> (Concluídos e Cancelados mostram os dos últimos 7 dias; os
+          mais antigos aparecem na busca e no relatório). Em cima, o resumo (em aberto, atrasados e
+          aguardando) e os filtros: responsável, categoria, sistema, prioridade e{" "}
+          <strong>Só os meus</strong>.
         </p>
         <Figura arquivo="computador-07-quadro.png" legenda="Quadro de atendimento" />
         <Dica>
-          na busca, digite o número (ex.: 42) para abrir o chamado direto. &quot;⚠ Prioridade
-          alta&quot; sobe para o topo da coluna.
+          na busca, digite o número (ex.: 42) para abrir o chamado direto, ou parte do título ou do
+          nome do solicitante. Chamado com prioridade <strong>Alta</strong> sobe para o topo da
+          coluna; atrasado aparece como &quot;Atrasado 35min&quot; no rodapé do cartão.
         </Dica>
       </SecaoGuia>
 
@@ -120,7 +123,7 @@ export default function PaginaAjudaTi() {
         <ul className="flex flex-col gap-2 text-lg">
           <li>
             <strong>2 h</strong> sem resposta: o chamado vai para{" "}
-            <strong>Aguardando usuário</strong>.
+            <strong>Aguardando solicitante</strong>.
           </li>
           <li>
             <strong>12 h</strong>: lembrete no Teams para o solicitante.

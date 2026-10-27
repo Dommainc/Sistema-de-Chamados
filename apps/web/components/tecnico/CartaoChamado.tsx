@@ -1,17 +1,16 @@
 "use client";
 
 import type { DraggableAttributes, DraggableSyntheticListeners } from "@dnd-kit/core";
-import { Hourglass, MessageSquare, TriangleAlert } from "lucide-react";
+import { Clock, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
-import { EtiquetaId } from "@/components/ui/EtiquetaId";
 import type { OpcaoSistema, PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
-import { formatarDiaHora, tempoRelativo } from "@/lib/formato";
-import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
-import { classesDaCor, SEM_SISTEMA } from "@/lib/sistemas";
-import { COR_PRAZO, COR_STATUS } from "./cores";
-import { ehNovo, encerradoEm, type ColunaQuadro } from "./quadro";
+import { tempoRelativo } from "@/lib/formato";
+import { situacaoPrazo, textoPrazoCartao } from "@/lib/prazo";
+import { SEM_SISTEMA } from "@/lib/sistemas";
+import { COR_PRIORIDADE } from "./cores";
+import { encerradoEm, type ColunaQuadro } from "./quadro";
 
 export interface DadosCartao {
   chamado: Chamado;
@@ -20,9 +19,9 @@ export interface DadosCartao {
   responsavel: PerfilPublico | undefined;
   assunto: string;
   naoLidas: number;
-  /** Quem transferiu (para o selo "Transferido para você · por Thiago"). */
+  /** Quem transferiu (para "Transferido para você · por Thiago"). */
   transferidoPor: PerfilPublico | undefined;
-  /** Resposta de "Qual sistema?" com a cor do banco (null = categoria sem sistema). */
+  /** Resposta de "Qual sistema?" (null = categoria sem sistema). Sem cor no cartão (ata, item 07). */
   sistema: (OpcaoSistema & { modulo?: string | null }) | null;
 }
 
@@ -37,75 +36,71 @@ export interface PropsArraste {
 
 const primeiroNome = (p: PerfilPublico | undefined) => p?.nome.split(" ")[0] ?? "";
 
-function NaoLidas({ total }: { total: number }) {
-  if (total === 0) return null;
+function Prioridade({ chamado }: { chamado: Chamado }) {
+  const cor = COR_PRIORIDADE[chamado.prioridade];
+  if (!cor) return null;
   return (
-    <span
-      title={`${total} mensagem(ns) nova(s)`}
-      className="flex shrink-0 items-center gap-1 rounded-md bg-primaria-suave px-1.5 py-0.5 text-xs font-semibold text-primaria"
-    >
-      <MessageSquare aria-hidden="true" className="size-3.5" />
-      {total}
+    <span className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-bold ${cor.classe}`}>
+      {cor.rotulo}
     </span>
   );
 }
 
-/** Retângulo do prazo: só ele leva a cor do prazo (vencido vermelho, sem prazo amarelo...). */
-function SeloPrazo({ prazo, agora }: { prazo: string | null; agora: Date }) {
-  const situacao = situacaoPrazo(prazo, agora);
-  const texto = textoPrazo(prazo, agora);
-  const rotulo =
-    situacao === "no_prazo"
-      ? `Prazo: ${texto.charAt(0).toLocaleLowerCase("pt-BR")}${texto.slice(1)}`
-      : texto;
+/** Rodapé: quando (prazo, espera ou encerramento) à esquerda; mensagens novas e quem atende à direita. */
+function Rodape({ dados, agora, euId }: { dados: DadosCartao; agora: Date; euId: string }) {
+  const { chamado: c, coluna, responsavel, naoLidas } = dados;
+  let quando: React.ReactNode;
+  if (coluna === "concluidos") quando = `Concluído ${tempoRelativo(encerradoEm(c), agora)}`;
+  else if (coluna === "cancelados") quando = `Cancelado ${tempoRelativo(encerradoEm(c), agora)}`;
+  else if (coluna === "aguardando") quando = `Aguardando ${tempoRelativo(c.atualizadoEm, agora)}`;
+  else if (coluna === "novos" || coluna === "transferidos")
+    // Antes de iniciar não há prazo (ADR 0012): mostra há quanto tempo espera.
+    quando = `Aberto ${tempoRelativo(c.criadoEm, agora)}`;
+  else {
+    const atrasado = situacaoPrazo(c.prazoSla, agora) === "vencido";
+    quando = (
+      <span className={atrasado ? "font-bold text-texto" : ""}>
+        {textoPrazoCartao(c.prazoSla, agora)}
+      </span>
+    );
+  }
   return (
-    <span
-      className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-semibold ${COR_PRAZO[situacao]}`}
-    >
-      {rotulo}
-    </span>
+    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 border-t border-borda pt-2.5 text-xs text-texto-suave">
+      <span className="flex items-center gap-1.5">
+        <Clock aria-hidden="true" className="size-3.5 shrink-0" />
+        <span>{quando}</span>
+      </span>
+      <span className="flex shrink-0 items-center gap-2">
+        {naoLidas > 0 ? (
+          <span
+            title={`${naoLidas} mensagem(ns) nova(s)`}
+            className="flex items-center gap-1 font-semibold text-texto"
+          >
+            <MessageSquare aria-hidden="true" className="size-3.5" />
+            {naoLidas}
+          </span>
+        ) : null}
+        {responsavel ? (
+          <span title={responsavel.id === euId ? "Você" : responsavel.nome}>
+            <Avatar nome={responsavel.nome} tamanho="pequeno" tom="suave" />
+            <span className="sr-only">
+              Com {responsavel.id === euId ? "você" : responsavel.nome}
+            </span>
+          </span>
+        ) : coluna === "novos" ? (
+          <span className="rounded-full border border-dashed border-borda px-2 py-0.5">
+            Sem responsável
+          </span>
+        ) : null}
+      </span>
+    </div>
   );
 }
 
 /**
- * Cartão compacto das colunas Concluídos e Cancelados (estreitas, só leitura):
- * número, título e quando/por quê encerrou.
- */
-function CartaoEncerrado({ dados }: { dados: DadosCartao }) {
-  const { chamado: c, coluna } = dados;
-  const cancelado = coluna === "cancelados";
-  const cor = COR_STATUS[coluna];
-  return (
-    <article
-      aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex flex-col gap-1.5 rounded-xl border border-l-[6px] border-borda px-4 py-3 shadow-sm ${cor.faixa} ${cor.fundo}`}
-    >
-      {/* Num bloco próprio: solta na coluna flex, a etiqueta esticava até o fim do cartão. */}
-      <div>
-        <EtiquetaId numero={c.id} />
-      </div>
-      <Link
-        href={`/atendimento/${c.id}`}
-        className="text-sm leading-snug font-bold hover:underline"
-      >
-        {c.titulo}
-      </Link>
-      <p className={`text-xs font-semibold ${cancelado ? "text-apagado" : "text-sucesso"}`}>
-        {/* Só "Concluído em 06/10 às 14:30", sem o nome (pedido do dono, 2026-10-08). */}
-        {cancelado ? "Cancelado" : "Concluído"} em {formatarDiaHora(encerradoEm(c))}
-      </p>
-      {cancelado && c.motivoCancelamento ? (
-        <p className="line-clamp-2 text-xs text-texto-suave">“{c.motivoCancelamento}”</p>
-      ) : null}
-    </article>
-  );
-}
-
-/**
- * Cartão do quadro (pedidos do dono, 2026-10-07): a COR é a do STATUS (faixa grossa + fundo branco, muda
- * junto com o status); em cima só ID, prioridade alta, NOVO e transferido; o sistema fica no rodapé; etiqueta "ID" verde-água; o PRAZO num retângulo próprio (vencido vermelho, sem prazo
- * amarelo); título em destaque; "Iniciar" pequeno. Em atendimento → com quem está; Aguardando → há quanto
- * tempo o solicitante não responde.
+ * Cartão do quadro no visual neutro (layout novo e ata de 26/10/2026): branco, sem cor de status nem de
+ * sistema. Em cima, número e prioridade (só depois de iniciar — ADR 0012); título; solicitante · assunto;
+ * rodapé com o prazo ("Atrasado 35min" em negrito), mensagens novas e quem atende.
  */
 export function CartaoChamado({
   dados,
@@ -119,22 +114,16 @@ export function CartaoChamado({
   euId: string;
   agora: Date;
   destacado: boolean;
-  /** Ausente = cartão parado (ex.: o "fantasma" que acompanha o arraste). */
+  /** Ausente = cartão parado (ex.: encerrados e o "fantasma" que acompanha o arraste). */
   arraste?: PropsArraste;
   /** Cópia que segue o dedo/mouse enquanto arrasta. */
   fantasma?: boolean;
 }) {
-  const { chamado: c, coluna, solicitante, responsavel, assunto, naoLidas, transferidoPor } = dados;
-  if (coluna === "concluidos" || coluna === "cancelados") {
-    return <CartaoEncerrado dados={dados} />;
-  }
-
-  const cor = COR_STATUS[coluna];
-  // Sistema no rodapé, ao lado do prazo; "Não se aplica" não aparece no cartão (só dentro do chamado).
-  const sistema = dados.sistema?.nome === SEM_SISTEMA ? null : dados.sistema;
-  const corSistema = classesDaCor(sistema?.cor);
+  const { chamado: c, coluna, solicitante, responsavel, assunto, transferidoPor } = dados;
+  const encerrado = coluna === "concluidos" || coluna === "cancelados";
+  const sistema = dados.sistema && dados.sistema.nome !== SEM_SISTEMA ? dados.sistema : null;
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
-  const comQuem = responsavel?.id === euId ? "você" : primeiroNome(responsavel);
+  const iniciado = coluna !== "novos" && coluna !== "transferidos";
 
   return (
     <article
@@ -142,42 +131,15 @@ export function CartaoChamado({
       {...arraste?.atributos}
       {...arraste?.ouvintes}
       aria-label={`Chamado ${c.id}: ${c.titulo}`}
-      className={`flex cursor-grab touch-manipulation flex-col gap-2.5 rounded-2xl border border-l-[6px] p-4 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria active:cursor-grabbing ${cor.faixa} ${cor.fundo} ${
-        destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"
+      className={`flex flex-col gap-2 rounded-xl border bg-superficie p-3.5 shadow-sm transition-shadow select-none hover:shadow-md focus-visible:outline-2 focus-visible:outline-primaria ${
+        arraste ? "cursor-grab touch-manipulation active:cursor-grabbing" : ""
+      } ${destacado ? "border-primaria ring-2 ring-primaria" : "border-borda"} ${
+        encerrado ? "opacity-80" : ""
       } ${arraste?.arrastando ? "opacity-40" : ""} ${fantasma ? "rotate-1 cursor-grabbing shadow-xl" : ""}`}
     >
-      <div className="flex flex-wrap items-center gap-1.5">
-        <EtiquetaId numero={c.id} />
-        {/* Em Novos não há prioridade nem prazo: a TI só define depois de iniciar (ADR 0012; dono, 2026-10-09). */}
-        {coluna === "novos" ? null : c.prioridade === "alta" ? (
-          <span className="inline-flex items-center gap-1 rounded-md bg-perigo px-1.5 py-0.5 text-[11px] font-bold text-white">
-            <TriangleAlert aria-hidden="true" className="size-3" /> Prioridade alta
-          </span>
-        ) : (
-          // Média e baixa também aparecem (pedido do dono, 2026-10-08), mais discretas que a alta.
-          <span
-            className={`rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
-              c.prioridade === "baixa"
-                ? "bg-apagado-suave text-apagado"
-                : "bg-amarelo-suave text-texto"
-            }`}
-          >
-            {c.prioridade === "baixa" ? "Prioridade baixa" : "Prioridade média"}
-          </span>
-        )}
-        {coluna === "novos" && ehNovo(c, agora) ? (
-          <span className="rounded-full bg-primaria px-2 py-0.5 text-[10px] font-bold tracking-wide text-sobre-primaria">
-            NOVO
-          </span>
-        ) : null}
-        {c.status === "transferido" ? (
-          <span className="rounded-full bg-roxo-suave px-2 py-0.5 text-[11px] font-semibold text-roxo">
-            {transferidoParaMim
-              ? "Transferido para você"
-              : `Transferido para ${primeiroNome(responsavel)}`}
-            {transferidoPor ? ` · por ${primeiroNome(transferidoPor)}` : ""}
-          </span>
-        ) : null}
+      <div className="flex items-center justify-between gap-2">
+        <span className="font-mono text-xs font-semibold text-texto-suave">ID {c.id}</span>
+        {iniciado ? <Prioridade chamado={c} /> : null}
       </div>
 
       <Link
@@ -187,54 +149,22 @@ export function CartaoChamado({
       >
         {c.titulo}
       </Link>
-      {/* Nome · categoria inteiros (sem "…"): letra um pouco menor e quebra de linha se precisar. */}
-      <p className="text-[13px] leading-snug text-texto">
-        <span className="font-medium">{solicitante?.nome ?? "—"}</span>
-        <span className="text-texto-suave"> · {assunto}</span>
+      <p className="text-[13px] leading-snug text-texto-suave">
+        {solicitante?.nome ?? "—"} · {sistema ? sistema.nome : assunto}
+        {sistema?.modulo ? ` · ${sistema.modulo}` : ""}
       </p>
 
-      {/* Bolinha de quem atende: em Em atendimento e também em Aguardando usuário (pedido do dono). */}
-      {(coluna === "em_atendimento" || coluna === "aguardando") && responsavel ? (
-        // Só a bolinha com as iniciais (pedido do dono, 2026-10-08); o nome fica no "title" e para leitores de tela.
-        <p className="flex items-center" title={`Com ${responsavel.nome}`}>
-          <Avatar
-            nome={responsavel.nome}
-            tamanho="pequeno"
-            tom="suave" // a mesma bolinha azul para todos (a preta para "você" confundia)
-          />
-          <span className="sr-only">Com {comQuem}</span>
+      {c.status === "transferido" ? (
+        <p className="text-xs font-semibold text-texto">
+          {transferidoParaMim ? "Transferido para você" : `Para ${primeiroNome(responsavel)}`}
+          {transferidoPor ? ` · por ${primeiroNome(transferidoPor)}` : ""}
         </p>
       ) : null}
-      {coluna === "aguardando" ? (
-        <p className="flex items-center gap-1.5 text-sm text-royal">
-          <Hourglass aria-hidden="true" className="size-4 shrink-0" />
-          <span className="min-w-0 leading-snug">
-            Esperando <strong>{primeiroNome(solicitante) || "o solicitante"}</strong>{" "}
-            {tempoRelativo(c.atualizadoEm, agora)}
-          </span>
-        </p>
-      ) : null}
-      {coluna === "transferidos" && !transferidoParaMim ? (
-        <p className="text-sm text-texto-suave">
-          Aguardando <strong className="text-texto">{primeiroNome(responsavel)}</strong> iniciar
-        </p>
+      {coluna === "cancelados" && c.motivoCancelamento ? (
+        <p className="line-clamp-2 text-xs text-texto-suave">“{c.motivoCancelamento}”</p>
       ) : null}
 
-      <div className="mt-0.5 flex flex-wrap items-center gap-2">
-        {coluna === "novos" ? null : <SeloPrazo prazo={c.prazoSla} agora={agora} />}
-        {sistema ? (
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-texto">
-            {corSistema ? (
-              <span aria-hidden="true" className={`size-2.5 rounded-sm ${corSistema.fundo}`} />
-            ) : null}
-            {sistema.nome}
-            {sistema.modulo ? (
-              <span className="font-normal text-texto-suave">· {sistema.modulo}</span>
-            ) : null}
-          </span>
-        ) : null}
-        <NaoLidas total={naoLidas} />
-      </div>
+      <Rodape dados={dados} agora={agora} euId={euId} />
     </article>
   );
 }

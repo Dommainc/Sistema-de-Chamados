@@ -1,19 +1,11 @@
 "use client";
 
+import { User } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { OpcaoSistema, PerfilPublico } from "@/lib/dados/tipos";
-import type { Categoria } from "@/lib/dominio/tipos";
-import { classesDaCor } from "@/lib/sistemas";
-import { COR_PRAZO } from "./cores";
-import { COLUNAS, type FiltroPrazo, type FiltrosQuadro as Filtros } from "./quadro";
-
-const PRAZOS: { valor: FiltroPrazo; rotulo: string }[] = [
-  { valor: "todos", rotulo: "Qualquer prazo" },
-  { valor: "vencido", rotulo: "Vencido" },
-  { valor: "vence_em_breve", rotulo: "Vence em menos de 1h" },
-  { valor: "no_prazo", rotulo: "No prazo" },
-  { valor: "sem_prazo", rotulo: "Sem prazo" },
-];
+import { PRIORIDADES_DA_TI, type Categoria } from "@/lib/dominio/tipos";
+import { COR_PRIORIDADE } from "./cores";
+import type { FiltrosQuadro as Filtros } from "./quadro";
 
 /** Monta a URL trocando um parâmetro (filtros ficam na URL para poder compartilhar o link). */
 export function comParametro(
@@ -29,27 +21,43 @@ export function comParametro(
   return texto ? `${caminho}?${texto}` : caminho;
 }
 
-/** Legenda do retângulo do prazo (a de cor do status saiu — pedido do dono, 2026-10-08). */
-export function Legenda() {
+const BOTAO =
+  "min-h-10 rounded-xl border bg-superficie px-3 text-sm font-semibold text-texto hover:border-texto-suave";
+
+/**
+ * Um filtro (ata de 26/10/2026, itens 02 e 09): sem "Qualquer"/"Todas". Sem filtro, mostra o nome do filtro
+ * ("Categoria"); com filtro, o escolhido fica em destaque. A 1ª opção da lista tira o filtro.
+ */
+function Filtro({
+  rotulo,
+  valor,
+  opcoes,
+  aoMudar,
+}: {
+  rotulo: string;
+  valor: string;
+  opcoes: { valor: string; rotulo: string }[];
+  aoMudar: (valor: string | null) => void;
+}) {
+  const ativo = valor !== "";
   return (
-    <div className="flex flex-col gap-1.5 text-xs text-texto-suave">
-      <ul className="flex flex-wrap items-center gap-x-3 gap-y-1" aria-label="Cores do prazo">
-        <li className="font-semibold text-texto">Prazo:</li>
-        <li className={`rounded px-1.5 py-0.5 font-semibold ${COR_PRAZO.vencido}`}>Vencido</li>
-        <li className={`rounded px-1.5 py-0.5 font-semibold ${COR_PRAZO.vence_em_breve}`}>
-          Vence em menos de 1h
-        </li>
-        <li className={`rounded px-1.5 py-0.5 font-semibold ${COR_PRAZO.sem_prazo}`}>Sem prazo</li>
-        <li className={`rounded px-1.5 py-0.5 ${COR_PRAZO.no_prazo}`}>Em dia</li>
-      </ul>
-    </div>
+    <select
+      aria-label={`Filtrar por ${rotulo.toLocaleLowerCase("pt-BR")}`}
+      className={`max-w-[12rem] ${BOTAO} ${ativo ? "border-texto" : "border-borda"}`}
+      value={valor}
+      onChange={(e) => aoMudar(e.target.value || null)}
+    >
+      <option value="">{ativo ? `${rotulo}: tirar filtro` : rotulo}</option>
+      {opcoes.map((o) => (
+        <option key={o.valor} value={o.valor}>
+          {o.rotulo}
+        </option>
+      ))}
+    </select>
   );
 }
 
-const SELECT =
-  "min-h-11 rounded-xl border border-borda bg-superficie px-3 text-sm font-semibold text-texto";
-
-/** Filtros do quadro: status, pessoa atendendo, categoria, sistema e prazo (todos na URL). */
+/** Filtros do quadro (layout novo): Responsável · Categoria · Sistema · Prioridade · Só os meus. */
 export function FiltrosQuadro({
   filtros,
   categorias,
@@ -58,9 +66,7 @@ export function FiltrosQuadro({
 }: {
   filtros: Filtros;
   categorias: Categoria[];
-  /** Sistemas da empresa (com a cor do banco), para "Sistema". */
   sistemas: OpcaoSistema[];
-  /** Técnicos da TI, para "Pessoa atendendo". */
   tecnicos: PerfilPublico[];
 }) {
   const router = useRouter();
@@ -69,85 +75,60 @@ export function FiltrosQuadro({
   const atuais = new URLSearchParams(parametros.toString());
   const trocar = (chave: string, valor: string | null) =>
     router.replace(comParametro(atuais, chave, valor, caminho));
-  const corSistema = classesDaCor(sistemas.find((s) => s.nome === filtros.sistema)?.cor);
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <select
-        aria-label="Filtrar por status"
-        className={SELECT}
-        value={filtros.coluna ?? ""}
-        onChange={(e) => trocar("status", e.target.value || null)}
+    <div className="flex flex-wrap items-center gap-2">
+      <Filtro
+        rotulo="Responsável"
+        valor={filtros.responsavel === "todos" ? "" : filtros.responsavel}
+        opcoes={[
+          { valor: "sem_responsavel", rotulo: "Sem responsável" },
+          ...tecnicos.map((t) => ({ valor: t.id, rotulo: t.nome })),
+        ]}
+        aoMudar={(v) => trocar("filtro", v)}
+      />
+      <Filtro
+        rotulo="Categoria"
+        valor={filtros.categoriaId === null ? "" : String(filtros.categoriaId)}
+        opcoes={categorias.map((c) => ({ valor: String(c.id), rotulo: c.nomeCurto }))}
+        aoMudar={(v) => trocar("categoria", v)}
+      />
+      <Filtro
+        rotulo="Sistema"
+        valor={filtros.sistema ?? ""}
+        opcoes={sistemas.map((s) => ({ valor: s.nome, rotulo: s.nome }))}
+        aoMudar={(v) => trocar("sistema", v)}
+      />
+      <Filtro
+        rotulo="Prioridade"
+        valor={filtros.prioridade ?? ""}
+        opcoes={PRIORIDADES_DA_TI.map((p) => ({
+          valor: p,
+          rotulo: COR_PRIORIDADE[p]?.rotulo ?? p,
+        }))}
+        aoMudar={(v) => trocar("prioridade", v)}
+      />
+      <button
+        type="button"
+        aria-pressed={filtros.soMeus}
+        onClick={() => {
+          // "Só os meus" substitui a opção "Eu" do filtro de responsável (ata, item 01).
+          const p = new URLSearchParams(atuais);
+          p.delete("filtro");
+          if (filtros.soMeus) p.delete("meus");
+          else p.set("meus", "1");
+          const texto = p.toString();
+          router.replace(texto ? `${caminho}?${texto}` : caminho);
+        }}
+        className={`inline-flex items-center gap-1.5 ${BOTAO} ${
+          filtros.soMeus
+            ? "border-texto bg-primaria text-sobre-primaria hover:border-texto"
+            : "border-borda"
+        }`}
       >
-        <option value="">Todos os status</option>
-        {COLUNAS.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.titulo}
-          </option>
-        ))}
-      </select>
-      <select
-        aria-label="Filtrar por pessoa atendendo"
-        className={SELECT}
-        value={filtros.responsavel}
-        onChange={(e) => trocar("filtro", e.target.value === "todos" ? null : e.target.value)}
-      >
-        <option value="todos">Qualquer pessoa</option>
-        <option value="meus">Eu</option>
-        <option value="sem_responsavel">Ninguém ainda</option>
-        {tecnicos.map((t) => (
-          <option key={t.id} value={t.id}>
-            {t.nome}
-          </option>
-        ))}
-      </select>
-      <select
-        aria-label="Filtrar por categoria"
-        className={SELECT}
-        value={filtros.categoriaId ?? ""}
-        onChange={(e) => trocar("categoria", e.target.value || null)}
-      >
-        <option value="">Todas as categorias</option>
-        {categorias.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.nomeCurto}
-          </option>
-        ))}
-      </select>
-      <div className="relative flex items-center">
-        {/* Quadradinho da cor do sistema escolhido (o select nativo não mostra cor nas opções). */}
-        {corSistema ? (
-          <span
-            aria-hidden="true"
-            className={`pointer-events-none absolute left-3 size-2.5 rounded-sm ${corSistema.fundo}`}
-          />
-        ) : null}
-        <select
-          aria-label="Filtrar por sistema"
-          className={`${SELECT} ${corSistema ? "pl-7" : ""}`}
-          value={filtros.sistema ?? ""}
-          onChange={(e) => trocar("sistema", e.target.value || null)}
-        >
-          <option value="">Qualquer sistema</option>
-          {sistemas.map((s) => (
-            <option key={s.nome} value={s.nome}>
-              {s.nome}
-            </option>
-          ))}
-        </select>
-      </div>
-      <select
-        aria-label="Filtrar por prazo"
-        className={SELECT}
-        value={filtros.prazo}
-        onChange={(e) => trocar("prazo", e.target.value === "todos" ? null : e.target.value)}
-      >
-        {PRAZOS.map((p) => (
-          <option key={p.valor} value={p.valor}>
-            {p.rotulo}
-          </option>
-        ))}
-      </select>
+        <User aria-hidden="true" className="size-4" />
+        Só os meus
+      </button>
     </div>
   );
 }

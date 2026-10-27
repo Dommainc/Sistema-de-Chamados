@@ -5,23 +5,25 @@
  * (bg-primaria, text-texto-suave, bg-barra...). Pares texto/fundo pensados para contraste AA.
  */
 :root {
-  --cor-primaria: #1f4e8c;
-  --cor-primaria-forte: #173d6e;
-  --cor-primaria-suave: #e7edf5;
+  /* Visual neutro (layout novo e ata de 26/10/2026, item 08: "muitas cores confundem"): preto, branco e
+     cinzas; a cor fica para prioridade, atraso e avisos. */
+  --cor-primaria: #1d1f23;
+  --cor-primaria-forte: #000000;
+  --cor-primaria-suave: #ececea;
   --cor-sobre-primaria: #ffffff;
 
-  --cor-fundo: #f2f0eb;
+  --cor-fundo: #f3f3f1;
   --cor-superficie: #ffffff;
-  --cor-superficie-2: #e8e5de;
-  --cor-borda: #dcd8cf;
+  --cor-superficie-2: #eaeae7;
+  --cor-borda: #dfdfdb;
   --cor-texto: #1a1c20;
-  --cor-texto-suave: #5e626a;
+  --cor-texto-suave: #686c73;
 
-  /* Área técnica: barra superior e botão "Iniciar" */
-  --cor-barra: #16181c;
-  --cor-barra-2: #2a2d33;
-  --cor-sobre-barra: #f5f5f4;
-  --cor-sobre-barra-suave: #a3a6ad;
+  /* Barra superior (agora clara, como o resto da página) */
+  --cor-barra: #ffffff;
+  --cor-barra-2: #f0f0ee;
+  --cor-sobre-barra: #1a1c20;
+  --cor-sobre-barra-suave: #6b6f76;
 
   --cor-info: #1f4e8c;
   --cor-info-suave: #e7edf5;
@@ -88,10 +90,10 @@
 :root[data-tema="escuro"] {
   color-scheme: dark;
 
-  --cor-primaria: #4f83d4;
-  --cor-primaria-forte: #6493dc;
-  --cor-primaria-suave: #1e2a3b;
-  --cor-sobre-primaria: #ffffff;
+  --cor-primaria: #ecebe7;
+  --cor-primaria-forte: #ffffff;
+  --cor-primaria-suave: #2a2d33;
+  --cor-sobre-primaria: #15171b;
 
   --cor-fundo: #121418;
   --cor-superficie: #1b1e23;
@@ -100,8 +102,10 @@
   --cor-texto: #e9e7e2;
   --cor-texto-suave: #a2a7af;
 
-  --cor-barra: #0c0d10;
-  --cor-barra-2: #23262c;
+  --cor-barra: #1b1e23;
+  --cor-barra-2: #252930;
+  --cor-sobre-barra: #e9e7e2;
+  --cor-sobre-barra-suave: #a2a7af;
 
   --cor-info: #6f9be0;
   --cor-info-suave: #1e2a3b;

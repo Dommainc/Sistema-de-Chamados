@@ -3,7 +3,6 @@
 import { useDraggable, useDroppable } from "@dnd-kit/core";
 import { useState } from "react";
 import type { DadosArraste } from "./arraste";
-import { COR_STATUS } from "./cores";
 import { CartaoChamado, type DadosCartao } from "./CartaoChamado";
 import type { ColunaQuadro as IdColuna } from "./quadro";
 
@@ -49,7 +48,7 @@ function ListaCartoes({
   destacados: ReadonlySet<number>;
 }) {
   return (
-    <ul className="flex flex-col gap-3.5">
+    <ul className="flex flex-col gap-2.5">
       {cartoes.map((d) => {
         const cartao = {
           dados: d,
@@ -107,22 +106,14 @@ export function ColunaQuadro({
       id={`coluna-${id}`}
       ref={setNodeRef}
       aria-label={`${titulo}: ${cartoes.length}`}
-      className={`flex flex-col gap-3.5 rounded-2xl border p-3 transition-colors ${
-        vindoDeOutra
-          ? "border-primaria bg-primaria-suave ring-2 ring-primaria"
-          : encerrada
-            ? "border-transparent bg-superficie-2/50"
-            : "border-borda bg-superficie-2/80"
+      className={`flex flex-col gap-3 rounded-2xl p-2.5 transition-colors ${
+        vindoDeOutra ? "bg-primaria-suave ring-2 ring-primaria" : "bg-superficie-2/70"
       } ${className}`}
     >
       <header className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5 px-1 pt-0.5">
-        <h2 className="flex items-center gap-2 text-base leading-tight font-bold">
-          <span
-            aria-hidden="true"
-            className={`size-2.5 shrink-0 rounded-full ${COR_STATUS[id].bolinha}`}
-          />
+        <h2 className="flex items-center gap-2 text-sm leading-tight font-bold">
           {titulo}
-          <span className="rounded-full bg-superficie px-2 text-sm font-semibold text-texto-suave">
+          <span className="rounded-full bg-superficie px-2 text-xs font-semibold text-texto-suave">
             {cartoes.length}
           </span>
         </h2>
