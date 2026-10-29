@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Avatar } from "@/components/ui/Avatar";
 import type { Categoria } from "@/lib/dominio/tipos";
-import { naoIniciado } from "@/lib/dominio/tipos";
 import { rotuloStatus } from "@/lib/status";
 import { tempoDoChamado, type DadosCartao } from "./CartaoChamado";
 import { COR_PRIORIDADE } from "./cores";
@@ -203,7 +202,7 @@ export function ListaChamados({
               {ordenar(g.linhas, ordem).map((d) => {
                 const { chamado: c, coluna } = d;
                 const tempo = tempoDoChamado(coluna, c, agora);
-                const prioridade = naoIniciado(c.status) ? undefined : COR_PRIORIDADE[c.prioridade];
+                const prioridade = COR_PRIORIDADE[c.prioridade];
                 const encerrado = coluna === "concluidos" || coluna === "cancelados";
                 return (
                   <tr

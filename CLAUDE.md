@@ -82,8 +82,8 @@ automático é o das **48 h úteis** sem resposta (`docs/adr/0019`); antes disso
 **Prazo** (`docs/adr/0009`): o chamado nasce **sem prazo**; qualquer técnico define (data e hora) quando quiser e pode
 alterar **com motivo** (`POST /chamados/{id}/prazo`). O solicitante vê a previsão e o motivo. Nada é calculado pela categoria.
 **Só a TI cancela**: solicitante tentando → `CANCELAMENTO_NAO_PERMITIDO` (`docs/adr/0011`).
-**Chamado não iniciado** (`pendente`/`transferido`): a TI só **vê**, **inicia** ou **cancela** — conversa, Relato técnico, prazo e prioridade → `CHAMADO_NAO_INICIADO` (`docs/adr/0012`).
-**Prioridade** (Alta · Média · Baixa; nasce Média): só a TI, depois de iniciar; histórico interno; alta sobe no quadro com "⚠ Prioridade alta".
+**Chamado não iniciado** (`pendente`/`transferido`): a TI só **vê**, **inicia**, **cancela** ou define a **prioridade** — conversa, nota interna e prazo → `CHAMADO_NAO_INICIADO` (`docs/adr/0012`, `0020`).
+**Prioridade** (Alta · Média · Baixa; nasce Média): só a TI, **já na triagem** (`docs/adr/0020`); histórico interno; alta sobe no quadro.
 24 h úteis sem resposta à mensagem da TI → **aviso automático** no chat (uma vez). Automações: `app.processar_inatividade()` (pg_cron, 5 min, **só no expediente**).
 Na interface, "assumir" aparece como **Iniciar** (a ação interna continua `assumir`).
 Toda transição grava `historico` + `notificacoes` (pendente) na mesma transação.

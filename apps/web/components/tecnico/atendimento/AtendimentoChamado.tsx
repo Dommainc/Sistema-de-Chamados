@@ -16,20 +16,21 @@ import { naoIniciado, type PrioridadeDaTi } from "@/lib/dominio/tipos";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { useAcaoChamado } from "../useAcaoChamado";
 import { CabecalhoChamado } from "./CabecalhoChamado";
-import { Secao } from "./Cartoes";
+import { CartaoHistorico, Secao } from "./Cartoes";
 import { OutrosChamados } from "./OutrosChamados";
 import { ModalAcao, type AcaoComModal } from "./ModalAcao";
 import { ModalPrazo } from "./ModalPrazo";
 
-type Aba = "conversa" | "detalhes";
+type Aba = "conversa" | "detalhes" | "historico";
 
 /**
  * /atendimento/[id] no layout novo (parte 3, ata de 26/10/2026), página inteira:
  * - topo: "ID 181 · Aberto hoje, 08:42", título, status · prioridade · prazo, ações e os dados do chamado;
- * - esquerda: UMA linha do tempo com a conversa e as notas internas (em âmbar), e as abas
- *   Responder · Nota interna em cima do campo (substitui o "Relato técnico" e o cartão Histórico);
- * - direita: o pedido (respostas do formulário), outros chamados da pessoa e a avaliação.
- * No celular, abas Conversa · Detalhes abaixo do cabeçalho.
+ * - esquerda: a conversa com as notas internas (rótulo "Nota interna", borda tracejada) e as abas
+ *   Responder · Nota interna em cima do campo (substitui o "Relato técnico");
+ * - direita: o pedido (respostas do formulário), outros chamados da pessoa, a avaliação e o Histórico — os
+ *   eventos ficam só aqui, aberto (dono, 2026-10-29: "na conversa fica muito poluído").
+ * No celular, abas Conversa · Detalhes · Histórico abaixo do cabeçalho.
  */
 export function AtendimentoChamado({ id }: { id: number }) {
   const usuario = useUsuario();
@@ -44,13 +45,14 @@ export function AtendimentoChamado({ id }: { id: number }) {
   const solicitanteId = dados?.chamado.solicitanteId;
   const consultarExtras = useCallback(
     async (f: FonteDeDados) => {
-      const [perfis, solicitante] = await Promise.all([
+      const [perfis, historico, solicitante] = await Promise.all([
         f.listarPerfisPublicos(),
+        f.listarHistorico(id),
         solicitanteId ? f.obterPerfilCompleto(solicitanteId) : Promise.resolve(undefined),
       ]);
-      return { solicitante, tecnicos: perfis.filter((p) => p.papel === "ti") };
+      return { perfis, historico, solicitante, tecnicos: perfis.filter((p) => p.papel === "ti") };
     },
-    [solicitanteId],
+    [id, solicitanteId],
   );
   const { dados: extras } = useConsulta(consultarExtras);
 
@@ -103,6 +105,7 @@ export function AtendimentoChamado({ id }: { id: number }) {
           opcoes={[
             { valor: "conversa", rotulo: "Conversa" },
             { valor: "detalhes", rotulo: "Detalhes" },
+            { valor: "historico", rotulo: "Histórico" },
           ]}
         />
       </div>
@@ -116,8 +119,8 @@ export function AtendimentoChamado({ id }: { id: number }) {
           <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-borda px-4 py-3">
             <h2 className="font-bold">Conversa com {primeiroNome}</h2>
             <p className="inline-flex items-center gap-1 text-xs text-texto-suave">
-              <Lock aria-hidden="true" className="size-3.5 text-alerta" />
-              Notas internas em amarelo: só a TI vê
+              <Lock aria-hidden="true" className="size-3.5" />
+              Nota interna: só a TI vê
             </p>
           </div>
           <ChatChamado
@@ -134,18 +137,29 @@ export function AtendimentoChamado({ id }: { id: number }) {
 
         <aside className={`flex-col gap-4 ${aba === "conversa" ? "hidden lg:flex" : "flex"}`}>
           {chamado.status === "concluido" ? (
-            <Secao titulo="Avaliação">
-              <AvaliacaoChamado chamadoId={chamado.id} modo="ti" />
-            </Secao>
+            <div className={aba === "historico" ? "hidden lg:block" : ""}>
+              <Secao titulo="Avaliação">
+                <AvaliacaoChamado chamadoId={chamado.id} modo="ti" />
+              </Secao>
+            </div>
           ) : null}
-          <Secao titulo="Pedido">
-            <DetalhesPedido chamado={chamado} resumo />
-          </Secao>
-          <OutrosChamados
-            chamadoId={chamado.id}
-            solicitanteId={chamado.solicitanteId}
-            nome={solicitante?.nome ?? "solicitante"}
-          />
+          <div className={aba === "historico" ? "hidden lg:block" : ""}>
+            <Secao titulo="Pedido">
+              <DetalhesPedido chamado={chamado} resumo />
+            </Secao>
+          </div>
+          {extras ? (
+            <div className={aba === "detalhes" ? "hidden lg:block" : ""}>
+              <CartaoHistorico historico={extras.historico} perfis={extras.perfis} abertoNoInicio />
+            </div>
+          ) : null}
+          <div className={aba === "historico" ? "hidden lg:block" : ""}>
+            <OutrosChamados
+              chamadoId={chamado.id}
+              solicitanteId={chamado.solicitanteId}
+              nome={solicitante?.nome ?? "solicitante"}
+            />
+          </div>
         </aside>
       </div>
 

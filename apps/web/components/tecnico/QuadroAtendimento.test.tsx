@@ -104,9 +104,8 @@ describe("QuadroAtendimento", () => {
   it("monta Novos, Em atendimento e Aguardando solicitante com os exemplos", async () => {
     renderizar();
     await carregado();
-    // Em Novos não há prazo nem prioridade (só depois de iniciar — ADR 0012).
+    // Em Novos não há prazo (só depois de iniciar — ADR 0012); a prioridade já aparece (ADR 0020).
     expect(within(coluna("Novos")).queryByText(/Sem prazo|Vence|Atrasado/)).not.toBeInTheDocument();
-    expect(within(coluna("Novos")).queryByText(/^(Alta|Média|Baixa)$/)).not.toBeInTheDocument();
     expect(
       within(coluna("Novos")).getByText("Impressora do 3º andar não imprime"),
     ).toBeInTheDocument();
@@ -148,7 +147,7 @@ describe("QuadroAtendimento", () => {
     await carregado();
     expect(within(cartao(38)).getByText("Alta")).toBeInTheDocument();
     expect(within(cartao(33)).getByText("Média")).toBeInTheDocument();
-    expect(within(cartao(42)).queryByText(/^(Alta|Média|Baixa)$/)).not.toBeInTheDocument();
+    expect(within(cartao(42)).getByText("Média")).toBeInTheDocument(); // Novo: prioridade já na triagem
     const emAtendimento = cartao(38);
     expect(within(emAtendimento).getByText("RL")).toBeInTheDocument();
     expect(within(emAtendimento).getByText("Com você")).toHaveClass("sr-only");

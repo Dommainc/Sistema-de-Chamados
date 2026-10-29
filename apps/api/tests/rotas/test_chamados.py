@@ -389,11 +389,11 @@ def test_anexo_de_nota_interna_nao_abre_para_a_ana(cliente, como, estado, storag
 
 
 # ------------------------------------------------------------------------------- prioridade
-def test_prioridade_so_ti_depois_de_iniciar_e_fica_no_historico_interno(cliente, como, estado):
+def test_prioridade_so_ti_mesmo_antes_de_iniciar_e_fica_no_historico_interno(cliente, como, estado):
     url = "/chamados/{}/prioridade"
-    assert codigo(
-        cliente.post(url.format(42), headers=como(RAFAEL), json={"prioridade": "alta"})
-    ) == ("CHAMADO_NAO_INICIADO")
+    # ADR 0020: a TI já pode priorizar na triagem (chamado 42 ainda é "pendente").
+    novo = cliente.post(url.format(42), headers=como(RAFAEL), json={"prioridade": "baixa"})
+    assert novo.status_code == 200 and novo.json()["prioridade"] == "baixa"
     assert codigo(cliente.post(url.format(44), headers=como(ANA), json={"prioridade": "alta"})) == (
         "SEM_PERMISSAO"
     )

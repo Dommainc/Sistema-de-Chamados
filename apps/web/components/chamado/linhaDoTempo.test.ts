@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado, EventoHistorico, Mensagem } from "@/lib/dominio/tipos";
-import { montarConversa, rotuloDia, textoEvento } from "./linhaDoTempo";
+import { montarConversa, rotuloDia, textoEvento, textoHistorico } from "./linhaDoTempo";
 
 // 05/10/2026 em São Paulo
 const agora = new Date("2026-10-05T13:30:00Z");
@@ -212,7 +212,7 @@ describe("agrupamento (estilo WhatsApp)", () => {
   });
 });
 
-describe("notas internas na linha do tempo (layout novo, parte 3)", () => {
+describe("notas internas na conversa da TI", () => {
   const notas: Mensagem[] = [
     {
       id: 7,
@@ -257,15 +257,23 @@ describe("notas internas na linha do tempo (layout novo, parte 3)", () => {
     agora,
   };
 
-  it("na tela da TI: a nota entra em ordem de tempo, marcada, sem ✓; eventos só da TI com motivo", () => {
-    const itens = montarConversa({ ...entrada, comNotasInternas: true });
+  it("na tela de atendimento: a nota entra marcada e sem ✓; nenhum evento (ficam no Histórico)", () => {
+    const itens = montarConversa({ ...entrada, telaAtendimento: true });
     const nota = itens.find((i) => i.tipo === "mensagem" && i.chave === "m7");
     expect(nota).toEqual(
       expect.objectContaining({ interna: true, conteudo: "Caixa com 49,8 GB", visto: null }),
     );
-    const eventos = itens.flatMap((i) => (i.tipo === "evento" ? [[i.texto, i.interno]] : []));
-    expect(eventos).toContainEqual(["Você transferiu para Ana — “Ana cuida de e-mail”", true]);
-    expect(eventos).toContainEqual(["Você mudou a prioridade: Média → Alta", true]);
+    expect(itens.some((i) => i.tipo === "evento")).toBe(false);
+  });
+
+  it("Histórico da lateral: transferência com o motivo e prioridade", () => {
+    const nome = (id: string | null | undefined) => perfis.find((p) => p.id === id)?.nome ?? null;
+    expect(textoHistorico(transferencia, nome)).toBe(
+      "Transferido por Rafael Lima para Ana Souza — Ana cuida de e-mail",
+    );
+    expect(textoHistorico(prioridade, nome)).toBe(
+      "Prioridade alterada por Rafael Lima: Média → Alta",
+    );
   });
 
   it("nota interna nunca agrupa com a mensagem anterior da mesma pessoa", () => {
@@ -300,7 +308,7 @@ describe("notas internas na linha do tempo (layout novo, parte 3)", () => {
       chamado: { ...chamado, criadoEm: "2026-10-05T12:00:00Z" },
       mensagens: seguidas,
       historico: [],
-      comNotasInternas: true,
+      telaAtendimento: true,
     });
     const grupos = itens.flatMap((i) =>
       i.tipo === "mensagem" ? [[i.chave, i.inicioDeGrupo]] : [],
@@ -313,7 +321,7 @@ describe("notas internas na linha do tempo (layout novo, parte 3)", () => {
     ]);
   });
 
-  it("sem comNotasInternas (portal): sem nota, sem motivo da transferência, sem prioridade", () => {
+  it("portal (sem telaAtendimento): sem nota, sem motivo da transferência, sem prioridade", () => {
     const conversa = montarConversa(entrada);
     const textos = conversa.map((i) => (i.tipo === "mensagem" ? i.conteudo : i.texto));
     expect(textos).not.toContain("Caixa com 49,8 GB");

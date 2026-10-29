@@ -119,7 +119,7 @@ function AcoesCabecalho({
   );
 }
 
-/** Alta · Média · Baixa, com as mesmas cores do quadro (cores.ts) — só a TI vê (ADR 0012). */
+/** Alta · Média · Baixa, com as mesmas cores do quadro (cores.ts) — só a TI vê; já na triagem (ADR 0020). */
 function SeletorPrioridade({
   atual,
   desabilitado,
@@ -192,7 +192,7 @@ export function CabecalhoChamado({
   const encerrado = estaEncerrado(chamado.status);
   // Antes de iniciar: só ver, iniciar ou cancelar (ADR 0012).
   const travado = encerrado || naoIniciado(chamado.status);
-  const prioridade = naoIniciado(chamado.status) ? undefined : COR_PRIORIDADE[chamado.prioridade];
+  const prioridade = COR_PRIORIDADE[chamado.prioridade];
   const prazoCurto = textoPrazoCartao(chamado.prazoSla, agora);
   const sistema = chamado.respostasForm[CHAVE_SISTEMA];
   const caminhoCategoria = [
@@ -263,7 +263,7 @@ export function CabecalhoChamado({
           <Lock aria-hidden="true" className="size-4 shrink-0 text-laranja" />
           {chamado.solicitanteId === usuario.id
             ? "Este chamado é seu: um colega da TI precisa iniciar o atendimento."
-            : "Chamado ainda não iniciado: você pode ver tudo, mas para conversar, anotar, definir prazo ou prioridade, clique em Iniciar."}
+            : "Chamado ainda não iniciado: você já pode definir a prioridade; para conversar, anotar ou definir prazo, clique em Iniciar."}
         </p>
       ) : null}
 
@@ -339,7 +339,8 @@ export function CabecalhoChamado({
         <Info titulo="Prioridade" regiao>
           <SeletorPrioridade
             atual={chamado.prioridade}
-            desabilitado={travado}
+            // ADR 0020: a prioridade pode ser definida antes de iniciar (só não em encerrado).
+            desabilitado={encerrado}
             aoMudar={aoMudarPrioridade}
           />
         </Info>

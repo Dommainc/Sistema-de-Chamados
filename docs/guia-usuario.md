@@ -88,10 +88,11 @@ amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo
 
 ![Tela de atendimento](guia/img/computador-08-atendimento.png)
 
-- **Antes de clicar em Iniciar**, você pode abrir o chamado e ver tudo, mas não pode conversar, anotar, definir prazo
-  nem prioridade — só **Iniciar** ou **Cancelar** (ex.: chamado duplicado).
-- A **conversa** junta tudo numa linha do tempo só: as mensagens com o solicitante, as suas **notas internas** (em
-  amarelo, com o cadeado — **o solicitante não vê**) e o que aconteceu (início, transferência com o motivo, prazo).
+- **Antes de clicar em Iniciar**, você pode abrir o chamado, ver tudo e já definir a **prioridade** (triagem), mas não
+  pode conversar, anotar nem definir prazo — só **Iniciar** ou **Cancelar** (ex.: chamado duplicado).
+- A **conversa** mostra as mensagens com o solicitante e as suas **notas internas** (com o cadeado e a borda tracejada
+  — **o solicitante não vê**). O que aconteceu no chamado (início, transferência com o motivo, prazo, prioridade) fica
+  no **Histórico**, ao lado.
 - Em cima do campo de escrever, escolha **Responder** (o solicitante recebe e é avisado no Teams) ou **Nota interna**
   (só a TI vê: anote o que foi verificado e o que foi feito, cole prints com Ctrl+V). Notas não se editam nem se apagam.
 - **Prioridade** (no topo do chamado): **Alta** · **Média** · **Baixa**. Só a TI vê. A alta sobe para o topo da coluna
@@ -106,7 +107,8 @@ amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
   - **Transferir** — para outro técnico, com motivo (ele precisa iniciar);
   - **Cancelar chamado** — com motivo.
-- Ao lado da conversa ficam as respostas do **pedido** e os **outros chamados** da mesma pessoa.
+- Ao lado da conversa ficam as respostas do **pedido**, o **Histórico** completo e os **outros chamados** da mesma
+  pessoa.
 
 ### Dashboard
 

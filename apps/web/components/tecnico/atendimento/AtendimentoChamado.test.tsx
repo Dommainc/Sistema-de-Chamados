@@ -44,13 +44,17 @@ beforeEach(() => {
 });
 
 describe("AtendimentoChamado", () => {
-  it("uma linha do tempo: conversa + nota interna marcada, solicitante com contato", async () => {
+  it("conversa + nota interna marcada; eventos só no Histórico da lateral; contato do solicitante", async () => {
     renderizar();
     expect(await screen.findByText(/Consegue abrir o Outlook pelo navegador/)).toBeInTheDocument();
     // A nota interna aparece na mesma conversa, com o rótulo (layout novo).
     const nota = await screen.findByText(/49,8 GB/);
     expect(nota.parentElement?.parentElement).toHaveTextContent(/Nota interna/);
-    expect(screen.queryByRole("region", { name: "Histórico" })).not.toBeInTheDocument();
+    const historico = await screen.findByRole("region", { name: "Histórico" });
+    expect(within(historico).getByText("Aberto por Ana Souza")).toBeInTheDocument();
+    expect(within(historico).getByText(/Em atendimento → Aguardando/)).toBeInTheDocument();
+    const conversa = screen.getByRole("list", { name: "Conversa do chamado" });
+    expect(within(conversa).queryByText(/iniciou o atendimento/)).not.toBeInTheDocument();
     const solicitante = await screen.findByRole("region", { name: "Solicitante" });
     expect(within(solicitante).getByText("Ana Souza")).toBeInTheDocument();
     expect(within(solicitante).getByText("ana@teste.local")).toBeInTheDocument();
@@ -139,20 +143,23 @@ describe("AtendimentoChamado", () => {
     await waitFor(() =>
       expect(chamado(41)).toMatchObject({ status: "transferido", responsavelId: THIAGO.id }),
     );
-    // O motivo aparece na linha do tempo da TI (evento só da TI).
-    const conversa = await screen.findByRole("list", { name: "Conversa do chamado" });
+    // O motivo aparece no Histórico da lateral.
+    const historico = await screen.findByRole("region", { name: "Histórico" });
     expect(
-      await within(conversa).findByText(/Você transferiu para Thiago — “Thiago cuida de e-mail”/),
+      await within(historico).findByText(
+        "Transferido por Rafael Lima para Thiago Martins — Thiago cuida de e-mail",
+      ),
     ).toBeInTheDocument();
   });
 
-  it("não iniciado: tudo travado (prazo, prioridade, chat, nota) até clicar em Iniciar", async () => {
+  it("não iniciado: prazo, chat e nota travados até Iniciar; prioridade já liberada", async () => {
     renderizar(RAFAEL, 34);
     expect(await screen.findByText(/Chamado ainda não iniciado/)).toBeInTheDocument();
     const prazo = screen.getByRole("region", { name: "Prazo do chamado" });
     expect(within(prazo).queryByRole("button", { name: "Definir prazo" })).not.toBeInTheDocument();
+    // ADR 0020: a prioridade já pode ser definida antes de iniciar.
     const prioridade = screen.getByRole("region", { name: "Prioridade" });
-    expect(within(prioridade).getByRole("button", { name: "Alta" })).toBeDisabled();
+    expect(within(prioridade).getByRole("button", { name: "Alta" })).toBeEnabled();
     expect(
       await screen.findByText("Inicie o chamado para conversar com Diego ou anotar."),
     ).toBeInTheDocument();
@@ -172,7 +179,7 @@ describe("AtendimentoChamado", () => {
     );
   });
 
-  it("Definir prazo: depois de iniciar, atalho + confirmar grava e mostra na conversa", async () => {
+  it("Definir prazo: depois de iniciar, atalho + confirmar grava e mostra no histórico", async () => {
     renderizar(RAFAEL, 34);
     fireEvent.click(
       within(await screen.findByRole("region", { name: "Ações" })).getByRole("button", {
@@ -189,7 +196,7 @@ describe("AtendimentoChamado", () => {
     expect(within(modal).queryByRole("textbox", { hidden: true })).not.toBeInTheDocument(); // sem motivo
     fireEvent.click(within(modal).getByRole("button", { name: "Definir prazo", hidden: true }));
     await waitFor(() => expect(chamado(34).prazoSla).not.toBeNull());
-    expect(await screen.findByText(/Você definiu o prazo para/)).toBeInTheDocument();
+    expect(await screen.findByText(/Prazo definido por Rafael Lima/)).toBeInTheDocument();
   });
 
   it("Alterar prazo exige o motivo", async () => {

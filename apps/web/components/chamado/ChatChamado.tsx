@@ -37,7 +37,7 @@ let sequenciaLocal = 0;
 /**
  * Chat do chamado (mockup, tela 5): conversa em tempo real, envio otimista e,
  * se falhar, "Sua mensagem não foi enviada. Toque para tentar de novo." mantendo o texto.
- * Tela da TI (`notasInternas`, layout novo — parte 3): conversa e notas internas na mesma linha do tempo,
+ * Tela da TI (`notasInternas`): conversa e notas internas juntas (os eventos ficam no Histórico da lateral),
  * com as abas Responder · Nota interna em cima do campo. O solicitante nunca recebe as notas (RLS).
  */
 export function ChatChamado({
@@ -90,7 +90,7 @@ export function ChatChamado({
         ...dados,
         euId: usuario.id,
         papel: usuario.papel,
-        comNotasInternas: notasInternas,
+        telaAtendimento: notasInternas,
       })
     : [];
   const totalMensagens = dados?.mensagens.length ?? 0;
@@ -249,7 +249,7 @@ export function ChatChamado({
             topo={notasInternas ? <AbasEscrever modo={modo} aoMudar={setModo} /> : undefined}
             dica={
               !notasInternas ? undefined : modo === "nota" ? (
-                <span className="inline-flex items-center gap-1 text-alerta">
+                <span className="inline-flex items-center gap-1">
                   <Lock aria-hidden="true" className="size-3.5" /> Só a TI vê. O solicitante não
                   recebe nada.
                 </span>
@@ -272,11 +272,7 @@ function AbasEscrever({ modo, aoMudar }: { modo: Modo; aoMudar: (modo: Modo) => 
       aria-pressed={modo === valor}
       onClick={() => aoMudar(valor)}
       className={`min-h-9 rounded-lg px-3 text-sm font-semibold ${
-        modo === valor
-          ? valor === "nota"
-            ? "bg-alerta-suave text-alerta"
-            : "bg-superficie-2 text-texto"
-          : "text-texto-suave hover:bg-fundo"
+        modo === valor ? "bg-superficie-2 text-texto" : "text-texto-suave hover:bg-fundo"
       }`}
     >
       {valor === "nota" ? (

@@ -1,8 +1,9 @@
 // Monta a conversa do chamado (mockup, telas 5 e 7): o pedido de abertura como primeira mensagem,
 // as mensagens, os eventos do sistema em pílula ("Rafael Lima iniciou o atendimento · 09:40")
 // e os separadores de dia ("Hoje"). Funções puras — a visibilidade já vem filtrada pela camada de dados.
-// Layout novo (parte 3): na tela da TI, as notas internas e os eventos só da TI (motivo da transferência,
-// prioridade) entram na MESMA linha do tempo, em destaque (comNotasInternas). O solicitante nunca recebe (RLS).
+// Tela de atendimento da TI (telaAtendimento): as notas internas entram na conversa, e os eventos ficam fora
+// dela — vão para o cartão Histórico da lateral (pedido do dono, 2026-10-29: "na conversa fica muito poluído").
+// O solicitante nunca recebe as notas (RLS).
 
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type {
@@ -18,14 +19,7 @@ import { rotuloStatus } from "@/lib/status";
 
 export type ItemConversa =
   | { tipo: "dia"; chave: string; texto: string }
-  | {
-      tipo: "evento";
-      chave: string;
-      texto: string;
-      hora: string;
-      /** Só a TI vê (ex.: motivo da transferência, prioridade). */
-      interno: boolean;
-    }
+  | { tipo: "evento"; chave: string; texto: string; hora: string }
   | {
       tipo: "mensagem";
       chave: string;
@@ -58,8 +52,8 @@ interface Entrada {
   papel: Papel;
   /** Até quando o solicitante leu (lidoPeloSolicitanteAte). Só a TI recebe; ativa o ✓/✓✓. */
   lidoPeloSolicitanteAte?: string | null;
-  /** Tela da TI: notas internas e eventos só da TI na mesma linha do tempo. */
-  comNotasInternas?: boolean;
+  /** Tela de atendimento da TI: notas internas na conversa; eventos só no Histórico (lateral). */
+  telaAtendimento?: boolean;
   agora?: Date;
 }
 
@@ -84,8 +78,6 @@ export function textoEvento(
   nome: (id: string | null | undefined) => string | null,
   euId: string,
   papel: Papel,
-  /** Tela da TI com notas internas: inclui o motivo da transferência e a prioridade. */
-  completo = false,
 ): string | null {
   const ehVoce = evento.autorId === euId;
   const autor = ehVoce ? "Você" : (nome(evento.autorId) ?? "A TI");
@@ -110,21 +102,12 @@ export function textoEvento(
       }
       return `Status alterado para ${status(evento.para)}`;
     case "transferido": {
-      // O motivo é da TI: só aparece na tela da TI (completo).
+      // O motivo é da TI: aparece no Histórico da tela de atendimento, não na conversa.
       const destino = nome(evento.detalhe.para_responsavel_id) ?? "outro técnico";
-      const motivo = completo && evento.detalhe.motivo ? ` — “${evento.detalhe.motivo}”` : "";
-      return `${autor} transferiu para ${primeiroNome(destino)}${motivo}`;
+      return `${autor} transferiu para ${primeiroNome(destino)}`;
     }
-    case "devolvido_fila": {
-      const motivo = completo && evento.detalhe.motivo ? ` — “${evento.detalhe.motivo}”` : "";
-      return `${autor} devolveu o chamado para a fila${motivo}`;
-    }
-    case "prioridade_alterada": {
-      if (!completo) return null;
-      const rotulo = (p?: string) =>
-        ({ alta: "Alta", media: "Média", baixa: "Baixa" })[p ?? ""] ?? p ?? "";
-      return `${autor} mudou a prioridade: ${rotulo(evento.detalhe.de)} → ${rotulo(evento.detalhe.para)}`;
-    }
+    case "devolvido_fila":
+      return `${autor} devolveu o chamado para a fila`;
     case "prazo_definido": {
       // ADR 0009: o solicitante vê a previsão e, se mudou, o motivo.
       const prazo = evento.detalhe.prazo ? formatarDiaHora(evento.detalhe.prazo) : "";
@@ -162,7 +145,7 @@ export function montarConversa({
   euId,
   papel,
   lidoPeloSolicitanteAte = null,
-  comNotasInternas = false,
+  telaAtendimento = false,
   agora = new Date(),
 }: Entrada): ItemConversa[] {
   // ✓/✓✓ só para a TI, nas mensagens que ela mesma mandou (pedido do dono, 2026-10-16).
@@ -199,7 +182,7 @@ export function montarConversa({
       visto: visto(chamado.solicitanteId === euId, chamado.criadoEm),
     },
     ...mensagens
-      .filter((m) => comNotasInternas || !m.interna)
+      .filter((m) => telaAtendimento || !m.interna)
       .map((m) => ({
         tipo: "mensagem" as const,
         chave: `m${m.id}`,
@@ -216,8 +199,9 @@ export function montarConversa({
         // Nota interna não vai para o solicitante: sem ✓/✓✓.
         visto: m.interna ? null : visto(m.autorId === euId, m.criadoEm),
       })),
-    ...historico.flatMap((h) => {
-      const texto = textoEvento(h, nome, euId, papel, comNotasInternas);
+    // Na tela de atendimento os eventos ficam só no Histórico da lateral.
+    ...(telaAtendimento ? [] : historico).flatMap((h) => {
+      const texto = textoEvento(h, nome, euId, papel);
       return texto
         ? [
             {
@@ -225,7 +209,6 @@ export function montarConversa({
               chave: `h${h.id}`,
               texto,
               hora: formatarHora(h.criadoEm),
-              interno: !h.publico,
               criadoEm: h.criadoEm,
             },
           ]
@@ -264,4 +247,59 @@ export function montarConversa({
     }
   }
   return resultado;
+}
+
+/**
+ * Linha do cartão HISTÓRICO da área técnica (mockup, tela 7): "Aberto por Ana Souza",
+ * "Iniciado por Rafael Lima", "Em atendimento → Aguardando usuário", transferências com motivo.
+ */
+export function textoHistorico(
+  evento: EventoHistorico,
+  nome: (id: string | null | undefined) => string | null,
+): string {
+  const autor = nome(evento.autorId) ?? "Sistema";
+  const status = (s: string | null) => (s ? rotuloStatus(s as StatusChamado, "ti").texto : "");
+  switch (evento.acao) {
+    case "criado":
+      return `Aberto por ${autor}`;
+    case "assumido":
+      return `Iniciado por ${autor}`;
+    case "status_alterado":
+      if (evento.detalhe.motivo === "sem_resposta_2h_uteis") {
+        return `Sistema · sem resposta há 2 h úteis · ${status(evento.de)} → ${status(evento.para)}`;
+      }
+      return evento.autorId === null
+        ? `Solicitante respondeu · ${status(evento.de)} → ${status(evento.para)}`
+        : `${status(evento.de)} → ${status(evento.para)}`;
+    case "transferido":
+      return `Transferido por ${autor} para ${nome(evento.detalhe.para_responsavel_id) ?? "outro técnico"}${
+        evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""
+      }`;
+    case "devolvido_fila":
+      return `Devolvido à fila por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;
+    case "prioridade_alterada": {
+      const nome = (p?: string) =>
+        ({ alta: "Alta", media: "Média", baixa: "Baixa" })[p ?? ""] ?? p ?? "";
+      return `Prioridade alterada por ${autor}: ${nome(evento.detalhe.de)} → ${nome(evento.detalhe.para)}`;
+    }
+    case "prazo_definido": {
+      const prazo = evento.detalhe.prazo ? formatarDataHora(evento.detalhe.prazo) : "";
+      return evento.detalhe.prazo_anterior
+        ? `Prazo alterado por ${autor} para ${prazo}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`
+        : `Prazo definido por ${autor}: ${prazo}`;
+    }
+    case "avaliado": {
+      const nota = Number(evento.detalhe.nota);
+      return `Avaliado por ${autor}: ${nota} ${nota === 1 ? "estrela" : "estrelas"}`;
+    }
+    case "concluido":
+      if (evento.detalhe.motivo === "sem_resposta_48h_uteis") {
+        return "Sistema · concluído automaticamente (48 h úteis sem resposta)";
+      }
+      return `Concluído por ${autor}`;
+    case "cancelado":
+      return `Cancelado por ${autor}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`;
+    default:
+      return `${evento.acao} · ${autor}`;
+  }
 }

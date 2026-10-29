@@ -111,7 +111,7 @@ function Rodape({ dados, agora, euId }: { dados: DadosCartao; agora: Date; euId:
 
 /**
  * Cartão do quadro no visual neutro (layout novo e ata de 26/10/2026): branco, sem cor de status nem de
- * sistema. Em cima, número e prioridade (só depois de iniciar — ADR 0012); título; solicitante · assunto;
+ * sistema. Em cima, número e prioridade (já na triagem — ADR 0020); título; solicitante · assunto;
  * rodapé com o prazo ("Atrasado 35min" em negrito), mensagens novas e quem atende.
  */
 export function CartaoChamado({
@@ -135,7 +135,6 @@ export function CartaoChamado({
   const encerrado = coluna === "concluidos" || coluna === "cancelados";
   const sistema = dados.sistema && dados.sistema.nome !== SEM_SISTEMA ? dados.sistema : null;
   const transferidoParaMim = c.status === "transferido" && c.responsavelId === euId;
-  const iniciado = coluna !== "novos" && coluna !== "transferidos";
 
   return (
     <article
@@ -151,7 +150,7 @@ export function CartaoChamado({
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-mono text-xs font-semibold text-texto-suave">ID {c.id}</span>
-        {iniciado ? <Prioridade chamado={c} /> : null}
+        <Prioridade chamado={c} />
       </div>
 
       <Link

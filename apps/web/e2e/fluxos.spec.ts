@@ -92,18 +92,17 @@ test("técnico assume, conversa, faz nota interna, transfere; outro técnico ass
   await page.getByRole("dialog").getByRole("button", { name: "Marcar como concluído" }).click();
   await expect(page.getByText("Chamado #42 concluído.")).toBeVisible();
 
-  // Tudo na mesma linha do tempo (layout novo): eventos, motivo da transferência e a nota interna.
+  // A nota interna fica na conversa; os eventos (com o motivo da transferência), no Histórico da lateral.
   const conversa = page.getByRole("list", { name: "Conversa do chamado" });
+  await expect(conversa.getByText("Trocar fonte do roteador.")).toBeVisible();
+  const historico = page.getByRole("region", { name: "Histórico" });
+  await expect(historico.getByText("Iniciado por Rafael Lima")).toBeVisible();
   await expect(
-    conversa.getByText(/Rafael iniciou o atendimento|Rafael Lima iniciou/),
-  ).toBeVisible();
-  await expect(
-    conversa.getByText(
-      /Rafael Lima transferiu para Você — “Thiago está na obra Recreio hoje\.”|transferiu para Thiago — “Thiago está na obra Recreio hoje\.”/,
+    historico.getByText(
+      "Transferido por Rafael Lima para Thiago Martins — Thiago está na obra Recreio hoje.",
     ),
   ).toBeVisible();
-  await expect(conversa.getByText("Trocar fonte do roteador.")).toBeVisible();
-  await expect(conversa.getByText("Chamado concluído")).toBeVisible();
+  await expect(historico.getByText("Concluído por Thiago Martins")).toBeVisible();
 });
 
 test("só a TI cancela; antes de iniciar, a TI não conversa com o solicitante", async ({

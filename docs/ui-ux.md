@@ -54,10 +54,13 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
   status · prioridade (só depois de iniciar) · "Prazo do chamado: atrasado 35min" (pílula com borda, negrito se
   atrasado); ações à direita; e os dados sem caixa (rótulo pequeno em cima): Solicitante (Teams/e-mail), Setor,
   Categoria › sistema › módulo, Responsável, Prazo do chamado, Prioridade.
-- **Uma linha do tempo só**: conversa, **notas internas** (âmbar, borda tracejada, rótulo "🔒 Nota interna", nunca
-  agrupadas) e eventos (linha fina com o texto no meio; os só da TI — motivo da transferência, prioridade — com
-  cadeado). Abas **Responder · Nota interna** em cima do campo; embaixo, "Ana recebe aviso no Teams" ou "Só a TI vê".
-  Substituem a aba **Relato técnico** e o cartão **Histórico** (o histórico completo continua no banco e no relatório).
+- **Conversa da TI**: mensagens + **notas internas** (rótulo "🔒 Nota interna", borda tracejada, nunca agrupadas).
+  Abas **Responder · Nota interna** em cima do campo; embaixo, "Ana recebe aviso no Teams" ou "Só a TI vê". Substitui
+  a aba **Relato técnico**. Os eventos **não** entram na conversa da TI: ficam no cartão **Histórico** da lateral,
+  aberto (dono, 2026-10-29: "na conversa fica muito poluído"). O portal do solicitante continua com os eventos.
+- **Conversa sem cor** (dono, 2026-10-29): as minhas em cinza-claro (`superficie-2`), as dos outros em branco, aviso
+  automático e nota interna em `fundo` com borda (tracejada na nota). Vale para a TI e para o solicitante.
+- **Prioridade já na triagem** (ADR 0020): cartão, Lista e topo do chamado mostram Alta · Média · Baixa desde Novos.
 
 ## Listas grandes de opções (2026-10-17)
 - 7 ou mais opções (ex.: sistemas, módulos): botões compactos em grade — 2 colunas no celular, 3 no computador.

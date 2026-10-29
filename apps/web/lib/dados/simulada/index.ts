@@ -767,7 +767,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         const rotulo = rotuloStatus(chamado.status, "ti").texto;
         throw new ErroApp("TRANSICAO_INVALIDA", { de: rotulo, para: rotulo });
       }
-      if (naoIniciado(chamado.status)) throw new ErroApp("CHAMADO_NAO_INICIADO");
+      // ADR 0020: a prioridade pode ser definida já na triagem, antes de iniciar.
       if (chamado.prioridade === prioridade) return { ...chamado };
       const criadoEm = new Date().toISOString();
       const atualizado: Chamado = { ...chamado, prioridade, atualizadoEm: criadoEm };

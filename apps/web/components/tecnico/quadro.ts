@@ -4,12 +4,7 @@
 
 import type { AcaoChamado } from "@/lib/dominio/estados";
 import { CHAVE_SISTEMA } from "@/lib/sistemas";
-import {
-  naoIniciado,
-  type Chamado,
-  type PrioridadeDaTi,
-  type StatusChamado,
-} from "@/lib/dominio/tipos";
+import type { Chamado, PrioridadeDaTi, StatusChamado } from "@/lib/dominio/tipos";
 import { compararPrazo, situacaoPrazo } from "@/lib/prazo";
 import type { FiltroResponsavel } from "./parametros";
 
@@ -117,11 +112,7 @@ export function filtrarChamados(
     if (filtros.categoriaId !== null && c.categoriaId !== filtros.categoriaId) return false;
     if (filtros.sistema !== null && c.respostasForm[CHAVE_SISTEMA] !== filtros.sistema)
       return false;
-    if (
-      filtros.prioridade !== null &&
-      (naoIniciado(c.status) || c.prioridade !== filtros.prioridade)
-    )
-      return false;
+    if (filtros.prioridade !== null && c.prioridade !== filtros.prioridade) return false;
     if (
       termo &&
       !normalizar(c.titulo).includes(termo) &&

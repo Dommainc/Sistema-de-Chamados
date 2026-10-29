@@ -107,7 +107,7 @@ describe("filtros", () => {
     ]);
   });
 
-  it("por prioridade: só os já iniciados (nos Novos a prioridade ainda não existe)", () => {
+  it("por prioridade: inclusive os Novos (ADR 0020: prioridade já na triagem)", () => {
     const comPrioridade = [
       { ...chamado(1, "pendente", 60), prioridade: "alta" as const },
       { ...chamado(2, "em_andamento", 60, "eu"), prioridade: "alta" as const },
@@ -115,7 +115,7 @@ describe("filtros", () => {
     ];
     expect(
       filtrarChamados(comPrioridade, { ...TODOS, prioridade: "alta" }, "eu").map((c) => c.id),
-    ).toEqual([2]);
+    ).toEqual([1, 2]);
   });
 
   it('por sistema (resposta de "Qual sistema?")', () => {

@@ -42,7 +42,7 @@ Sempre o mesmo corpo, com o texto do catálogo ([`docs/erros.md`](erros.md)), ig
 | `CHAMADO_NAO_ENCONTRADO` | 404 | Só para a TI. Para o solicitante, número inexistente também é `SEM_PERMISSAO` (não revela quais números existem) |
 | `TRANSICAO_INVALIDA` | 409 | Ação que não vale no status atual; chamado encerrado (nada muda depois de concluído/cancelado) |
 | `CANCELAMENTO_NAO_PERMITIDO` | 409 | Solicitante tentando cancelar (só a TI cancela — ADR 0011) |
-| `CHAMADO_NAO_INICIADO` | 409 | Chamado em `pendente`/`transferido`: TI tentando conversar, anotar no relato, definir prazo ou prioridade (ADR 0012) |
+| `CHAMADO_NAO_INICIADO` | 409 | Chamado em `pendente`/`transferido`: TI tentando conversar, fazer nota interna ou definir prazo (ADR 0012). A prioridade pode antes de iniciar (ADR 0020) |
 | `CAMPO_OBRIGATORIO` | 422 | Formulário incompleto; mensagem vazia; destino da transferência não é técnico ativo |
 | `MOTIVO_OBRIGATORIO` | 422 | Cancelar, transferir ou alterar o prazo sem motivo |
 | `PRAZO_INVALIDO` | 422 | Prazo no passado, a mais de 1 ano ou sem fuso |

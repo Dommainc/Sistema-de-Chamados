@@ -324,7 +324,7 @@ async def definir_prazo(
 async def definir_prioridade(
     repo: Repositorio, chamado_id: int, prioridade: Prioridade
 ) -> ChamadoLinha:
-    """Prioridade (Alta, Média, Baixa) — só TI, depois de iniciar; só a TI vê (ADR 0012).
+    """Prioridade (Alta, Média, Baixa) — só TI, inclusive antes de iniciar (ADR 0020); só a TI vê.
 
     Grava no histórico interno (publico = False). Não avisa o solicitante.
     """
@@ -337,8 +337,6 @@ async def definir_prioridade(
         raise ErroApp(
             "TRANSICAO_INVALIDA", {"de": rotulo, "para": rotulo}, detalhe="prioridade de encerrado"
         )
-    if nao_iniciado(chamado.status):
-        raise ErroApp("CHAMADO_NAO_INICIADO")
     if chamado.prioridade == prioridade:
         return chamado
     atualizado = await repo.definir_prioridade(chamado.id, prioridade)

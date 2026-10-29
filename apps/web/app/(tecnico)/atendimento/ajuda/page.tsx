@@ -80,9 +80,9 @@ export default function PaginaAjudaTi() {
             Em atendimento). Você vira o responsável.
           </li>
           <li>
-            Depois de iniciar, defina a <strong>prioridade</strong> (Alta, Média ou Baixa) e, se
-            quiser, o <strong>prazo</strong>. O solicitante vê a previsão; mudar o prazo pede o
-            motivo.
+            Defina a <strong>prioridade</strong> (Alta, Média ou Baixa) — dá para fazer já na
+            triagem, antes de iniciar. Depois de iniciar, defina o <strong>prazo</strong> se quiser:
+            o solicitante vê a previsão; mudar o prazo pede o motivo.
           </li>
           <li>
             Para passar para um colega, use <strong>Transferir</strong> (com o motivo). O colega
@@ -96,18 +96,19 @@ export default function PaginaAjudaTi() {
         </Passos>
         <Figura arquivo="computador-08-atendimento.png" legenda="Tela de atendimento" />
         <p className="text-lg">
-          No painel ao lado ficam o pedido e os <strong>outros chamados da mesma pessoa</strong>{" "}
-          (para ver se o problema é recorrente). Quando o solicitante usa &quot;O problema
-          voltou&quot;, aparece <strong>&quot;↻ continuação do #N&quot;</strong> com o link do
-          anterior.
+          No painel ao lado ficam o pedido, o <strong>Histórico</strong> e os{" "}
+          <strong>outros chamados da mesma pessoa</strong> (para ver se o problema é recorrente).
+          Quando o solicitante usa &quot;O problema voltou&quot;, aparece{" "}
+          <strong>&quot;↻ continuação do #N&quot;</strong> com o link do anterior.
         </p>
       </SecaoGuia>
 
       <SecaoGuia id="conversa" titulo="Conversa e notas internas">
         <p className="text-lg">
-          Tudo fica numa linha do tempo só: as mensagens com o solicitante (✓ = enviada, ✓✓ azul =
-          ele já leu), as <strong>notas internas</strong> em amarelo, com o cadeado, e o que
-          aconteceu no chamado (início, transferência com o motivo, prazo).
+          A conversa mostra as mensagens com o solicitante (✓ = enviada, ✓✓ azul = ele já leu) e as
+          suas <strong>notas internas</strong>, com o cadeado e a borda tracejada. O que aconteceu
+          no chamado (início, transferência com o motivo, prazo, prioridade) fica no{" "}
+          <strong>Histórico</strong>, ao lado.
         </p>
         <p className="text-lg">
           Em cima do campo, escolha <strong>Responder</strong> (o solicitante recebe e é avisado no

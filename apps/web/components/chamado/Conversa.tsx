@@ -2,9 +2,9 @@
 
 // Conversa no estilo dos apps de mensagem (pedido do dono, 2026-10-06): hora dentro do balão,
 // mensagens seguidas da mesma pessoa agrupadas, "pontinha" e nome só no primeiro balão do grupo,
-// anexos dentro do balão. As minhas à direita (cor primária), as dos outros em branco.
-// Layout novo (parte 3): na tela da TI, as notas internas entram aqui também, em âmbar e com o rótulo
-// "Nota interna"; os eventos só da TI levam um cadeado.
+// anexos dentro do balão. Tudo neutro (pedido do dono, 2026-10-29): as minhas à direita em cinza-claro, as dos
+// outros em branco. Na tela da TI as notas internas entram aqui também, em cinza com borda tracejada e o rótulo
+// "🔒 Nota interna".
 
 import { Check, CheckCheck, Lock } from "lucide-react";
 import type { Anexo } from "@/lib/dominio/tipos";
@@ -22,17 +22,21 @@ export function Pilula({ children }: { children: React.ReactNode }) {
 
 const CORES = {
   minha: {
-    balao: "bg-primaria text-sobre-primaria",
-    ponta: "bg-primaria",
-    hora: "text-sobre-primaria/75",
+    balao: "bg-superficie-2 text-texto",
+    ponta: "bg-superficie-2",
+    hora: "text-texto-suave",
   },
   outra: { balao: "bg-superficie text-texto", ponta: "bg-superficie", hora: "text-texto-suave" },
-  // Aviso automático da Central (ADR 0011): azul-claro, para não parecer mensagem de uma pessoa.
-  sistema: { balao: "bg-info-suave text-texto", ponta: "bg-info-suave", hora: "text-texto-suave" },
-  // Nota interna (só a TI): âmbar com borda tracejada, para nunca parecer resposta ao solicitante.
+  // Aviso automático da Central (ADR 0011): com o rótulo "Aviso automático da Central" e borda.
+  sistema: {
+    balao: "border border-borda bg-fundo text-texto",
+    ponta: "bg-fundo",
+    hora: "text-texto-suave",
+  },
+  // Nota interna (só a TI): borda tracejada e rótulo, para nunca parecer resposta ao solicitante.
   interna: {
-    balao: "border border-dashed border-alerta-borda bg-alerta-suave text-texto",
-    ponta: "bg-alerta-suave",
+    balao: "border border-dashed border-texto-suave bg-fundo text-texto",
+    ponta: "bg-fundo",
     hora: "text-texto-suave",
   },
 } as const;
@@ -87,7 +91,7 @@ export function Balao({
       ) : null}
 
       {interna ? (
-        <span className="flex items-center gap-1 text-xs font-semibold text-alerta">
+        <span className="flex items-center gap-1 text-xs font-semibold text-texto-suave">
           <Lock aria-hidden="true" className="size-3.5" />
           Nota interna{autor ? ` · ${autor}` : ""}
           <span className="sr-only"> (só a TI vê)</span>
@@ -128,20 +132,13 @@ export function Balao({
   );
 }
 
-/**
- * Evento do sistema ("Rafael iniciou o atendimento"): linha fina com o texto no meio (layout novo), pequeno e
- * discreto. Só da TI (motivo da transferência, prioridade): com cadeado.
- */
-function Evento({ texto, hora, interno }: { texto: string; hora: string; interno: boolean }) {
+/** Evento do sistema ("Rafael iniciou o atendimento"): linha fina com o texto no meio, pequeno e discreto. */
+function Evento({ texto, hora }: { texto: string; hora: string }) {
   return (
     <p className="flex items-center gap-3 text-xs text-texto-suave">
       <span aria-hidden="true" className="h-px min-w-4 flex-1 bg-borda" />
       <span className="max-w-[85%] text-center">
-        {interno ? (
-          <Lock aria-hidden="true" className="mr-1 mb-0.5 inline size-3 text-alerta" />
-        ) : null}
         {texto} <span className="whitespace-nowrap opacity-70">· {hora}</span>
-        {interno ? <span className="sr-only"> (só a TI vê)</span> : null}
       </span>
       <span aria-hidden="true" className="h-px min-w-4 flex-1 bg-borda" />
     </p>
@@ -162,7 +159,7 @@ export function Conversa({ itens }: { itens: ItemConversa[] }) {
         if (item.tipo === "evento") {
           return (
             <li key={item.chave} className="my-2">
-              <Evento texto={item.texto} hora={item.hora} interno={item.interno} />
+              <Evento texto={item.texto} hora={item.hora} />
             </li>
           );
         }

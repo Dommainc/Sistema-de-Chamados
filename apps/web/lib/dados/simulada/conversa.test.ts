@@ -185,11 +185,9 @@ describe("cancelar (só a TI — pedido do dono, 2026-10-07)", () => {
     ).rejects.toMatchObject({ codigo: "CHAMADO_NAO_INICIADO" });
   });
 
-  it("prioridade: só TI, depois de iniciar, no histórico interno e sem aviso", async () => {
+  it("prioridade: só TI, mesmo antes de iniciar (ADR 0020), no histórico interno e sem aviso", async () => {
     const ti = criarFonteSimulada(RAFAEL.id);
-    await expect(ti.definirPrioridade(42, "alta")).rejects.toMatchObject({
-      codigo: "CHAMADO_NAO_INICIADO",
-    });
+    expect((await ti.definirPrioridade(42, "baixa")).prioridade).toBe("baixa"); // #42 é Novo
     await expect(criarFonteSimulada(ANA.id).definirPrioridade(41, "alta")).rejects.toMatchObject({
       codigo: "SEM_PERMISSAO",
     });
