@@ -1,10 +1,10 @@
 "use client";
 
+import { Lock } from "lucide-react";
 import { useCallback, useState } from "react";
 import { ChatChamado } from "@/components/chamado/ChatChamado";
 import { AvaliacaoChamado } from "@/components/chamado/AvaliacaoChamado";
 import { DetalhesPedido } from "@/components/chamado/DetalhesPedido";
-import { contarRelato } from "@/components/chamado/linhaDoTempo";
 import { TelaMensagem } from "@/components/comum/TelaMensagem";
 import { useChamadoDetalhado } from "@/components/comum/useChamadoDetalhado";
 import { Segmentado } from "@/components/ui/Segmentado";
@@ -16,21 +16,20 @@ import { naoIniciado, type PrioridadeDaTi } from "@/lib/dominio/tipos";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { useAcaoChamado } from "../useAcaoChamado";
 import { CabecalhoChamado } from "./CabecalhoChamado";
-import { CartaoHistorico, Secao } from "./Cartoes";
+import { Secao } from "./Cartoes";
 import { OutrosChamados } from "./OutrosChamados";
 import { ModalAcao, type AcaoComModal } from "./ModalAcao";
 import { ModalPrazo } from "./ModalPrazo";
-import { RelatoTecnico } from "./RelatoTecnico";
 
-type Aba = "conversa" | "detalhes" | "historico";
-type Quadro = "conversa" | "relato";
+type Aba = "conversa" | "detalhes";
 
 /**
- * /atendimento/[id] — reorganizada a pedido do dono (2026-10-07):
- * - topo: cabeçalho-resumo com ações, solicitante (contato), responsável, prazo e categoria;
- * - esquerda: "Conversa com a Ana" / "Relato técnico", ocupando a altura da tela;
- * - direita: só o que não está na conversa (respostas do pedido) e o histórico, recolhido.
- * No celular, abas Conversa · Detalhes · Histórico abaixo do cabeçalho.
+ * /atendimento/[id] no layout novo (parte 3, ata de 26/10/2026), página inteira:
+ * - topo: "ID 181 · Aberto hoje, 08:42", título, status · prioridade · prazo, ações e os dados do chamado;
+ * - esquerda: UMA linha do tempo com a conversa e as notas internas (em âmbar), e as abas
+ *   Responder · Nota interna em cima do campo (substitui o "Relato técnico" e o cartão Histórico);
+ * - direita: o pedido (respostas do formulário), outros chamados da pessoa e a avaliação.
+ * No celular, abas Conversa · Detalhes abaixo do cabeçalho.
  */
 export function AtendimentoChamado({ id }: { id: number }) {
   const usuario = useUsuario();
@@ -38,7 +37,6 @@ export function AtendimentoChamado({ id }: { id: number }) {
   const { mostrar, mostrarErro } = useToast();
   const executar = useAcaoChamado();
   const { dados, erro, carregando } = useChamadoDetalhado(id);
-  const [quadro, setQuadro] = useState<Quadro>("conversa");
   const [modal, setModal] = useState<AcaoComModal | null>(null);
   const [modalPrazo, setModalPrazo] = useState(false);
   const [aba, setAba] = useState<Aba>("conversa");
@@ -46,21 +44,13 @@ export function AtendimentoChamado({ id }: { id: number }) {
   const solicitanteId = dados?.chamado.solicitanteId;
   const consultarExtras = useCallback(
     async (f: FonteDeDados) => {
-      const [perfis, historico, mensagens, solicitante] = await Promise.all([
+      const [perfis, solicitante] = await Promise.all([
         f.listarPerfisPublicos(),
-        f.listarHistorico(id),
-        f.listarMensagens(id),
         solicitanteId ? f.obterPerfilCompleto(solicitanteId) : Promise.resolve(undefined),
       ]);
-      return {
-        perfis,
-        historico,
-        solicitante,
-        tecnicos: perfis.filter((p) => p.papel === "ti"),
-        itensRelato: contarRelato(mensagens, historico),
-      };
+      return { solicitante, tecnicos: perfis.filter((p) => p.papel === "ti") };
     },
-    [id, solicitanteId],
+    [solicitanteId],
   );
   const { dados: extras } = useConsulta(consultarExtras);
 
@@ -113,7 +103,6 @@ export function AtendimentoChamado({ id }: { id: number }) {
           opcoes={[
             { valor: "conversa", rotulo: "Conversa" },
             { valor: "detalhes", rotulo: "Detalhes" },
-            { valor: "historico", rotulo: "Histórico" },
           ]}
         />
       </div>
@@ -121,82 +110,42 @@ export function AtendimentoChamado({ id }: { id: number }) {
       <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         {/* Altura fixa da tela: só as mensagens rolam; o campo de escrever fica sempre à vista. */}
         <section
-          aria-label="Conversa e relato técnico"
-          className={`h-[72dvh] min-h-[28rem] flex-col overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm lg:h-[calc(100dvh-19rem)] lg:min-h-[34rem] ${aba === "conversa" ? "flex" : "hidden lg:flex"}`}
+          aria-label="Conversa e notas internas"
+          className={`h-[72dvh] min-h-[28rem] flex-col overflow-hidden rounded-2xl border border-borda bg-superficie shadow-sm lg:h-[calc(100dvh-17rem)] lg:min-h-[34rem] ${aba === "conversa" ? "flex" : "hidden lg:flex"}`}
         >
-          <div className="border-b border-borda px-3 py-3">
-            <Segmentado
-              rotuloAcessivel="Conversa ou relato técnico"
-              larguraTotal
-              valor={quadro}
-              aoMudar={setQuadro}
-              opcoes={[
-                { valor: "conversa", rotulo: `Conversa com ${primeiroNome}` },
-                {
-                  valor: "relato",
-                  rotulo: (
-                    <span className="inline-flex items-center gap-2">
-                      Relato técnico
-                      {extras?.itensRelato ? (
-                        <span className="rounded-full bg-alerta-suave px-2 text-xs text-alerta">
-                          {extras.itensRelato}
-                        </span>
-                      ) : null}
-                    </span>
-                  ),
-                },
-              ]}
-            />
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-borda px-4 py-3">
+            <h2 className="font-bold">Conversa com {primeiroNome}</h2>
+            <p className="inline-flex items-center gap-1 text-xs text-texto-suave">
+              <Lock aria-hidden="true" className="size-3.5 text-alerta" />
+              Notas internas em amarelo: só a TI vê
+            </p>
           </div>
-          {quadro === "conversa" ? (
-            <ChatChamado
-              chamadoId={chamado.id}
-              placeholder={`Escreva para ${primeiroNome}... (Ctrl+V cola prints)`}
-              bloqueio={
-                naoIniciado(chamado.status)
-                  ? `Inicie o chamado para conversar com ${primeiroNome}.`
-                  : undefined
-              }
-            />
-          ) : (
-            <RelatoTecnico
-              chamadoId={chamado.id}
-              bloqueio={
-                naoIniciado(chamado.status) ? "Inicie o chamado para anotar no relato." : undefined
-              }
-            />
-          )}
+          <ChatChamado
+            chamadoId={chamado.id}
+            notasInternas
+            placeholder={`Escreva para ${primeiroNome}... (Ctrl+V cola prints)`}
+            bloqueio={
+              naoIniciado(chamado.status)
+                ? `Inicie o chamado para conversar com ${primeiroNome} ou anotar.`
+                : undefined
+            }
+          />
         </section>
 
         <aside className={`flex-col gap-4 ${aba === "conversa" ? "hidden lg:flex" : "flex"}`}>
           {chamado.status === "concluido" ? (
-            <div className={aba === "historico" ? "hidden lg:block" : ""}>
-              <Secao titulo="Avaliação">
-                <AvaliacaoChamado chamadoId={chamado.id} modo="ti" />
-              </Secao>
-            </div>
-          ) : null}
-          <div className={aba === "historico" ? "hidden lg:block" : ""}>
-            <Secao titulo="Pedido">
-              <DetalhesPedido chamado={chamado} resumo />
+            <Secao titulo="Avaliação">
+              <AvaliacaoChamado chamadoId={chamado.id} modo="ti" />
             </Secao>
-          </div>
-          <div className={aba === "historico" ? "hidden lg:block" : ""}>
-            <OutrosChamados
-              chamadoId={chamado.id}
-              solicitanteId={chamado.solicitanteId}
-              nome={solicitante?.nome ?? "solicitante"}
-            />
-          </div>
-          {extras ? (
-            <div className={aba === "detalhes" ? "hidden lg:block" : ""}>
-              <CartaoHistorico
-                historico={extras.historico}
-                perfis={extras.perfis}
-                abertoNoInicio={aba === "historico"}
-              />
-            </div>
           ) : null}
+          <Secao titulo="Pedido">
+            <DetalhesPedido chamado={chamado} resumo />
+          </Secao>
+          <OutrosChamados
+            chamadoId={chamado.id}
+            solicitanteId={chamado.solicitanteId}
+            nome={solicitante?.nome ?? "solicitante"}
+          />
         </aside>
       </div>
 

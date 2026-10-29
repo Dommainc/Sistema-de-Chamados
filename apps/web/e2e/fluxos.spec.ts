@@ -44,7 +44,7 @@ test("abrir o chamado de outra pessoa pela URL mostra 'sem acesso'", async ({ pa
   await expect(page.getByText("Você não tem acesso a esta área")).toBeVisible();
 });
 
-test("técnico assume, conversa, anota no relato técnico, transfere; outro técnico assume e conclui", async ({
+test("técnico assume, conversa, faz nota interna, transfere; outro técnico assume e conclui", async ({
   page,
   context,
 }) => {
@@ -65,9 +65,9 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   await page.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(page.getByText("Oi, Ana! Já estou olhando o roteador.")).toBeVisible();
 
-  await page.getByRole("tab", { name: /Relato técnico/ }).click();
-  await page.getByRole("textbox", { name: "Anotação" }).fill("Trocar fonte do roteador.");
-  await page.getByRole("button", { name: "Adicionar ao relato" }).click();
+  await page.getByRole("button", { name: /Nota interna/ }).click();
+  await page.getByRole("textbox", { name: "Nota interna" }).fill("Trocar fonte do roteador.");
+  await page.getByRole("button", { name: "Salvar nota interna" }).click();
   await expect(page.getByText("Trocar fonte do roteador.")).toBeVisible();
 
   const acoes = page.getByRole("region", { name: "Ações" });
@@ -92,15 +92,18 @@ test("técnico assume, conversa, anota no relato técnico, transfere; outro téc
   await page.getByRole("dialog").getByRole("button", { name: "Marcar como concluído" }).click();
   await expect(page.getByText("Chamado #42 concluído.")).toBeVisible();
 
-  const historico = page.getByRole("region", { name: "Histórico" });
-  await historico.locator("summary").click(); // recolhido por padrão
-  await expect(historico.getByText("Iniciado por Rafael Lima")).toBeVisible();
+  // Tudo na mesma linha do tempo (layout novo): eventos, motivo da transferência e a nota interna.
+  const conversa = page.getByRole("list", { name: "Conversa do chamado" });
   await expect(
-    historico.getByText(
-      "Transferido por Rafael Lima para Thiago Martins — Thiago está na obra Recreio hoje.",
+    conversa.getByText(/Rafael iniciou o atendimento|Rafael Lima iniciou/),
+  ).toBeVisible();
+  await expect(
+    conversa.getByText(
+      /Rafael Lima transferiu para Você — “Thiago está na obra Recreio hoje\.”|transferiu para Thiago — “Thiago está na obra Recreio hoje\.”/,
     ),
   ).toBeVisible();
-  await expect(historico.getByText("Concluído por Thiago Martins")).toBeVisible();
+  await expect(conversa.getByText("Trocar fonte do roteador.")).toBeVisible();
+  await expect(conversa.getByText("Chamado concluído")).toBeVisible();
 });
 
 test("só a TI cancela; antes de iniciar, a TI não conversa com o solicitante", async ({
@@ -114,7 +117,7 @@ test("só a TI cancela; antes de iniciar, a TI não conversa com o solicitante",
 
   await trocarPara(context, page, "Rafael Lima");
   await page.goto("/atendimento/42");
-  await expect(page.getByText("Inicie o chamado para conversar com Ana.")).toBeVisible();
+  await expect(page.getByText("Inicie o chamado para conversar com Ana ou anotar.")).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Mensagem" })).toHaveCount(0);
 
   await page
@@ -127,7 +130,7 @@ test("só a TI cancela; antes de iniciar, a TI não conversa com o solicitante",
   await expect(page.getByText("Chamado #42 cancelado.")).toBeVisible();
 });
 
-test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à Ana", async ({
+test("conversa em tempo real entre Ana e Rafael; nota interna nunca chega à Ana", async ({
   context,
 }) => {
   const ana = await context.newPage();
@@ -147,11 +150,11 @@ test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à 
   await ana.getByRole("button", { name: "Enviar mensagem" }).click();
   await expect(rafael.getByText("No navegador aparecem sim!")).toBeVisible();
 
-  await rafael.getByRole("tab", { name: /Relato técnico/ }).click();
-  await rafael.getByRole("textbox", { name: "Anotação" }).fill("Segredo interno da TI");
-  await rafael.getByRole("button", { name: "Adicionar ao relato" }).click();
+  await rafael.getByRole("button", { name: /Nota interna/ }).click();
+  await rafael.getByRole("textbox", { name: "Nota interna" }).fill("Segredo interno da TI");
+  await rafael.getByRole("button", { name: "Salvar nota interna" }).click();
   await expect(rafael.getByText("Segredo interno da TI")).toBeVisible();
-  await rafael.getByRole("tab", { name: /Conversa com Ana/ }).click();
+  await rafael.getByRole("button", { name: "Responder" }).click();
   await rafael
     .getByRole("textbox", { name: "Mensagem" })
     .fill("Ótimo! Vou arquivar e-mails antigos.");
@@ -163,7 +166,7 @@ test("conversa em tempo real entre Ana e Rafael; relato técnico nunca chega à 
 
   // Prazo definido pela TI (ADR 0009): alterar pede motivo, e a Ana vê a nova previsão e o motivo.
   await rafael
-    .getByRole("region", { name: "Prazo" })
+    .getByRole("region", { name: "Prazo do chamado" })
     .getByRole("button", { name: "Alterar prazo" })
     .click();
   const modal = rafael.getByRole("dialog");

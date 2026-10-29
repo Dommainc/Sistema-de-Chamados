@@ -103,7 +103,7 @@ aviso. Regras completas em [`docs/status.md`](status.md).
 | `POST /chamados/{id}/transferir` | TI | `{"destino_id": "<uuid>", "motivo": "..."}` | `transferido`; o destino precisa assumir |
 | `POST /chamados/{id}/cancelar` | TI (solicitante → `CANCELAMENTO_NAO_PERMITIDO`) | `{"motivo": "..."}` | `cancelado` |
 
-O motivo da transferência vai para o histórico **só da TI** (aparece no Relato técnico). Sem rotas de aguardar,
+O motivo da transferência vai para o histórico **só da TI** (aparece na linha do tempo da TI). Sem rotas de aguardar,
 retomar e devolver à fila ([ADR 0014](adr/0014-sem-aguardar-retomar-e-devolver.md)): aguardando usuário é só automático.
 
 ### Prioridade (TI)
@@ -135,7 +135,7 @@ Só TI, depois de iniciar (`CHAMADO_NAO_INICIADO`), não encerrado (`TRANSICAO_I
 - 1ª definição: `motivo` opcional. **Alterar** um prazo já definido: `motivo` obrigatório (`MOTIVO_OBRIGATORIO`).
 - Grava `historico` `prazo_definido` (público: o solicitante vê a nova data e o motivo) e avisa o solicitante.
 
-### Conversa e Relato técnico
+### Conversa e notas internas
 
 `POST /chamados/{id}/mensagens` → **201** `{id, criado_em}`
 
@@ -143,8 +143,9 @@ Só TI, depois de iniciar (`CHAMADO_NAO_INICIADO`), não encerrado (`TRANSICAO_I
 { "conteudo": "Consegue testar agora?", "interna": false, "anexos": [] }
 ```
 
-- `interna: true` = anotação do **Relato técnico** (só TI; solicitante → `SEM_PERMISSAO`). Não gera aviso.
-- TI mandando mensagem (conversa **ou** relato) antes de iniciar (`pendente`/`transferido`) → `CHAMADO_NAO_INICIADO`.
+- `interna: true` = **nota interna** (só TI; solicitante → `SEM_PERMISSAO`). Não gera aviso. Na tela da TI aparece na
+  mesma linha do tempo da conversa, em destaque (layout novo).
+- TI mandando mensagem (conversa **ou** nota interna) antes de iniciar (`pendente`/`transferido`) → `CHAMADO_NAO_INICIADO`.
 - Automações por tempo (2 h úteis → `aguardando_usuario`; 24 h úteis → aviso no chat) rodam **no banco** (pg_cron), não na API — ADR 0011.
 - Resposta do solicitante com o chamado em `aguardando_usuario` → volta sozinho para `em_andamento` (histórico sem
   autor) e avisa o técnico responsável.
@@ -155,8 +156,8 @@ de não lidas).
 
 ### Baixar anexo
 
-`GET /anexos/{anexo_id}/url` → `{"url": "<URL assinada, vale 60 s>"}`. Só se eu posso ver o anexo: anexo de anotação
-do Relato técnico nunca abre para o solicitante.
+`GET /anexos/{anexo_id}/url` → `{"url": "<URL assinada, vale 60 s>"}`. Só se eu posso ver o anexo: anexo de nota
+interna nunca abre para o solicitante.
 
 ## Testes
 

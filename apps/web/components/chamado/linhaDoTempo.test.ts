@@ -1,14 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado, EventoHistorico, Mensagem } from "@/lib/dominio/tipos";
-import {
-  contarRelato,
-  montarConversa,
-  montarRelato,
-  rotuloDia,
-  textoEvento,
-  textoHistorico,
-} from "./linhaDoTempo";
+import { montarConversa, rotuloDia, textoEvento } from "./linhaDoTempo";
 
 // 05/10/2026 em São Paulo
 const agora = new Date("2026-10-05T13:30:00Z");
@@ -219,7 +212,7 @@ describe("agrupamento (estilo WhatsApp)", () => {
   });
 });
 
-describe("Relato técnico (só TI)", () => {
+describe("notas internas na linha do tempo (layout novo, parte 3)", () => {
   const notas: Mensagem[] = [
     {
       id: 7,
@@ -242,45 +235,90 @@ describe("Relato técnico (só TI)", () => {
     publico: false,
     criadoEm: "2026-10-05T13:00:00Z",
   };
+  const prioridade: EventoHistorico = {
+    id: 10,
+    chamadoId: 41,
+    autorId: RAFAEL,
+    acao: "prioridade_alterada",
+    de: "em_andamento",
+    para: "em_andamento",
+    detalhe: { de: "media", para: "alta" },
+    publico: false,
+    criadoEm: "2026-10-05T13:05:00Z",
+  };
+  const entrada = {
+    chamado,
+    mensagens: notas,
+    historico: [...historico, transferencia, prioridade],
+    anexos: [],
+    perfis,
+    euId: RAFAEL,
+    papel: "ti" as const,
+    agora,
+  };
 
-  it("junta as notas internas e a transferência com motivo, em ordem de tempo", () => {
-    const relato = montarRelato({
-      mensagens: notas,
-      historico: [...historico, transferencia],
-      anexos: [],
-      perfis,
-      euId: RAFAEL,
-    });
-    expect(relato).toEqual([
-      expect.objectContaining({
-        tipo: "anotacao",
-        autor: "Você",
-        conteudo: "Caixa com 49,8 GB",
-        quando: "05/10/2026 09:45",
-      }),
-      expect.objectContaining({
-        tipo: "registro",
-        texto: "Você transferiu para Ana Souza",
-        motivo: "Ana cuida de e-mail",
-      }),
-    ]);
-    expect(contarRelato(notas, [...historico, transferencia])).toBe(2);
+  it("na tela da TI: a nota entra em ordem de tempo, marcada, sem ✓; eventos só da TI com motivo", () => {
+    const itens = montarConversa({ ...entrada, comNotasInternas: true });
+    const nota = itens.find((i) => i.tipo === "mensagem" && i.chave === "m7");
+    expect(nota).toEqual(
+      expect.objectContaining({ interna: true, conteudo: "Caixa com 49,8 GB", visto: null }),
+    );
+    const eventos = itens.flatMap((i) => (i.tipo === "evento" ? [[i.texto, i.interno]] : []));
+    expect(eventos).toContainEqual(["Você transferiu para Ana — “Ana cuida de e-mail”", true]);
+    expect(eventos).toContainEqual(["Você mudou a prioridade: Média → Alta", true]);
   });
 
-  it("a conversa não mostra a nota interna nem o motivo da transferência", () => {
-    const conversa = montarConversa({
-      chamado,
-      mensagens: notas,
-      historico: [...historico, transferencia],
-      anexos: [],
-      perfis,
-      euId: RAFAEL,
-      papel: "ti",
-      agora,
+  it("nota interna nunca agrupa com a mensagem anterior da mesma pessoa", () => {
+    const seguidas: Mensagem[] = [
+      {
+        id: 1,
+        chamadoId: 41,
+        autorId: RAFAEL,
+        conteudo: "Oi",
+        interna: false,
+        criadoEm: "2026-10-05T12:50:00Z",
+      },
+      {
+        id: 2,
+        chamadoId: 41,
+        autorId: RAFAEL,
+        conteudo: "nota",
+        interna: true,
+        criadoEm: "2026-10-05T12:51:00Z",
+      },
+      {
+        id: 3,
+        chamadoId: 41,
+        autorId: RAFAEL,
+        conteudo: "outra",
+        interna: true,
+        criadoEm: "2026-10-05T12:52:00Z",
+      },
+    ];
+    const itens = montarConversa({
+      ...entrada,
+      chamado: { ...chamado, criadoEm: "2026-10-05T12:00:00Z" },
+      mensagens: seguidas,
+      historico: [],
+      comNotasInternas: true,
     });
+    const grupos = itens.flatMap((i) =>
+      i.tipo === "mensagem" ? [[i.chave, i.inicioDeGrupo]] : [],
+    );
+    expect(grupos).toEqual([
+      ["pedido", true],
+      ["m1", true],
+      ["m2", true],
+      ["m3", true],
+    ]);
+  });
+
+  it("sem comNotasInternas (portal): sem nota, sem motivo da transferência, sem prioridade", () => {
+    const conversa = montarConversa(entrada);
     const textos = conversa.map((i) => (i.tipo === "mensagem" ? i.conteudo : i.texto));
     expect(textos).not.toContain("Caixa com 49,8 GB");
     expect(textos).toContain("Você transferiu para Ana");
+    expect(textos.some((t) => t.includes("prioridade"))).toBe(false);
   });
 });
 
@@ -325,8 +363,8 @@ describe("prazo definido pela TI (ADR 0009)", () => {
     expect(textoEvento(definido, nome, RAFAEL, "ti")).toBe(
       "Você definiu o prazo para 08/10 às 18:00",
     );
-    expect(textoHistorico(alterado, nome)).toBe(
-      "Prazo alterado por Rafael Lima para 09/10/2026 18:00 — Aguardando a peça",
+    expect(textoEvento(alterado, nome, RAFAEL, "ti")).toBe(
+      "Você alterou o prazo para 09/10 às 18:00 (Aguardando a peça)",
     );
   });
 });

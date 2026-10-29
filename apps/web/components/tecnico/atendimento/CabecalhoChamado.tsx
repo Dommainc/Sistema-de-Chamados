@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, ChevronLeft, Lock, Mail, MessageCircle } from "lucide-react";
+import { CalendarClock, ChevronLeft, Clock, Lock, Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/Avatar";
 import { BadgeStatus } from "@/components/ui/BadgeStatus";
@@ -17,9 +17,11 @@ import {
   type Prioridade,
   type PrioridadeDaTi,
 } from "@/lib/dominio/tipos";
-import { formatarDataHora, formatarNumeroChamado } from "@/lib/formato";
-import { situacaoPrazo, textoPrazo } from "@/lib/prazo";
+import { formatarNumeroChamado, formatarQuando } from "@/lib/formato";
+import { situacaoPrazo, textoPrazo, textoPrazoCartao } from "@/lib/prazo";
+import { CHAVE_SISTEMA, moduloDe, SEM_SISTEMA } from "@/lib/sistemas";
 import { linkChatTeams } from "@/lib/teams";
+import { COR_PRIORIDADE } from "../cores";
 import type { AcaoDeBotao } from "../useAcaoChamado";
 import type { AcaoComModal } from "./ModalAcao";
 
@@ -32,7 +34,7 @@ const COR_PRAZO = {
   sem_prazo: "text-texto-suave",
 } as const;
 
-/** Bloco "rótulo em cima, valor embaixo" da faixa de informações. */
+/** Bloco "rótulo em cima, valor embaixo" (layout novo: sem caixa, como no mockup). */
 function Info({
   titulo,
   children,
@@ -50,11 +52,9 @@ function Info({
   return (
     <Tag
       aria-label={regiao ? titulo : undefined}
-      className={`flex min-w-0 flex-col gap-1 rounded-xl bg-fundo px-3 py-2.5 ${destaque ? "col-span-2 sm:col-span-1" : ""}`}
+      className={`flex min-w-0 flex-col gap-1 ${destaque ? "col-span-2 sm:col-span-1" : ""}`}
     >
-      <span className="text-xs font-semibold tracking-wider text-texto-suave uppercase">
-        {titulo}
-      </span>
+      <span className="text-xs text-texto-suave">{titulo}</span>
       {children}
     </Tag>
   );
@@ -119,13 +119,7 @@ function AcoesCabecalho({
   );
 }
 
-const COR_PRIORIDADE: Record<PrioridadeDaTi, { ativa: string; rotulo: string }> = {
-  alta: { ativa: "border-perigo bg-perigo text-white", rotulo: "Alta" },
-  media: { ativa: "border-amarelo bg-amarelo text-white", rotulo: "Média" },
-  baixa: { ativa: "border-apagado bg-apagado text-white", rotulo: "Baixa" },
-};
-
-/** Alta (vermelho) · Média (amarelo) · Baixa (cinza) — só a TI vê (ADR 0012). */
+/** Alta · Média · Baixa, com as mesmas cores do quadro (cores.ts) — só a TI vê (ADR 0012). */
 function SeletorPrioridade({
   atual,
   desabilitado,
@@ -148,11 +142,11 @@ function SeletorPrioridade({
             onClick={() => aoMudar(p)}
             className={`min-h-8 flex-1 rounded-lg border px-2 text-xs font-bold disabled:cursor-not-allowed ${
               ativa
-                ? COR_PRIORIDADE[p].ativa
+                ? `border-transparent ${COR_PRIORIDADE[p]?.classe ?? ""}`
                 : "border-borda bg-superficie text-texto-suave hover:bg-fundo disabled:opacity-50"
             }`}
           >
-            {COR_PRIORIDADE[p].rotulo}
+            {COR_PRIORIDADE[p]?.rotulo ?? p}
           </button>
         );
       })}
@@ -160,10 +154,16 @@ function SeletorPrioridade({
   );
 }
 
+/** "Aberto hoje, 08:42" · "Aberto ontem, 17:10" · "Aberto em 13/10, 09:00". */
+function textoAbertura(iso: string, agora: Date): string {
+  const quando = formatarQuando(iso, agora);
+  return /^\d/.test(quando) ? `Aberto em ${quando}` : `Aberto ${quando}`;
+}
+
 /**
- * Cabeçalho-resumo da tela de atendimento (pedido do dono, 2026-10-07): número, título e status;
- * ações; e a faixa com solicitante (com contato), responsável, prazo (definir/alterar) e categoria.
- * Tudo que o técnico precisa sem rolar a página.
+ * Cabeçalho da tela de atendimento no layout novo (parte 3): "ID 181 · Aberto hoje, 08:42", título,
+ * status · prioridade · prazo do chamado, as ações e os dados (solicitante com contato, setor, categoria ›
+ * sistema, responsável, prazo e prioridade). Tudo que o técnico precisa sem rolar a página.
  */
 export function CabecalhoChamado({
   chamado,
@@ -192,6 +192,16 @@ export function CabecalhoChamado({
   const encerrado = estaEncerrado(chamado.status);
   // Antes de iniciar: só ver, iniciar ou cancelar (ADR 0012).
   const travado = encerrado || naoIniciado(chamado.status);
+  const prioridade = naoIniciado(chamado.status) ? undefined : COR_PRIORIDADE[chamado.prioridade];
+  const prazoCurto = textoPrazoCartao(chamado.prazoSla, agora);
+  const sistema = chamado.respostasForm[CHAVE_SISTEMA];
+  const caminhoCategoria = [
+    categoria?.nome ?? "—",
+    typeof sistema === "string" && sistema !== SEM_SISTEMA ? sistema : null,
+    moduloDe(chamado.respostasForm),
+  ]
+    .filter(Boolean)
+    .join(" › ");
 
   return (
     <header className="flex flex-col gap-4 rounded-2xl border border-borda bg-superficie p-4 shadow-sm lg:p-5">
@@ -199,16 +209,36 @@ export function CabecalhoChamado({
         <div className="flex min-w-0 flex-col gap-1.5">
           <Link
             href="/atendimento"
-            className="inline-flex min-h-8 items-center gap-0.5 self-start text-sm font-semibold text-primaria"
+            className="inline-flex min-h-8 items-center gap-0.5 self-start text-sm font-semibold text-texto-suave hover:text-texto"
           >
-            <ChevronLeft aria-hidden="true" className="size-4" /> Quadro
+            <ChevronLeft aria-hidden="true" className="size-4" /> Chamados da TI
           </Link>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="font-mono text-xl font-semibold text-texto-suave lg:text-2xl">
-              {formatarNumeroChamado(chamado.id)}
-            </span>
-            <h1 className="text-xl font-bold lg:text-2xl">{chamado.titulo}</h1>
+          <p className="text-sm text-texto-suave">
+            <span className="font-mono font-semibold text-texto">ID {chamado.id}</span>
+            <span className="sr-only"> ({formatarNumeroChamado(chamado.id)})</span> ·{" "}
+            {textoAbertura(chamado.criadoEm, agora)}
+          </p>
+          <h1 className="text-xl font-bold lg:text-2xl">{chamado.titulo}</h1>
+          <div className="flex flex-wrap items-center gap-2">
             <BadgeStatus status={chamado.status} papel="ti" tamanho="pequeno" />
+            {prioridade ? (
+              <span className={`rounded px-2 py-0.5 text-xs font-bold ${prioridade.classe}`}>
+                {prioridade.rotulo}
+              </span>
+            ) : null}
+            {travado ? null : (
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs ${
+                  situacao === "vencido"
+                    ? "border-texto font-bold text-texto"
+                    : "border-borda text-texto-suave"
+                }`}
+              >
+                <Clock aria-hidden="true" className="size-3.5" />
+                Prazo do chamado: {prazoCurto.charAt(0).toLocaleLowerCase("pt-BR")}
+                {prazoCurto.slice(1)}
+              </span>
+            )}
           </div>
           {chamado.continuacaoDe ? (
             <Link
@@ -237,18 +267,13 @@ export function CabecalhoChamado({
         </p>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-2 xl:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+      <div className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-borda pt-4 sm:grid-cols-3 xl:grid-cols-[1.5fr_0.9fr_1fr_1.3fr_1fr_auto]">
         <Info titulo="Solicitante" regiao destaque>
           {solicitante ? (
             <>
               <span className="flex min-w-0 items-center gap-2">
                 <Avatar nome={solicitante.nome} tom="suave" tamanho="pequeno" />
                 <span className="truncate font-semibold">{solicitante.nome}</span>
-                {solicitante.departamento ? (
-                  <span className="truncate text-sm text-texto-suave">
-                    · {solicitante.departamento}
-                  </span>
-                ) : null}
               </span>
               <span className="flex flex-wrap gap-x-3 text-sm">
                 {/* Só um link que abre o chat do Teams com a pessoa (sem API — integrações: só login e bot). */}
@@ -273,18 +298,29 @@ export function CabecalhoChamado({
           )}
         </Info>
 
-        <Info titulo="Responsável">
-          <span className="font-semibold">
-            {responsavel
-              ? `${responsavel.nome}${responsavel.id === usuario.id ? " (você)" : ""}`
-              : "Ninguém ainda"}
-          </span>
-          <span className="hidden text-sm text-texto-suave sm:inline">
-            Aberto em {formatarDataHora(chamado.criadoEm)}
-          </span>
+        <Info titulo="Setor">
+          <span className="font-semibold">{solicitante?.departamento || "—"}</span>
         </Info>
 
-        <Info titulo="Prazo" regiao>
+        <Info titulo="Categoria">
+          <span className="font-semibold">{caminhoCategoria}</span>
+        </Info>
+
+        <Info titulo="Responsável">
+          {responsavel ? (
+            <span className="flex min-w-0 items-center gap-2 font-semibold">
+              <Avatar nome={responsavel.nome} tom="suave" tamanho="pequeno" />
+              <span className="min-w-0">
+                {responsavel.nome}
+                {responsavel.id === usuario.id ? " (você)" : ""}
+              </span>
+            </span>
+          ) : (
+            <span className="font-semibold text-texto-suave">Ninguém ainda</span>
+          )}
+        </Info>
+
+        <Info titulo="Prazo do chamado" regiao>
           <span className={`font-semibold ${COR_PRAZO[situacao]}`}>
             {textoPrazo(chamado.prazoSla, agora)}
           </span>
@@ -306,10 +342,6 @@ export function CabecalhoChamado({
             desabilitado={travado}
             aoMudar={aoMudarPrioridade}
           />
-        </Info>
-
-        <Info titulo="Categoria" destaque>
-          <span className="font-semibold">{categoria?.nome ?? "—"}</span>
         </Info>
       </div>
     </header>

@@ -50,6 +50,14 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
   ID · Chamado (título + solicitante · assunto) · Status · Prioridade · Responsável · Prazo do chamado · Msgs —,
   agrupada por **status** (padrão), **responsável** ou **categoria**, e ordenável clicando em "Prazo do chamado"
   (`?visao=lista&agrupar=…&ordem=prazo|-prazo`). Concluídos e cancelados: últimos 7 dias, em cinza.
+- **Tela do chamado da TI** (parte 3, página inteira): em cima, "ID 181 · Aberto hoje, 08:42", o título e a linha
+  status · prioridade (só depois de iniciar) · "Prazo do chamado: atrasado 35min" (pílula com borda, negrito se
+  atrasado); ações à direita; e os dados sem caixa (rótulo pequeno em cima): Solicitante (Teams/e-mail), Setor,
+  Categoria › sistema › módulo, Responsável, Prazo do chamado, Prioridade.
+- **Uma linha do tempo só**: conversa, **notas internas** (âmbar, borda tracejada, rótulo "🔒 Nota interna", nunca
+  agrupadas) e eventos (linha fina com o texto no meio; os só da TI — motivo da transferência, prioridade — com
+  cadeado). Abas **Responder · Nota interna** em cima do campo; embaixo, "Ana recebe aviso no Teams" ou "Só a TI vê".
+  Substituem a aba **Relato técnico** e o cartão **Histórico** (o histórico completo continua no banco e no relatório).
 
 ## Listas grandes de opções (2026-10-17)
 - 7 ou mais opções (ex.: sistemas, módulos): botões compactos em grade — 2 colunas no celular, 3 no computador.

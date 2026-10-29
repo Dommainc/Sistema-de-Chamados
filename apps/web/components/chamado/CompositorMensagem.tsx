@@ -19,14 +19,20 @@ export function CompositorMensagem({
   rotuloCampo = "Mensagem",
   rotuloEnviar = "Enviar mensagem",
   respostasProntas = [],
+  topo,
+  dica,
 }: {
   aoEnviar: (conteudo: string, anexos: ArquivoSelecionado[]) => void;
   placeholder?: string;
-  /** Nome acessível do campo e do botão (o Relato técnico usa "Anotação" / "Adicionar ao relato"). */
+  /** Nome acessível do campo e do botão (a nota interna usa "Nota interna" / "Salvar nota interna"). */
   rotuloCampo?: string;
   rotuloEnviar?: string;
   /** Respostas prontas (só a TI, no chat): escolher uma coloca o texto no campo — nada é enviado sozinho. */
   respostasProntas?: { titulo: string; texto: string }[];
+  /** Acima do campo (tela da TI: abas Responder · Nota interna). */
+  topo?: React.ReactNode;
+  /** Texto curto embaixo, à esquerda do contador ("Ana recebe aviso no Teams"). */
+  dica?: React.ReactNode;
 }) {
   const [texto, setTexto] = useState("");
   const [prontasAbertas, setProntasAbertas] = useState(false);
@@ -69,6 +75,7 @@ export function CompositorMensagem({
 
   return (
     <div className="flex flex-col gap-2 border-t border-borda bg-superficie px-3 py-3">
+      {topo}
       {arquivos.length > 0 ? (
         <ul className="flex flex-wrap gap-2" aria-label="Arquivos que serão enviados">
           {arquivos.map((a) => (
@@ -180,7 +187,8 @@ export function CompositorMensagem({
           <SendHorizontal aria-hidden="true" className="size-5" />
         </button>
       </div>
-      <div className="flex justify-end px-2">
+      <div className="flex items-center justify-between gap-3 px-2">
+        <span className="min-w-0 text-xs text-texto-suave">{dica}</span>
         <Contador valor={texto} maximo={MENSAGEM_MAX} />
       </div>
     </div>

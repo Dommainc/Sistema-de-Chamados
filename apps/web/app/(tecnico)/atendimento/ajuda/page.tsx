@@ -7,7 +7,7 @@ const SECOES = [
   { id: "acesso", titulo: "Quem é da TI na Central" },
   { id: "quadro", titulo: "O quadro" },
   { id: "atender", titulo: "Atender um chamado" },
-  { id: "conversa", titulo: "Conversa e Relato técnico" },
+  { id: "conversa", titulo: "Conversa e notas internas" },
   { id: "automacoes", titulo: "O que a Central faz sozinha" },
   { id: "dashboard", titulo: "Dashboard, relatório e avaliações" },
   { id: "teams", titulo: "Teams e resumo mensal" },
@@ -96,19 +96,25 @@ export default function PaginaAjudaTi() {
         </Passos>
         <Figura arquivo="computador-08-atendimento.png" legenda="Tela de atendimento" />
         <p className="text-lg">
-          No painel ao lado ficam o pedido, os <strong>outros chamados da mesma pessoa</strong>{" "}
-          (para ver se o problema é recorrente) e o histórico. Quando o solicitante usa &quot;O
-          problema voltou&quot;, aparece <strong>&quot;↻ continuação do #N&quot;</strong> com o link
-          do anterior.
+          No painel ao lado ficam o pedido e os <strong>outros chamados da mesma pessoa</strong>{" "}
+          (para ver se o problema é recorrente). Quando o solicitante usa &quot;O problema
+          voltou&quot;, aparece <strong>&quot;↻ continuação do #N&quot;</strong> com o link do
+          anterior.
         </p>
       </SecaoGuia>
 
-      <SecaoGuia id="conversa" titulo="Conversa e Relato técnico">
+      <SecaoGuia id="conversa" titulo="Conversa e notas internas">
         <p className="text-lg">
-          A aba <strong>Conversa</strong> é o chat com o solicitante: ✓ = enviada, ✓✓ azul = ele já
-          leu. A aba <strong>Relato técnico</strong> é só da TI: anote ali o que foi feito (o
-          solicitante não vê).
+          Tudo fica numa linha do tempo só: as mensagens com o solicitante (✓ = enviada, ✓✓ azul =
+          ele já leu), as <strong>notas internas</strong> em amarelo, com o cadeado, e o que
+          aconteceu no chamado (início, transferência com o motivo, prazo).
         </p>
+        <p className="text-lg">
+          Em cima do campo, escolha <strong>Responder</strong> (o solicitante recebe e é avisado no
+          Teams) ou <strong>Nota interna</strong> (só a TI vê: anote o que foi verificado e o que
+          foi feito).
+        </p>
+        <Figura arquivo="computador-08b-nota-interna.png" legenda="Nota interna: só a TI vê" />
         <Figura
           arquivo="computador-08c-respostas-prontas.png"
           legenda="Respostas prontas: o nome do solicitante entra sozinho"

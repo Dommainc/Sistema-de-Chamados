@@ -91,9 +91,9 @@ também: `update public.profiles set ativo = false where email = '<email>';` (o 
 
 ## 10. Teste final (com pessoas de verdade)
 - [ ] Colaborador `@dommainc.com.br` entra com a conta Microsoft → primeiro acesso → abre um chamado com print colado.
-- [ ] Técnico do grupo **Central-Chamados-TI** entra → cai na área técnica → assume, conversa, anota no Relato
-  técnico, transfere para outro técnico → o outro assume e conclui.
-- [ ] O colaborador vê a conversa, **não** vê o Relato técnico, e vê o chamado como concluído.
+- [ ] Técnico do grupo **Central-Chamados-TI** entra → cai na área técnica → assume, conversa, faz uma nota
+  interna, transfere para outro técnico → o outro assume e conclui.
+- [ ] O colaborador vê a conversa, **não** vê a nota interna, e vê o chamado como concluído.
 - [ ] Conta de fora da DOMMA (convidado) não consegue usar a Central.
 - [ ] Link universal `/chamados/<número>` abre a tela certa para cada um.
 - [ ] Tabela `notificacoes` tem os avisos como `pendente` (o bot do Teams entra na 1E — por último).

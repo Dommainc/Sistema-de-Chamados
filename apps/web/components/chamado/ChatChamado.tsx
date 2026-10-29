@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCcw, WifiOff } from "lucide-react";
+import { Lock, RotateCcw, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ArquivoSelecionado } from "@/components/abertura/rascunho";
@@ -22,8 +22,12 @@ interface Pendente {
   idLocal: number;
   conteudo: string;
   anexos: ArquivoSelecionado[];
+  /** Nota interna (só a TI). */
+  interna: boolean;
   estado: "enviando" | "falhou";
 }
+
+type Modo = "responder" | "nota";
 
 /** Erros em que não adianta tentar de novo: a mensagem sai da tela e o motivo vira aviso. */
 const ERROS_DEFINITIVOS = new Set(["TRANSICAO_INVALIDA", "SEM_PERMISSAO", "CAMPO_OBRIGATORIO"]);
@@ -33,18 +37,22 @@ let sequenciaLocal = 0;
 /**
  * Chat do chamado (mockup, tela 5): conversa em tempo real, envio otimista e,
  * se falhar, "Sua mensagem não foi enviada. Toque para tentar de novo." mantendo o texto.
- * Só a conversa com o solicitante: as notas da TI ficam no Relato técnico.
+ * Tela da TI (`notasInternas`, layout novo — parte 3): conversa e notas internas na mesma linha do tempo,
+ * com as abas Responder · Nota interna em cima do campo. O solicitante nunca recebe as notas (RLS).
  */
 export function ChatChamado({
   chamadoId,
   placeholder = "Escreva sua resposta...",
   bloqueio,
+  notasInternas = false,
 }: {
   chamadoId: number;
   /** TI: "Escreva para a Ana... (Ctrl+V cola prints)". */
   placeholder?: string;
   /** Texto no lugar do campo de escrever (ex.: TI antes de iniciar o chamado). */
   bloqueio?: string;
+  /** Tela de atendimento da TI: mostra as notas internas e a aba "Nota interna". */
+  notasInternas?: boolean;
 }) {
   const fonte = useDados();
   const usuario = useUsuario();
@@ -52,6 +60,7 @@ export function ChatChamado({
   const { mostrarErro } = useToast();
   const online = useOnline();
   const [pendentes, setPendentes] = useState<Pendente[]>([]);
+  const [modo, setModo] = useState<Modo>("responder");
   const fim = useRef<HTMLDivElement>(null);
   const rolagem = useRef<HTMLDivElement>(null);
 
@@ -76,7 +85,14 @@ export function ChatChamado({
   );
   const { dados, erro } = useConsulta(consultar);
 
-  const itens = dados ? montarConversa({ ...dados, euId: usuario.id, papel: usuario.papel }) : [];
+  const itens = dados
+    ? montarConversa({
+        ...dados,
+        euId: usuario.id,
+        papel: usuario.papel,
+        comNotasInternas: notasInternas,
+      })
+    : [];
   const totalMensagens = dados?.mensagens.length ?? 0;
   const nomeSolicitante =
     dados?.perfis.find((p) => p.id === dados.chamado.solicitanteId)?.nome.split(" ")[0] ?? "";
@@ -107,6 +123,7 @@ export function ChatChamado({
         await fonte.enviarMensagem({
           chamadoId,
           conteudo: pendente.conteudo,
+          interna: pendente.interna,
           anexos: pendente.anexos.map(({ arquivo, nome, mime, tamanho, origem }) => ({
             arquivo,
             nome,
@@ -135,6 +152,7 @@ export function ChatChamado({
       idLocal: ++sequenciaLocal,
       conteudo: conteudo.trim(),
       anexos,
+      interna: notasInternas && modo === "nota",
       estado: "enviando",
     };
     setPendentes((atuais) => [...atuais, pendente]);
@@ -167,6 +185,7 @@ export function ChatChamado({
                 <Balao
                   conteudo={p.conteudo || "(arquivo)"}
                   minha
+                  interna={p.interna}
                   hora={p.estado === "falhou" ? "não enviada" : "Enviando..."}
                   esmaecido
                 />
@@ -221,11 +240,55 @@ export function ChatChamado({
         ) : (
           <CompositorMensagem
             aoEnviar={enviar}
-            placeholder={placeholder}
-            respostasProntas={respostasProntas}
+            placeholder={
+              modo === "nota" ? "Anote o que foi verificado ou feito... (só a TI vê)" : placeholder
+            }
+            rotuloCampo={modo === "nota" ? "Nota interna" : "Mensagem"}
+            rotuloEnviar={modo === "nota" ? "Salvar nota interna" : "Enviar mensagem"}
+            respostasProntas={modo === "nota" ? [] : respostasProntas}
+            topo={notasInternas ? <AbasEscrever modo={modo} aoMudar={setModo} /> : undefined}
+            dica={
+              !notasInternas ? undefined : modo === "nota" ? (
+                <span className="inline-flex items-center gap-1 text-alerta">
+                  <Lock aria-hidden="true" className="size-3.5" /> Só a TI vê. O solicitante não
+                  recebe nada.
+                </span>
+              ) : nomeSolicitante ? (
+                `${nomeSolicitante} recebe aviso no Teams`
+              ) : undefined
+            }
           />
         )}
       </div>
+    </div>
+  );
+}
+
+/** Abas em cima do campo (layout novo): Responder (vai para o solicitante) · Nota interna (só a TI). */
+function AbasEscrever({ modo, aoMudar }: { modo: Modo; aoMudar: (modo: Modo) => void }) {
+  const aba = (valor: Modo, rotulo: string) => (
+    <button
+      type="button"
+      aria-pressed={modo === valor}
+      onClick={() => aoMudar(valor)}
+      className={`min-h-9 rounded-lg px-3 text-sm font-semibold ${
+        modo === valor
+          ? valor === "nota"
+            ? "bg-alerta-suave text-alerta"
+            : "bg-superficie-2 text-texto"
+          : "text-texto-suave hover:bg-fundo"
+      }`}
+    >
+      {valor === "nota" ? (
+        <Lock aria-hidden="true" className="mr-1 mb-0.5 inline size-3.5" />
+      ) : null}
+      {rotulo}
+    </button>
+  );
+  return (
+    <div role="group" aria-label="Tipo de mensagem" className="flex gap-1">
+      {aba("responder", "Responder")}
+      {aba("nota", "Nota interna")}
     </div>
   );
 }

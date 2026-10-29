@@ -77,9 +77,9 @@ for (const tema of ["claro", "escuro"] as const) {
     await print(page, "08c-respostas-prontas", p);
     await page.keyboard.press("Escape");
 
-    await page.getByRole("tab", { name: /Relato técnico/ }).click();
-    await expect(page.getByText(/49,8 GB/)).toBeVisible();
-    await print(page, "08b-relato-tecnico", p);
+    await page.getByRole("button", { name: /Nota interna/ }).click();
+    await expect(page.getByText(/O solicitante não recebe nada/)).toBeVisible();
+    await print(page, "08b-nota-interna", p);
 
     await page.goto("/atendimento/encerrados");
     await expect(page.getByRole("heading", { name: /Chamados encerrados/ })).toBeVisible();

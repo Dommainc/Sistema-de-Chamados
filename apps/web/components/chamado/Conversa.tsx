@@ -2,10 +2,11 @@
 
 // Conversa no estilo dos apps de mensagem (pedido do dono, 2026-10-06): hora dentro do balão,
 // mensagens seguidas da mesma pessoa agrupadas, "pontinha" e nome só no primeiro balão do grupo,
-// anexos dentro do balão. Cores do mockup: as minhas em azul à direita, as dos outros em branco.
-// Notas internas não aparecem aqui: ficam no Relato técnico (components/tecnico/atendimento/RelatoTecnico).
+// anexos dentro do balão. As minhas à direita (cor primária), as dos outros em branco.
+// Layout novo (parte 3): na tela da TI, as notas internas entram aqui também, em âmbar e com o rótulo
+// "Nota interna"; os eventos só da TI levam um cadeado.
 
-import { Check, CheckCheck } from "lucide-react";
+import { Check, CheckCheck, Lock } from "lucide-react";
 import type { Anexo } from "@/lib/dominio/tipos";
 import { AnexoMiniatura } from "./AnexoMiniatura";
 import type { ItemConversa } from "./linhaDoTempo";
@@ -28,6 +29,12 @@ const CORES = {
   outra: { balao: "bg-superficie text-texto", ponta: "bg-superficie", hora: "text-texto-suave" },
   // Aviso automático da Central (ADR 0011): azul-claro, para não parecer mensagem de uma pessoa.
   sistema: { balao: "bg-info-suave text-texto", ponta: "bg-info-suave", hora: "text-texto-suave" },
+  // Nota interna (só a TI): âmbar com borda tracejada, para nunca parecer resposta ao solicitante.
+  interna: {
+    balao: "border border-dashed border-alerta-borda bg-alerta-suave text-texto",
+    ponta: "bg-alerta-suave",
+    hora: "text-texto-suave",
+  },
 } as const;
 
 /** Balão de mensagem. `inicioDeGrupo` = primeiro da sequência: ganha a pontinha e o nome. */
@@ -35,6 +42,7 @@ export function Balao({
   conteudo,
   minha,
   sistema = false,
+  interna = false,
   autor = null,
   hora,
   inicioDeGrupo = true,
@@ -46,6 +54,8 @@ export function Balao({
   minha: boolean;
   /** Aviso automático da Central (sem autor). */
   sistema?: boolean;
+  /** Nota interna: só a TI vê. */
+  interna?: boolean;
   autor?: string | null;
   /** Texto do canto do balão: "09:52" ou "Enviando...". */
   hora: string;
@@ -55,15 +65,17 @@ export function Balao({
   /** ✓ enviada · ✓✓ vista pelo solicitante (só a TI vê). Nulo = sem marca. */
   visto?: boolean | null;
 }) {
-  const cor = sistema ? CORES.sistema : minha ? CORES.minha : CORES.outra;
+  const cor = interna ? CORES.interna : sistema ? CORES.sistema : minha ? CORES.minha : CORES.outra;
   const lado = minha ? "self-end" : "self-start";
-  const canto = inicioDeGrupo ? (minha ? "rounded-tr-sm" : "rounded-tl-sm") : "";
+  // Nota interna: sem "pontinha" (a borda tracejada não combina com ela).
+  const comPonta = inicioDeGrupo && !interna;
+  const canto = comPonta ? (minha ? "rounded-tr-sm" : "rounded-tl-sm") : "";
 
   return (
     <div
       className={`relative flex max-w-[min(85%,36rem)] flex-col gap-1 rounded-2xl px-3 pt-1.5 pb-1 shadow-sm ${cor.balao} ${lado} ${canto} ${esmaecido ? "opacity-70" : ""}`}
     >
-      {inicioDeGrupo ? (
+      {comPonta ? (
         <span
           aria-hidden="true"
           className={`absolute top-0 size-3 ${cor.ponta} ${
@@ -74,7 +86,13 @@ export function Balao({
         />
       ) : null}
 
-      {autor && inicioDeGrupo ? (
+      {interna ? (
+        <span className="flex items-center gap-1 text-xs font-semibold text-alerta">
+          <Lock aria-hidden="true" className="size-3.5" />
+          Nota interna{autor ? ` · ${autor}` : ""}
+          <span className="sr-only"> (só a TI vê)</span>
+        </span>
+      ) : autor && inicioDeGrupo ? (
         <span className="text-xs font-semibold text-primaria">{autor}</span>
       ) : null}
 
@@ -110,11 +128,22 @@ export function Balao({
   );
 }
 
-/** Evento do sistema ("Rafael iniciou o atendimento"): texto pequeno e discreto, sem disputar com as mensagens. */
-function Evento({ texto, hora }: { texto: string; hora: string }) {
+/**
+ * Evento do sistema ("Rafael iniciou o atendimento"): linha fina com o texto no meio (layout novo), pequeno e
+ * discreto. Só da TI (motivo da transferência, prioridade): com cadeado.
+ */
+function Evento({ texto, hora, interno }: { texto: string; hora: string; interno: boolean }) {
   return (
-    <p className="mx-auto max-w-[90%] text-center text-xs text-texto-suave">
-      {texto} <span className="whitespace-nowrap opacity-70">· {hora}</span>
+    <p className="flex items-center gap-3 text-xs text-texto-suave">
+      <span aria-hidden="true" className="h-px min-w-4 flex-1 bg-borda" />
+      <span className="max-w-[85%] text-center">
+        {interno ? (
+          <Lock aria-hidden="true" className="mr-1 mb-0.5 inline size-3 text-alerta" />
+        ) : null}
+        {texto} <span className="whitespace-nowrap opacity-70">· {hora}</span>
+        {interno ? <span className="sr-only"> (só a TI vê)</span> : null}
+      </span>
+      <span aria-hidden="true" className="h-px min-w-4 flex-1 bg-borda" />
     </p>
   );
 }
@@ -133,7 +162,7 @@ export function Conversa({ itens }: { itens: ItemConversa[] }) {
         if (item.tipo === "evento") {
           return (
             <li key={item.chave} className="my-2">
-              <Evento texto={item.texto} hora={item.hora} />
+              <Evento texto={item.texto} hora={item.hora} interno={item.interno} />
             </li>
           );
         }
@@ -147,6 +176,7 @@ export function Conversa({ itens }: { itens: ItemConversa[] }) {
               conteudo={item.conteudo}
               minha={item.minha}
               sistema={item.sistema}
+              interna={item.interna}
               autor={item.autor}
               hora={item.hora}
               inicioDeGrupo={item.inicioDeGrupo}

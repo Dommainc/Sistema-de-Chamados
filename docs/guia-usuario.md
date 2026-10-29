@@ -90,24 +90,23 @@ amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo
 
 - **Antes de clicar em Iniciar**, você pode abrir o chamado e ver tudo, mas não pode conversar, anotar, definir prazo
   nem prioridade — só **Iniciar** ou **Cancelar** (ex.: chamado duplicado).
-- A aba **Conversa com …** é só para falar com o solicitante: tudo o que você escreve ali, ele recebe.
+- A **conversa** junta tudo numa linha do tempo só: as mensagens com o solicitante, as suas **notas internas** (em
+  amarelo, com o cadeado — **o solicitante não vê**) e o que aconteceu (início, transferência com o motivo, prazo).
+- Em cima do campo de escrever, escolha **Responder** (o solicitante recebe e é avisado no Teams) ou **Nota interna**
+  (só a TI vê: anote o que foi verificado e o que foi feito, cole prints com Ctrl+V). Notas não se editam nem se apagam.
 - **Prioridade** (no topo do chamado): **Alta** · **Média** · **Baixa**. Só a TI vê. A alta sobe para o topo da coluna
   no quadro, com o aviso vermelho **⚠ Prioridade alta**.
 - Depois que você responde, se o solicitante ficar **2 horas úteis** sem responder, o chamado vai sozinho para
   **Aguardando usuário**; com **24 horas úteis**, a Central manda um lembrete automático para ele. Quem conclui é você.
-- A aba **Relato técnico** é o diário da TI (**o solicitante não vê**): anote o que foi verificado e o que foi
-  feito, cole prints com Ctrl+V. As transferências aparecem ali com o motivo. As anotações
-  não podem ser editadas nem apagadas.
+![Nota interna](guia/img/computador-08b-nota-interna.png)
 
-![Relato técnico](guia/img/computador-08b-relato-tecnico.png)
-
-- No **topo** ficam o solicitante (com e-mail e o botão **"Falar no Teams"**), o responsável, o prazo e a categoria, e as **ações** —
+- No **topo** ficam o número e a hora de abertura, o solicitante (com e-mail e o botão **"Falar no Teams"**), o setor,
+  a categoria › sistema, o responsável, o prazo e a prioridade, e as **ações** —
   só as que dá para fazer agora:
   - **Marcar como concluído** — encerra o chamado (mesmo se o solicitante não respondeu);
   - **Transferir** — para outro técnico, com motivo (ele precisa iniciar);
   - **Cancelar chamado** — com motivo.
-- Ao lado da conversa ficam as respostas do **pedido** e o **histórico** completo (clique para abrir),
-  inclusive transferências e o motivo de cada uma.
+- Ao lado da conversa ficam as respostas do **pedido** e os **outros chamados** da mesma pessoa.
 
 ### Dashboard
 

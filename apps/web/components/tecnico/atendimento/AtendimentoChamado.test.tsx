@@ -1,4 +1,4 @@
-// Tela de atendimento (mockup, tela 7). Sem CSS nos testes: versão celular e computador aparecem juntas,
+// Tela de atendimento (layout novo, parte 3). Sem CSS nos testes: versão celular e computador aparecem juntas,
 // por isso alguns botões existem em dobro (*AllBy*).
 
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
@@ -44,10 +44,13 @@ beforeEach(() => {
 });
 
 describe("AtendimentoChamado", () => {
-  it("mostra a conversa (sem notas internas), solicitante com contato, pedido e histórico", async () => {
+  it("uma linha do tempo: conversa + nota interna marcada, solicitante com contato", async () => {
     renderizar();
     expect(await screen.findByText(/Consegue abrir o Outlook pelo navegador/)).toBeInTheDocument();
-    expect(screen.queryByText(/49,8 GB/)).not.toBeInTheDocument();
+    // A nota interna aparece na mesma conversa, com o rótulo (layout novo).
+    const nota = await screen.findByText(/49,8 GB/);
+    expect(nota.parentElement?.parentElement).toHaveTextContent(/Nota interna/);
+    expect(screen.queryByRole("region", { name: "Histórico" })).not.toBeInTheDocument();
     const solicitante = await screen.findByRole("region", { name: "Solicitante" });
     expect(within(solicitante).getByText("Ana Souza")).toBeInTheDocument();
     expect(within(solicitante).getByText("ana@teste.local")).toBeInTheDocument();
@@ -55,9 +58,7 @@ describe("AtendimentoChamado", () => {
       "href",
       "https://teams.microsoft.com/l/chat/0/0?users=ana%40teste.local",
     );
-    const historico = await screen.findByRole("region", { name: "Histórico" });
-    expect(within(historico).getByText("Aberto por Ana Souza")).toBeInTheDocument();
-    expect(within(historico).getByText("Em atendimento → Aguardando usuário")).toBeInTheDocument();
+    expect(screen.getByText(/ID 41/)).toBeInTheDocument();
   });
 
   it("em 'Aguardando usuário' as ações são só: concluir, transferir e cancelar (ADR 0014)", async () => {
@@ -69,26 +70,22 @@ describe("AtendimentoChamado", () => {
     expect(nomes).toEqual(["Marcar como concluído", "Transferir", "Cancelar chamado"]);
   });
 
-  it("Relato técnico: aba própria com as notas e o contador; anotar grava como interna", async () => {
+  it("Nota interna: aba em cima do campo; grava como interna e entra na conversa", async () => {
     renderizar();
     await screen.findByText(/Consegue abrir o Outlook pelo navegador/);
-    const aba = await screen.findByRole("tab", { name: /Relato técnico\s*1/ });
-    fireEvent.click(aba);
-    expect(await screen.findByText(/49,8 GB/)).toBeInTheDocument();
-    expect(screen.getByText(/Só a TI vê o relato técnico/)).toBeInTheDocument();
-    expect(screen.queryByText(/Consegue abrir o Outlook pelo navegador/)).not.toBeInTheDocument();
-
-    fireEvent.change(screen.getByRole("textbox", { name: "Anotação" }), {
+    fireEvent.click(screen.getByRole("button", { name: /Nota interna/, pressed: false }));
+    expect(screen.getByText(/O solicitante não recebe nada/)).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox", { name: "Nota interna" }), {
       target: { value: "Verificar licença do Office" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Adicionar ao relato" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar nota interna" }));
     await waitFor(() =>
       expect(lerEstado().mensagens.at(-1)).toMatchObject({
         conteudo: "Verificar licença do Office",
         interna: true,
       }),
     );
-    expect(await screen.findByRole("tab", { name: /Relato técnico\s*2/ })).toBeInTheDocument();
+    expect(await screen.findByText("Verificar licença do Office")).toBeInTheDocument();
   });
 
   it("responder na conversa nunca grava como interna", async () => {
@@ -142,24 +139,25 @@ describe("AtendimentoChamado", () => {
     await waitFor(() =>
       expect(chamado(41)).toMatchObject({ status: "transferido", responsavelId: THIAGO.id }),
     );
-    // O motivo vai para o Relato técnico.
-    fireEvent.click(screen.getByRole("tab", { name: /Relato técnico/ }));
-    const relato = await screen.findByRole("list", { name: "Relato técnico do chamado" });
-    expect(within(relato).getByText("Você transferiu para Thiago Martins")).toBeInTheDocument();
-    expect(within(relato).getByText(/Thiago cuida de e-mail/)).toBeInTheDocument();
+    // O motivo aparece na linha do tempo da TI (evento só da TI).
+    const conversa = await screen.findByRole("list", { name: "Conversa do chamado" });
+    expect(
+      await within(conversa).findByText(/Você transferiu para Thiago — “Thiago cuida de e-mail”/),
+    ).toBeInTheDocument();
   });
 
-  it("não iniciado: tudo travado (prazo, prioridade, chat, relato) até clicar em Iniciar", async () => {
+  it("não iniciado: tudo travado (prazo, prioridade, chat, nota) até clicar em Iniciar", async () => {
     renderizar(RAFAEL, 34);
     expect(await screen.findByText(/Chamado ainda não iniciado/)).toBeInTheDocument();
-    const prazo = screen.getByRole("region", { name: "Prazo" });
+    const prazo = screen.getByRole("region", { name: "Prazo do chamado" });
     expect(within(prazo).queryByRole("button", { name: "Definir prazo" })).not.toBeInTheDocument();
     const prioridade = screen.getByRole("region", { name: "Prioridade" });
     expect(within(prioridade).getByRole("button", { name: "Alta" })).toBeDisabled();
     expect(
-      await screen.findByText("Inicie o chamado para conversar com Diego."),
+      await screen.findByText("Inicie o chamado para conversar com Diego ou anotar."),
     ).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Mensagem" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Nota interna/ })).not.toBeInTheDocument();
   });
 
   it("prioridade: Alta grava, avisa com toast e marca o botão", async () => {
@@ -174,7 +172,7 @@ describe("AtendimentoChamado", () => {
     );
   });
 
-  it("Definir prazo: depois de iniciar, atalho + confirmar grava e mostra no histórico", async () => {
+  it("Definir prazo: depois de iniciar, atalho + confirmar grava e mostra na conversa", async () => {
     renderizar(RAFAEL, 34);
     fireEvent.click(
       within(await screen.findByRole("region", { name: "Ações" })).getByRole("button", {
@@ -182,7 +180,7 @@ describe("AtendimentoChamado", () => {
       }),
     );
     await waitFor(() => expect(chamado(34).status).toBe("em_andamento"));
-    const prazo = await screen.findByRole("region", { name: "Prazo" });
+    const prazo = await screen.findByRole("region", { name: "Prazo do chamado" });
     expect(within(prazo).getByText("Sem prazo")).toBeInTheDocument();
     await within(prazo).findByRole("button", { name: "Definir prazo" });
     fireEvent.click(within(prazo).getByRole("button", { name: "Definir prazo" }));
@@ -191,12 +189,12 @@ describe("AtendimentoChamado", () => {
     expect(within(modal).queryByRole("textbox", { hidden: true })).not.toBeInTheDocument(); // sem motivo
     fireEvent.click(within(modal).getByRole("button", { name: "Definir prazo", hidden: true }));
     await waitFor(() => expect(chamado(34).prazoSla).not.toBeNull());
-    expect(await screen.findByText(/Prazo definido por Rafael Lima/)).toBeInTheDocument();
+    expect(await screen.findByText(/Você definiu o prazo para/)).toBeInTheDocument();
   });
 
   it("Alterar prazo exige o motivo", async () => {
     renderizar(); // #41 já tem prazo
-    const prazo = await screen.findByRole("region", { name: "Prazo" });
+    const prazo = await screen.findByRole("region", { name: "Prazo do chamado" });
     const anterior = chamado(41).prazoSla;
     fireEvent.click(within(prazo).getByRole("button", { name: "Alterar prazo" }));
     const modal = await screen.findByRole("dialog", { name: "Alterar prazo", hidden: true });
