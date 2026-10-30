@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-10-30 | Tela do chamado (TI): Histórico da lateral mais compacto (letra menor, menos espaço) e com altura limitada; quando cresce, rola dentro do próprio cartão (pedido do dono). |
 | 2026-10-30 | Barra da TI: sai a etiqueta "TI" ao lado da logo (pedido do dono). |
 | 2026-10-30 | **Layout novo — parte 4: prazo pausado** (`docs/adr/0021`, migration 0035, pgTAP 021). Em "Aguardando solicitante" o prazo não corre: o gatilho `app.chamados_antes_atualizar` marca `sla_pausado_em` e, ao sair, empurra `prazo_sla` pelo tempo parado (evento público `prazo_ajustado`, sem aviso no Teams). Cartão e Lista: "Pausado há…"; topo: "Prazo do chamado: pausado"; contadores e "vencidos agora" ignoram os pausados. Status da TI passa a "Aguardando solicitante" (site, API, Excel). Espelho na versão simulada: `lib/dados/simulada/pausa.ts`. |
 | 2026-10-29 | **Ajustes da parte 3 (pedido do dono):** conversa **sem cor** (minhas em cinza-claro, nota interna em cinza com borda tracejada e "🔒 Nota interna"); **Histórico de volta na lateral** (aberto) e a conversa da TI só com mensagens e notas — eventos saem dela; **prioridade já na triagem**, antes de iniciar (`docs/adr/0020`; API, versão simulada, cartão, Lista, filtro e topo do chamado). |

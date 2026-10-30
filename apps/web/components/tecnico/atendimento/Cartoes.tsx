@@ -66,9 +66,14 @@ export function CartaoHistorico({
             className="size-4 transition-transform group-open:rotate-180"
           />
         </summary>
-        <ol className="flex flex-col gap-2 px-4 pb-4">
+        {/* Altura limitada: histórico longo rola aqui dentro, sem esticar a página. */}
+        <ol
+          tabIndex={0}
+          aria-label="Eventos do histórico"
+          className="mx-4 mb-4 flex max-h-56 flex-col gap-1.5 overflow-y-auto pr-2"
+        >
           {historico.map((h) => (
-            <li key={h.id} className="flex justify-between gap-3 text-sm">
+            <li key={h.id} className="flex justify-between gap-3 text-xs">
               <span className={h.publico ? "" : "text-alerta"}>
                 {textoHistorico(h, nome)}
                 {h.publico ? null : <span className="sr-only"> (só a TI vê)</span>}
