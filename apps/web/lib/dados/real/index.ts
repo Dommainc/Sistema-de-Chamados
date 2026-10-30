@@ -422,7 +422,12 @@ export function criarFonteReal(
       const [fila, meusAtendimentos, vencidos] = await Promise.all([
         contar(base().eq("status", "pendente").is("responsavel_id", null)),
         contar(base().eq("responsavel_id", usuario.id).not("status", "in", ENCERRADOS)),
-        contar(base().not("status", "in", ENCERRADOS).lt("prazo_sla", new Date().toISOString())),
+        // Aguardando o solicitante: prazo pausado (ADR 0021), não conta como vencido.
+        contar(
+          base()
+            .not("status", "in", "(concluido,cancelado,aguardando_usuario)")
+            .lt("prazo_sla", new Date().toISOString()),
+        ),
       ]);
       return { fila, meusAtendimentos, vencidos };
     },

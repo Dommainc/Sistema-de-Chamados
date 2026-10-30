@@ -158,7 +158,7 @@ export interface Metricas {
     concluidosSemPrazo: number;
     /** Abertos agora, já iniciados, ainda sem prazo. */
     abertosSemPrazo: number;
-    /** Horas úteis em "Aguardando usuário", média por chamado que passou por lá no período. */
+    /** Horas úteis em "Aguardando solicitante", média por chamado que passou por lá no período. */
     tempoMedioAguardando: number | null;
     chamadosQueAguardaram: number;
     ultimosCancelamentos: Cancelamento[];
@@ -264,7 +264,7 @@ export function calcularMetricas(e: EntradaMetricas): Metricas {
     prazoPorCategoria.set(nome, item);
   }
 
-  // Tempo em "Aguardando usuário": cada trecho que começou no período, somado por chamado.
+  // Tempo em "Aguardando solicitante": cada trecho que começou no período, somado por chamado.
   const aguardandoPorChamado = new Map<number, number>();
   for (const [chamadoId, eventos] of eventosDe) {
     let desde: string | null = null;
@@ -287,8 +287,12 @@ export function calcularMetricas(e: EntradaMetricas): Metricas {
   return {
     resumo: {
       abertosAgora: abertos.length,
+      // Aguardando o solicitante: prazo pausado (ADR 0021), não conta como vencido.
       vencidosAgora: abertos.filter(
-        (c) => c.prazoSla && new Date(c.prazoSla).getTime() < agora.getTime(),
+        (c) =>
+          c.status !== "aguardando_usuario" &&
+          c.prazoSla &&
+          new Date(c.prazoSla).getTime() < agora.getTime(),
       ).length,
       abertosNoPeriodo: criados.length,
       concluidosNoPeriodo: concluidos.length,

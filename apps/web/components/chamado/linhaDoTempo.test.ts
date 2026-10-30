@@ -140,7 +140,7 @@ describe("montarConversa (mockup, tela 5)", () => {
       texto: "Você iniciou o atendimento",
     });
     expect(daTi.find((i) => i.tipo === "evento" && i.texto.startsWith("Status"))).toMatchObject({
-      texto: "Status alterado para Aguardando usuário",
+      texto: "Status alterado para Aguardando solicitante",
     });
   });
 });

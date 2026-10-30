@@ -44,7 +44,7 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
   solicitante · Concluídos · Cancelados (os dois últimos: 7 dias). Sem legenda de prazo e sem "Ver encerrados".
 - **Cartão:** "ID 42" + prioridade (só depois de iniciar), título, "Solicitante · assunto/sistema" (sem cor de
   sistema), rodapé com o tempo (Novos/Transferidos: "Aberto há 6h"; em atendimento: "Vence em 3h 10min" ou
-  **"Atrasado 35min"** em negrito — opção A do layout; Aguardando: "Aguardando há 2h"), mensagens novas e quem atende.
+  **"Atrasado 35min"** em negrito — opção A do layout; Aguardando: "Pausado há 2h" — ADR 0021; sem prazo, "Aguardando há 2h"), mensagens novas e quem atende.
 - **Botão "?"** no canto de baixo à direita (TI e portal) abre a Ajuda.
 - **Quadro | Lista** (abas na barra de cima, parte 2): a Lista é uma tabela com os mesmos chamados e filtros —
   ID · Chamado (título + solicitante · assunto) · Status · Prioridade · Responsável · Prazo do chamado · Msgs —,
@@ -60,6 +60,9 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
   aberto (dono, 2026-10-29: "na conversa fica muito poluído"). O portal do solicitante continua com os eventos.
 - **Conversa sem cor** (dono, 2026-10-29): as minhas em cinza-claro (`superficie-2`), as dos outros em branco, aviso
   automático e nota interna em `fundo` com borda (tracejada na nota). Vale para a TI e para o solicitante.
+- **Prazo pausado** (parte 4, ADR 0021): coluna "Aguardando solicitante" com apoio "Prazo pausado"; cartão e Lista
+  "Pausado há 3h"; topo do chamado "Prazo do chamado: pausado" e "Pausado · amanhã, 09:06". Pausado nunca aparece
+  como atrasado nem conta em "vencidos".
 - **Prioridade já na triagem** (ADR 0020): cartão, Lista e topo do chamado mostram Alta · Média · Baixa desde Novos.
 
 ## Listas grandes de opções (2026-10-17)
@@ -107,7 +110,7 @@ Vale para as telas 5, 7 e 9 (substitui o "nome · hora embaixo do balão" do moc
 |---|---|---|---|
 | pendente | Recebido | Novo | cinza |
 | em_andamento | Em atendimento | Em atendimento | azul |
-| aguardando_usuario | **Aguardando sua resposta** (destaque) | Aguardando usuário | âmbar |
+| aguardando_usuario | **Aguardando sua resposta** (destaque) | Aguardando solicitante | âmbar |
 | transferido | Em atendimento | Transferido | azul / roxo |
 | concluido | Concluído | Concluído | verde |
 | cancelado | Cancelado | Cancelado | cinza apagado |

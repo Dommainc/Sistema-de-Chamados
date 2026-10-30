@@ -14,7 +14,7 @@ describe("rotuloStatus", () => {
     const esperado = {
       pendente: ["Recebido", "Novo"],
       em_andamento: ["Em atendimento", "Em atendimento"],
-      aguardando_usuario: ["Aguardando sua resposta", "Aguardando usuário"],
+      aguardando_usuario: ["Aguardando sua resposta", "Aguardando solicitante"],
       transferido: ["Em atendimento", "Transferido"],
       concluido: ["Concluído", "Concluído"],
       cancelado: ["Cancelado", "Cancelado"],

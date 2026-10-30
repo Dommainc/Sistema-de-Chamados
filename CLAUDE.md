@@ -81,6 +81,7 @@ Não há confirmação nem reabertura: se o problema voltar, o solicitante abre 
 automático é o das **48 h úteis** sem resposta (`docs/adr/0019`); antes disso, lembrete no Teams com 12 h e aviso no chat com 24 h.
 **Prazo** (`docs/adr/0009`): o chamado nasce **sem prazo**; qualquer técnico define (data e hora) quando quiser e pode
 alterar **com motivo** (`POST /chamados/{id}/prazo`). O solicitante vê a previsão e o motivo. Nada é calculado pela categoria.
+**Prazo pausado** (`docs/adr/0021`): em `aguardando_usuario` o prazo não corre; ao sair, o gatilho do banco o empurra pelo tempo parado (`historico.prazo_ajustado`, público, sem aviso).
 **Só a TI cancela**: solicitante tentando → `CANCELAMENTO_NAO_PERMITIDO` (`docs/adr/0011`).
 **Chamado não iniciado** (`pendente`/`transferido`): a TI só **vê**, **inicia**, **cancela** ou define a **prioridade** — conversa, nota interna e prazo → `CHAMADO_NAO_INICIADO` (`docs/adr/0012`, `0020`).
 **Prioridade** (Alta · Média · Baixa; nasce Média): só a TI, **já na triagem** (`docs/adr/0020`); histórico interno; alta sobe no quadro.

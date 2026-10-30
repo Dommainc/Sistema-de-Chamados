@@ -144,6 +144,9 @@ export default function PaginaAjudaTi() {
         </ul>
         <p className="text-lg">
           Quando o solicitante responde, a contagem zera e o chamado volta para Em atendimento.
+          Enquanto aguarda, o <strong>prazo fica pausado</strong> (o cartão mostra &quot;Pausado
+          há…&quot;): ao sair dali, o prazo anda para frente pelo tempo parado, e isso fica no
+          Histórico.
         </p>
       </SecaoGuia>
 

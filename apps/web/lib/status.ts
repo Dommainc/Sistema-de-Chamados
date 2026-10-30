@@ -24,7 +24,7 @@ const ROTULOS: Record<Papel, Record<StatusChamado, RotuloStatus>> = {
   ti: {
     pendente: { texto: "Novo", tom: "neutro", destaque: false },
     em_andamento: { texto: "Em atendimento", tom: "info", destaque: false },
-    aguardando_usuario: { texto: "Aguardando usuário", tom: "alerta", destaque: false },
+    aguardando_usuario: { texto: "Aguardando solicitante", tom: "alerta", destaque: false },
     transferido: { texto: "Transferido", tom: "roxo", destaque: false },
     concluido: { texto: "Concluído", tom: "sucesso", destaque: false },
     cancelado: { texto: "Cancelado", tom: "apagado", destaque: false },

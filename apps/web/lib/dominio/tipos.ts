@@ -139,6 +139,8 @@ export interface Chamado {
   motivoCancelamento: string | null;
   /** "O problema voltou" (migration 0033): chamado concluído que este continua. */
   continuacaoDe?: number | null;
+  /** Desde quando o prazo está pausado (em "aguardando_usuario" — ADR 0021); nulo fora da espera. */
+  pausadoEm?: string | null;
 }
 
 export type OrigemAnexo = "upload" | "colado";

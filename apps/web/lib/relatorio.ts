@@ -72,7 +72,7 @@ export const COLUNAS: { chave: keyof LinhaRelatorio; titulo: string; largura: nu
 export const ABAS_STATUS: { status: StatusChamado; aba: string }[] = [
   { status: "pendente", aba: "Novos" },
   { status: "em_andamento", aba: "Em atendimento" },
-  { status: "aguardando_usuario", aba: "Aguardando usuário" },
+  { status: "aguardando_usuario", aba: "Aguardando solicitante" },
   { status: "transferido", aba: "Transferidos" },
   { status: "concluido", aba: "Concluídos" },
   { status: "cancelado", aba: "Cancelados" },

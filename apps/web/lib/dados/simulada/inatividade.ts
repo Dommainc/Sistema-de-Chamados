@@ -2,7 +2,7 @@
 // 0028, docs/adr/0011 e 0019). No banco roda a cada 5 minutos (pg_cron), só no expediente; aqui, a cada
 // leitura dos dados, também só no expediente. A contagem começa na última mensagem pública da TI (ou na
 // volta para "em andamento") e zera quando o solicitante responde:
-//   2 h úteis  → "Aguardando usuário" + aviso
+//   2 h úteis  → "Aguardando solicitante" (prazo pausado — ADR 0021) + aviso
 //   12 h úteis → lembrete (só aviso no Teams)
 //   24 h úteis → mensagem automática no chat (uma vez) + aviso
 //   48 h úteis → concluído automaticamente
@@ -12,6 +12,7 @@ import { adicionarHorasUteis, ehHorarioUtil } from "@/lib/dominio/horario-util";
 import type { Chamado, EventoHistorico, Mensagem, Notificacao } from "@/lib/dominio/tipos";
 import type { EstadoSimulado } from "./armazenamento";
 import { EXPEDIENTE_SIMULADO } from "./feriados";
+import { aplicarPausaDoPrazo } from "./pausa";
 
 export const HORAS_PARA_AGUARDANDO = 2;
 export const HORAS_PARA_LEMBRETE = 12;
@@ -78,7 +79,14 @@ export function processarInatividade(estado: EstadoSimulado, agora: Date): Estad
 
     // 48 h úteis → concluído automaticamente (e nenhum aviso menor).
     if (passou(desde, HORAS_PARA_CONCLUIR, agora)) {
-      chamados[i] = { ...c, status: "concluido", concluidoEm: criadoEm, atualizadoEm: criadoEm };
+      // Prazo pausado (ADR 0021): sair de Aguardando empurra o prazo.
+      const pausa = aplicarPausaDoPrazo(
+        c,
+        { ...c, status: "concluido", concluidoEm: criadoEm, atualizadoEm: criadoEm },
+        criadoEm,
+      );
+      chamados[i] = pausa.chamado;
+      if (pausa.evento) historico.push({ id: proximo(historico), ...pausa.evento });
       historico.push({
         id: proximo(historico),
         chamadoId: c.id,
@@ -102,7 +110,12 @@ export function processarInatividade(estado: EstadoSimulado, agora: Date): Estad
 
     // 2 h úteis → aguardando usuário (o aviso só se as 12 h ainda não venceram).
     if (c.status === "em_andamento" && passou(desde, HORAS_PARA_AGUARDANDO, agora)) {
-      chamados[i] = { ...c, status: "aguardando_usuario", atualizadoEm: criadoEm };
+      chamados[i] = {
+        ...c,
+        status: "aguardando_usuario",
+        atualizadoEm: criadoEm,
+        pausadoEm: criadoEm, // prazo pausado (ADR 0021)
+      };
       historico.push({
         id: proximo(historico),
         chamadoId: c.id,

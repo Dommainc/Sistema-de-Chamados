@@ -57,7 +57,7 @@ assim que você responder, o atendimento volta a andar.
 
 ### O quadro
 
-Ao entrar, você vê o **quadro** com seis colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando usuário**,
+Ao entrar, você vê o **quadro** com seis colunas lado a lado: **Novos**, **Em atendimento**, **Aguardando solicitante**,
 **Concluídos**, **Transferidos** e **Cancelados** (concluídos e cancelados: só os dos últimos 7 dias). Em tela menor,
 deslize para o lado ou use os botões das colunas. A **faixa colorida do cartão** é a do **status** (laranja = novo,
 amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo = transferido, cinza = cancelado).
@@ -68,7 +68,7 @@ amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo
   pode **arrastar** o cartão para outra coluna
   (no celular: **segure o cartão** um instante e arraste; na borda da tela, ela rola sozinha) —
   arrastar para **Concluídos** conclui o chamado (pede confirmação) e para **Cancelados** cancela (pede o motivo).
-- **Aguardando usuário** é automático: o chamado vai sozinho para lá depois de **2 horas úteis** sem resposta do
+- **Aguardando solicitante** é automático (o **prazo fica pausado** ali, e o cartão mostra "Pausado há…"): o chamado vai sozinho para lá depois de **2 horas úteis** sem resposta do
   solicitante e volta para Em atendimento quando ele responder.
 - **Prioridade** no topo do cartão: Alta (vermelho, sobe para o topo da coluna) · Média (amarelo) · Baixa (cinza).
   Em Em atendimento, a bolinha mostra as iniciais de quem está atendendo.
@@ -98,7 +98,9 @@ amarelo = em atendimento, azul = aguardando o usuário, verde = concluído, roxo
 - **Prioridade** (no topo do chamado): **Alta** · **Média** · **Baixa**. Só a TI vê. A alta sobe para o topo da coluna
   no quadro, com o aviso vermelho **⚠ Prioridade alta**.
 - Depois que você responde, se o solicitante ficar **2 horas úteis** sem responder, o chamado vai sozinho para
-  **Aguardando usuário**; com **24 horas úteis**, a Central manda um lembrete automático para ele. Quem conclui é você.
+  **Aguardando solicitante**; com **24 horas úteis**, a Central manda um lembrete automático para ele. Quem conclui é você.
+- Enquanto o chamado aguarda o solicitante, o **prazo fica pausado**. Quando ele sai dali, o prazo anda para frente pelo
+  tempo parado (aguardou 6 h → vence 6 h depois) e isso fica no Histórico. O solicitante vê a nova previsão.
 ![Nota interna](guia/img/computador-08b-nota-interna.png)
 
 - No **topo** ficam o número e a hora de abertura, o solicitante (com e-mail e o botão **"Falar no Teams"**), o setor,

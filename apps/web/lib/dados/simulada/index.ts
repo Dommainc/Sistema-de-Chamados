@@ -43,6 +43,7 @@ import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from
 import { guardarArquivo, lerArquivo } from "./arquivos";
 import { EXPEDIENTE_SIMULADO } from "./feriados";
 import { processarInatividade } from "./inatividade";
+import { aplicarPausaDoPrazo } from "./pausa";
 import { CAMPOS_FORM, CATEGORIAS, RESPOSTAS_PRONTAS } from "./exemplos";
 
 function categoriaAtiva(categoriaId: number): Categoria {
@@ -164,11 +165,19 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
   ): void {
     const atual = lerEstado();
     const chamados = extra.chamados ?? atual.chamados;
+    // Espelho do gatilho do banco: prazo pausado em "aguardando_usuario" (ADR 0021).
+    const anterior = chamado ? atual.chamados.find((c) => c.id === chamado.id) : undefined;
+    const pausa =
+      chamado && anterior
+        ? aplicarPausaDoPrazo(anterior, chamado, new Date().toISOString())
+        : { chamado, evento: null };
+    const final = pausa.chamado;
+    const todos = pausa.evento ? [pausa.evento, ...eventos] : eventos;
     gravarEstado({
       ...atual,
       ...extra,
-      chamados: chamado ? chamados.map((c) => (c.id === chamado.id ? chamado : c)) : chamados,
-      historico: [...atual.historico, ...comIds(atual.historico, eventos)],
+      chamados: final ? chamados.map((c) => (c.id === final.id ? final : c)) : chamados,
+      historico: [...atual.historico, ...comIds(atual.historico, todos)],
       notificacoes: [
         ...atual.notificacoes,
         ...comIds(
@@ -598,8 +607,12 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return {
         fila: abertos.filter((c) => c.status === "pendente").length,
         meusAtendimentos: abertos.filter((c) => c.responsavelId === perfil.id).length,
+        // Aguardando o solicitante: prazo pausado (ADR 0021), não conta como vencido.
         vencidos: abertos.filter(
-          (c) => c.prazoSla !== null && new Date(c.prazoSla).getTime() < agora,
+          (c) =>
+            c.status !== "aguardando_usuario" &&
+            c.prazoSla !== null &&
+            new Date(c.prazoSla).getTime() < agora,
         ).length,
       };
     },

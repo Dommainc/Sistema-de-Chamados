@@ -1,3 +1,4 @@
+import { tempoDoChamado } from "./CartaoChamado";
 import { describe, expect, it } from "vitest";
 import type { PerfilPublico } from "@/lib/dados/tipos";
 import type { Chamado } from "@/lib/dominio/tipos";
@@ -86,5 +87,39 @@ describe("Lista (layout novo, parte 2)", () => {
     ]);
     expect([lerAgrupamento("categoria"), lerAgrupamento("x")]).toEqual(["categoria", "status"]);
     expect([lerOrdem("-prazo"), lerOrdem("x")]).toEqual(["-prazo", "padrao"]);
+  });
+});
+
+describe("tempoDoChamado em Aguardando (ADR 0021)", () => {
+  const agora = new Date("2026-10-29T18:00:00.000Z");
+  const c = {
+    id: 9,
+    titulo: "x",
+    categoriaId: 1,
+    solicitanteId: "ana",
+    responsavelId: "rafael",
+    status: "aguardando_usuario" as const,
+    prioridade: "media" as const,
+    respostasForm: {},
+    prazoSla: "2026-10-29T17:00:00.000Z", // já "passou", mas está pausado
+    criadoEm: "2026-10-28T12:00:00.000Z",
+    atualizadoEm: "2026-10-29T17:30:00.000Z",
+    concluidoEm: null,
+    canceladoEm: null,
+    motivoCancelamento: null,
+    pausadoEm: "2026-10-29T15:00:00.000Z",
+  };
+
+  it("com prazo: 'Pausado há 3h', nunca atrasado", () => {
+    expect(tempoDoChamado("aguardando", c, agora)).toEqual({
+      texto: "Pausado há 3h",
+      atrasado: false,
+    });
+  });
+
+  it("sem prazo: 'Aguardando há…'", () => {
+    expect(tempoDoChamado("aguardando", { ...c, prazoSla: null }, agora).texto).toBe(
+      "Aguardando há 3h",
+    );
   });
 });

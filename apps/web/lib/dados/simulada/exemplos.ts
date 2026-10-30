@@ -549,7 +549,7 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       solicitanteId: e.solicitante,
       responsavelId: e.responsavel,
       status: e.status,
-      // Prioridade e prazo só depois de iniciar (ADR 0012): os novos (pendente) nascem Média e sem prazo.
+      // Prazo só depois de iniciar (ADR 0012): os novos (pendente) nascem Média e sem prazo.
       // Prioridade alta no #38 (em atendimento).
       prioridade: e.status !== "pendente" && e.id === 38 ? "alta" : "media",
       respostasForm: { ...e.respostas, descricao: e.descricao },
@@ -563,6 +563,8 @@ export function gerarChamadosExemplo(agora: Date): Chamado[] {
       criadoEm: minutos(-e.abertoHa),
       atualizadoEm,
       concluidoEm: e.status === "concluido" ? atualizadoEm : null,
+      // Prazo pausado (ADR 0021): quem está aguardando entrou na espera na última atualização.
+      pausadoEm: e.status === "aguardando_usuario" ? atualizadoEm : null,
       canceladoEm: e.status === "cancelado" ? atualizadoEm : null,
       motivoCancelamento: e.motivoCancelamento ?? null,
     };

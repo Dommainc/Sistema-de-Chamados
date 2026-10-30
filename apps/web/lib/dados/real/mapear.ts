@@ -23,7 +23,7 @@ import type {
 /** Colunas de `chamados` (e das views do quadro/encerrados) que o front usa. */
 export const COLUNAS_CHAMADO =
   "id, titulo, categoria_id, solicitante_id, responsavel_id, status, prioridade, respostas_form, " +
-  "prazo_sla, criado_em, atualizado_em, concluido_em, cancelado_em, motivo_cancelamento";
+  "prazo_sla, criado_em, atualizado_em, concluido_em, cancelado_em, motivo_cancelamento, sla_pausado_em";
 
 export interface LinhaChamado {
   id: number;
@@ -42,6 +42,8 @@ export interface LinhaChamado {
   motivo_cancelamento: string | null;
   /** Só em obterChamado (a view do quadro não tem esta coluna). */
   continuacao_de?: number | null;
+  /** Prazo pausado desde (ADR 0021; migration 0035 também nas views). */
+  sla_pausado_em?: string | null;
 }
 
 export function chamadoDaLinha(l: LinhaChamado): Chamado {
@@ -61,6 +63,7 @@ export function chamadoDaLinha(l: LinhaChamado): Chamado {
     canceladoEm: l.cancelado_em,
     motivoCancelamento: l.motivo_cancelamento,
     continuacaoDe: l.continuacao_de ?? null,
+    pausadoEm: l.sla_pausado_em ?? null,
   };
 }
 

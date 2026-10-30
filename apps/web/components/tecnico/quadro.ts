@@ -35,7 +35,7 @@ export const COLUNAS: readonly DefinicaoColuna[] = [
   {
     id: "aguardando",
     titulo: "Aguardando solicitante",
-    apoio: "Esperando resposta",
+    apoio: "Prazo pausado", // ADR 0021
     encerrada: false,
   },
   {

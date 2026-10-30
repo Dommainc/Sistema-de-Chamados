@@ -61,6 +61,17 @@ function diaSp(iso: string): string {
   return formatarDataHora(iso).slice(0, 10); // "dd/MM/yyyy" em São Paulo
 }
 
+/** "45min" · "6h" · "1 dia e 3h" — tempo da pausa (ADR 0021). */
+function duracaoPausa(minutosTexto: string | undefined): string {
+  const minutos = Math.max(0, Number(minutosTexto) || 0);
+  if (minutos < 60) return `${minutos}min`;
+  const horas = Math.floor(minutos / 60);
+  if (horas < 24) return `${horas}h`;
+  const dias = Math.floor(horas / 24);
+  const resto = horas % 24;
+  return `${dias} ${dias === 1 ? "dia" : "dias"}${resto ? ` e ${resto}h` : ""}`;
+}
+
 export function rotuloDia(iso: string, agora: Date): string {
   const dia = diaSp(iso);
   if (dia === diaSp(agora.toISOString())) return "Hoje";
@@ -93,7 +104,7 @@ export function textoEvento(
         // Automação (ADR 0011): a TI respondeu e passaram 2 h úteis sem resposta.
         return papel === "solicitante"
           ? "Aguardando sua resposta para continuar"
-          : "Sem resposta há 2 h úteis · foi para Aguardando usuário";
+          : "Sem resposta há 2 h úteis · foi para Aguardando solicitante";
       }
       if (evento.autorId === null && evento.para === "em_andamento") {
         return papel === "solicitante"
@@ -120,6 +131,13 @@ export function textoEvento(
       return papel === "solicitante"
         ? `Previsão de conclusão: ${prazo}`
         : `${autor} definiu o prazo para ${prazo}`;
+    }
+    case "prazo_ajustado": {
+      // ADR 0021: o prazo andou pelo tempo que ficou esperando a resposta do solicitante.
+      const prazo = evento.detalhe.prazo ? formatarDiaHora(evento.detalhe.prazo) : "";
+      return papel === "solicitante"
+        ? `Previsão de conclusão ajustada para ${prazo} (o prazo fica parado enquanto esperamos sua resposta)`
+        : `Prazo ajustado para ${prazo} (pausado enquanto aguardava o solicitante)`;
     }
     case "avaliado":
       return null; // a avaliação aparece no próprio cartão "Avaliação"
@@ -251,7 +269,7 @@ export function montarConversa({
 
 /**
  * Linha do cartão HISTÓRICO da área técnica (mockup, tela 7): "Aberto por Ana Souza",
- * "Iniciado por Rafael Lima", "Em atendimento → Aguardando usuário", transferências com motivo.
+ * "Iniciado por Rafael Lima", "Em atendimento → Aguardando solicitante", transferências com motivo.
  */
 export function textoHistorico(
   evento: EventoHistorico,
@@ -287,6 +305,10 @@ export function textoHistorico(
       return evento.detalhe.prazo_anterior
         ? `Prazo alterado por ${autor} para ${prazo}${evento.detalhe.motivo ? ` — ${evento.detalhe.motivo}` : ""}`
         : `Prazo definido por ${autor}: ${prazo}`;
+    }
+    case "prazo_ajustado": {
+      const prazo = evento.detalhe.prazo ? formatarDataHora(evento.detalhe.prazo) : "";
+      return `Sistema · prazo ajustado para ${prazo} (+${duracaoPausa(evento.detalhe.pausa_minutos)} aguardando o solicitante)`;
     }
     case "avaliado": {
       const nota = Number(evento.detalhe.nota);

@@ -188,12 +188,14 @@ export function CabecalhoChamado({
   aoDefinirPrazo: () => void;
   aoMudarPrioridade: (prioridade: PrioridadeDaTi) => void;
 }) {
-  const situacao = situacaoPrazo(chamado.prazoSla, agora);
+  // Aguardando o solicitante: prazo pausado (ADR 0021) — não fica "atrasado" durante a espera.
+  const pausado = chamado.status === "aguardando_usuario" && chamado.prazoSla !== null;
+  const situacao = pausado ? "no_prazo" : situacaoPrazo(chamado.prazoSla, agora);
   const encerrado = estaEncerrado(chamado.status);
   // Antes de iniciar: só ver, iniciar ou cancelar (ADR 0012).
   const travado = encerrado || naoIniciado(chamado.status);
   const prioridade = COR_PRIORIDADE[chamado.prioridade];
-  const prazoCurto = textoPrazoCartao(chamado.prazoSla, agora);
+  const prazoCurto = pausado ? "Pausado" : textoPrazoCartao(chamado.prazoSla, agora);
   const sistema = chamado.respostasForm[CHAVE_SISTEMA];
   const caminhoCategoria = [
     categoria?.nome ?? "—",
@@ -322,7 +324,9 @@ export function CabecalhoChamado({
 
         <Info titulo="Prazo do chamado" regiao>
           <span className={`font-semibold ${COR_PRAZO[situacao]}`}>
-            {textoPrazo(chamado.prazoSla, agora)}
+            {pausado
+              ? `Pausado · ${formatarQuando(chamado.prazoSla!, agora)}`
+              : textoPrazo(chamado.prazoSla, agora)}
           </span>
           {travado ? null : (
             <button

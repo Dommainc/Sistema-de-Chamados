@@ -39,7 +39,7 @@ ROTULOS: dict[Papel, dict[StatusChamado, str]] = {
     "ti": {
         "pendente": "Novo",
         "em_andamento": "Em atendimento",
-        "aguardando_usuario": "Aguardando usuário",
+        "aguardando_usuario": "Aguardando solicitante",
         "transferido": "Transferido",
         "concluido": "Concluído",
         "cancelado": "Cancelado",
