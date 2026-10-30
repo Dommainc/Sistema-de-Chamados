@@ -118,9 +118,6 @@ export function BarraTecnico() {
           >
             <Logo tema="escuro" />
           </Link>
-          <span className="rounded-md bg-barra-2 px-2 py-0.5 text-xs font-bold text-sobre-barra-suave">
-            TI
-          </span>
           <AbasVisao />
         </div>
         <div className="flex items-center gap-4">
