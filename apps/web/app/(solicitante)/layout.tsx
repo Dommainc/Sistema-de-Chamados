@@ -35,7 +35,7 @@ export default async function LayoutSolicitante({ children }: { children: React.
         <GuardaPrimeiroAcesso>{children}</GuardaPrimeiroAcesso>
       </main>
       <MenuInferior />
-      <BotaoAjuda href="/ajuda" acimaDoMenu />
+      <BotaoAjuda href="/ajuda" posicao="acimaDoMenu" />
     </ProvedorDados>
   );
 }
