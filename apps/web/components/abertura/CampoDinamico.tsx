@@ -10,7 +10,7 @@ import type { CampoForm } from "@/lib/dominio/tipos";
 
 /** A partir de quantas opções a lista vira grade de botões compactos (2 colunas no celular, 3 no computador). */
 const OPCOES_PARA_GRADE = 7;
-/** A partir de quantas opções aparece o campo "Buscar" (ex.: os 25 sistemas). */
+/** A partir de quantas opções aparece o campo "Buscar" (ex.: os 22 sistemas). */
 const OPCOES_PARA_BUSCA = 13;
 
 /** id do elemento focável de cada campo (para levar o foco ao primeiro erro). */
@@ -90,7 +90,7 @@ export function CampoDinamico({
           : campo.opcoes.map((o) => ({ valor: o, rotulo: o }));
       const marcados = multipla ? (Array.isArray(valor) ? valor.map(String) : []) : [texto];
       const idErro = `${id}-erro`;
-      // Lista grande (ex.: 25 sistemas): grade compacta e, se for muito grande, busca. A opção escolhida
+      // Lista grande (ex.: 22 sistemas): grade compacta e, se for muito grande, busca. A opção escolhida
       // continua aparecendo mesmo fora da busca.
       const grade = opcoes.length >= OPCOES_PARA_GRADE;
       const comBusca = opcoes.length >= OPCOES_PARA_BUSCA;

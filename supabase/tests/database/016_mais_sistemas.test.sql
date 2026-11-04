@@ -4,14 +4,20 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(5);
+select plan(7);
 
 create temp view sistema as
 select f.opcoes, f.cores
 from public.campos_form f join public.categorias c on c.id = f.categoria_id
 where c.nome = 'Solicitações de acesso e Permissões' and f.chave = 'sistema';
 
-select is((select jsonb_array_length(opcoes) from sistema), 25, '25 opções no "Qual sistema?"');
+select is((select jsonb_array_length(opcoes) from sistema), 22, '22 opções no "Qual sistema?" (0036 tirou 3)');
+select is((select cores ->> 'Quickin' from sistema), 'rosa', 'KickIn virou Quickin, com a mesma cor (0036)');
+select ok(
+  not exists (select 1 from sistema, jsonb_array_elements_text(opcoes) o
+               where o in ('KickIn', 'Mapfry', 'ClickUp', 'AnyDesk')),
+  'Mapfry, ClickUp, AnyDesk e KickIn saíram da lista (0036)'
+);
 select is(
   (select count(distinct value) from sistema, jsonb_each_text(cores)),
   (select count(*) from sistema, jsonb_each_text(cores)),

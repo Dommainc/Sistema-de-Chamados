@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-11-04 | "Qual sistema?" ao abrir chamado: **KickIn → Quickin** (mesma cor) e saem **Mapfry, ClickUp e AnyDesk** (22 opções). Migration 0036 (`20261104120000_sistemas_quickin.sql`), pgTAP 003/016, seed e modo de demonstração; chamados antigos mantêm o texto escolhido. Print do guia (`computador-03b-abrir-acessos.png`) refeito. |
 | 2026-11-03 | Ícone da aba (favicon) passa a ser a logo da DOMMA (montanhas brancas em quadrado escuro: `app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`). Botão "?" de Ajuda também nas telas focadas do solicitante (abrir chamado e conversa do chamado), um pouco mais alto para não cobrir o botão de enviar (pedido do dono). |
 | 2026-10-30 | Tela do chamado (TI): Histórico da lateral mais compacto (letra menor, menos espaço) e com altura limitada; quando cresce, rola dentro do próprio cartão (pedido do dono). |
 | 2026-10-30 | Barra da TI: sai a etiqueta "TI" ao lado da logo (pedido do dono). |
