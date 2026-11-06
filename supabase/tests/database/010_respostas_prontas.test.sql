@@ -1,5 +1,5 @@
 -- =============================================================================
--- Testes: migration 0023 — respostas prontas (só a TI lê; ninguém grava pela aplicação).
+-- Testes: migration 0023 — respostas prontas (só a TI lê; só a API grava — migration 0037).
 -- Rodar com:  supabase test db
 -- =============================================================================
 begin;
@@ -29,8 +29,8 @@ select ok(
   'TI lê as respostas prontas do seed'
 );
 select is(
-  (select count(*)::int from public.respostas_prontas where titulo = 'Desativada no teste'), 0,
-  'Resposta desativada não aparece'
+  (select count(*)::int from public.respostas_prontas where titulo = 'Desativada no teste'), 1,
+  'TI vê a desativada (tela de Configurações, migration 0037); o chat filtra ativo'
 );
 select throws_ok(
   $$ insert into public.respostas_prontas (titulo, texto) values ('Nova', 'x') $$,
