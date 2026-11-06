@@ -11,7 +11,7 @@
 import { adicionarHorasUteis, ehHorarioUtil } from "@/lib/dominio/horario-util";
 import type { Chamado, EventoHistorico, Mensagem, Notificacao } from "@/lib/dominio/tipos";
 import type { EstadoSimulado } from "./armazenamento";
-import { EXPEDIENTE_SIMULADO } from "./feriados";
+import { expedienteDaConfig } from "./configuracoes";
 import { aplicarPausaDoPrazo } from "./pausa";
 
 export const HORAS_PARA_AGUARDANDO = 2;
@@ -32,13 +32,13 @@ function proximo<T extends { id: number }>(lista: readonly T[]): number {
   return lista.reduce((maior, item) => Math.max(maior, item.id), 0) + 1;
 }
 
-const passou = (inicioIso: string, horasUteis: number, agora: Date) =>
-  adicionarHorasUteis(new Date(inicioIso), horasUteis, EXPEDIENTE_SIMULADO).getTime() <=
-  agora.getTime();
-
 /** Devolve o estado novo se alguma automação disparou; null se nada mudou. */
 export function processarInatividade(estado: EstadoSimulado, agora: Date): EstadoSimulado | null {
-  if (!ehHorarioUtil(agora, EXPEDIENTE_SIMULADO)) return null;
+  // Expediente e feriados da tela de Configurações (ADR 0022).
+  const expediente = expedienteDaConfig(estado.config);
+  if (!ehHorarioUtil(agora, expediente)) return null;
+  const passou = (inicioIso: string, horasUteis: number, momento: Date) =>
+    adicionarHorasUteis(new Date(inicioIso), horasUteis, expediente).getTime() <= momento.getTime();
 
   const chamados: Chamado[] = [...estado.chamados];
   const mensagens: Mensagem[] = [...estado.mensagens];

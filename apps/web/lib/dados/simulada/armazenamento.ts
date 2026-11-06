@@ -13,6 +13,7 @@ import type {
   Perfil,
 } from "@/lib/dominio/tipos";
 import { apagarTodosOsArquivos } from "./arquivos";
+import { configInicial, type ConfigSimulada } from "./configuracoes";
 import {
   gerarAntigosExemplo,
   gerarAvaliacoesExemplo,
@@ -23,7 +24,7 @@ import {
 import { OUTROS_PERFIS_EXEMPLO, USUARIOS_SIMULADOS } from "./usuarios";
 
 // Mude a versão quando o formato ou os dados de exemplo mudarem: o navegador recomeça do zero.
-const VERSAO = 14; // 13: avaliações · 14: novos (pendente) sem prazo nem prioridade alta (ADR 0012)
+const VERSAO = 15; // 13: avaliações · 14: novos sem prazo (ADR 0012) · 15: configurações (ADR 0022)
 const CHAVE = `central-chamados:simulado:v${VERSAO}`;
 const CANAL = "central-chamados:simulado";
 
@@ -37,6 +38,8 @@ export interface EstadoSimulado {
   leituras: Leitura[];
   notificacoes: Notificacao[];
   avaliacoes: Avaliacao[];
+  /** Tela de Configurações (ADR 0022): assuntos, perguntas, respostas, feriados, expediente. */
+  config: ConfigSimulada;
 }
 
 export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
@@ -74,6 +77,7 @@ export function estadoInicial(agora: Date = new Date()): EstadoSimulado {
     leituras: conversas.leituras,
     notificacoes: [],
     avaliacoes,
+    config: configInicial(),
   };
 }
 

@@ -133,6 +133,7 @@ export function BarraTecnico() {
             tema="escuro"
             atalhos={[
               { href: "/atendimento/novo", rotulo: "Abrir chamado" },
+              { href: "/atendimento/configuracoes", rotulo: "Configurações" },
               { href: "/atendimento/ajuda", rotulo: "Ajuda" },
             ]}
           />

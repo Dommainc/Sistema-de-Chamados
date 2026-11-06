@@ -48,7 +48,8 @@ Sistema novo e independente de chamados de suporte da TI. Substitui o processo a
 ### Papéis
 - `solicitante` (padrão): abre e acompanha **só os próprios** chamados, no portal (`/`, `/meus-chamados`).
 - `ti`: vê e atende **todos**, escreve notas internas e também abre chamado, na área técnica (`/atendimento`).
-  Configurações (categorias, formulários, SLA, feriados) ficam para depois da Fase 1: por ora, só por migration/SQL.
+  Configurações (opções dos formulários, assuntos, respostas prontas, feriados, expediente) pela tela
+  `/atendimento/configuracoes` (`docs/adr/0022`); perguntas novas (campos) ainda por migration.
 - O papel vem do grupo `Central-Chamados-TI` no Entra (claim `groups`), sincronizado a cada login. Não é editável na Central.
 - As duas áreas são separadas na interface (`docs/fases/1A-3-experiencia-por-perfil.md`); a segurança continua no RLS e na API.
 

@@ -17,9 +17,10 @@ import {
   Wifi,
   type LucideIcon,
 } from "lucide-react";
+import type { ICONES_ASSUNTO } from "@/lib/dominio/configuracoes";
 
-/** Ícones permitidos em categorias.icone (kebab-case, igual ao banco). */
-const ICONES: Record<string, LucideIcon> = {
+/** Ícones permitidos em categorias.icone (kebab-case, igual ao banco; lista em ICONES_ASSUNTO). */
+const ICONES: Record<(typeof ICONES_ASSUNTO)[number], LucideIcon> = {
   "key-round": KeyRound,
   wifi: Wifi,
   mail: Mail,
@@ -40,7 +41,7 @@ const ICONES: Record<string, LucideIcon> = {
 
 /** Ícone da categoria dentro do quadrado azul-claro (mockup, tela 1). Desconhecido = "…". */
 export function IconeCategoria({ icone }: { icone: string }) {
-  const Icone = ICONES[icone] ?? Ellipsis;
+  const Icone = ICONES[icone as keyof typeof ICONES] ?? Ellipsis;
   return (
     <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primaria-suave text-primaria">
       <Icone aria-hidden="true" className="size-6" strokeWidth={1.75} />

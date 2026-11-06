@@ -41,13 +41,29 @@ import { CHAVE_SISTEMA } from "@/lib/sistemas";
 import { rotuloStatus } from "@/lib/status";
 import { assinar, gravarEstado, lerEstado, proximoId, type EstadoSimulado } from "./armazenamento";
 import { guardarArquivo, lerArquivo } from "./arquivos";
-import { EXPEDIENTE_SIMULADO } from "./feriados";
+import {
+  criarAssuntoSim,
+  criarFeriadoSim,
+  criarRespostaSim,
+  dadosDaConfig,
+  editarAssuntoSim,
+  editarFeriadoSim,
+  editarRespostaSim,
+  expedienteDaConfig,
+  ordenarAssuntosSim,
+  ordenarRespostasSim,
+  salvarExpedienteSim,
+  salvarOpcoesSim,
+  type ConfigSimulada,
+} from "./configuracoes";
 import { processarInatividade } from "./inatividade";
 import { aplicarPausaDoPrazo } from "./pausa";
-import { CAMPOS_FORM, CATEGORIAS, RESPOSTAS_PRONTAS } from "./exemplos";
+
+/** Assuntos, perguntas e respostas vêm da tela de Configurações (ADR 0022), guardada no estado. */
+const config = () => lerEstado().config;
 
 function categoriaAtiva(categoriaId: number): Categoria {
-  const categoria = CATEGORIAS.find((c) => c.id === categoriaId);
+  const categoria = config().assuntos.find((c) => c.id === categoriaId && c.ativo);
   // No banco: CC004 (categoria inativa ou inexistente) → erro inesperado para o usuário.
   if (!categoria) throw new ErroApp("ERRO_INESPERADO");
   return categoria;
@@ -373,19 +389,23 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
 
     async listarCategorias() {
       eu();
-      return [...CATEGORIAS].sort((a, b) => a.ordem - b.ordem);
+      return config()
+        .assuntos.filter((c) => c.ativo)
+        .sort((a, b) => a.ordem - b.ordem)
+        .map((c) => ({ ...c }));
     },
 
     async listarCamposForm(categoriaId: number) {
       eu();
-      return CAMPOS_FORM.filter((c) => c.categoriaId === categoriaId).sort(
-        (a, b) => a.ordem - b.ordem,
-      );
+      return config()
+        .campos.filter((c) => c.categoriaId === categoriaId)
+        .sort((a, b) => a.ordem - b.ordem)
+        .map((c) => ({ ...c, opcoes: [...c.opcoes], cores: { ...c.cores } }));
     },
 
     async listarSistemas() {
       eu();
-      const campo = CAMPOS_FORM.find((c) => c.chave === CHAVE_SISTEMA);
+      const campo = config().campos.find((c) => c.chave === CHAVE_SISTEMA);
       return (campo?.opcoes ?? []).map((nome) => ({ nome, cor: campo?.cores[nome] ?? null }));
     },
 
@@ -403,11 +423,10 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
         chamados: relevantes.map((c) => ({ ...c })),
         historico: historico.filter((h) => ids.has(h.chamadoId)).map((h) => ({ ...h })),
         avaliacoes: avaliacoes.filter((a) => ids.has(a.chamadoId)).map((a) => ({ ...a })),
-        expediente: {
-          inicio: EXPEDIENTE_SIMULADO.inicio,
-          fim: EXPEDIENTE_SIMULADO.fim,
-          feriados: [...EXPEDIENTE_SIMULADO.feriados],
-        },
+        expediente: (() => {
+          const e = expedienteDaConfig(config());
+          return { inicio: e.inicio, fim: e.fim, feriados: [...e.feriados] };
+        })(),
       };
     },
 
@@ -479,7 +498,10 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
     async listarRespostasProntas() {
       // RLS: só a TI lê; para o solicitante a lista vem vazia.
       if (eu().papel !== "ti") return [];
-      return [...RESPOSTAS_PRONTAS].sort((a, b) => a.ordem - b.ordem);
+      return config()
+        .respostas.filter((r) => r.ativo)
+        .sort((a, b) => a.ordem - b.ordem)
+        .map((r) => ({ ...r }));
     },
 
     async criarChamado(dados: DadosNovoChamado): Promise<ChamadoCriado> {
@@ -493,7 +515,7 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       }
 
       const categoria = categoriaAtiva(dados.categoriaId);
-      const campos = CAMPOS_FORM.filter((c) => c.categoriaId === categoria.id);
+      const campos = config().campos.filter((c) => c.categoriaId === categoria.id);
       const { titulo, respostas } = validarFormulario(campos, dados.titulo, dados.respostas);
       validarQuantidade(dados.anexos.length);
       dados.anexos.forEach(validarArquivo);
@@ -857,8 +879,63 @@ export function criarFonteSimulada(usuarioId: string): FonteDeDados {
       return fila[0] ? { ...fila[0] } : null;
     },
 
+    // ------------------------------------------------------------ Configurações (ADR 0022)
+    async obterConfiguracoes() {
+      if (eu().papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+      return dadosDaConfig(config());
+    },
+
+    async salvarOpcoes(campoId, opcoes) {
+      mudarConfig((c, autor) => salvarOpcoesSim(c, campoId, opcoes, autor));
+    },
+
+    async criarAssunto(dados) {
+      mudarConfig((c, autor) => criarAssuntoSim(c, dados, autor));
+    },
+
+    async editarAssunto(id, dados) {
+      mudarConfig((c, autor) => editarAssuntoSim(c, id, dados, autor));
+    },
+
+    async ordenarAssuntos(ids) {
+      mudarConfig((c, autor) => ordenarAssuntosSim(c, ids, autor));
+    },
+
+    async criarRespostaPronta(dados) {
+      mudarConfig((c, autor) => criarRespostaSim(c, dados, autor));
+    },
+
+    async editarRespostaPronta(id, dados) {
+      mudarConfig((c, autor) => editarRespostaSim(c, id, dados, autor));
+    },
+
+    async ordenarRespostasProntas(ids) {
+      mudarConfig((c, autor) => ordenarRespostasSim(c, ids, autor));
+    },
+
+    async criarFeriado(dados) {
+      mudarConfig((c, autor) => criarFeriadoSim(c, dados, autor));
+    },
+
+    async editarFeriado(data, dados) {
+      mudarConfig((c, autor) => editarFeriadoSim(c, data, dados, autor));
+    },
+
+    async salvarExpediente(inicio, fim) {
+      mudarConfig((c, autor) => salvarExpedienteSim(c, inicio, fim, autor));
+    },
+
     aoMudar(callback: () => void) {
       return assinar(callback);
     },
   };
+
+  /** Só a TI; grava a configuração nova (se mudou) e avisa as telas. */
+  function mudarConfig(mudar: (atual: ConfigSimulada, autorId: string) => ConfigSimulada): void {
+    const perfil = eu();
+    if (perfil.papel !== "ti") throw new ErroApp("SEM_PERMISSAO");
+    const atual = lerEstado();
+    const nova = mudar(atual.config, perfil.id);
+    if (nova !== atual.config) gravarEstado({ ...atual, config: nova });
+  }
 }

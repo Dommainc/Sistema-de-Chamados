@@ -22,6 +22,7 @@ import { ErroApp } from "@/lib/erros/catalogo";
 import { CHAVE_SISTEMA } from "@/lib/sistemas";
 import { clienteNavegador } from "@/lib/supabase/navegador";
 import { chamarApi, type OpcoesApi } from "./api";
+import { metodosConfiguracoes } from "./configuracoes";
 import {
   anexoDaLinha,
   avaliacaoDaLinha,
@@ -344,6 +345,8 @@ export function criarFonteReal(
         await supabase
           .from("respostas_prontas")
           .select("id, titulo, texto, ordem")
+          // A TI também lê as desativadas (tela de Configurações, migration 0037); o chat, não.
+          .eq("ativo", true)
           .order("ordem")
           .returns<LinhaRespostaPronta[]>(),
       );
@@ -585,6 +588,8 @@ export function criarFonteReal(
       );
       return linhas[0] ? chamadoDaLinha(linhas[0]) : null;
     },
+
+    ...metodosConfiguracoes(usuario, supabase, api, ler, avisar),
 
     aoMudar(callback) {
       ouvintes.add(callback);

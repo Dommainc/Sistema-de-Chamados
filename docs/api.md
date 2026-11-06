@@ -159,6 +159,26 @@ de não lidas).
 `GET /anexos/{anexo_id}/url` → `{"url": "<URL assinada, vale 60 s>"}`. Só se eu posso ver o anexo: anexo de nota
 interna nunca abre para o solicitante.
 
+### Configurações (só TI — [ADR 0022](adr/0022-configuracoes-pela-tela.md))
+
+Todas conferem `app.eh_ti()` (solicitante → `SEM_PERMISSAO`), gravam como `central_api` e registram uma linha em
+`config_alteracoes` na mesma transação. Sem mudança de fato, nada é gravado. A leitura é direta do Supabase.
+
+| Rota | Corpo | O que faz |
+|---|---|---|
+| `PATCH /configuracoes/campos/{id}/opcoes` | `{opcoes: [{nome, cor?, antigo?}]}` | Lista inteira de uma pergunta de seleção, na ordem nova. `antigo` = nome anterior (renomear). Renomear Sienge/CVCRM leva o `mostrar_se` do módulo junto. Erros: `NOME_DUPLICADO`, `OPCOES_VAZIAS`, `OPCAO_COM_PERGUNTAS`, `TEXTO_LONGO_DEMAIS`, `CAMPO_OBRIGATORIO` (cor fora da paleta) |
+| `POST /configuracoes/assuntos` | `{nome, nome_curto, descricao, icone}` | Assunto novo (já com a pergunta de descrição). `NOME_DUPLICADO` |
+| `PATCH /configuracoes/assuntos/{id}` | `{nome?, nome_curto?, descricao?, icone?, ativo?}` | Editar, desativar ou reativar |
+| `POST /configuracoes/assuntos/ordem` | `{ids: [...]}` | Ordem da tela inicial (10, 20, 30...) |
+| `POST /configuracoes/respostas-prontas` | `{titulo, texto}` | Resposta nova. `NOME_DUPLICADO` (título) |
+| `PATCH /configuracoes/respostas-prontas/{id}` | `{titulo?, texto?, ativo?}` | Editar, desativar ou reativar |
+| `POST /configuracoes/respostas-prontas/ordem` | `{ids: [...]}` | Ordem no chat |
+| `POST /configuracoes/feriados` | `{data, nome, escopo}` | Feriado novo; data com feriado ativo → `FERIADO_DUPLICADO`; desativado → reativa |
+| `PATCH /configuracoes/feriados/{data}` | `{nome?, ativo?}` | Renomear, desativar ou reativar |
+| `PATCH /configuracoes/expediente` | `{inicio: "08:00", fim: "20:00"}` | Expediente (HH:MM). `EXPEDIENTE_INVALIDO` se o fim não for depois do início |
+
+Resposta: `{ok: true}` (opções: `{id, opcoes, cores}`).
+
 ## Testes
 
 - `tests/rotas/` — todas as rotas com repositório e Storage em memória ([ADR 0008](adr/0008-repositorio-da-api.md)),

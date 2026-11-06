@@ -13,7 +13,7 @@ afterEach(() => {
 });
 
 describe("catálogo de erros", () => {
-  it("tem os 14 códigos do escopo + prazo, não iniciado, avaliação, anexos demais, chamado próprio e texto longo demais (21)", () => {
+  it("tem os 14 códigos do escopo + prazo, não iniciado, avaliação, anexos demais, chamado próprio, texto longo demais e os 5 das Configurações (26)", () => {
     expect(Object.keys(CATALOGO).sort()).toEqual(
       [
         "CAMPO_OBRIGATORIO",
@@ -34,6 +34,11 @@ describe("catálogo de erros", () => {
         "AVALIACAO_INDISPONIVEL",
         "AVALIACAO_JA_ENVIADA",
         "CHAMADO_PROPRIO",
+        "NOME_DUPLICADO",
+        "OPCOES_VAZIAS",
+        "OPCAO_COM_PERGUNTAS",
+        "EXPEDIENTE_INVALIDO",
+        "FERIADO_DUPLICADO",
         "MENSAGEM_NAO_ENVIADA",
         "SEM_CONEXAO",
         "ERRO_INESPERADO",

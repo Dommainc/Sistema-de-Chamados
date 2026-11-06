@@ -11,6 +11,7 @@ const SECOES = [
   { id: "automacoes", titulo: "O que a Central faz sozinha" },
   { id: "dashboard", titulo: "Dashboard, relatório e avaliações" },
   { id: "teams", titulo: "Teams e resumo mensal" },
+  { id: "configuracoes", titulo: "Configurações" },
 ];
 
 /** Guia da equipe de TI (também vira docs/guia/guia-ti.pdf). */
@@ -170,6 +171,38 @@ export default function PaginaAjudaTi() {
           novo, de transferência e das respostas dos solicitantes. No 1º dia útil de cada mês, às
           8h, a gestão recebe o <strong>resumo da TI</strong> do mês anterior.
         </p>
+      </SecaoGuia>
+      <SecaoGuia id="configuracoes" titulo="Configurações">
+        <p className="text-lg">
+          No menu do seu nome, <strong>Configurações</strong> muda o que aparece para quem abre
+          chamado, sem precisar mexer no banco. Toda mudança fica em{" "}
+          <strong>Últimas alterações</strong>, com o nome de quem fez.
+        </p>
+        <ul className="flex flex-col gap-2 text-lg">
+          <li>
+            <strong>Formulários:</strong> escolha a pergunta (ex.: &quot;Qual sistema?&quot;) e
+            adicione, renomeie, troque a cor, mude a ordem com as setas ou retire opções. Antes de
+            salvar aparece <strong>O que vai mudar</strong>.
+          </li>
+          <li>
+            <strong>Assuntos:</strong> os cartões da tela inicial (nome, descrição, ícone e ordem).
+            Desativar tira o assunto da tela inicial; um assunto novo já vem com a pergunta de
+            descrição.
+          </li>
+          <li>
+            <strong>Respostas prontas:</strong> os textos do botão do chat ({"{nome}"} vira o
+            primeiro nome do solicitante).
+          </li>
+          <li>
+            <strong>Feriados e expediente:</strong> o que conta como hora útil. Cadastre os feriados
+            do ano seguinte antes de dezembro.
+          </li>
+        </ul>
+        <Dica>
+          nada é apagado: o que sai fica desativado e os chamados antigos continuam com o nome que
+          foi escolhido na época. Sienge e CVCRM abrem a pergunta do módulo e, por isso, não saem da
+          lista (podem ser renomeados).
+        </Dica>
       </SecaoGuia>
     </Guia>
   );

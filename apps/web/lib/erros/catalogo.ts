@@ -23,6 +23,12 @@ export const CATALOGO = {
   AVALIACAO_INDISPONIVEL: "Só dá para avaliar depois que o chamado for concluído.",
   AVALIACAO_JA_ENVIADA: "Você já avaliou este chamado.",
   CHAMADO_PROPRIO: "Este chamado é seu: peça para um colega da TI atender.",
+  NOME_DUPLICADO: "Já existe {campo} na lista. Use outro nome.",
+  OPCOES_VAZIAS: "Deixe pelo menos uma opção na lista.",
+  OPCAO_COM_PERGUNTAS:
+    "{campo} tem uma pergunta que depende dela (ex.: o módulo) e não pode sair da lista.",
+  EXPEDIENTE_INVALIDO: "O fim do expediente precisa ser depois do início.",
+  FERIADO_DUPLICADO: "Já existe um feriado em {campo}.",
   MENSAGEM_NAO_ENVIADA: "Sua mensagem não foi enviada. Toque para tentar de novo.",
   SEM_CONEXAO: "Sem conexão. As mensagens novas vão aparecer quando a conexão voltar.",
   ERRO_INESPERADO:

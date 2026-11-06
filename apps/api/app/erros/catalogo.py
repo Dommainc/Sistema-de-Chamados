@@ -29,6 +29,11 @@ CodigoErro = Literal[
     "AVALIACAO_INDISPONIVEL",
     "AVALIACAO_JA_ENVIADA",
     "CHAMADO_PROPRIO",
+    "NOME_DUPLICADO",
+    "OPCOES_VAZIAS",
+    "OPCAO_COM_PERGUNTAS",
+    "EXPEDIENTE_INVALIDO",
+    "FERIADO_DUPLICADO",
     "MENSAGEM_NAO_ENVIADA",
     "SEM_CONEXAO",
     "ERRO_INESPERADO",
@@ -63,6 +68,13 @@ CATALOGO: dict[CodigoErro, str] = {
     "AVALIACAO_INDISPONIVEL": "Só dá para avaliar depois que o chamado for concluído.",
     "AVALIACAO_JA_ENVIADA": "Você já avaliou este chamado.",
     "CHAMADO_PROPRIO": "Este chamado é seu: peça para um colega da TI atender.",
+    "NOME_DUPLICADO": "Já existe {campo} na lista. Use outro nome.",
+    "OPCOES_VAZIAS": "Deixe pelo menos uma opção na lista.",
+    "OPCAO_COM_PERGUNTAS": (
+        "{campo} tem uma pergunta que depende dela (ex.: o módulo) e não pode sair da lista."
+    ),
+    "EXPEDIENTE_INVALIDO": "O fim do expediente precisa ser depois do início.",
+    "FERIADO_DUPLICADO": "Já existe um feriado em {campo}.",
     "MENSAGEM_NAO_ENVIADA": "Sua mensagem não foi enviada. Toque para tentar de novo.",
     "SEM_CONEXAO": "Sem conexão. As mensagens novas vão aparecer quando a conexão voltar.",
     "ERRO_INESPERADO": (
@@ -90,6 +102,11 @@ STATUS_HTTP: dict[CodigoErro, int] = {
     "AVALIACAO_INDISPONIVEL": 409,
     "AVALIACAO_JA_ENVIADA": 409,
     "CHAMADO_PROPRIO": 409,
+    "NOME_DUPLICADO": 409,
+    "OPCOES_VAZIAS": 422,
+    "OPCAO_COM_PERGUNTAS": 409,
+    "EXPEDIENTE_INVALIDO": 422,
+    "FERIADO_DUPLICADO": 409,
     "MENSAGEM_NAO_ENVIADA": 503,
     "SEM_CONEXAO": 503,
     "ERRO_INESPERADO": 500,
@@ -157,6 +174,7 @@ _SQLSTATE: dict[str, CodigoErro] = {
 _CONSTRAINTS: dict[str, CodigoErro] = {
     "chamados_cancelado_exige_motivo": "MOTIVO_OBRIGATORIO",
     "chamados_tecnico_nao_e_solicitante": "CHAMADO_PROPRIO",
+    "campos_form_opcoes_selecao": "OPCOES_VAZIAS",
 }
 
 

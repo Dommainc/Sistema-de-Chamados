@@ -39,6 +39,83 @@ export interface OpcaoSistema {
   cor: CorPaleta | null;
 }
 
+// ------------------------------------------------------------------ Configurações (ADR 0022)
+
+/** Assunto (categoria) como a tela de Configurações vê: inclusive os desativados. */
+export interface AssuntoConfig extends Categoria {
+  ativo: boolean;
+}
+
+/** Pergunta de opções (seleção) que a TI pode editar: sistemas, módulos, itens, programas. */
+export interface CampoOpcoesConfig {
+  id: number;
+  categoriaId: number;
+  chave: string;
+  label: string;
+  opcoes: string[];
+  cores: Partial<Record<string, CorPaleta>>;
+  /** Opções que abrem outra pergunta (ex.: Sienge → módulo): não podem sair da lista. */
+  travadas: string[];
+}
+
+/** Uma linha da lista editada. `antigo` = nome que tinha (renomear); null = opção nova. */
+export interface OpcaoEditada {
+  nome: string;
+  cor: CorPaleta | null;
+  antigo: string | null;
+}
+
+export interface RespostaProntaConfig extends RespostaPronta {
+  ativo: boolean;
+}
+
+export type EscopoFeriado = "nacional" | "estadual" | "municipal" | "ponto_facultativo";
+
+export interface FeriadoConfig {
+  /** "AAAA-MM-DD" */
+  data: string;
+  nome: string;
+  escopo: EscopoFeriado;
+  ativo: boolean;
+}
+
+export type AreaConfig =
+  "formularios" | "assuntos" | "respostas_prontas" | "feriados" | "expediente";
+
+/** Uma linha de "Últimas alterações" (tabela config_alteracoes). */
+export interface AlteracaoConfig {
+  id: number;
+  area: AreaConfig;
+  resumo: string;
+  autorId: string;
+  criadoEm: string;
+}
+
+export interface DadosConfiguracoes {
+  assuntos: AssuntoConfig[];
+  campos: CampoOpcoesConfig[];
+  respostas: RespostaProntaConfig[];
+  feriados: FeriadoConfig[];
+  expediente: { inicio: string; fim: string };
+  /** As mais recentes primeiro. */
+  alteracoes: AlteracaoConfig[];
+}
+
+export interface DadosAssunto {
+  nome: string;
+  nomeCurto: string;
+  descricao: string;
+  icone: string;
+}
+
+export interface DadosRespostaPronta {
+  titulo: string;
+  texto: string;
+}
+
+/** Quantas alterações a tela mostra. */
+export const ALTERACOES_NA_TELA = 30;
+
 /** O mínimo que a sessão sabe do usuário (o restante vem de obterMeuPerfil). */
 export interface UsuarioSessao {
   id: string;
@@ -229,6 +306,31 @@ export interface FonteDeDados {
   definirPrioridade(chamadoId: number, prioridade: PrioridadeDaTi): Promise<Chamado>;
   /** Primeiro da coluna Novos sem responsável: prazo mais próximo; sem prazo, o mais antigo. Só TI. */
   proximoDaFila(): Promise<Chamado | null>;
+
+  // ---------------------------------------------------------------- Configurações (só TI — ADR 0022)
+  /** Tudo o que a tela de Configurações mostra, inclusive o que está desativado. Solicitante: SEM_PERMISSAO. */
+  obterConfiguracoes(): Promise<DadosConfiguracoes>;
+  /**
+   * PATCH /configuracoes/campos/{id}/opcoes: a lista inteira, na ordem nova.
+   * Erros: NOME_DUPLICADO, OPCOES_VAZIAS, OPCAO_COM_PERGUNTAS, CAMPO_OBRIGATORIO, SEM_PERMISSAO.
+   */
+  salvarOpcoes(campoId: number, opcoes: OpcaoEditada[]): Promise<void>;
+  /** Erros: NOME_DUPLICADO, CAMPO_OBRIGATORIO. O assunto novo já vem com a pergunta de descrição. */
+  criarAssunto(dados: DadosAssunto): Promise<void>;
+  editarAssunto(id: number, dados: Partial<DadosAssunto> & { ativo?: boolean }): Promise<void>;
+  ordenarAssuntos(ids: number[]): Promise<void>;
+  /** Erros: NOME_DUPLICADO (título), CAMPO_OBRIGATORIO. */
+  criarRespostaPronta(dados: DadosRespostaPronta): Promise<void>;
+  editarRespostaPronta(
+    id: number,
+    dados: Partial<DadosRespostaPronta> & { ativo?: boolean },
+  ): Promise<void>;
+  ordenarRespostasProntas(ids: number[]): Promise<void>;
+  /** Data já com feriado ativo → FERIADO_DUPLICADO; desativado → reativa com o nome novo. */
+  criarFeriado(dados: Omit<FeriadoConfig, "ativo">): Promise<void>;
+  editarFeriado(data: string, dados: { nome?: string; ativo?: boolean }): Promise<void>;
+  /** "HH:MM". Erro: EXPEDIENTE_INVALIDO (fim antes do início). */
+  salvarExpediente(inicio: string, fim: string): Promise<void>;
 
   /** Avisa quando os dados mudarem (simula o Realtime). Devolve a função para cancelar. */
   aoMudar(callback: () => void): () => void;

@@ -29,6 +29,11 @@ Formato da API:
 | `AVALIACAO_INDISPONIVEL` | Avaliar chamado ainda não concluído (ADR 0015) | Só dá para avaliar depois que o chamado for concluído. | Aviso |
 | `AVALIACAO_JA_ENVIADA` | Avaliar de novo o mesmo chamado | Você já avaliou este chamado. | Aviso |
 | `CHAMADO_PROPRIO` | Técnico tentando iniciar (ou receber por transferência) o chamado que ele mesmo abriu | Este chamado é seu: peça para um colega da TI atender. | Aviso |
+| `NOME_DUPLICADO` | Configurações: opção, assunto ou resposta pronta com nome que já existe (ADR 0022) | Já existe {campo} na lista. Use outro nome. | Abaixo do campo |
+| `OPCOES_VAZIAS` | Configurações: tirar todas as opções de uma pergunta | Deixe pelo menos uma opção na lista. | Aviso |
+| `OPCAO_COM_PERGUNTAS` | Configurações: tirar uma opção que abre outra pergunta (ex.: Sienge → módulo) | {campo} tem uma pergunta que depende dela (ex.: o módulo) e não pode sair da lista. | Aviso |
+| `EXPEDIENTE_INVALIDO` | Configurações: fim do expediente antes (ou igual) ao início | O fim do expediente precisa ser depois do início. | Abaixo do campo |
+| `FERIADO_DUPLICADO` | Configurações: feriado numa data que já tem feriado ativo | Já existe um feriado em {campo}. | Aviso |
 | `MENSAGEM_NAO_ENVIADA` | Falha ao enviar mensagem | Sua mensagem não foi enviada. Toque para tentar de novo. *(o texto é mantido)* | No próprio balão |
 | `SEM_CONEXAO` | Sem internet / tempo real caiu | Sem conexão. As mensagens novas vão aparecer quando a conexão voltar. | Faixa no chat |
 | `ERRO_INESPERADO` | Qualquer outro | Algo deu errado do nosso lado. Tente novamente. Se continuar, informe o código **{ref}** para a TI. | Aviso ou tela de erro |

@@ -35,9 +35,10 @@ erDiagram
 | `configuracoes` | Parâmetros: fuso, expediente (08–20), limites de anexo, texto da resposta do bot | `publico = true` → qualquer usuário logado lê; o resto só a TI |
 | `feriados` | Dias sem expediente (2026–2027 no seed: nacionais, RJ e Rio) | `ativo = false` em vez de apagar. **Cadastrar 2028 antes do fim de 2027** (P-008) |
 | `areas` | Áreas que atendem (Fase 1: só TI) | — |
-| `categorias` | Assuntos, `nome_curto` e `icone` do portal | **4 no seed** (reorganização do dono, 2026-10-08): "Solicitações de acesso e Permissões" (com "Qual sistema?"), "Infraestrutura" ("O que é?": Notebook · Impressora / Scanner · Celular Corporativo · Internet · Câmeras; "Onde fica?"), "Microsoft" e "Outros". Saíram Instalar programa, Novo colaborador, Desligamento, Pedir equipamento e as categorias de computador, impressora e celular (viraram opções de Infraestrutura). Depois do go-live, mudar categoria = **migration nova** (o seed só roda na instalação). `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |
-| `campos_form` | Campos do formulário dinâmico por categoria (texto, texto longo, número, data, seleção, múltipla, sim/não) | `chave` estável (as respostas são guardadas por ela). `cores` (0022): cor de cada opção, da **paleta fixa** (vermelho, vermelho-claro, vermelho-escuro, verde-claro, azul-claro, azul-escuro, roxo, cinza) — os sistemas de "Qual sistema?". **Sistema novo** = opção em `opcoes` + cor em `cores`, só SQL |
-| `respostas_prontas` | Respostas prontas do chat (0023): título, texto (`{nome}` = primeiro nome do solicitante), ordem, ativo | Lista única da TI, mantida por SQL. Só a TI lê; ninguém grava pela aplicação |
+| `categorias` | Assuntos, `nome_curto` e `icone` do portal | **4 no seed** (reorganização do dono, 2026-10-08): "Solicitações de acesso e Permissões" (com "Qual sistema?"), "Infraestrutura" ("O que é?": Notebook · Impressora / Scanner · Celular Corporativo · Internet · Câmeras; "Onde fica?"), "Microsoft" e "Outros". Saíram Instalar programa, Novo colaborador, Desligamento, Pedir equipamento e as categorias de computador, impressora e celular (viraram opções de Infraestrutura). Depois do go-live, mudar assunto (nome, ícone, ordem, ativo) é pela **tela de Configurações** (ADR 0022); perguntas novas continuam por migration. `sla_horas` **sem uso** desde a 0019 (prazo é da TI — ADR 0009) |
+| `campos_form` | Campos do formulário dinâmico por categoria (texto, texto longo, número, data, seleção, múltipla, sim/não) | `chave` estável (as respostas são guardadas por ela). `cores` (0022): cor de cada opção, da **paleta fixa** (vermelho, vermelho-claro, vermelho-escuro, verde-claro, azul-claro, azul-escuro, roxo, cinza) — os sistemas de "Qual sistema?". **Sistema novo** = opção em `opcoes` + cor em `cores`, pela **tela de Configurações** (ADR 0022) |
+| `respostas_prontas` | Respostas prontas do chat (0023): título, texto (`{nome}` = primeiro nome do solicitante), ordem, ativo | Lista única da TI, mantida pela tela de Configurações (ADR 0022). Só a TI lê (inclusive as desativadas; o chat filtra `ativo`); só a API grava |
+| `config_alteracoes` | Registro da tela de Configurações (0037): área, resumo, antes/depois, autor, data | Só inserção, pela API; a TI lê |
 
 ### Pessoas
 | Tabela | O que guarda | Pontos importantes |
@@ -82,7 +83,8 @@ RLS ligado em **todas** as tabelas; os acessos padrão do Supabase foram revogad
 | `avaliacoes` | as próprias | todas | API |
 | `configuracoes` | as públicas | todas | API |
 | `categorias`, `campos_form`, `areas` | as ativas | todas | API |
-| `respostas_prontas` | — | as ativas | só SQL (migration) |
+| `respostas_prontas` | — | todas | API (Configurações) |
+| `config_alteracoes` | — | todas | API (só inserção) |
 | `feriados` | todos | todos | API |
 
 Travas que valem até para quem contornar a API (triggers): encerrado não muda (`CC001`), campos imutáveis
