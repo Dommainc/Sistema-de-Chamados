@@ -8,7 +8,7 @@ prontas, feriados e expediente) só mudava por migration ou SQL. A cada sistema 
 migration (ex.: 0030, 0036). O dono pediu um painel para a própria TI fazer isso.
 
 ## Decisão
-- Tela **`/atendimento/configuracoes`** (menu do nome → Configurações), com quatro abas: **Formulários**,
+- Tela **`/atendimento/painel`** (menu do nome → **Painel**; nome trocado pelo dono em 2026-11-09), com quatro abas: **Formulários**,
   **Assuntos**, **Respostas prontas** e **Feriados e expediente**, e o quadro **"Últimas alterações"**.
 - **Quem:** qualquer pessoa da TI (`docs/escopo.md`: toda a TI tem o mesmo acesso). Solicitante não vê a tela e a
   API recusa (`SEM_PERMISSAO`).

@@ -22,7 +22,7 @@ feriados e o horário do expediente. Toda mudança fica registrada com o nome de
 - Expediente: HH:MM, fim depois do início; vale na hora para prazos, Dashboard e automações.
 
 ## Como testar
-1. `cd apps/web && pnpm dev` (modo de demonstração) → entrar como Rafael Lima → menu do nome → **Configurações**.
+1. `cd apps/web && pnpm dev` (modo de demonstração) → entrar como Rafael Lima → menu do nome → **Painel**.
 2. **Formulários:** renomeie KickIn/Quickin, adicione um sistema com cor, retire outro, veja "O que vai mudar" e
    salve. Abra um chamado em "Solicitações de acesso" como Ana: a lista nova aparece.
 3. **Assuntos:** desative "Microsoft" → some da tela inicial da Ana; reative.

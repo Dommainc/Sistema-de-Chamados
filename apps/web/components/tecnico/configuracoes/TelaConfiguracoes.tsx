@@ -31,19 +31,19 @@ const ROTULO_AREA: Record<AreaConfig, string> = {
 const consultarConfiguracoes = (fonte: FonteDeDados) => fonte.obterConfiguracoes();
 const consultarPerfis = (fonte: FonteDeDados) => fonte.listarPerfisPublicos();
 
-/** Tela de Configurações da TI (Fase 2 — ADR 0022). A aba fica na URL (?aba=). */
+/** Painel da TI (configurações) (Fase 2 — ADR 0022). A aba fica na URL (?aba=). */
 export function TelaConfiguracoes({ aba }: { aba: AbaConfig }) {
   const router = useRouter();
   const { dados, erro, carregando } = useConsulta(consultarConfiguracoes);
   const trocar = (a: AbaConfig) =>
-    router.replace(a === "formularios" ? "/atendimento/configuracoes" : `?aba=${a}`, {
+    router.replace(a === "formularios" ? "/atendimento/painel" : `?aba=${a}`, {
       scroll: false,
     });
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Configurações</h1>
+        <h1 className="text-2xl font-bold">Painel</h1>
         <p className="text-texto-suave">
           O que aparece para quem abre chamado e como a Central conta o tempo. Toda mudança fica
           registrada com o nome de quem fez.
@@ -66,7 +66,7 @@ export function TelaConfiguracoes({ aba }: { aba: AbaConfig }) {
       </label>
       <div className="hidden md:block">
         <Segmentado
-          rotuloAcessivel="Partes das configurações"
+          rotuloAcessivel="Partes do painel"
           opcoes={ABAS_CONFIG.map((a) => ({ valor: a, rotulo: ROTULO_ABA[a] }))}
           valor={aba}
           aoMudar={trocar}

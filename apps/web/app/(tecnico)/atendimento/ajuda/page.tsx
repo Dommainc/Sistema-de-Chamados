@@ -11,7 +11,7 @@ const SECOES = [
   { id: "automacoes", titulo: "O que a Central faz sozinha" },
   { id: "dashboard", titulo: "Dashboard, relatório e avaliações" },
   { id: "teams", titulo: "Teams e resumo mensal" },
-  { id: "configuracoes", titulo: "Configurações" },
+  { id: "painel", titulo: "Painel" },
 ];
 
 /** Guia da equipe de TI (também vira docs/guia/guia-ti.pdf). */
@@ -172,11 +172,11 @@ export default function PaginaAjudaTi() {
           8h, a gestão recebe o <strong>resumo da TI</strong> do mês anterior.
         </p>
       </SecaoGuia>
-      <SecaoGuia id="configuracoes" titulo="Configurações">
+      <SecaoGuia id="painel" titulo="Painel">
         <p className="text-lg">
-          No menu do seu nome, <strong>Configurações</strong> muda o que aparece para quem abre
-          chamado, sem precisar mexer no banco. Toda mudança fica em{" "}
-          <strong>Últimas alterações</strong>, com o nome de quem fez.
+          No menu do seu nome, <strong>Painel</strong> muda o que aparece para quem abre chamado,
+          sem precisar mexer no banco. Toda mudança fica em <strong>Últimas alterações</strong>, com
+          o nome de quem fez.
         </p>
         <ul className="flex flex-col gap-2 text-lg">
           <li>
