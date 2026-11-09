@@ -1,4 +1,4 @@
-// Fluxo do passo 2 (mockup, tela 2): erros inline, rascunho mantido, Ctrl+V e envio.
+// Fluxo do passo 2 (mockup, tela 2): erros inline, nada guardado ao sair, Ctrl+V e envio.
 // Os testes rodam sem CSS: o rodapé do celular e o painel do computador aparecem juntos (por isso *AllBy*).
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -14,7 +14,6 @@ import {
 import { CATEGORIAS } from "@/lib/dados/simulada/exemplos";
 import { USUARIOS_SIMULADOS } from "@/lib/dados/simulada/usuarios";
 import { FormularioChamado } from "./FormularioChamado";
-import { limparRascunho } from "./rascunho";
 
 const navegacao = vi.hoisted(() => ({ replace: vi.fn(), push: vi.fn() }));
 // Liga/desliga uma falha ao guardar o arquivo (simula o Storage fora do ar → UPLOAD_FALHOU).
@@ -51,7 +50,6 @@ function renderizar(referente: number | null = null) {
 beforeEach(() => {
   localStorage.clear();
   sessionStorage.clear();
-  limparRascunho();
   _reiniciarParaTestes();
   gravarEstado(estadoInicial());
   navegacao.replace.mockReset();
@@ -103,14 +101,15 @@ describe("FormularioChamado", () => {
     expect(navegacao.replace).toHaveBeenCalledWith(`/abrir/pronto/${criado.id}`);
   });
 
-  it("o que foi digitado fica salvo para o 'Voltar'", async () => {
+  it("saiu da tela e voltou: começa vazio (nada fica guardado)", async () => {
     const { unmount } = renderizar();
     fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
-      target: { value: "Rascunho guardado" },
+      target: { value: "Texto que não pode ficar" },
     });
     unmount();
     renderizar();
-    expect(await screen.findByLabelText(/Resumo do problema/)).toHaveValue("Rascunho guardado");
+    expect(await screen.findByLabelText(/Resumo do problema/)).toHaveValue("");
+    expect(sessionStorage.length).toBe(0);
   });
 
   it("novo pedido a partir de um chamado encerrado já cita o número", async () => {

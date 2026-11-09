@@ -121,7 +121,7 @@ O mesmo componente é usado pela TI em `/atendimento/novo` (o técnico vira o so
    - Campos dinâmicos de `campos_form`.
    - Área de anexos com botão, arrastar-e-soltar e **Ctrl+V**.
    - Validação inline pelo catálogo.
-   - Botão "Voltar" mantém o que já foi digitado.
+   - ~~Botão "Voltar" mantém o que já foi digitado.~~ Mudou em 2026-11-09 (pedido do dono): nada fica guardado; saiu da tela (Voltar, fechar ou recarregar), começa vazio.
 3. **Confirmação:**
    - "Pronto! Seu chamado é o **#42**."
    - "Previsão de atendimento: até 06/10 às 11:00."

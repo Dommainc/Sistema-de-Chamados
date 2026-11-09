@@ -3,7 +3,7 @@
 import { Lock, RotateCcw, WifiOff } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { ArquivoSelecionado } from "@/components/abertura/rascunho";
+import type { ArquivoSelecionado } from "@/components/abertura/useArquivos";
 import { Aviso } from "@/components/ui/Aviso";
 import { useToast } from "@/components/ui/Toast";
 import { useConsulta, useDados, useUsuario } from "@/lib/dados/provedor";

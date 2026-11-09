@@ -1,11 +1,17 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "@/components/ui/Toast";
 import { ehImagem, MAX_POR_ENVIO, mimeDoArquivo, nomeDoPrint, validarArquivo } from "@/lib/anexos";
 import { ErroApp } from "@/lib/erros/catalogo";
+import type { ArquivoNovo } from "@/lib/dados/tipos";
 import type { OrigemAnexo } from "@/lib/dominio/tipos";
-import { lerArquivosRascunho, salvarArquivosRascunho, type ArquivoSelecionado } from "./rascunho";
+
+export interface ArquivoSelecionado extends ArquivoNovo {
+  id: string;
+  /** URL temporária (object URL) para a miniatura de imagens. */
+  previa: string | null;
+}
 
 let sequencia = 0;
 
@@ -23,21 +29,21 @@ export function imagensColadas(dados: DataTransfer | null): File[] {
 
 /**
  * Arquivos escolhidos/colados antes de enviar: valida (mesmas mensagens da API), dá nome aos prints
- * e cria miniaturas. Com `persistir`, guarda no rascunho do "Abrir chamado" para sobreviver ao "Voltar".
+ * e cria miniaturas. Nada fica guardado: saiu da tela, os arquivos somem (pedido do dono, 2026-11-09).
  */
-export function useArquivosSelecionados({ persistir = true }: { persistir?: boolean } = {}) {
+export function useArquivosSelecionados() {
   const { mostrarErro } = useToast();
-  const [arquivos, setArquivos] = useState<ArquivoSelecionado[]>(() =>
-    persistir ? lerArquivosRascunho() : [],
-  );
+  const [arquivos, atualizar] = useState<ArquivoSelecionado[]>([]);
+  // Miniaturas criadas e ainda não liberadas: ao sair da tela, libera a memória delas.
+  const previas = useRef(new Set<string>());
 
-  const atualizar = useCallback(
-    (proximos: ArquivoSelecionado[]) => {
-      if (persistir) salvarArquivosRascunho(proximos);
-      setArquivos(proximos);
-    },
-    [persistir],
-  );
+  useEffect(() => {
+    const abertas = previas.current;
+    return () => {
+      for (const url of abertas) URL.revokeObjectURL(url);
+      abertas.clear();
+    };
+  }, []);
 
   const adicionar = useCallback(
     (novos: File[], origem: OrigemAnexo) => {
@@ -68,23 +74,31 @@ export function useArquivosSelecionados({ persistir = true }: { persistir?: bool
           origem,
           previa: ehImagem(mime) ? URL.createObjectURL(arquivo) : null,
         });
+        const previa = aceitos.at(-1)!.previa;
+        if (previa) previas.current.add(previa);
       }
       if (aceitos.length > 0) atualizar([...arquivos, ...aceitos]);
     },
-    [arquivos, atualizar, mostrarErro],
+    [arquivos, mostrarErro],
   );
 
   const remover = useCallback(
     (id: string) => {
       const alvo = arquivos.find((a) => a.id === id);
-      if (alvo?.previa) URL.revokeObjectURL(alvo.previa);
+      if (alvo?.previa) {
+        URL.revokeObjectURL(alvo.previa);
+        previas.current.delete(alvo.previa);
+      }
       atualizar(arquivos.filter((a) => a.id !== id));
     },
-    [arquivos, atualizar],
+    [arquivos],
   );
 
   /** Depois de enviar: esvazia sem revogar as miniaturas (a mensagem otimista ainda as usa). */
-  const esvaziar = useCallback(() => atualizar([]), [atualizar]);
+  const esvaziar = useCallback(() => {
+    previas.current.clear();
+    atualizar([]);
+  }, []);
 
   return { arquivos, adicionar, remover, esvaziar };
 }

@@ -15,7 +15,6 @@ import { ErroApp } from "@/lib/erros/catalogo";
 import { formatarNumeroChamado } from "@/lib/formato";
 import { caminhosAbertura, comReferente, type CaminhosAbertura } from "@/lib/rotas";
 import { CampoDinamico, idDoCampo } from "./CampoDinamico";
-import { lerRascunho, limparRascunho, salvarRascunho, type RascunhoTexto } from "./rascunho";
 import { SeletorAnexos } from "./SeletorAnexos";
 import { imagensColadas, useArquivosSelecionados } from "./useArquivos";
 
@@ -56,7 +55,7 @@ export function FormularioChamado({
       </div>
     );
   }
-  // Montado só depois de carregar (já no navegador): pode ler o rascunho sem divergir do servidor.
+  // Montado só depois de carregar: o formulário já começa com os campos certos.
   return (
     <FormularioCarregado
       categoria={dados.categoria}
@@ -79,9 +78,16 @@ function continuavel(anterior: Chamado | null, categoriaId: number, euId: string
     : null;
 }
 
+/** O que já foi digitado. Fica só enquanto a tela está aberta (nada é guardado — dono, 2026-11-09). */
+interface RascunhoTexto {
+  titulo: string;
+  /** Por campos_form.chave. */
+  respostas: Record<string, unknown>;
+}
+
 function rascunhoInicial(referente: number | null, anterior: Chamado | null): RascunhoTexto {
-  const r = lerRascunho();
-  if (anterior && !r.titulo) {
+  const r: RascunhoTexto = { titulo: "", respostas: {} };
+  if (anterior) {
     // Já vem com o assunto e as respostas do anterior (sistema, módulo...); a descrição é nova.
     const respostas = Object.fromEntries(
       Object.entries(anterior.respostasForm).filter(([chave]) => chave !== "descricao"),
@@ -92,7 +98,7 @@ function rascunhoInicial(referente: number | null, anterior: Chamado | null): Ra
       respostas: { ...respostas, ...r.respostas },
     };
   }
-  if (referente && !r.titulo) {
+  if (referente) {
     return { ...r, titulo: `Referente ao chamado ${formatarNumeroChamado(referente)}: ` };
   }
   return r;
@@ -125,7 +131,6 @@ function FormularioCarregado({
 
   function mudar(proximo: RascunhoTexto, chaveEditada: string) {
     setRascunho(proximo);
-    salvarRascunho(proximo);
     if (erros[chaveEditada]) {
       setErros((atuais) => {
         const proximos = { ...atuais };
@@ -153,7 +158,6 @@ function FormularioCarregado({
           origem,
         })),
       });
-      limparRascunho();
       router.replace(caminhos.pronto(criado.id));
     } catch (e) {
       setEnviando(false);

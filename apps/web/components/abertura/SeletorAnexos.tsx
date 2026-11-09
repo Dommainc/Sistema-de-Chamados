@@ -6,7 +6,7 @@ import { useToast } from "@/components/ui/Toast";
 import { ACCEPT_ARQUIVOS, formatarTamanho } from "@/lib/anexos";
 import { mensagemErro } from "@/lib/erros/catalogo";
 import type { OrigemAnexo } from "@/lib/dominio/tipos";
-import type { ArquivoSelecionado } from "./rascunho";
+import type { ArquivoSelecionado } from "./useArquivos";
 import { imagensColadas } from "./useArquivos";
 
 /**

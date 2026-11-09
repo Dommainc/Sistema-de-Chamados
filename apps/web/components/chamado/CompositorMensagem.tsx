@@ -4,8 +4,11 @@ import { Contador } from "@/components/ui/Contador";
 import { MENSAGEM_MAX } from "@/lib/dominio/limites";
 import { MessageSquareText, Paperclip, SendHorizontal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { imagensColadas, useArquivosSelecionados } from "@/components/abertura/useArquivos";
-import type { ArquivoSelecionado } from "@/components/abertura/rascunho";
+import {
+  imagensColadas,
+  useArquivosSelecionados,
+  type ArquivoSelecionado,
+} from "@/components/abertura/useArquivos";
 import { ACCEPT_ARQUIVOS } from "@/lib/anexos";
 
 /**
@@ -36,7 +39,7 @@ export function CompositorMensagem({
 }) {
   const [texto, setTexto] = useState("");
   const [prontasAbertas, setProntasAbertas] = useState(false);
-  const { arquivos, adicionar, remover, esvaziar } = useArquivosSelecionados({ persistir: false });
+  const { arquivos, adicionar, remover, esvaziar } = useArquivosSelecionados();
   const entrada = useRef<HTMLInputElement>(null);
   const campo = useRef<HTMLTextAreaElement>(null);
   const menuProntas = useRef<HTMLDivElement>(null);
