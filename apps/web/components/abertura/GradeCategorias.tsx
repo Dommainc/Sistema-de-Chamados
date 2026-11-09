@@ -9,8 +9,8 @@ import { caminhosAbertura, comReferente } from "@/lib/rotas";
 const consultarCategorias = (fonte: FonteDeDados) => fonte.listarCategorias();
 
 /**
- * Passo 1 do "Abrir chamado" (mockup, tela 1): grade de assuntos. Sem busca — com 4 assuntos
- * (reorganização do dono, 2026-10-08) ela não ajuda. "Outros pedidos para a TI" ocupa a linha toda.
+ * Passo 1 do "Abrir chamado": ícones grandes em linha com o nome embaixo, sem caixas (pedido do dono,
+ * 2026-11-09 — as caixas de tamanhos diferentes incomodavam). No celular, 2 por linha.
  */
 export function GradeCategorias({ referente }: { referente: number | null }) {
   const caminhos = caminhosAbertura(useUsuario().papel);
@@ -20,15 +20,20 @@ export function GradeCategorias({ referente }: { referente: number | null }) {
   if (erro) return <p className="text-perigo">{erro.message}</p>;
 
   return (
-    <ul className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-x-4 gap-y-8 py-2 sm:grid-cols-4">
       {(categorias ?? []).map((c) => (
-        <li key={c.id} className={c.icone === "ellipsis" ? "sm:col-span-3" : ""}>
+        <li key={c.id}>
           <Link
             href={comReferente(caminhos.formulario(c.id), referente)}
-            className="flex h-full min-h-20 items-center gap-3 rounded-2xl border border-borda bg-superficie p-3 font-semibold shadow-sm transition-colors hover:border-primaria hover:bg-primaria-suave"
+            title={c.descricao || undefined}
+            className="group flex h-full flex-col items-center gap-3 rounded-2xl p-3 text-center focus-visible:outline-2 focus-visible:outline-primaria"
           >
-            <IconeCategoria icone={c.icone} />
-            <span className="leading-snug">{c.nomeCurto}</span>
+            <span className="rounded-full ring-primaria ring-offset-4 ring-offset-fundo transition group-hover:ring-2 group-focus-visible:ring-2">
+              <IconeCategoria icone={c.icone} tamanho="grande" />
+            </span>
+            <span className="max-w-48 leading-snug font-semibold group-hover:text-primaria">
+              {c.nomeCurto}
+            </span>
           </Link>
         </li>
       ))}

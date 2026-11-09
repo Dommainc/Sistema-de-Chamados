@@ -137,8 +137,9 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
      "Chamado #41 · título", link "Responder".
    - "Passo 1 de 3", título "Com o que você precisa de ajuda?", apoio "Escolha o assunto." (sem "Na dúvida, use Outros" (ajuste do Renato, 2026-10-08))
    - **Sem busca de assunto** (pedido do dono, 2026-10-08): são só 4 assuntos.
-   - Grade (3 colunas no computador, 1 no celular): ícone + **nome curto** — Solicitações de acesso e Permissões ·
-     Infraestrutura · Microsoft; "Outros pedidos para a TI" ocupa a linha inteira, no fim.
+   - **Ícones em linha, sem caixas** (pedido do dono, 2026-11-09 — as caixas de tamanhos diferentes incomodavam):
+     círculo azul-claro grande com o ícone e o **nome curto** embaixo, centralizado; 4 por linha no computador,
+     2 no celular. Passar o mouse destaca o círculo com um anel. A ordem e os assuntos vêm do Painel (ADR 0022).
 2. **Passo 2 de 3**
    - Topo: "‹ Voltar" e "Passo 2 de 3". Selo com a categoria (sem "Trocar assunto": o Voltar já faz isso — dono, 2026-10-08).
    - Título "Conte o que está acontecendo". "Resumo do problema *" com ajuda abaixo ("Uma frase curta. Ex.: …").

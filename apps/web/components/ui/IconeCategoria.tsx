@@ -39,12 +39,30 @@ const ICONES: Record<(typeof ICONES_ASSUNTO)[number], LucideIcon> = {
   ellipsis: Ellipsis,
 };
 
-/** Ícone da categoria dentro do quadrado azul-claro (mockup, tela 1). Desconhecido = "…". */
-export function IconeCategoria({ icone }: { icone: string }) {
+/**
+ * Ícone da categoria. "normal": quadrado azul-claro (listas). "grande": círculo grande da tela
+ * "Com o que você precisa de ajuda?" (ícones em linha, pedido do dono, 2026-11-09). Desconhecido = "…".
+ */
+export function IconeCategoria({
+  icone,
+  tamanho = "normal",
+}: {
+  icone: string;
+  tamanho?: "normal" | "grande";
+}) {
   const Icone = ICONES[icone as keyof typeof ICONES] ?? Ellipsis;
+  const grande = tamanho === "grande";
   return (
-    <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primaria-suave text-primaria">
-      <Icone aria-hidden="true" className="size-6" strokeWidth={1.75} />
+    <span
+      className={`flex shrink-0 items-center justify-center bg-primaria-suave text-primaria transition-colors ${
+        grande ? "size-16 rounded-full sm:size-20" : "size-12 rounded-xl"
+      }`}
+    >
+      <Icone
+        aria-hidden="true"
+        className={grande ? "size-7 sm:size-9" : "size-6"}
+        strokeWidth={1.75}
+      />
     </span>
   );
 }
