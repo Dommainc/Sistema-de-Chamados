@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Dica, Figura, Guia, Indice, SecaoGuia } from "@/components/comum/Guia";
 import { PassosAbrirChamado } from "@/components/comum/GuiaAbrirChamado";
+import { GuiaAppTeams } from "@/components/comum/GuiaAppTeams";
 
 export const metadata: Metadata = { title: "Ajuda" };
 
@@ -95,12 +96,7 @@ export default function PaginaAjuda() {
       </SecaoGuia>
 
       <SecaoGuia id="teams" titulo="Avisos no Teams">
-        <p className="text-lg">
-          O app <strong>Portal de Chamados</strong> no Teams avisa você quando a TI começa a
-          atender, responde ou conclui o seu chamado. É só clicar em <strong>Abrir chamado</strong>{" "}
-          no aviso. Para conversar com a TI, use o chat do chamado na Central: mensagens escritas no
-          Teams não chegam à TI.
-        </p>
+        <GuiaAppTeams />
       </SecaoGuia>
     </Guia>
   );

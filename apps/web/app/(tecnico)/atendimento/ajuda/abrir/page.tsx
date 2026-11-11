@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Dica, Guia, SecaoGuia } from "@/components/comum/Guia";
+import { Dica, Guia, Indice, SecaoGuia } from "@/components/comum/Guia";
 import { PassosAbrirChamado } from "@/components/comum/GuiaAbrirChamado";
+import { GuiaAppTeams } from "@/components/comum/GuiaAppTeams";
 
 export const metadata: Metadata = { title: "Como abrir um chamado" };
 
@@ -12,6 +13,13 @@ export default function PaginaAjudaAbrir() {
       titulo="Como abrir um chamado"
       subtitulo="A TI também abre chamado pela Central: o caminho é o mesmo do colaborador."
     >
+      <Indice
+        itens={[
+          { id: "abrir", titulo: "Abrir um chamado" },
+          { id: "teams", titulo: "Avisos no Teams: instalar o app" },
+        ]}
+      />
+
       <SecaoGuia id="abrir" titulo="Abrir um chamado">
         <PassosAbrirChamado
           inicio={
@@ -28,6 +36,10 @@ export default function PaginaAjudaAbrir() {
           você não atende o chamado que abriu: ele aparece em Novos para um colega da TI iniciar.
           Você acompanha e conversa com quem estiver atendendo.
         </Dica>
+      </SecaoGuia>
+
+      <SecaoGuia id="teams" titulo="Avisos no Teams: instalar o app">
+        <GuiaAppTeams paraTi />
       </SecaoGuia>
     </Guia>
   );

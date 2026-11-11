@@ -32,6 +32,7 @@ Mais recente primeiro. Uma linha por sessão que alterou o projeto.
 
 | Data | O que mudou |
 |---|---|
+| 2026-11-11 | **Tutorial do app do Teams** ("Portal de Chamados": benefícios e como instalar pelo Teams → Aplicativos → Criado para sua organização) no "Como abrir um chamado" da TI e no guia do colaborador (peça `GuiaAppTeams`). **Runbook `limpar-base-de-testes.md`**: SQL para zerar chamados e dependentes e voltar a numeração ao #1, mantendo pessoas, Painel, configurações e conversas do bot (antes dos testes com outros usuários). |
 | 2026-11-09 | **Novo passo 1 do "Abrir chamado"** (pedido do dono e do chefe): sai a grade de caixas de tamanhos diferentes, entram **ícones em linha** (círculo grande + nome embaixo, sem caixa; 4 por linha no computador, 2 no celular), no portal e na área da TI. `IconeCategoria` ganha `tamanho="grande"`. Prints do guia (passo 1) e PDF do guia do solicitante refeitos. |
 | 2026-11-09 | **Abrir chamado não guarda mais o que foi digitado** (pedido do dono): sair da tela (Voltar, fechar a aba ou recarregar) começa do zero, inclusive os arquivos; some o `rascunho.ts` (sessionStorage). **Ajuda da TI em "Abrir chamado"**: o "?" em `/atendimento/novo...` leva a `/atendimento/ajuda/abrir` ("Como abrir um chamado", mesmo passo a passo do colaborador, peça `GuiaAbrirChamado`); no resto da área da TI continua o Guia da TI. |
 | 2026-11-09 | A tela de Configurações passa a se chamar **Painel** (menu, título, Guia da TI) e o endereço vira `/atendimento/painel` (pedido do dono). As rotas da API continuam `/configuracoes/...`. |
