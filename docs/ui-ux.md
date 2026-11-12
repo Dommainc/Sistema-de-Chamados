@@ -142,7 +142,7 @@ detalhes do pedido sempre abertos, cancelar). Login, primeiro acesso e confirma�
      2 no celular. Passar o mouse destaca o círculo com um anel. A ordem e os assuntos vêm do Painel (ADR 0022).
 2. **Passo 2 de 3**
    - Topo: "‹ Voltar" e "Passo 2 de 3". Selo com a categoria (sem "Trocar assunto": o Voltar já faz isso — dono, 2026-10-08).
-   - Título "Conte o que está acontecendo". "Resumo do problema *" com ajuda abaixo ("Uma frase curta. Ex.: …").
+   - Título "Conte o que está acontecendo". "Assunto *" com ajuda abaixo ("Ex.: …"; sem "Uma frase curta" — dono, 2026-11-12).
    - Campos dinâmicos: `selecao` vira **cartões de opção (rádio)**; texto e texto longo como campos normais.
    - "Fotos e arquivos (opcional)": área tracejada com câmera, "Tirar foto ou anexar arquivo",
      "No computador: cole um print com Ctrl+V"; lista de arquivos com miniatura, nome, tamanho e remover (×).

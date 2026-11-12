@@ -168,7 +168,7 @@ export interface ArquivoNovo {
 
 export interface DadosNovoChamado {
   categoriaId: number;
-  /** "Resumo do problema". */
+  /** "Assunto". */
   titulo: string;
   /** Respostas brutas do formulário, por campos_form.chave (validadas na criação). */
   respostas: Record<string, unknown>;

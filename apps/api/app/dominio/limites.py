@@ -1,6 +1,6 @@
 """Limites de caracteres (dono, 2026-10-23). Espelho: apps/web/lib/dominio/limites.ts."""
 
-#: "Resumo do problema" (vira chamados.titulo).
+#: "Assunto" (vira chamados.titulo).
 TITULO_MAX = 100
 #: Campos de texto longo do formulário (ex.: "Descreva o que está acontecendo").
 TEXTO_LONGO_MAX = 2000

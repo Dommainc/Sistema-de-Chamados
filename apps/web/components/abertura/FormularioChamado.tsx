@@ -217,7 +217,7 @@ function FormularioCarregado({
             rotulo={ROTULO_TITULO}
             required
             maxLength={TITULO_MAX}
-            ajuda={'Uma frase curta. Ex.: "Impressora do 3º andar não imprime".'}
+            ajuda={'Ex.: "Impressora do 3º andar não imprime".'}
             value={rascunho.titulo}
             erro={erros[CHAVE_TITULO]}
             onChange={(e) => mudar({ ...rascunho, titulo: e.target.value }, CHAVE_TITULO)}

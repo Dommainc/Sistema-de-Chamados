@@ -1,6 +1,6 @@
 // Limites de caracteres (dono, 2026-10-23). Espelho: apps/api/app/dominio/limites.py.
 
-/** "Resumo do problema" (vira chamados.titulo). */
+/** "Assunto" (vira chamados.titulo). */
 export const TITULO_MAX = 100;
 /** Campos de texto longo do formulário (ex.: "Descreva o que está acontecendo"). */
 export const TEXTO_LONGO_MAX = 2000;

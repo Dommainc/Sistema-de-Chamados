@@ -60,7 +60,7 @@ describe("validarFormulario", () => {
     const erro = erroDe(() => validarFormulario(CAMPOS, "", {}));
     expect(erro.codigo).toBe("CAMPO_OBRIGATORIO");
     expect(erro.campos.map((c) => c.campo)).toEqual(["titulo", "alcance", "local", "descricao"]);
-    expect(erro.campos[0].mensagem).toBe("Preencha o campo Resumo do problema para continuar.");
+    expect(erro.campos[0].mensagem).toBe("Preencha o campo Assunto para continuar.");
     expect(erro.campos[1].mensagem).toBe("Preencha o campo Rótulo alcance para continuar.");
   });
 

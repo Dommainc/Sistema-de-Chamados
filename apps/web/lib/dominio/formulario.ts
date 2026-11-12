@@ -5,9 +5,9 @@ import { ErroApp, mensagemErro, type ErroDeCampo } from "@/lib/erros/catalogo";
 import { TEXTO_LONGO_MAX, TITULO_MAX, numeroBr } from "./limites";
 import type { CampoForm, ValorResposta } from "./tipos";
 
-/** Chave usada para o "Resumo do problema" (vira chamados.titulo). */
+/** Chave usada para o "Assunto" (vira chamados.titulo). */
 export const CHAVE_TITULO = "titulo";
-export const ROTULO_TITULO = "Resumo do problema";
+export const ROTULO_TITULO = "Assunto";
 export { TITULO_MAX } from "./limites";
 
 export interface FormularioValidado {

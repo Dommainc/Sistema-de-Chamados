@@ -20,9 +20,9 @@ TipoCampo = Literal[
 ]
 ValorResposta = str | list[str] | bool | float | int
 
-#: Chave usada para o "Resumo do problema" (vira chamados.titulo).
+#: Chave usada para o "Assunto" (vira chamados.titulo).
 CHAVE_TITULO = "titulo"
-ROTULO_TITULO = "Resumo do problema"
+ROTULO_TITULO = "Assunto"
 
 _INVALIDO = object()
 

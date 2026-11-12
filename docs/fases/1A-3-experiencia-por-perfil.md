@@ -117,7 +117,7 @@ O mesmo componente é usado pela TI em `/atendimento/novo` (o técnico vira o so
    - Cards de categoria com ícone, nome e descrição curta, ordenados por `ordem`.
    - "Não encontrou? Escolha **Outros**".
 2. **Formulário:**
-   - "Resumo do problema" (vira o título).
+   - "Assunto" (vira o título).
    - Campos dinâmicos de `campos_form`.
    - Área de anexos com botão, arrastar-e-soltar e **Ctrl+V**.
    - Validação inline pelo catálogo.

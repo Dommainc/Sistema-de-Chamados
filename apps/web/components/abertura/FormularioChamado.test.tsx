@@ -62,7 +62,7 @@ describe("FormularioChamado", () => {
   it("mostra os campos da categoria, com seleção em cartões, sem previsão automática", async () => {
     renderizar();
     expect(await screen.findByText("Conte o que está acontecendo")).toBeInTheDocument();
-    expect(screen.getByLabelText(/Resumo do problema/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Assunto/)).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "Celular Corporativo" })).toBeInTheDocument();
     expect(await screen.findByText("Aguardando análise da TI")).toBeInTheDocument();
     // Um botão só, no fim do formulário (ajuste do Renato).
@@ -74,16 +74,14 @@ describe("FormularioChamado", () => {
   it("enviar vazio mostra o erro embaixo de cada campo obrigatório", async () => {
     renderizar();
     fireEvent.click((await screen.findAllByRole("button", { name: "Enviar chamado" }))[0]);
-    expect(
-      await screen.findByText("Preencha o campo Resumo do problema para continuar."),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Preencha o campo Assunto para continuar.")).toBeInTheDocument();
     expect(screen.getByText("Preencha o campo O que é? para continuar.")).toBeInTheDocument();
     expect(navegacao.replace).not.toHaveBeenCalled();
   });
 
   it("preenchido, abre o chamado e vai para a confirmação", async () => {
     renderizar();
-    fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
+    fireEvent.change(await screen.findByLabelText(/Assunto/), {
       target: { value: "Sem internet na obra Recreio" },
     });
     fireEvent.click(screen.getByRole("radio", { name: "Internet" }));
@@ -103,20 +101,18 @@ describe("FormularioChamado", () => {
 
   it("saiu da tela e voltou: começa vazio (nada fica guardado)", async () => {
     const { unmount } = renderizar();
-    fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
+    fireEvent.change(await screen.findByLabelText(/Assunto/), {
       target: { value: "Texto que não pode ficar" },
     });
     unmount();
     renderizar();
-    expect(await screen.findByLabelText(/Resumo do problema/)).toHaveValue("");
+    expect(await screen.findByLabelText(/Assunto/)).toHaveValue("");
     expect(sessionStorage.length).toBe(0);
   });
 
   it("novo pedido a partir de um chamado encerrado já cita o número", async () => {
     renderizar(42);
-    expect(await screen.findByLabelText(/Resumo do problema/)).toHaveValue(
-      "Referente ao chamado #42: ",
-    );
+    expect(await screen.findByLabelText(/Assunto/)).toHaveValue("Referente ao chamado #42: ");
   });
 
   it("Ctrl+V com imagem vira anexo print-AAAAMMDD-HHMMSS.png", async () => {
@@ -136,7 +132,7 @@ describe("FormularioChamado", () => {
     armazenamento.falhar = true;
     renderizar();
     const total = lerEstado().chamados.length;
-    fireEvent.change(await screen.findByLabelText(/Resumo do problema/), {
+    fireEvent.change(await screen.findByLabelText(/Assunto/), {
       target: { value: "Sem internet" },
     });
     fireEvent.click(screen.getByRole("radio", { name: "Internet" }));

@@ -3,7 +3,7 @@ import { useId, type InputHTMLAttributes } from "react";
 
 export interface CampoProps extends InputHTMLAttributes<HTMLInputElement> {
   rotulo: string;
-  /** Texto de apoio, exibido abaixo do campo (mockup: "Uma frase curta. Ex.: ..."). */
+  /** Texto de apoio, exibido abaixo do campo (ex.: "Ex.: Impressora do 3º andar não imprime"). */
   ajuda?: string;
   /** Mensagem de erro do catálogo, exibida inline. */
   erro?: string;

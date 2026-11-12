@@ -13,9 +13,10 @@ export function PassosAbrirChamado({ inicio }: { inicio: React.ReactNode }) {
           Microsoft ou Outros pedidos).
         </li>
         <li>
-          Escreva um <strong>resumo curto</strong> (ex.: &quot;Impressora do 3º andar não
-          imprime&quot;) e responda às perguntas. Em acessos, escolha o sistema; no Sienge e no
-          CVCRM, escolha também o módulo (se não souber, marque &quot;Não sei&quot;).
+          No campo <strong>Assunto</strong>, escreva o problema em poucas palavras (ex.:
+          &quot;Impressora do 3º andar não imprime&quot;) e responda às perguntas. Em acessos,
+          escolha o sistema; no Sienge e no CVCRM, escolha também o módulo (se não souber, marque
+          &quot;Não sei&quot;).
         </li>
         <li>
           Conte o que está acontecendo e, se puder, <strong>cole um print</strong> da tela com{" "}

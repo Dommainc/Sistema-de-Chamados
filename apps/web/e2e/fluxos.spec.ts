@@ -208,7 +208,7 @@ test("erros aparecem com a mensagem amigável do catálogo", async ({ page, cont
   await page.goto("/abrir/2");
 
   await page.getByRole("button", { name: "Enviar chamado" }).click();
-  await expect(page.getByText("Preencha o campo Resumo do problema para continuar.")).toBeVisible();
+  await expect(page.getByText("Preencha o campo Assunto para continuar.")).toBeVisible();
 
   const arquivo = page.locator('input[type="file"]');
   await arquivo.setInputFiles({

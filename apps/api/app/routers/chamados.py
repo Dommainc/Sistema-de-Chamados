@@ -42,7 +42,7 @@ class UploadEntrada(BaseModel):
 
 class NovoChamadoEntrada(BaseModel):
     categoria_id: int
-    titulo: str = Field(default="", description='"Resumo do problema"')
+    titulo: str = Field(default="", description='"Assunto"')
     respostas: dict[str, Any] = Field(default_factory=dict, description="Por campos_form.chave")
     anexos: list[UploadEntrada] = Field(default_factory=list, max_length=20)
     #: "O problema voltou": número do chamado concluído que este continua (migration 0033).

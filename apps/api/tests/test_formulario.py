@@ -47,7 +47,7 @@ def test_aponta_cada_obrigatorio_vazio_com_o_rotulo():
     erro = erro_de(lambda: validar_formulario(CAMPOS, "", {}))
     assert erro.codigo == "CAMPO_OBRIGATORIO"
     assert [c.campo for c in erro.campos] == ["titulo", "alcance", "local", "descricao"]
-    assert erro.campos[0].mensagem == "Preencha o campo Resumo do problema para continuar."
+    assert erro.campos[0].mensagem == "Preencha o campo Assunto para continuar."
     assert erro.campos[1].mensagem == "Preencha o campo Rótulo alcance para continuar."
 
 

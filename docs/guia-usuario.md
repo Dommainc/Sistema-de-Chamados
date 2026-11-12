@@ -16,7 +16,7 @@ Não achou? Use a busca ou escolha **Outros pedidos para a TI**.
 
 ![Escolha do assunto](guia/img/computador-02-abrir-passo1.png)
 
-**Passo 2 — Conte o que está acontecendo.** Escreva um resumo curto e responda às perguntas.
+**Passo 2 — Conte o que está acontecendo.** No campo **Assunto**, escreva o problema em poucas palavras e responda às perguntas.
 Os campos com <span style="color:#b42318">*</span> são obrigatórios.
 
 - **Mande um print:** aperte **Win + Shift + S**, recorte a tela e depois **Ctrl + V** no formulário.
